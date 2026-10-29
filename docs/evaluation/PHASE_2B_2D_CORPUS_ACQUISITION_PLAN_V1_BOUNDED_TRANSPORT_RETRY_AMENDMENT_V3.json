@@ -1,0 +1,173 @@
+{
+  "record": "PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_BOUNDED_TRANSPORT_RETRY_AMENDMENT",
+  "recordKind": "CORPUS_ACQUISITION_PLAN_AMENDMENT_V3",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_V1",
+  "thisFileAuthorises": [],
+
+  "whyThisIsANewFile": {
+    "statement": "Plan V1, the Option-B amendment and the Option-C-lite amendment are immutable. An amendment is a NEW artifact that references them by SHA-256; none is edited, and their bytes are bound below so that \"we did not touch them\" is a check rather than a promise."
+  },
+
+  "priorPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+    "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+    "bytes": 45200
+  },
+  "priorAmendmentOptionB": {
+    "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_AMENDMENT_V1.json",
+    "sha256": "d440afabd68f4a528bdeadb6c45cf6a489e541d33c214e961419f4adaa80cbc3",
+    "bytes": 11185
+  },
+  "priorAmendmentOptionCLite": {
+    "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_C_LITE_AMENDMENT_V2.json",
+    "sha256": "9abc5528da2c96c89b0a2070dd0817a4dc8b83229fbd183ee4a94f495eed886d",
+    "bytes": 2640
+  },
+  "boundObservabilityDesign": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_V1.json",
+    "sha256": "6f184a93e96324d169ad98ffb0e3b7d0b85999604dbb3ff648f4a8dbd74cdaa0",
+    "bytes": 40609
+  },
+  "boundObservabilityImplementation": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_IMPLEMENTATION_V1.json",
+    "sha256": "120e1507214630e1f11eb405242d2a2973f5cd5eebc85ced3bf85e74e8d76a7b",
+    "bytes": 15574
+  },
+  "boundFrozenRetryDesign": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_POLICY_DESIGN_V1.json",
+    "sha256": "46c3e1ff49db96cc6bb6d84d6088f799cfff6aa8d34d0b4d659be31a6fddc1cd",
+    "bytes": 77776
+  },
+  "boundTemporalTestCorrection": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_TEMPORAL_TEST_CORRECTION_V1.json",
+    "sha256": "3d6204deeeeb350878083b86d062fcf53fc95dfc6d16e4498421d6d780db446d",
+    "bytes": 9072,
+    "commit": "ba6ae909f9179ee3da8ac083eb29049fa8baddce"
+  },
+  "boundAdr": {
+    "path": "docs/adr/0015-bounded-transport-retry.md",
+    "sha256": "0ce230dcf0fe08a61af4a9dab7e8dedbb39849d5cf39df801f1c377e6078041b",
+    "bytes": 15831,
+    "status": "Proposed (feature branch, not landed)"
+  },
+  "semanticImplementationCommit": "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+  "implementationBaseCommit": "ba6ae909f9179ee3da8ac083eb29049fa8baddce",
+  "commitSequence": {
+    "A_temporalTestCorrection": "ba6ae909f9179ee3da8ac083eb29049fa8baddce",
+    "B_semanticImplementation": "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+    "C_thisAmendment": "INTRODUCED_BY_THE_COMMIT_THAT_ADDS_THIS_FILE",
+    "noSelfContainingShaWasFabricated": true
+  },
+
+  "newFutureFetchPolicyVersion": "orgunit-fetch-policy-v4",
+  "supersededFetchPolicyVersions": [
+    "orgunit-fetch-policy-v1",
+    "orgunit-fetch-policy-v2",
+    "orgunit-fetch-policy-v3"
+  ],
+
+  "retryContext": "ROBOTS_POLICY_RESOLUTION_ONLY",
+  "retryEligibleClasses": [
+    "TLS_HANDSHAKE_TIMEOUT",
+    "DNS_TEMPORARY_FAILURE",
+    "CONNECT_TIMEOUT",
+    "READ_TIMEOUT",
+    "CONNECTION_RESET",
+    "CONNECTION_REFUSED"
+  ],
+  "retryEligibleClassCount": 6,
+  "ordinaryPageRetryCount": 0,
+  "sitemapRetryCount": 0,
+  "httpStatusRetryCount": 0,
+
+  "budgetsRestatedUnchanged": {
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+    "MIN_HOST_PACING_SECONDS": 1.2,
+    "CIRCUIT_BREAKER_TRANSIENT_FAILURE_THRESHOLD": 3,
+    "CONNECT_TIMEOUT_MS": 30000,
+    "TOTAL_TIMEOUT_MS": 45000
+  },
+  "newlyDeclaredBound": {
+    "MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION": 1,
+    "grain": "ONE COMPLETE LOGICAL SITE-POLICY RESOLUTION",
+    "notPerUrl": true,
+    "notPerRedirectHop": true,
+    "notPerFailure": true,
+    "notPerCaller": true
+  },
+  "maxPolicyResolutionRequests": 3,
+  "maxPolicyResolutionRequestsProof": "1 initial + at most 1 from a token bounded at 1 + at most 1 from a hop bound of 1, in every interleaving. The retryable SET decides which failures may consume the token; the TOKEN decides how many requests can exist, so widening the set from two classes to six leaves the ceiling at 3.",
+  "rootRunnerPredictedRobotsCost": { "before": 2, "after": 3 },
+  "budgetCeilingsChanged": false,
+  "timeoutsExtended": false,
+  "hiddenRetryBudgetOutsideTheCeiling": false,
+
+  "methodologyChanged": false,
+  "frameChanged": false,
+  "drawChanged": false,
+  "splitChanged": false,
+  "samplingChanged": false,
+  "p5Changed": false,
+  "reserveChanged": false,
+  "circuitBreakerChanged": false,
+  "gatewayChanged": false,
+  "migrationCreated": false,
+  "databaseSchemaRangeUnchanged": "0001..0012",
+
+  "securityPostureRestated": {
+    "tlsVerificationWeakened": false,
+    "rejectUnauthorizedStaysTrue": true,
+    "protocolDowngradePermitted": false,
+    "httpsToHttpFallbackPermitted": false,
+    "alternateHostnamePermitted": false,
+    "alternateUrlPermitted": false,
+    "proxyFallbackPermitted": false,
+    "userAgentVariationPermitted": false,
+    "cookiesOrSessionPermitted": false,
+    "ssrfOrAddressChecksSkipped": false,
+    "aRetryIs": "the exact same logical URL, through a NEW executeWebAttempt invocation, at attemptNo + 1, under a freshly minted URL-scoped authority, subject to every gate the first attempt passed"
+  },
+
+  "compatibilityRuleForFutureAdjudication": {
+    "classifications": [
+      "V4_TRANSITION_UNAFFECTED",
+      "V4_TRANSITION_AFFECTED",
+      "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE"
+    ],
+    "decidedBy": "src/orgunits/web/retryPolicy.ts::retryDispositionFor, called on persisted evidence - never reimplemented",
+    "forbiddenInputs": [
+      "pageYield",
+      "label",
+      "modelResult",
+      "semanticClass",
+      "organisationIdentity"
+    ],
+    "affectedRunStatusMovesOnlyAfterLiveRevalidation": true,
+    "theThirdClassIsNotUNAFFECTED": "UNAFFECTED is a positive finding that a rerun would change nothing. UNAVAILABLE is the ABSENCE of a finding. Collapsing them would convert 'we cannot tell' into 'we checked and it was fine'."
+  },
+
+  "httpServiceRetryScope": {
+    "marker": "HTTP_SERVICE_RETRY_POLICY_NOT_INCLUDED_IN_V4_TRANSPORT_RETRY_V1",
+    "statusesDeferred": [500, 502, 503, 504],
+    "retryAfterDeferred": true,
+    "index3StaysOutside": true
+  },
+
+  "noLiveAcquisitionIsAuthorisedByThisArtifact": true,
+  "institutionNetworkExecuted": false,
+  "liveRetryExecuted": false,
+  "targetedRevalidationAuthorised": false,
+  "index9Authorised": false,
+  "reserveConsumption": 0,
+  "acquisitionOfRecordUnchanged": "5 success / 4 failure of 9 finalised",
+
+  "nextOwnerDecision": "A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORISATION",
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A further transition is a NEW amendment that references this one by SHA-256."
+  }
+}

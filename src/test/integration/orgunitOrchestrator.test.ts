@@ -30,6 +30,10 @@ import {
   truncateAll,
   type OrgunitRootFixture,
 } from './helpers.js';
+import type { RegistryLoadResult } from '../../orgunits/classify/evaluationCohortGuard.js';
+import { syntheticCohort, type SyntheticIdentity } from '../helpers/syntheticCohortRegistry.js';
+import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
+import { MAX_PAGE_ATTEMPTS_PER_ROOT } from '../../orgunits/orchestrator/constants.js';
 
 const configured = researchDatabaseConfigured();
 const describeIf = configured ? describe : describe.skip;
@@ -56,6 +60,7 @@ class RoutedTransport implements WebTransport {
     kind: 'FAILURE',
     failure: 'CONNECTION_REFUSED',
     detail: 'unscripted URL',
+    subtype: null,
   };
 
   route(url: string, outcome: TransportOutcome | (() => TransportOutcome)): this {
@@ -114,7 +119,7 @@ function redirectResponse(status: number, location: string): TransportOutcome {
 }
 
 function connectTimeout(): TransportOutcome {
-  return { kind: 'FAILURE', failure: 'CONNECT_TIMEOUT', detail: 'simulated' };
+  return { kind: 'FAILURE', failure: 'CONNECT_TIMEOUT', detail: 'simulated', subtype: null };
 }
 
 function page(title: string, links: string[] = [], text = 'Body text.'): string {
@@ -128,6 +133,16 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
   let admin: pg.Pool;
   let research: pg.Pool;
   let fixture: OrgunitRootFixture;
+  // B3.0: the research cohort guard runs on every root. These tests admit
+  // exactly their own synthetic fixture organisation(s) through a FULLY
+  // SYNTHETIC registry - nothing from the committed cohort artifacts.
+  const admittedOrganisations: SyntheticIdentity[] = [];
+  const loadCohortRegistry = (): RegistryLoadResult => {
+    const cohort = syntheticCohort();
+    cohort.admit(fixture);
+    for (const identity of admittedOrganisations) cohort.admit(identity);
+    return cohort.load();
+  };
 
   beforeAll(async () => {
     admin = adminPool();
@@ -148,7 +163,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
     const { rows } = await research.query<{ id: string }>(
       `INSERT INTO orgunit_research_runs
          (started_at, network_vantage, fetch_policy_version, rule_version, dry_run)
-       VALUES (now(), 'test-vantage', 'orgunit-fetch-policy-v1', 'orgunit-signal-rules-v1', false)
+       VALUES (now(), 'test-vantage', '${FETCH_POLICY_VERSION}', 'orgunit-signal-rules-v1', false)
        RETURNING id`,
     );
     return rows[0]!.id;
@@ -195,6 +210,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -224,6 +240,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -261,6 +278,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -282,7 +300,11 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
       .route(ROOT, htmlResponse(page('Home', [])));
 
     const runId = await newRun();
-    await runRootAcquisition(research, runId, rootRef(), { transport, clock: instantClock() });
+    await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
+      transport,
+      clock: instantClock(),
+    });
 
     expect(transport.resolvedHosts).not.toContain('evil-example.org');
     expect(transport.requestedUrls).not.toContain('https://evil-example.org/sitemap.xml');
@@ -298,6 +320,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -323,6 +346,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -351,7 +375,11 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
     transport.route(ROOT, htmlResponse(page('Home', hostLinks)));
 
     const runId = await newRun();
-    await runRootAcquisition(research, runId, rootRef(), { transport, clock: instantClock() });
+    await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
+      transport,
+      clock: instantClock(),
+    });
 
     const distinctHostsResolved = new Set(transport.resolvedHosts);
     // The root's own host plus at most 7 of the 9 service hosts = 8 total.
@@ -376,6 +404,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -406,6 +435,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -446,6 +476,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -509,6 +540,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -580,6 +612,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -621,6 +654,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -646,6 +680,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -668,12 +703,14 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
     const runId = await newRun();
 
     let settled = false;
-    const runPromise = runRootAcquisition(research, runId, rootRef(), { transport, clock }).then(
-      (summary) => {
-        settled = true;
-        return summary;
-      },
-    );
+    const runPromise = runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
+      transport,
+      clock,
+    }).then((summary) => {
+      settled = true;
+      return summary;
+    });
     // Nudge the fake clock forward repeatedly, interleaved with a SHORT REAL
     // wait so the genuinely-async DB I/O in between pacing sleeps gets a
     // chance to progress - a pure synchronous burst of `clock.advance()`
@@ -703,6 +740,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summary = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -750,6 +788,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runId = await newRun();
     const summaryA = await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
       transport,
       clock: instantClock(),
     });
@@ -757,7 +796,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
       research,
       runId,
       { kind: 'WEBSITE_CLAIM', websiteClaimId: secondClaim.rows[0]!.id },
-      { transport, clock: instantClock() },
+      { loadCohortRegistry, transport, clock: instantClock() },
     );
 
     expect(summaryA.terminalReason).toBe('ROBOTS_BLOCKED_ROOT');
@@ -773,7 +812,10 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
     const rootAttemptTransport = new RoutedTransport()
       .route('https://www.example.ac.uk/robots.txt', textResponse(200, ALLOW_ALL_ROBOTS))
       .route(ROOT, redirectResponse(302, 'https://promoted-example.org/'));
-    await runRootAcquisition(research, secondRunId, rootRef(), { transport: rootAttemptTransport });
+    await runRootAcquisition(research, secondRunId, rootRef(), {
+      loadCohortRegistry,
+      transport: rootAttemptTransport,
+    });
 
     const redirectObservation = await research.query<{ id: string }>(
       `SELECT ro.id FROM orgunit_redirect_observations ro
@@ -807,7 +849,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
       research,
       runId,
       { kind: 'ROOT_PROMOTION', promotionId: promotion.rows[0]!.id },
-      { transport, clock: instantClock() },
+      { loadCohortRegistry, transport, clock: instantClock() },
     );
 
     expect(summary.terminalReason).toBe('INVALID_ROOT_AUTHORITY');
@@ -835,7 +877,11 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
       .route('https://www.example.ac.uk/p3', htmlResponse(bodyFor(3)));
 
     const runId = await newRun();
-    await runRootAcquisition(research, runId, rootRef(), { transport, clock: instantClock() });
+    await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
+      transport,
+      clock: instantClock(),
+    });
 
     const { rows } = await research.query<{ main_text: string; extraction_method: string }>(
       `SELECT pe.main_text, pe.extraction_method
@@ -867,7 +913,11 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
       .route('https://www.example.ac.uk/contact', htmlResponse(page('Contact', [])));
 
     const runId = await newRun();
-    await runRootAcquisition(research, runId, rootRef(), { transport, clock: instantClock() });
+    await runRootAcquisition(research, runId, rootRef(), {
+      loadCohortRegistry,
+      transport,
+      clock: instantClock(),
+    });
 
     expect(transport.requestedUrls).not.toContain('mailto:office@example.ac.uk');
     expect(transport.requestedUrls).not.toContain('tel:+33123456789');
@@ -898,11 +948,13 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const runIdA = await newRun();
     const summaryA = await runRootAcquisition(research, runIdA, rootRef(), {
+      loadCohortRegistry,
       transport: buildTransport(),
       clock: instantClock(),
     });
     const runIdB = await newRun();
     const summaryB = await runRootAcquisition(research, runIdB, rootRef(), {
+      loadCohortRegistry,
       transport: buildTransport(),
       clock: instantClock(),
     });
@@ -934,8 +986,12 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
     const result = await runOrganisationDiscovery(
       research,
-      { echeRowKey: fixture.echeRowKey, networkVantage: 'test' },
-      { transport, clock: instantClock() },
+      {
+        organisationId: fixture.organisationId,
+        echeRowKey: fixture.echeRowKey,
+        networkVantage: 'test',
+      },
+      { loadCohortRegistry, transport, clock: instantClock() },
     );
 
     expect(result.runTerminalState).toBe('COMPLETED');
@@ -1034,7 +1090,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
       hostname: string;
       domain: string;
     }[],
-  ): Promise<string> {
+  ): Promise<{ echeRowKey: string; organisationId: string }> {
     multiRootCounter += 1;
     const suffix = String(multiRootCounter).padStart(3, '0');
     const echeRowKey = `X MULTI${suffix}|9990${suffix}000`;
@@ -1078,7 +1134,8 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
       );
     }
 
-    return echeRowKey;
+    admittedOrganisations.push({ organisationId, echeRowKey });
+    return { echeRowKey, organisationId };
   }
 
   /**
@@ -1129,6 +1186,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
       const runId = await newRun();
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });
@@ -1177,6 +1235,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
       const runId = await newRun();
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });
@@ -1232,7 +1291,11 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
       );
 
       await expect(
-        runRootAcquisition(failingPool, runId, rootRef(), { transport, clock: instantClock() }),
+        runRootAcquisition(failingPool, runId, rootRef(), {
+          loadCohortRegistry,
+          transport,
+          clock: instantClock(),
+        }),
       ).rejects.toThrow(/simulated persistence failure/);
 
       // Exactly 2 of the 3 fetched pages persisted evidence - the failure
@@ -1281,7 +1344,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
         research,
         runId,
         { kind: 'WEBSITE_CLAIM', websiteClaimId: claimId },
-        { transport, clock: instantClock() },
+        { loadCohortRegistry, transport, clock: instantClock() },
       );
 
       expect(summary.terminalReason).not.toBe('ROOT_REQUEST_REFUSED');
@@ -1310,7 +1373,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
         research,
         runId,
         { kind: 'WEBSITE_CLAIM', websiteClaimId: claimId },
-        { transport, clock: instantClock() },
+        { loadCohortRegistry, transport, clock: instantClock() },
       );
 
       expect(summary.terminalReason).not.toBe('ROOT_REQUEST_REFUSED');
@@ -1354,7 +1417,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
         research,
         runId,
         { kind: 'WEBSITE_CLAIM', websiteClaimId: claimId },
-        { transport, clock: instantClock() },
+        { loadCohortRegistry, transport, clock: instantClock() },
       );
 
       expect(transport.requestedUrls).not.toContain('http://www.legacy-d.fr/insecure');
@@ -1387,7 +1450,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
         research,
         runId,
         { kind: 'WEBSITE_CLAIM', websiteClaimId: claimId },
-        { transport, clock: instantClock() },
+        { loadCohortRegistry, transport, clock: instantClock() },
       );
 
       expect(transport.requestedUrls).not.toContain('http://www.totally-different.fr/');
@@ -1419,6 +1482,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
           return {
             kind: 'FAILURE',
             failure: 'CONNECTION_REFUSED',
+            subtype: null,
             detail: 'should never be reached',
           };
         },
@@ -1429,7 +1493,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
         research,
         runId,
         { kind: 'WEBSITE_CLAIM', websiteClaimId: claimId },
-        { transport: privateIpTransport, clock: instantClock() },
+        { loadCohortRegistry, transport: privateIpTransport, clock: instantClock() },
       );
 
       expect(executeCalls).toBe(0);
@@ -1451,6 +1515,68 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
         expect(row.error_kind).toBe('BLOCKED_BY_POLICY');
         expect(row.resolved_ip_is_public).toBe(false);
       }
+    });
+
+    it('ADR 0012: a robots continuation is charged to the TOTAL budget, not the page budget, and consumes no second host', async () => {
+      // The acquisition-yield diagnostic's selection index 5, at the
+      // orchestrator grain: an officially-published http:// claim whose
+      // server canonicalises BOTH its policy file and its pages to https on
+      // the identical hostname. Under v1 this root terminated at
+      // ROBOTS_UNREADABLE_ROOT with zero pages.
+      const claimId = await insertClaim({
+        sourceKind: 'FR_ESR',
+        sourceRowKey: 'http-root-adr0012',
+        url: 'http://www.legacy-r.fr/',
+        hostname: 'www.legacy-r.fr',
+        domain: 'legacy-r.fr',
+      });
+      const transport = new RoutedTransport()
+        .route(
+          'http://www.legacy-r.fr/robots.txt',
+          redirectResponse(301, 'https://www.legacy-r.fr/robots.txt'),
+        )
+        .route('https://www.legacy-r.fr/robots.txt', textResponse(200, ALLOW_ALL_ROBOTS))
+        .route('http://www.legacy-r.fr/', redirectResponse(301, 'https://www.legacy-r.fr/'))
+        .route('https://www.legacy-r.fr/', htmlResponse(page('Home (https)', [])));
+
+      const runId = await newRun();
+      const summary = await runRootAcquisition(
+        research,
+        runId,
+        { kind: 'WEBSITE_CLAIM', websiteClaimId: claimId },
+        { loadCohortRegistry, transport, clock: instantClock() },
+      );
+
+      // The policy was read, so the root was reached and yielded evidence -
+      // the whole point of the repair.
+      expect(summary.terminalReason).not.toBe('ROBOTS_UNREADABLE_ROOT');
+      expect(summary.pagesWithEvidence).toBeGreaterThanOrEqual(1);
+
+      // BOTH robots requests are counted, and both are charged to the total.
+      expect(summary.robotsRequests).toBe(2);
+      expect(summary.totalRequests).toBe(
+        summary.robotsRequests + summary.pageAttempts + summary.sitemapRequests,
+      );
+      // The continuation is NOT an ordinary page attempt, so the 35-page
+      // budget is untouched by it: every page attempt here is a real page.
+      expect(summary.pageAttempts).toBeLessThanOrEqual(MAX_PAGE_ATTEMPTS_PER_ROOT);
+      expect(summary.pageAttempts + summary.sitemapRequests).toBe(
+        transport.requestedUrls.filter((u) => !u.endsWith('/robots.txt')).length,
+      );
+      // And an http -> https upgrade on the identical hostname consumes ONE
+      // host slot, not two.
+      expect(summary.hostsUsed).toEqual(['www.legacy-r.fr']);
+
+      // The persisted evidence keeps both robots attempts, separately.
+      const robotsRows = await research.query<{ requested_url: string; http_status: number }>(
+        `SELECT requested_url, http_status FROM orgunit_fetch_observations
+          WHERE run_id = $1 AND discovery_method = 'ROBOTS' ORDER BY requested_url`,
+        [runId],
+      );
+      expect(robotsRows.rows).toEqual([
+        { requested_url: 'http://www.legacy-r.fr/robots.txt', http_status: 301 },
+        { requested_url: 'https://www.legacy-r.fr/robots.txt', http_status: 200 },
+      ]);
     });
   });
 
@@ -1478,7 +1604,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
     }
 
     it('broken root first, healthy root second: healthy root still fetches, persists evidence and candidates, and the run completes', async () => {
-      const echeRowKey = await seedOrganisationWithRoots([
+      const { echeRowKey, organisationId } = await seedOrganisationWithRoots([
         {
           sourceKind: 'ECHE_PUBLISHED',
           url: BROKEN_URL,
@@ -1495,8 +1621,8 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
       const result = await runOrganisationDiscovery(
         research,
-        { echeRowKey, networkVantage: 'test' },
-        { transport: healthyTransport(), clock: instantClock() },
+        { organisationId, echeRowKey, networkVantage: 'test' },
+        { loadCohortRegistry, transport: healthyTransport(), clock: instantClock() },
       );
 
       // A root-level operational refusal is NOT a run-level failure.
@@ -1526,7 +1652,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
     });
 
     it('healthy root first, broken root second: order does not change the outcome', async () => {
-      const echeRowKey = await seedOrganisationWithRoots([
+      const { echeRowKey, organisationId } = await seedOrganisationWithRoots([
         {
           sourceKind: 'ECHE_PUBLISHED',
           url: HEALTHY_URL,
@@ -1543,8 +1669,8 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
       const result = await runOrganisationDiscovery(
         research,
-        { echeRowKey, networkVantage: 'test' },
-        { transport: healthyTransport(), clock: instantClock() },
+        { organisationId, echeRowKey, networkVantage: 'test' },
+        { loadCohortRegistry, transport: healthyTransport(), clock: instantClock() },
       );
 
       expect(result.runTerminalState).toBe('COMPLETED');
@@ -1558,7 +1684,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
     });
 
     it('all independent roots operationally refuse: the run still completes honestly (no silent FAILED for a non-infrastructure reason)', async () => {
-      const echeRowKey = await seedOrganisationWithRoots([
+      const { echeRowKey, organisationId } = await seedOrganisationWithRoots([
         {
           sourceKind: 'ECHE_PUBLISHED',
           url: BROKEN_URL,
@@ -1575,8 +1701,8 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
       const result = await runOrganisationDiscovery(
         research,
-        { echeRowKey, networkVantage: 'test' },
-        { transport: new RoutedTransport(), clock: instantClock() },
+        { organisationId, echeRowKey, networkVantage: 'test' },
+        { loadCohortRegistry, transport: new RoutedTransport(), clock: instantClock() },
       );
 
       expect(result.runTerminalState).toBe('COMPLETED');
@@ -1589,7 +1715,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
     it('a TRUE infrastructure failure (not a WebGatewayRefusal) is NOT swallowed by the root-isolation catch: it still fails the whole run and aborts the remaining root', async () => {
       const rootAUrl = 'https://www.infra-fail-a.fr/';
       const rootBUrl = 'https://www.infra-fail-b.fr/';
-      const echeRowKey = await seedOrganisationWithRoots([
+      const { echeRowKey, organisationId } = await seedOrganisationWithRoots([
         {
           sourceKind: 'ECHE_PUBLISHED',
           url: rootAUrl,
@@ -1619,8 +1745,8 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
 
       const result = await runOrganisationDiscovery(
         failingPool,
-        { echeRowKey, networkVantage: 'test' },
-        { transport, clock: instantClock() },
+        { organisationId, echeRowKey, networkVantage: 'test' },
+        { loadCohortRegistry, transport, clock: instantClock() },
       );
 
       expect(result.runTerminalState).toBe('FAILED');

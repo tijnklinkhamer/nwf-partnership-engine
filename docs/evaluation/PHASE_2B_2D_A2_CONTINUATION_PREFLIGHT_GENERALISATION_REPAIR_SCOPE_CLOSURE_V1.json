@@ -1,0 +1,48 @@
+{
+  "recordId": "phase2b-2d-a2-continuation-preflight-generalisation-repair-scope-closure-v1",
+  "recordKind": "OFFLINE_REPAIR_SCOPE_CLOSURE",
+  "records": "PHASE_2B_2D_A2_CONTINUATION_PREFLIGHT_GENERALISATION_REPAIR_SCOPE_CLOSURE_V1",
+  "recordedAtUtc": "2026-09-21T16:30:48Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "AUTHORISE_CONTINUATION_PREFLIGHT_GENERALISATION_REPAIR_SCOPE_CLOSURE_V1",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "liveAuthorityGranted": false,
+  "startingHead": {
+    "local": "744fe29b0a348fdc99a479f43f4c7affb3c80926",
+    "origin": "744fe29b0a348fdc99a479f43f4c7affb3c80926",
+    "worktreeClean": true
+  },
+  "repairBaseCommit": "e6e686a5dce258a4a69f63cea175f239b6505a28",
+  "repairTerminalCommit": "744fe29b0a348fdc99a479f43f4c7affb3c80926",
+  "historicalRangePinned": true,
+  "repairSemanticsChanged": false,
+  "P7SemanticsChanged": false,
+  "WindowV1ArtifactChanged": false,
+  "WindowV2ArtifactChanged": false,
+  "reason": "the repair is complete and future unrelated A2 work must not become part of its scope assertion",
+  "change": {
+    "testFile": "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+    "sha256Before": "73b1b510c967110250863f0215b687b78f238a161b91a8b12828e5abe1c392c6",
+    "sha256After": "7bc0fd4ed269f71b73469ed060ee60c22f4ff06be802b51b73cea9cf5b51837a",
+    "before": "repair scope = git diff REPAIR_BASE_COMMIT..WORKING_TREE plus untracked files; added-module check = --diff-filter=A REPAIR_BASE_COMMIT..WORKING_TREE",
+    "after": "repair scope = git diff REPAIR_BASE_COMMIT REPAIR_TERMINAL_COMMIT; added-module check = --diff-filter=A REPAIR_BASE_COMMIT REPAIR_TERMINAL_COMMIT",
+    "authorisedChangesBroadened": false,
+    "mustNotChangeWeakened": false,
+    "behaviouralOrP7AssertionsAltered": false
+  },
+  "boundArtifactsUnchanged": {
+    "strategySha256": "52ed4472aba1d943ba67b508562be042bba44934323b8150b17c9e8c869accd0",
+    "generalisationImplementationSha256": "a8ad7dbc0e0995a86b40a7f49d4a5720d95c49b03d0823782f05c6afd2639cfa",
+    "windowV2PlanSha256": "f3c3e31c49dfff17c53289d32274e1240330a476ae046544bf8c3516e7c25ef5",
+    "windowV2PlanHash": "5db74eed5aa7bd427d824ae066b47817a92f8b806e99aaf12fdec824494feb67",
+    "replacementLedgerSha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+    "replacementLedgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+    "replacementLedgerEntries": 4
+  },
+  "institutionNetworkPerformed": false,
+  "databaseAccessed": false
+}

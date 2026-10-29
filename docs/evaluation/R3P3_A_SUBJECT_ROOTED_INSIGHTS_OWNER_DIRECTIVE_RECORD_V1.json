@@ -1,0 +1,42 @@
+{
+  "recordId": "R3P3_A_SUBJECT_ROOTED_INSIGHTS_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-29",
+  "branch": "r3p3/engine-insights-standalone-v1",
+  "startingHead": "ea2fedb",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_OWNER_DECISION_2026_10_29_FOLDED_INTO_R2_P3",
+  "isOwnerRatification": false,
+  "recordedBy": "R3P3-A engine implementer (transcription of the decision the integration lead relayed; not an OWNER signature)",
+  "authority": {
+    "source": "OWNER decision relayed by the integration lead (2026-10-29): extend the existing Insights publication/provenance path to support independently admitted organisations, using their verified I0 identity and signed source evidence instead of requiring an ECHE university root; no new track or phase, folded into the pending R2-P3 release",
+    "scope": [
+      "The original strategy explicitly prioritises independent student, language and cultural organisations; they are discoverable, eligible for I0, qualifiable and manageable in Track D, and leaving their Track A Insights permanently unpublishable breaks the integrated product requirement.",
+      "Preserve all existing privacy, publication, provenance, OWNER approval and signature guarantees; invent no university affiliation; use no unsourced identity join; weaken no existing restriction; keep Insights associated with the general organisation profile under the same visibility and withdrawal semantics as university-rooted cards."
+    ],
+    "authorised": [
+      "local source edits",
+      "one forward-only migration (0030): a subject-admission root column, a subject-root CHECK, a generated run scope and its composite foreign key on orgunit_classifier_calls; no grant, no role, no table",
+      "a subject-rooted classify command (dry run by default, Claude-Max-only provider rules unchanged) and its evaluation-cohort rule",
+      "ADR 0031 (Proposed), superseding ADR 0025 D8 for subject-rooted classification only",
+      "local test runs against a disposable tmpfs PostgreSQL with a scripted transport and a fake classifier provider",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "applying migration 0030 to nwf_pe or any persistent, shared, staging or production database",
+      "any live web search, live fetch, live model call or live auth-status call",
+      "push, merge or deploy",
+      "editing a committed migration, a frozen study artefact or the production prompt bytes",
+      "classifying any HOLDOUT or other evaluation-cohort item",
+      "weakening any security check, firewall, budget or trust boundary"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0030_subject_rooted_classification.sql",
+  "adr": "docs/adr/0031-subject-rooted-classification.md",
+  "supersedesDecision": "docs/adr/0025-global-subject-research-admission.md D8 (subject-rooted classification only)",
+  "loginInMigrations": false,
+  "newRole": false,
+  "newGrant": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

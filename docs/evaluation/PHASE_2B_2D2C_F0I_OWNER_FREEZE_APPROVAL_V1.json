@@ -1,0 +1,106 @@
+{
+  "recordId": "phase2b-2d2c-f0i-owner-freeze-approval-v1",
+  "recordKind": "OWNER_FREEZE_APPROVAL",
+  "approves": "DEVELOPMENT_CONFIGURATION_FREEZE_ONLY",
+  "recordedAtUtc": "2026-09-15T08:30:56Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner's",
+  "approvedFreeze": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json",
+    "rawSha256": "018f7bc1d34ff92ae11491595bd42df986e5369652bf58b0fce19111467d615e",
+    "rawBytes": 87754,
+    "derivedAttempt3PlanSha256": "3829955f64b9bdddb51ba7b5389363b0fa36c0449628206914f608f9f1830a2b",
+    "branchCommit": "734fd4b1913efcab74096a9fd538c51a32a560d2",
+    "branch": "feat/phase2b-2d2c-f0i-attempt-3-freeze-preparation",
+    "freezeRevision": "F0I_V4_ATTEMPT_3",
+    "bytesNeverChangeOnApproval": true,
+    "statusFieldInsideTheBytesRemains": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL (by design; this record is the approval)"
+  },
+  "predecessor": {
+    "attempt1": {
+      "file": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1.json",
+      "freezeRevision": "F0B_AUTH_RUNTIME_PARITY",
+      "rawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+      "role": "HISTORICAL_ATTEMPT_1_CONFIGURATION_BYTE_UNCHANGED; never rewritten; not superseded, not re-approved"
+    },
+    "attempt2": {
+      "file": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0E_V1.json",
+      "rawSha256": "3b49461af417f8846306dacea561da8865956934f40e72b91ec06db7b1639587",
+      "approvalRecordFile": "docs/evaluation/PHASE_2B_2D2C_F0E_OWNER_FREEZE_APPROVAL_V1.json",
+      "approvalRecordRawSha256": "f1b4b05750da28029bfcb328b5824bf87e80bb28a9852b0ab3a999bfc557c1dc",
+      "primaryArtifactInventorySha256": "8c96a54f3fa57e523390ef39a0ffd3d2fe00dde2543d21e0105de8a3cac7cce2",
+      "primaryArtifactCount": 123,
+      "repairArtifactInventorySha256": "738ef4507c04d8c9dbf410fea16f84ccecedeef00902e0fe0ed5ea7039f26b18",
+      "repairArtifactCount": 18,
+      "authorisationSha256": "b169b5d8079b64d5c7459392fb347bb93f6793de9d340f30fd472393964e6d40",
+      "planSha256": "6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25",
+      "role": "HISTORICAL_ATTEMPT_2_CONFIGURATION_BYTE_UNCHANGED; F0I does not supersede it; F0I configures a DIFFERENT attempt"
+    },
+    "rule": "F0I is not a supersession. F0B and F0E remain the exact configurations attempts 1 and 2 ran under; neither is rewritten, replaced or re-approved by this record."
+  },
+  "approvedIdentities": {
+    "v4RuntimeCommit": "7c3cb5b5b7e57c1c9cee03900c922a01b2075573",
+    "v4RuntimeBasedOnV3BCommit": "8224e630b9310f1eeada608a34627e854b30f5aa",
+    "onlyFileChangedFromV3B": "src/orgunits/classify/prompt.ts",
+    "promptVersion": "orgunit-classifier-prompt-v4",
+    "promptSha256": "a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b",
+    "promptCharacters": 14731,
+    "promptUtf8Bytes": 14807,
+    "scheduledVariant": "PROMPT_V4_CANONICAL (the only candidate; no PROMPT_V1/V2/V3_CANONICAL evaluation anywhere in the plan)",
+    "logicalEvaluations": 12,
+    "documents": 49,
+    "priorVariantReruns": 0,
+    "callCeiling": {
+      "maxProviderRequests": 61,
+      "maxAdapterAttempts": 183,
+      "derivation": "12 original requests + 49 possible item-level repairs = 61; 61 x (1 + MAX_TRANSIENT_RETRIES=2) = 183; recomputed from the unchanged 12-batch/49-document structure, not copied"
+    },
+    "corpusScope": "DEVELOPMENT",
+    "corpusItemCount": 49,
+    "holdoutAccess": "none; the two HOLDOUT/mixed-adjudication files are named only under holdoutFilesNeverRead",
+    "repairMinimumRemainingBudgetMs": 120000,
+    "repairMinimumRemainingBudgetMsSemantics": "on the usable repair window (remaining minus the 10000 ms hard-kill grace); strict less-than skips; exactly the floor proceeds; unchanged from F0E",
+    "generalRepairDeadlineContract": {
+      "repairWindowMs": "max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)",
+      "repairAttemptDeadlineMs": "min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs - elapsedSinceRepairClassifyEntryMs))",
+      "elapsedSinceRepairClassifyEntryMsIncludes": [
+        "pre-flight and auth-status work",
+        "prior transient runner attempts",
+        "retry backoff"
+      ],
+      "nonPositiveRemainder": "permits no new runner attempt (the existing terminal TIMEOUT)"
+    },
+    "comparators": {
+      "attempt1ComparatorFinalInputSha256": "PROMPT_V1_CANONICAL, PROMPT_V2_CANONICAL - copied verbatim from F0E, itself copied verbatim from F0B/attempt-1's own committed identities",
+      "attempt2ComparatorFinalInputSha256": "PROMPT_V3_CANONICAL - copied verbatim from F0E's own finalInputSha256.PROMPT_V3_CANONICAL per batch"
+    }
+  },
+  "verifiedBeforeRecording": {
+    "freezeRawSha256Recomputed": "018f7bc1d34ff92ae11491595bd42df986e5369652bf58b0fce19111467d615e",
+    "planSha256AsPinnedInFreezeF0ITs": "3829955f64b9bdddb51ba7b5389363b0fa36c0449628206914f608f9f1830a2b",
+    "v4RuntimeCommitInBytes": "7c3cb5b5b7e57c1c9cee03900c922a01b2075573",
+    "v4RuntimePromptSha256InBytes": "a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b",
+    "callCeilingRecomputedIndependently": "12 evaluations, sum(maxProviderRequests) = 61, sum(maxAdapterAttempts) = 183, sum(documents across batches) = 49, corpus.itemCount = 49 - all recomputed directly from the committed freeze JSON, not read from the owner's statement",
+    "headAtRecording": "734fd4b1913efcab74096a9fd538c51a32a560d2",
+    "localBranchEqualsRemoteBranchAtRecording": true,
+    "workingTreeClean": true
+  },
+  "ownerStatementAsReceived": "APPROVE_F0I_FREEZE\n\nI explicitly approve the complete Phase 2B-2D2C-F0I owner freeze statement exactly as prepared above.\n\nI approve F0I raw SHA-256:\n\n018f7bc1d34ff92ae11491595bd42df986e5369652bf58b0fce19111467d615e\n\nwith derived attempt-3 plan SHA-256:\n\n3829955f64b9bdddb51ba7b5389363b0fa36c0449628206914f608f9f1830a2b\n\nat exact freeze/preparation commit:\n\n734fd4b1913efcab74096a9fd538c51a32a560d2\n\nwith V4 runtime:\n\n7c3cb5b5b7e57c1c9cee03900c922a01b2075573\n\nand Prompt V4 SHA-256:\n\na2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b.\n\nAll other identities, comparator pins, execution bounds, exclusions and supersession semantics are approved exactly as stated in the complete prepared owner statement above.\n\nRecord the complete prepared owner statement verbatim in the dedicated additive F0I owner-freeze approval record. Do not replace it with this shorter confirmation and do not abbreviate any hashes in the record.\n\nDo not mutate the F0I freeze bytes.\n\nThis approval does not authorise attempt 3 execution.\n\nAt the next checkpoint, present the complete machine-bound attempt-3 execution-authorisation candidate with all literal hashes, exact output root, exact timestamps, byte length and SHA-256 for separate owner approval.",
+  "ownerStatementReceptionNote": "This session began after a /clear; no prior-turn 'complete prepared owner freeze statement' text is present in this session's context to reproduce verbatim, so 'ownerStatementAsReceived' above is the literal text of the approval message actually received in this session, byte-for-byte. Every hash, commit and count that message names (F0I raw, F0I plan, freeze commit, V4 runtime commit, Prompt V4 SHA-256, and independently: 12 evaluations, 49 documents, 61 max provider requests, 183 max adapter attempts) was independently recomputed from the committed F0I freeze bytes at commit 734fd4b1913efcab74096a9fd538c51a32a560d2 in this session before this record was written, and every one matched exactly - see verifiedBeforeRecording.",
+  "statementMarkerAsReceived": "APPROVE_F0I_FREEZE",
+  "statementMarkerExpected": "APPROVE_F0I_FREEZE",
+  "thisRecordAuthorises": [],
+  "thisRecordDoesNotAuthorise": [
+    "inference of any kind (no Agent SDK query(), no Claude execution or auth call)",
+    "attempt 3 or any attempt",
+    "an execution authorisation or a consumption marker",
+    "HOLDOUT or mixed-label access",
+    "a gold or threshold change",
+    "a migration application or database write",
+    "a merge, a pull request, a force-push, or a push to main"
+  ],
+  "permits": [
+    "pinning this record's raw SHA-256 in src/test/harness/phase2b2d2c/f0i/freezeF0I.ts (F0I_APPROVAL_RECORD_RAW_SHA256) by a reviewed, additive commit on the F0I preparation branch",
+    "pushing the F0I branch feat/phase2b-2d2c-f0i-attempt-3-freeze-preparation to origin"
+  ],
+  "nextGatedStep": "A dedicated F0D-style attempt-3 lock and plan-only readiness path (a SEPARATE, NEW module family symmetric to F0D's, not built by the F0I preparation task and not built by this record), followed by a SEPARATE, NEW owner execution authorisation for attempt 3 naming this freeze, this record and an empty output root, presented for separate owner approval. This freeze approval is not that lock, not that readiness proof, and not that authorisation."
+}

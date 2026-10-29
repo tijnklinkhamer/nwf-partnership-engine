@@ -1,0 +1,271 @@
+{
+  "recordId": "phase2b-2d-option-b-transition-sd7-measurement-of-record-v1",
+  "recordKind": "MEASUREMENT_OF_RECORD",
+  "records": "PHASE_2B_2D_OPTION_B_ACQUISITION_POLICY_TRANSITION_V1",
+  "recordedBy": "claude-code-session under the Option-B revalidation evidence adjudication",
+  "ownerDecisions": [
+    "ACCEPT_OPTION_B_LIVE_REVALIDATION_V1",
+    "AUTHORISE_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_POLICY_TRANSITION_AMENDMENT_V1",
+    "AUTHORISE_TARGETED_V2_RUN_SD7_MEASUREMENT_OF_RECORD_V1",
+    "AUTHORISE_SELECTION_INDEX_5_ACQUISITION_EVIDENCE_ADJUDICATION_V1"
+  ],
+  "boundInputs": [
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    {
+      "path": "docs/adr/0012-same-host-robots-redirect-continuation.md",
+      "sha256": "7b240eef21960940cdcc569ee4d85d4137fee1ee746884ecbd3d5095ee15a47a",
+      "bytes": 16804
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_ROBOTS_OPTION_B_REPAIR_IMPLEMENTATION_V1.json",
+      "sha256": "5b7b7be6de272b56820149d85e59f3cb5253658752eb0f55ef90f037109d77fb",
+      "bytes": 8267
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+      "sha256": "0d6ea67b3a04c84a852e986801f6d0123c781c67a522e5f6e9aae37022e3be74",
+      "bytes": 8127
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_RESULT_V1.json",
+      "sha256": "5f232cf5ba0746c65b9bbbc69d0310614cd1162e0aa61fc3e0cbec5960ef187a",
+      "bytes": 11365
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_AMENDMENT_V1.json",
+      "sha256": "d440afabd68f4a528bdeadb6c45cf6a489e541d33c214e961419f4adaa80cbc3",
+      "bytes": 11185
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "2f42765263b375e939881c0f408aab246ceee0ab1a59f70401adfb4ec2daca1c",
+      "bytes": 5467
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_EXECUTION_RECORD_V1.json",
+      "sha256": "fd2f0089428daf0f2b96cd45ef6417e70954119f7cbff667b5486e50bd3bb7d1",
+      "bytes": 14893
+    },
+    {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080
+    },
+    {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047
+    }
+  ],
+  "frameAndDrawUnchanged": {
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "neitherWasRegenerated": true,
+    "neitherFileWasModified": true
+  },
+  "transitionRule": {
+    "historicalPolicyVersion": "orgunit-fetch-policy-v1",
+    "futurePolicyVersion": "orgunit-fetch-policy-v2",
+    "compatibilityRule": "OPTION_B_CODE_PATH_UNREACHABLE",
+    "predicate": "continuationTargetFor",
+    "predicateSource": "src/orgunits/web/robots.ts",
+    "predicateIsCalledNotReimplemented": true,
+    "robotsRedirectContinuationHops": 1,
+    "classificationUsesNoLabelNoModelOutputAndNoCandidateOutcome": true
+  },
+  "compatibilityCensus": {
+    "totalHistoricalV1RunsExamined": 7,
+    "V1_COMPATIBLE_WITH_V2_TRANSITION": 6,
+    "POLICY_TRANSITION_AFFECTED": 1,
+    "robotsRedirectObservationsAcrossHistoricalV1Runs": 2,
+    "robotsRedirectsRefusedBecauseHostChanged": 1,
+    "theHostChangingRobotsRedirectRemainsOptionBIneligible": "v2 deliberately still refuses a host-changing robots redirect, so the run carrying one is V1_COMPATIBLE_WITH_V2_TRANSITION with respect to THIS transition. Its outcome under v2 would be identical to its outcome under v1.",
+    "perRun": [
+      {
+        "runOpaqueRef": "e1685cde6ad43f2f38caebfb5e16f5677faddfca92a00e337cdb53bf13067e40",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "redirectObservations": 1,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsQualifyingUnderOptionB": 0,
+        "optionBRelevantV1Run": false,
+        "classification": "V1_COMPATIBLE_WITH_V2_TRANSITION"
+      },
+      {
+        "runOpaqueRef": "7aedd8d7106590724655e3dbaf9bf443c2050e316c2123217b50c85c011dc50a",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "redirectObservations": 1,
+        "robotsRedirectObservations": 1,
+        "robotsRedirectsQualifyingUnderOptionB": 0,
+        "optionBRelevantV1Run": false,
+        "classification": "V1_COMPATIBLE_WITH_V2_TRANSITION"
+      },
+      {
+        "runOpaqueRef": "8817e22d9682c3dd071cc6659973ba634c024ffa1a04accfb4ad2a259ffb7566",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "redirectObservations": 1,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsQualifyingUnderOptionB": 0,
+        "optionBRelevantV1Run": false,
+        "classification": "V1_COMPATIBLE_WITH_V2_TRANSITION"
+      },
+      {
+        "runOpaqueRef": "2ada6fe0272c409ded4ae198c801f492cede477ee1ec33eac1e0e51d24ca9551",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "redirectObservations": 0,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsQualifyingUnderOptionB": 0,
+        "optionBRelevantV1Run": false,
+        "classification": "V1_COMPATIBLE_WITH_V2_TRANSITION"
+      },
+      {
+        "runOpaqueRef": "210ec71c8b3907fc94024a772e046dfb31028d20f9597004af8b1a9d6a0cca53",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "redirectObservations": 0,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsQualifyingUnderOptionB": 0,
+        "optionBRelevantV1Run": false,
+        "classification": "V1_COMPATIBLE_WITH_V2_TRANSITION"
+      },
+      {
+        "runOpaqueRef": "eecae5bc8b23e005a1daaf99a73f927b06ab7471bf1cc32c814861c98b096eba",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "redirectObservations": 1,
+        "robotsRedirectObservations": 1,
+        "robotsRedirectsQualifyingUnderOptionB": 1,
+        "optionBRelevantV1Run": true,
+        "classification": "POLICY_TRANSITION_AFFECTED"
+      },
+      {
+        "runOpaqueRef": "a5550818fe15b4a058d5daddc55ce283834c7d619730e217919157f88e18046c",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "redirectObservations": 0,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsQualifyingUnderOptionB": 0,
+        "optionBRelevantV1Run": false,
+        "classification": "V1_COMPATIBLE_WITH_V2_TRANSITION"
+      }
+    ],
+    "noOrganisationIdentityIsDisclosedHere": true
+  },
+  "formalSd7MeasurementOfRecord": {
+    "selectionIndex": 5,
+    "split": "DEV_TRAIN",
+    "splitIsReportedBecauseTheTargetedRevalidationResultAlreadyPublishedIt": true,
+    "acquisitionOfRecordPolicyVersion": "orgunit-fetch-policy-v2",
+    "measuredRunOpaqueRef": "1caccd6c616c6ddaccc5ebc7a23f951b08e6819fc3bc6b6d8e91e14f965a71fe",
+    "supersededRunOpaqueRef": "eecae5bc8b23e005a1daaf99a73f927b06ab7471bf1cc32c814861c98b096eba",
+    "implementationUsed": "src/test/harness/phase2b2d/sd7/",
+    "noNewSd7AlgorithmWasWritten": true,
+    "exactDuplicatePassRanFirst": true,
+    "nearDuplicateRuleUnchanged": true,
+    "shortTextRuleUnchanged": true,
+    "rawPageCount": 33,
+    "distinctDocumentsAfterExactPass": 31,
+    "exactDuplicateRowsRemoved": 2,
+    "measurableDocuments": 31,
+    "shortTextUnresolved": 0,
+    "comparedPairs": 465,
+    "nearDuplicateEdges": 3,
+    "nonTransitiveComponents": 0,
+    "unauditableComponents": 0,
+    "postSd7CountMin": 28,
+    "postSd7CountMax": 28,
+    "postSd7PageCount": 28,
+    "countIsExact": true,
+    "survivorCountIsOrderInvariant": true,
+    "noSurvivorAmbiguityCouldCrossTheMinimum": true,
+    "MIN_PAGES_PER_ORGANISATION": 4,
+    "decidedByCase": "B",
+    "sd9Status": "ACQUISITION_SUCCESSFUL",
+    "thisIsAMeasurementOfRecordNotADiagnostic": true
+  },
+  "diagnosticCrossCheck": {
+    "diagnosticPostSd7CountReportedByTheRevalidation": 28,
+    "formalPostSd7Count": 28,
+    "theyAgree": true,
+    "theDiagnosticWasNotAnInputToThisMeasurement": "The formal count was recomputed from the source evidence. The diagnostic is compared to it afterwards and would not have been allowed to decide SD9 even if it had disagreed."
+  },
+  "acquisitionOfRecord": {
+    "selectionIndex": 5,
+    "status": "ACQUISITION_SUCCESSFUL",
+    "policyVersion": "orgunit-fetch-policy-v2",
+    "historicalV1RunClassification": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR",
+    "historicalV1RunRetained": true,
+    "historicalV1RowRemainsImmutable": true,
+    "historicalV1RunIsNotDeleted": true,
+    "historicalV1RunIsNotMarkedErroneous": true,
+    "batch02ExecutionRecordIsNotEdited": true,
+    "selectionIndexRetained": true,
+    "splitRetained": true,
+    "organisationRetained": true,
+    "reserveConsumption": 0,
+    "replacementLedgerEntry": "NONE"
+  },
+  "prospectiveBatch02State": {
+    "completedBatch02SelectionSlots": 2,
+    "currentLowRawYieldCount": 1,
+    "lowYieldSlotIsSelectionIndex": 6,
+    "historicalStopRemainsCorrect": "At the time Batch 02 ran under v1, both completed slots had zero raw pages and the corrected P5 gate legitimately stopped the batch. Nothing here rewrites that.",
+    "thisAuthorisesNoContinuation": true
+  },
+  "authorityHeld": {
+    "networkRequestsIssued": 0,
+    "dnsLookupsPerformed": 0,
+    "providerCallsMade": 0,
+    "databaseWrites": 0,
+    "reserveConsumption": 0,
+    "replacementsCreated": 0,
+    "setPMaterialised": false,
+    "setRMaterialised": false,
+    "labelsCreated": 0,
+    "goldCreated": 0,
+    "holdoutSemanticAccess": false,
+    "phase2EWork": false,
+    "productionFilesChanged": 0,
+    "migrationsChanged": 0,
+    "firewallFilesChanged": 0,
+    "planV1BytesChanged": 0,
+    "methodologyR3BytesChanged": 0,
+    "frameBytesChanged": 0,
+    "drawBytesChanged": 0
+  },
+  "sealedDetailedArtifact": {
+    "split": "DEV_TRAIN",
+    "sha256": "ec67d6fa0b95c80a9f5691fc9492cbd5b5f30aad86086d2b9f37461d43f6ec87",
+    "committedToGit": false,
+    "containsNoPageTextOrShingles": true
+  },
+  "reportingDiscipline": {
+    "thisRecordCarriesNoInstitutionIdentity": true,
+    "thisRecordCarriesNoOrganisationIdOrEcheRowKey": true,
+    "thisRecordCarriesNoDomainHostnameOrUrl": true,
+    "thisRecordCarriesNoPageContentTitleOrText": true,
+    "thisRecordCarriesNoPageOrDocumentId": true,
+    "runsAreIdentifiedByOpaqueSha256RefOnly": true
+  },
+  "terminalState": "PHASE_2B_OPTION_B_EVIDENCE_ADJUDICATED_AWAITING_BATCH_02_V2_CONTINUATION",
+  "nextOwnerDecision": "A2_BATCH_02_V2_CONTINUATION_AUTHORISATION",
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}

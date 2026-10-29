@@ -114,6 +114,13 @@ describe('RobotsAuthorisation.forRobotsTxtBootstrap: exact-path scoping', () => 
 
   it('refuses a URL that is not exactly /robots.txt', () => {
     expect(() => RobotsAuthorisation.forRobotsTxtBootstrap('https://example.edu/')).toThrow();
+    // ADR 0016 DID NOT WIDEN THIS ONE. The trailing-slash form is admissible
+    // only as a REDIRECT CONTINUATION target, so initial site-policy
+    // discovery still has exactly one starting point per origin and a caller
+    // cannot choose to begin at `/robots.txt/` on its own authority.
+    expect(() =>
+      RobotsAuthorisation.forRobotsTxtBootstrap('https://example.edu/robots.txt/'),
+    ).toThrow(/bare robots\.txt URL/);
     expect(() =>
       RobotsAuthorisation.forRobotsTxtBootstrap('https://example.edu/international/robots.txt'),
     ).toThrow();
@@ -136,6 +143,99 @@ describe('RobotsAuthorisation.forRobotsTxtBootstrap: exact-path scoping', () => 
     expect(
       RobotsAuthorisation.forRobotsTxtBootstrap('https://intl.example.edu/robots.txt').scopedToUrl,
     ).toBe('https://intl.example.edu/robots.txt');
+  });
+});
+
+describe('RobotsAuthorisation.forRobotsTxtRedirectContinuation: ADR 0016', () => {
+  it('authorises exactly the canonical policy URL, decision NOT_APPLICABLE', () => {
+    const auth = RobotsAuthorisation.forRobotsTxtRedirectContinuation(
+      'https://example.edu/robots.txt',
+    );
+    expect(RobotsAuthorisation.isAuthorisation(auth)).toBe(true);
+    expect(auth.decision).toBe('NOT_APPLICABLE');
+    expect(auth.rule).toBeNull();
+    expect(auth.scopedToUrl).toBe('https://example.edu/robots.txt');
+  });
+
+  it('authorises the bare TRAILING-SLASH policy URL, decision NOT_APPLICABLE', () => {
+    // The one thing ADR 0016 added. Still `NOT_APPLICABLE`, because this is
+    // still the request that RETRIEVES the policy file.
+    const auth = RobotsAuthorisation.forRobotsTxtRedirectContinuation(
+      'https://example.edu/robots.txt/',
+    );
+    expect(auth.decision).toBe('NOT_APPLICABLE');
+    expect(auth.rule).toBeNull();
+    expect(auth.scopedToUrl).toBe('https://example.edu/robots.txt/');
+  });
+
+  it('declares its admissible path set as exactly two literals', () => {
+    // The set is what makes this reviewable in one line, so it is asserted
+    // directly rather than inferred from the throw cases below.
+    expect([...RobotsAuthorisation.CONTINUATION_PATHS]).toEqual(['/robots.txt', '/robots.txt/']);
+  });
+
+  it('refuses EVERY other pathname, child paths included', () => {
+    for (const path of [
+      '/',
+      '/robots.txt//',
+      '/robots.txt/index',
+      '/robots.txt/robots.txt',
+      '/robots.txt.',
+      '/ROBOTS.TXT',
+      '/ROBOTS.TXT/',
+      '/policy/robots.txt',
+      '/international/',
+      '/robots',
+    ]) {
+      expect(
+        () => RobotsAuthorisation.forRobotsTxtRedirectContinuation(`https://example.edu${path}`),
+        path,
+      ).toThrow(/bare robots\.txt policy URL/);
+    }
+  });
+
+  it('refuses a query or a fragment on either admissible path', () => {
+    for (const url of [
+      'https://example.edu/robots.txt?x=1',
+      'https://example.edu/robots.txt/?x=1',
+      'https://example.edu/robots.txt#frag',
+      'https://example.edu/robots.txt/#frag',
+    ]) {
+      expect(() => RobotsAuthorisation.forRobotsTxtRedirectContinuation(url), url).toThrow();
+    }
+  });
+
+  it('refuses an unparsable URL', () => {
+    expect(() => RobotsAuthorisation.forRobotsTxtRedirectContinuation('not a url')).toThrow(
+      /does not parse/,
+    );
+  });
+
+  it('preserves scheme and host exactly, for both http and https', () => {
+    expect(
+      RobotsAuthorisation.forRobotsTxtRedirectContinuation('http://example.edu/robots.txt/')
+        .scopedToUrl,
+    ).toBe('http://example.edu/robots.txt/');
+    expect(
+      RobotsAuthorisation.forRobotsTxtRedirectContinuation('https://intl.example.edu/robots.txt/')
+        .scopedToUrl,
+    ).toBe('https://intl.example.edu/robots.txt/');
+  });
+
+  it('can authorise NO ordinary page, because no page lives at either path', () => {
+    // The gateway refuses a scope mismatch byte-for-byte, and this factory
+    // cannot be minted for anything else in the first place - so there is no
+    // URL at which it could stand in for an ordinary-page verdict.
+    const auth = RobotsAuthorisation.forRobotsTxtRedirectContinuation(
+      'https://example.edu/robots.txt/',
+    );
+    for (const page of [
+      'https://example.edu/international/',
+      'https://example.edu/',
+      'https://example.edu/robots.txt',
+    ]) {
+      expect(auth.scopedToUrl, page).not.toBe(page);
+    }
   });
 });
 

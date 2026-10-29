@@ -1,0 +1,351 @@
+{
+  "recordId": "phase2b-2d2c-f2-owner-freeze-approval-v1",
+  "recordKind": "OWNER_FREEZE_APPROVAL",
+  "approves": "F2_FINAL_V6_N5_DEV_STUDY_FREEZE_ONLY",
+  "recordedAtUtc": "2026-09-16T23:25:59Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner’s",
+  "ownerDecisionMarker": "APPROVE_F2_FINAL_V6_N5_DEV_STUDY_FREEZE_ONLY",
+  "statementMarkerAsReceived": "APPROVE_F2_FINAL_V6_N5_DEV_STUDY_FREEZE_ONLY",
+  "statementMarkerExpected": "APPROVE_F2_FINAL_V6_N5_DEV_STUDY_FREEZE_ONLY",
+  "approvalIsFreezeOnly": true,
+  "freezeApprovalIsNotExecutionAuthorisation": true,
+  "approvedFreeze": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_FREEZE_F2_V1.json",
+    "rawSha256": "4062627904ffb682051f5fc3c5d7c581b1b90e49d74a1fe119972fdfa41d8439",
+    "rawBytes": 26446,
+    "derivedStudyPlanSha256": "410e5bc48f0fbdff22a01e1cd31705e7ae22429506921d9fa0fed00f0f28df4c",
+    "freezeId": "PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_FREEZE_F2_V1",
+    "version": "phase2b-2d2c-dev-final-v6-study-freeze-f2-v1",
+    "freezeRevision": "F2_FINAL_DEV_STUDY_V6_N5",
+    "branch": "feat/phase2b-2d2c-f2-v6-final-dev-integration",
+    "branchHeadReviewed": "888f7de525a87654ef00f00df3d044de20d202de",
+    "statusInsideTheBytes": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL",
+    "bytesNeverChangeOnApproval": true,
+    "bytesNeverChangeOnApprovalStatement": "The bytes of the approved freeze do NOT change on approval. This record is additive and immutable; the freeze file is not edited, not re-hashed and not re-statused by it. Its raw SHA-256 and byte length after this approval are identical to the ones approved above.",
+    "statusFieldInsideTheFreezeRemainsStatement": "The status field inside the freeze remains PROPOSED_PENDING_OWNER_FREEZE_APPROVAL BY DESIGN. Approval is recorded here, in a separate file, precisely so that the approved bytes stay byte-identical to the bytes that were reviewed. A status flipped in place would change the very hash the owner approved.",
+    "approvalIsFreezeOnlyStatement": "This approval is FREEZE ONLY. It fixes the immutable configuration of the final V6 N=5 DEVELOPMENT study and nothing else. It creates no study root, no control root, no slot output directory and no execution-authorisation candidate, and it consumes no authorisation."
+  },
+  "lineages": {
+    "note": "This build is the approved V6 SEMANTIC prompt running on the accepted F0Z EXECUTION/RELIABILITY harness. The two lineages are separate and are both named here. It is NOT a new semantic V7.",
+    "semanticSource": {
+      "commit": "a0da2c462a698823fd9536347edf22ecfbf80f64",
+      "branch": "feat/phase2b-2d2c-v6i1-operator-precedence",
+      "promptVersion": "orgunit-classifier-prompt-v6",
+      "promptSha256": "06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7",
+      "promptCodePoints": 16007,
+      "promptUtf8Bytes": 16093,
+      "parentPromptVersion": "orgunit-classifier-prompt-v5",
+      "parentPromptCommit": "1bb7578ac962650675f05aec3507c57a49517239",
+      "parentPromptSha256": "4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9",
+      "delta": "v6 = v5 + R1 + R2 + R3, three exact whole-region REPLACE operations. Reversing them reproduces v5 byte for byte."
+    },
+    "executionReliabilityBase": {
+      "commit": "805d39b6043a69cedf809ca9b2151168e1f88a58",
+      "reliabilitySemantics": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+      "acceptedAs": "F0Z reliability HEAD"
+    },
+    "integratedRuntime": {
+      "commit": "12bd406da5d989d2d31bda8e7aeb11ab39c8937f",
+      "branch": "feat/phase2b-2d2c-f2-v6-final-dev-integration",
+      "productionClassifierFilesChangedFromF0ZHead": ["src/orgunits/classify/prompt.ts"],
+      "productionClassifierSemanticDeltaCount": 1,
+      "promptBytesIdenticalToSemanticSource": true,
+      "reversingOnlyThePromptReproducesF0ZTree": true,
+      "isANewSemanticVersion": false
+    }
+  },
+  "reliability": {
+    "semanticsVersion": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+    "historicalSemanticsVersion": "RELIABILITY_SEMANTICS_V1_RECOVERY_1",
+    "c2Implemented": false,
+    "c2Status": "NOT_IMPLEMENTED",
+    "maxNonTerminalTimeoutsPerReplicate": 2,
+    "timeoutContinuationRule": "A CONFIRMED non-terminal Tier-1 TIMEOUT makes ONLY ITS OWN logical batch observed INVALID_PROVIDER_TIMEOUT, counts against MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE, continues only when every C1 precondition is satisfied, and is NEVER rerun. At the ceiling the replicate STOPS.",
+    "noDuplicateLogicalEvaluationAfterContinuation": "A continued replicate resumes at the NEXT frozen logical evaluation. A timed-out evaluation is closed durably and is never re-attempted, so no logical evaluation is ever executed twice."
+  },
+  "studyDesign": {
+    "variantName": "PROMPT_V6_CANONICAL",
+    "arms": 1,
+    "nReplicates": 5,
+    "totalFreshRuns": 5,
+    "pairedComparison": false,
+    "v4OrV5Rerun": false,
+    "nFrozenBeforeAnyInference": true,
+    "studyQuestion": "Does V6 reproducibly satisfy the frozen DEV gates?",
+    "studyQuestionForm": "ABSOLUTE, not comparative.",
+    "endsThePromptIterationLoop": true,
+    "logicalEvaluationsPerReplicate": 12,
+    "totalLogicalEvaluations": 60,
+    "devDocuments": 49
+  },
+  "slotOrder": [
+    {
+      "sequence": 1,
+      "slotId": "V6_REP_1",
+      "replicateNumber": 1,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-1"
+    },
+    {
+      "sequence": 2,
+      "slotId": "V6_REP_2",
+      "replicateNumber": 2,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-2"
+    },
+    {
+      "sequence": 3,
+      "slotId": "V6_REP_3",
+      "replicateNumber": 3,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-3"
+    },
+    {
+      "sequence": 4,
+      "slotId": "V6_REP_4",
+      "replicateNumber": 4,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-4"
+    },
+    {
+      "sequence": 5,
+      "slotId": "V6_REP_5",
+      "replicateNumber": 5,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-5"
+    }
+  ],
+  "slotIdsInFrozenOrder": ["V6_REP_1", "V6_REP_2", "V6_REP_3", "V6_REP_4", "V6_REP_5"],
+  "slotOrderNeverRandomisedNeverReorderedAfterAnyResultExists": true,
+  "outputRoots": {
+    "studyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5",
+    "controlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-control",
+    "slotOutputRootNames": ["v6-rep-1", "v6-rep-2", "v6-rep-3", "v6-rep-4", "v6-rep-5"],
+    "slotOutputRootAbsolutePaths": [
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5/v6-rep-1",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5/v6-rep-2",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5/v6-rep-3",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5/v6-rep-4",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5/v6-rep-5"
+    ],
+    "freshNamespace": true,
+    "mustNotReuse": [
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/failed-study",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-2",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-3",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-3-retry-1",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-4"
+    ],
+    "note": "NAMES ONLY. Neither root, nor any of the five slot subdirectories, exists, and none is created by this record. Verified absent at recording time.",
+    "createdByThisRecord": 0
+  },
+  "batching": {
+    "inheritedFrom": "attempt-4 (F0O) execution plan",
+    "inheritedPlanSha256": "292d9424d487f3d69903a3b81172bd0a90c65adbd7ee6fa63cf3a9d0ced79898",
+    "historicalFreezePath": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json",
+    "historicalFreezeRawSha256": "77cccff133ceac9ca57ac30c4468690d99ae3d53a294e30249f97487c727a75e",
+    "groupBy": "organisationId",
+    "concurrency": 1,
+    "execution": "sequential",
+    "partitionAndOrderFrozen": true,
+    "finalInputSha256IsRecomputedForV6": "finalInputSha256 folds in the prompt version, so a V6 batch is a DIFFERENT call identity from the byte-identical V5 batch. It is computed by the production computeFinalInputSha256 from the inherited assemblyInputSha256, never copied from a V5 plan."
+  },
+  "corpus": {
+    "scope": "DEVELOPMENT",
+    "itemCount": 49,
+    "canonicalCorpusPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.jsonl",
+    "canonicalManifestPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.manifest.jsonl",
+    "derivedCorpusRawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+    "derivedManifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+    "derivedCorpusContentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2"
+  },
+  "gold": {
+    "devLabelsPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl",
+    "devLabelsRawSha256": "19d9cc3e9dcfe0b10930aa095075cd4828459377d9ea67c8dd296da6126fcd08",
+    "devLabelsRawBytes": 50486,
+    "devLabelsRecordCount": 49,
+    "goldUnchangedFromHistoricalStudies": true,
+    "goldChangesAuthorisedByThisRecord": []
+  },
+  "requestCeilings": {
+    "derivation": "SUM_OF_FIVE_SLOT_PER_RUN_TOTALS_NEVER_A_HARDCODED_MULTIPLICATION",
+    "derivationSource": "Each logical batch's own deriveCallCeiling(documentCount) from the attempt-4 plan: one original request per logical evaluation, at most one ADR-0011 repair request per document, and each provider request attemptable 1 + maxTransientRetries times.",
+    "perRun": {
+      "plannedLogicalEvaluations": 12,
+      "originalProviderRequestCeiling": 12,
+      "documents": 49,
+      "repairRequestCeiling": 49,
+      "totalProviderRequestCeiling": 61,
+      "adapterAttemptCeiling": 183
+    },
+    "fullStudy": {
+      "totalSlots": 5,
+      "plannedLogicalEvaluations": 60,
+      "totalProviderRequestCeiling": 305,
+      "adapterAttemptCeiling": 915
+    },
+    "maxTransientRetriesPerRequest": 2,
+    "attemptsPerProviderRequest": 3
+  },
+  "finalDevDecisionRule": {
+    "id": "F2_FINAL_DEV_DECISION_RULE_V1",
+    "decision": "DEV_READY_FOR_HOLDOUT",
+    "conditions": [
+      "all 5/5 V6 replicates are COMPLETE under RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+      "each of the 5/5 replicates passes every one of the six frozen DEV gates"
+    ],
+    "anyPartialReplicate": "DEV_NOT_READY_FOR_HOLDOUT",
+    "anyCompleteReplicateFailingAnyFrozenGate": "DEV_NOT_READY_FOR_HOLDOUT",
+    "noFourOfFiveFallback": true,
+    "noAveragingAwayAFailingReplicate": true,
+    "noThresholdTuningAfterOutcomes": true,
+    "noReplacementOfAFailedReplicate": true,
+    "unmeasuredGateIsNeverAPassedGate": true,
+    "priorRuleReconciliation": {
+      "existingRule": "The attempt-1..4 configuration freezes each carry scoring.acceptanceRule: 'No final acceptance decision may be issued while <attempt> coverage is incomplete ... or while any stop condition is unresolved. HOLDOUT stays forbidden until a DEV candidate passes every frozen gate.'",
+      "relationship": "SUBSUMED_AND_STRENGTHENED_NOT_CONFLICTING",
+      "reasoning": "The existing rule is a SINGLE-RUN criterion: complete coverage, no unresolved stop condition, every frozen gate passed. This rule preserves all three and additionally requires them on ALL FIVE replicates. It is strictly stronger, so no stricter existing rule was displaced and no previously-frozen rule conflicts with it.",
+      "stricterExistingRuleFound": false,
+      "conflictingExistingRuleFound": false
+    }
+  },
+  "finalDevDecisionRuleRestated": "DEV_READY_FOR_HOLDOUT is issuable only if ALL FIVE of five V6 replicates are COMPLETE under RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION AND each of those 5/5 replicates passes every one of the six frozen DEV gates. Any partial replicate, or any complete replicate failing any frozen gate, yields DEV_NOT_READY_FOR_HOLDOUT. No 4/5 fallback, no averaging away a failing replicate, no threshold tuning after outcomes, no replacement of a failed replicate, and an unmeasured gate is never a passed gate.",
+  "sixFrozenDevGates": {
+    "minSchemaValidSpanVerifiedRate": 0.99,
+    "minUnitPageRecall": 0.95,
+    "minUnitPagePrecision": 0.9,
+    "minUnitTypeAccuracy": 0.85,
+    "minHardNegativeRejection": 0.9,
+    "maxNeedsReviewRate": 0.15,
+    "maxIsolationViolations": 0,
+    "evidenceSpanVerification": 1,
+    "nonNullUnitNameVerification": 1,
+    "minGateableLanguageSubgroupSize": 20,
+    "maxCatastrophicSubgroupShortfall": 0.1
+  },
+  "gateThresholdsChangedByThisRecord": [],
+  "executionBoundary": {
+    "goldBlind": true,
+    "noGoldLoadedByTheInferencePath": true,
+    "noGoldLoadedInF2": true,
+    "allFiveSlotsTerminalBeforeAnyScoringBegins": true,
+    "noSemanticResultInspectionBetweenReplicates": true,
+    "noGateScoringBetweenReplicates": true,
+    "noPromptEditAfterAnyV6ProviderRequest": true,
+    "scoringRequiresSeparateOwnerAuthorisation": true
+  },
+  "noAdaptiveScoring": {
+    "nFrozenBeforeInference": true,
+    "slotCountFixedAt": 5,
+    "slotOrderFixed": true,
+    "analysisContractFixed": true,
+    "noAdaptiveStoppingBecauseEarlyResultsLookGoodOrBad": true,
+    "rule": "A favourable or unfavourable intermediate result never changes the remaining slot count, the slot order or the analysis contract. All five authorised replicates must first reach terminal records; only then may the deterministic v2 scorer run, under a separate owner scoring authorisation."
+  },
+  "inclusionRules": {
+    "principle": "FAIL CLOSED. A replicate that reaches semantic/provider execution is part of the study and is NEVER silently replaced.",
+    "classA": {
+      "id": "FAILURE_BEFORE_AUTHORISATION_CONSUMPTION",
+      "meaning": "No semantic replicate exists for the slot.",
+      "action": "Preserve evidence and PAUSE that slot. Not included as a replicate; not silently skipped either - it remains visible as a paused slot."
+    },
+    "classB": {
+      "id": "AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "meaning": "The candidate is spent, but no semantic replicate exists.",
+      "action": "Do NOT auto-replace. Pause and require a separate owner-reviewed recovery authorisation for the SAME frozen slot. A pre-inference auth/lock/control-plane defect that consumed no semantic candidate may be eligible for a DISCLOSED reissue only under this explicit, predeclared rule."
+    },
+    "classC": {
+      "id": "PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "meaning": "Any provider request or semantic execution occurred for the slot.",
+      "action": "That slot is IRREVOCABLY part of the study, whether it completes or ends in a genuine terminal failure. Never replaced, never discarded, never rerun."
+    },
+    "terminalFailureIncludedAsRecorded": true,
+    "neverSilentlySubstituteAReplicate": true
+  },
+  "holdout": {
+    "inferenceDuring2D2C": "FORBIDDEN",
+    "accessDuringThisStudy": "FORBIDDEN",
+    "holdoutFilesNeverRead": [
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl"
+    ],
+    "additionalForbiddenFilesForThisStudy": [
+      "src/test/fixtures/evaluation/orgunit-classifier-gold-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-adjudication-v1.jsonl"
+    ],
+    "noneOpenedOrHashedByThisApproval": true
+  },
+  "executionAuthorised": false,
+  "providerCallsAuthorised": false,
+  "scoringAuthorised": false,
+  "holdoutAuthorised": false,
+  "thisRecordAuthorises": [],
+  "thisRecordDoesNotAuthorise": [
+    "creating or consuming execution authorisation",
+    "any provider request",
+    "classifier inference",
+    "auth-status invocation",
+    "DEV execution",
+    "scoring",
+    "HOLDOUT access",
+    "any prompt modification",
+    "any gold modification",
+    "any freeze-byte modification",
+    "C2",
+    "threshold changes",
+    "replacement/rerun of a semantic replicate",
+    "creation of the study root, the control root or any slot output directory",
+    "creation of any execution-authorisation candidate",
+    "a merge, a pull request, a force-push, or a push to main"
+  ],
+  "verifiedBeforeRecording": {
+    "protocol": "The ten pre-approval checks in the owner decision, all performed request-free from the committed branch before this record was written. Zero provider calls, zero inference, zero auth-status invocation, zero scoring, zero HOLDOUT access.",
+    "check01_headExactly": "888f7de525a87654ef00f00df3d044de20d202de",
+    "check01_headMatched": true,
+    "check02_worktreeClean": true,
+    "check03_committedFreezeFileExists": true,
+    "check04_freezeRawSha256Recomputed": "4062627904ffb682051f5fc3c5d7c581b1b90e49d74a1fe119972fdfa41d8439",
+    "check04_matched": true,
+    "check05_freezeRawBytesRecomputed": 26446,
+    "check05_matched": true,
+    "check06_derivedStudyPlanSha256Recomputed": "410e5bc48f0fbdff22a01e1cd31705e7ae22429506921d9fa0fed00f0f28df4c",
+    "check06_matched": true,
+    "check06_method": "npx vitest run src/test/unit/orgunitClassify2D2CF2Freeze.test.ts — 38/38 passed, including f2StudyPlanSha256(buildF2StudyPlan(F0O_PLAN, f0oPlanSha256(F0O_PLAN), PROMPT_IDENTITY)) === PROPOSED_F2_PLAN_SHA256, re-derived from the committed F0O freeze bytes on disk and this build’s own production prompt/output-schema constants, not from any literal typed in this record.",
+    "check07_statusInsideTheFreezeBytes": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL",
+    "check07_matched": true,
+    "check08_slotIds": ["V6_REP_1", "V6_REP_2", "V6_REP_3", "V6_REP_4", "V6_REP_5"],
+    "check08_arms": 1,
+    "check08_variantName": "PROMPT_V6_CANONICAL",
+    "check08_logicalEvaluationsPerReplicate": 12,
+    "check08_devDocuments": 49,
+    "check08_reliabilitySemantics": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+    "check08_c2Status": "NOT_IMPLEMENTED",
+    "check08_ownerFreezeApprovalExistsInsideTheBytes": false,
+    "check08_executionAuthorisationExistsInsideTheBytes": false,
+    "check08_holdoutAccessDuringThisStudy": "FORBIDDEN",
+    "check08_freshOutputRoots": true,
+    "check08_thisFileAuthorisesStillEmpty": true,
+    "check08_exclusionsThisFreezeAuthorisesStillEmpty": true,
+    "check08_strictFinalDecisionRulePresent": true,
+    "check08_matched": true,
+    "check09_integratedPromptSha256Recomputed": "06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7",
+    "check09_matched": true,
+    "check09_method": "Recomputed live from the production ORGUNIT_CLASSIFIER_SYSTEM_PROMPT at this HEAD: promptVersion orgunit-classifier-prompt-v6, 16093 UTF-8 bytes, 16007 code points.",
+    "check10_noV6OutputRootExists": true,
+    "check10_method": "Both named roots verified absent; the whole phase2b-2d2c-dev-runs tree searched for any path or file matching V6_REP / PROMPT_V6 / v6-rep / v6-final — zero matches.",
+    "lineageCommitsResolveInThisRepository": true,
+    "integratedRuntimeAndReliabilityBaseAreAncestorsOfTheReviewedHead": true,
+    "allTenChecksPassed": true
+  },
+  "ownerStatementAsReceived": "PHASE 2B-2D2C-F2 — OWNER FREEZE APPROVAL\nFINAL V6 N=5 DEV STUDY\n\nOWNER DECISION:\n\nAPPROVE_F2_FINAL_V6_N5_DEV_STUDY_FREEZE_ONLY\n\nI approve exactly the following freeze bytes as the immutable configuration\nfor the final V6 DEVELOPMENT study:\n\nFreeze file:\n\ndocs/evaluation/PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_FREEZE_F2_V1.json\n\nExact raw SHA-256:\n\n4062627904ffb682051f5fc3c5d7c581b1b90e49d74a1fe119972fdfa41d8439\n\nExact raw byte length:\n\n26446\n\nDerived study-plan SHA-256:\n\n410e5bc48f0fbdff22a01e1cd31705e7ae22429506921d9fa0fed00f0f28df4c\n\nFreeze-preparation branch HEAD reviewed:\n\n888f7de525a87654ef00f00df3d044de20d202de\n\nIntegrated runtime pinned by the freeze:\n\n12bd406da5d989d2d31bda8e7aeb11ab39c8937f\n\nSemantic V6 source:\n\na0da2c462a698823fd9536347edf22ecfbf80f64\n\nV6 prompt SHA-256:\n\n06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7\n\nReliability base:\n\n805d39b6043a69cedf809ca9b2151168e1f88a58\n\nReliability semantics:\n\nRELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION\n\nThis decision approves the FREEZE ONLY.\n\nIt does NOT authorise:\n\n- creating or consuming execution authorisation;\n- any provider request;\n- classifier inference;\n- auth-status invocation;\n- DEV execution;\n- scoring;\n- HOLDOUT access;\n- any prompt modification;\n- any gold modification;\n- any freeze-byte modification;\n- C2;\n- threshold changes;\n- replacement/rerun of a semantic replicate.\n\n==================================================\n1. PRE-APPROVAL VERIFICATION\n==================================================\n\nBefore recording approval, request-free re-verify from the committed branch:\n\n1. HEAD is exactly\n   888f7de525a87654ef00f00df3d044de20d202de\n\n2. worktree is clean;\n\n3. the exact committed freeze file exists;\n\n4. raw SHA-256 recomputes exactly to:\n\n   4062627904ffb682051f5fc3c5d7c581b1b90e49d74a1fe119972fdfa41d8439\n\n5. raw byte length recomputes exactly to:\n\n   26446\n\n6. derived study-plan SHA-256 recomputes exactly to:\n\n   410e5bc48f0fbdff22a01e1cd31705e7ae22429506921d9fa0fed00f0f28df4c\n\n7. status inside the freeze bytes remains exactly:\n\n   PROPOSED_PENDING_OWNER_FREEZE_APPROVAL\n\n8. the freeze still records:\n   - exactly five slots V6_REP_1…V6_REP_5;\n   - exactly one arm, PROMPT_V6_CANONICAL;\n   - 12 logical evaluations per replicate;\n   - 49 DEV documents;\n   - RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION;\n   - C2 NOT_IMPLEMENTED;\n   - no owner freeze approval;\n   - no execution authorisation;\n   - no HOLDOUT access;\n   - fresh output roots;\n   - the strict final decision rule:\n     5/5 COMPLETE AND every one of the six frozen gates passes\n     in each of 5/5 replicates.\n\n9. integrated prompt SHA recomputes exactly to:\n\n   06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7\n\n10. no V6 output/control root currently exists.\n\nIf ANY check differs:\n\nSTOP.\n\nDo not create an approval record.\n\n==================================================\n2. RECORD THE OWNER FREEZE APPROVAL\n==================================================\n\nCreate:\n\ndocs/evaluation/PHASE_2B_2D2C_F2_OWNER_FREEZE_APPROVAL_V1.json\n\nThe record must be an OWNER_FREEZE_APPROVAL and bind at minimum:\n\n- owner decision marker:\n  APPROVE_F2_FINAL_V6_N5_DEV_STUDY_FREEZE_ONLY;\n\n- exact freeze file path;\n\n- exact freeze SHA-256;\n\n- exact freeze raw bytes;\n\n- exact derived study-plan SHA-256;\n\n- exact freeze-preparation branch and reviewed HEAD;\n\n- exact integrated runtime commit;\n\n- semantic V6 source commit;\n\n- V6 prompt SHA/version;\n\n- F0Z reliability base;\n\n- reliability-semantics version;\n\n- five exact slot IDs in frozen order;\n\n- exact output/control root names;\n\n- final 5/5 DEV decision rule;\n\n- explicit statement that the bytes of the approved freeze do NOT change on\n  approval;\n\n- explicit statement that the status field inside the freeze remains\n  PROPOSED_PENDING_OWNER_FREEZE_APPROVAL by design;\n\n- explicit statement that this approval is FREEZE ONLY.\n\nThe approval record must also state explicitly:\n\nexecutionAuthorised: false\n\nproviderCallsAuthorised: false\n\nscoringAuthorised: false\n\nholdoutAuthorised: false\n\n==================================================\n3. DO NOT MATERIALISE EXECUTION CANDIDATES YET\n==================================================\n\nDo NOT in this task:\n\n- create the study root;\n- create the control root;\n- create slot output directories;\n- create execution candidates;\n- consume any authorisation;\n- invoke auth-status;\n- invoke the provider;\n- run inference;\n- score anything.\n\nFreeze approval must remain logically separate from execution-candidate\nmaterialisation and execution authorisation.\n\n==================================================\n4. COMMIT / PUSH\n==================================================\n\nCommit only the owner-freeze-approval record and any strictly necessary\ndeterministic approval-record test.\n\nDo not edit the approved freeze file.\n\nPush to:\n\nfeat/phase2b-2d2c-f2-v6-final-dev-integration\n\nDo not merge.\n\n==================================================\n5. POST-RECORD VERIFICATION\n==================================================\n\nAfter committing:\n\n- re-hash the freeze;\n- confirm its SHA and bytes are unchanged;\n- confirm the integrated V6 prompt hash is unchanged;\n- confirm worktree clean;\n- confirm no output root exists;\n- confirm zero provider/inference/auth-status/scoring/HOLDOUT.\n\nReport:\n\n1. approval-record commit SHA;\n2. approval-record path;\n3. approval-record raw SHA-256 + bytes;\n4. freeze SHA + bytes reverified unchanged;\n5. plan SHA reverified unchanged;\n6. branch HEAD;\n7. zero execution candidates;\n8. zero output directories;\n9. zero provider/inference/auth-status/scoring/HOLDOUT.\n\nStop with:\n\nF2_FINAL_V6_N5_FREEZE_APPROVED_AWAITING_EXECUTION_CANDIDATE_REVIEW\n",
+  "ownerStatementReceptionNote": "This session began after a /clear immediately preceding this task, so it holds no memory of any prior session’s context. The owner statement was received complete in this session’s own current turn and is transcribed verbatim above. Every hash, commit, count and identity it names was independently recomputed here from the committed bytes at 888f7de525a87654ef00f00df3d044de20d202de before this record was written, and every one matched exactly. See verifiedBeforeRecording.",
+  "permits": [
+    "pinning this record’s raw SHA-256 in src/test/harness/phase2b2d2c/f2/freezeF2.ts (F2_APPROVAL_RECORD_PATH / F2_APPROVAL_RECORD_RAW_SHA256) by a reviewed, additive commit on this branch",
+    "updating the existing F2 freeze unit test’s approval-record assertion from \"no owner freeze-approval record exists yet\" to \"the record EXISTS, hashes to the pinned value, and authorises nothing\", mirroring the F0I/F0O/F0V precedent",
+    "pushing the branch feat/phase2b-2d2c-f2-v6-final-dev-integration to origin",
+    "a future, separately-reviewed, request-free materialisation of the five execution-authorisation candidate files against this now-approved freeze — not built by this record, and not an execution authorisation"
+  ],
+  "nextGatedStep": "Request-free materialisation of the five execution-authorisation candidate files, one per frozen slot V6_REP_1..V6_REP_5, each structurally verified by exact byte length and SHA-256, followed by a SEPARATE, NEW owner decision approving all five exact candidate hashes together in one explicit act. This freeze approval is not that materialisation and not that authorisation; it creates no output root and no candidate. Scoring remains separately authorised again after that, and HOLDOUT stays forbidden."
+}

@@ -1,0 +1,331 @@
+{
+  "recordId": "phase2b-robots-option-c-lite-targeted-revalidation-authority-v1",
+  "recordKind": "OWNER_AUTHORISATION",
+  "authorises": "PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_LIVE_REVALIDATION_V1",
+  "recordedAtUtc": "2026-09-20T09:35:00Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the authorisation itself is the owner's",
+  "ownerDecision": "AUTHORISE_PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_V1",
+  "statementMarkerAsReceived": "AUTHORISE_PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_V1",
+  "purpose": {
+    "propositionUnderTest": "Does the landed v3 Option-C-lite repair correctly recover the two EXISTING acquisition-of-record cases whose persisted robots.txt redirect is now newly continuable under SAME_REGISTRABLE_DOMAIN_SINGLE_HOP_ROBOTS_REDIRECT_CONTINUATION?",
+    "thisIsACapabilityRevalidation": true,
+    "thisIsNotNewPrimaryAcquisition": true,
+    "thisIsNotReserveReplacement": true,
+    "thisIsNotSemanticEvaluation": true,
+    "thisIsNotClassifierWork": true,
+    "rawPageYieldIsSecondary": "A result can confirm the capability even if the resolved policy ultimately disallows crawling, because the question is whether the authorised one-hop transition worked."
+  },
+  "authorisedSelectionIndices": [1, 7],
+  "maximumLiveOrganisations": 2,
+  "maximumLiveRuns": 2,
+  "requiredFetchPolicyVersion": "orgunit-fetch-policy-v3",
+  "historicalRunsMustRemainImmutable": true,
+  "corpusReplacementAuthorised": false,
+  "reserveConsumptionAuthorised": false,
+  "replacementAuthorised": false,
+  "newPrimaryAcquisitionAuthorised": false,
+  "index8Authorised": false,
+  "providerInferenceAuthorised": false,
+  "labelsAuthorised": false,
+  "holdoutSemanticClassifierAccessAuthorised": false,
+  "boundImplementationState": {
+    "implementationHead": "c2e07b87ab2394287154977580240a5723bf6cbd",
+    "worktreeCleanAtBinding": true,
+    "branch": "feat/phase2b-2d-a2-batch-02",
+    "productionFetchPolicyVersion": "orgunit-fetch-policy-v3",
+    "productionFetchPolicyVersionReadFrom": "src/orgunits/web/policy.ts::FETCH_POLICY_VERSION",
+    "implementationMarker": "PHASE_2B_ROBOTS_OPTION_C_LITE_IMPLEMENTED_AWAITING_TARGETED_REVALIDATION",
+    "adrPath": "docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md",
+    "adrSha256": "d7c51025759664cb4d4fdcdea00e5da509c39d03fc9e40302baebf0f119a9b1a",
+    "adrBytes": 22316,
+    "adrCommit": "c2e07b87ab2394287154977580240a5723bf6cbd",
+    "adrExpectedShaMatchedOwnerInstruction": true,
+    "adrExpectedBytesMatchedOwnerInstruction": true,
+    "implementationRecordPath": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_IMPLEMENTATION_V1.json",
+    "implementationRecordSha256": "04ff52625dbb4ce8a9e2734b8e1ceed9080294a94a2e90660385f072822b0310",
+    "implementationRecordBytes": 12466,
+    "implementationRecordCommit": "c2e07b87ab2394287154977580240a5723bf6cbd",
+    "planAmendmentV2Path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_C_LITE_AMENDMENT_V2.json",
+    "planAmendmentV2Sha256": "9abc5528da2c96c89b0a2070dd0817a4dc8b83229fbd183ee4a94f495eed886d",
+    "planAmendmentV2Bytes": 2640,
+    "planAmendmentV2Commit": "c2e07b87ab2394287154977580240a5723bf6cbd",
+    "hashesWereRehashedFromCommittedBytesNotQuoted": true
+  },
+  "targetSelectionProof": {
+    "targetsWereNotChosenByInstitutionName": true,
+    "method": "Recomputed read-only from persisted acquisition-of-record evidence by calling the LANDED v3 predicate (src/orgunits/web/robots.ts::continuationTargetFor) through the landed census harness with write=false. No committed artifact was touched and no second implementation of the predicate was written.",
+    "recomputedAffectedAcquisitionOfRecordSelectionIndices": [1, 7],
+    "requiredAffectedAcquisitionOfRecordSelectionIndices": [1, 7],
+    "setsMatchExactly": true,
+    "recomputedAffectedIncludingSupersededRuns": [1, 5, 7],
+    "whyIndex5IsNotAuthorised": "Index 5's SUPERSEDED v1 run is historically transition-affected, but its CURRENT acquisition of record is the v2 run that already continued its same-hostname robots redirect. The acquisition of record is therefore V3_TRANSITION_UNAFFECTED and index 5 is out of scope.",
+    "recomputationReproducedTheCommittedImplementationRecordByteForByte": true,
+    "ifTheSetHadNotBeenExactly_1_7": "STOP before network"
+  },
+  "databaseBaselineAtBinding": {
+    "statement": "Read as the readonly role before any live request. Postflight deltas are measured against exactly these numbers.",
+    "organisations": 6139,
+    "website_claims": 6139,
+    "orgunit_research_runs": 9,
+    "orgunit_research_run_completions": 9,
+    "orgunit_fetch_observations": 117,
+    "orgunit_redirect_observations": 7,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "orgunit_page_evidence": 92,
+    "orgunit_page_candidates": 184,
+    "orgunit_classification_subjects": 0,
+    "orgunit_classifier_calls": 0,
+    "orgunit_classifier_call_completions": 0,
+    "orgunit_page_classifications": 0
+  },
+  "historicalRunPreflight": {
+    "statement": "Verified read-only against the CURRENT acquisition-of-record run for each authorised target. Institution identity resolved in memory only and never emitted.",
+    "perIndex": [
+      {
+        "selectionIndex": 1,
+        "currentAcquisitionOfRecordRunExists": true,
+        "currentAcquisitionOfRecordRunOpaqueRef": "7aedd8d7106590724655e3dbaf9bf443c2050e316c2123217b50c85c011dc50a",
+        "historicalFetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "supersededRunsForThisOrganisation": 0,
+        "currentSd9IsFailure": true,
+        "robotsRedirectObservations": 1,
+        "robotsHttpStatus": 301,
+        "requestedPathIsExactlyRobotsTxt": true,
+        "targetPathIsExactlyRobotsTxt": true,
+        "targetHasQuery": false,
+        "targetHasExplicitPort": false,
+        "targetMalformed": false,
+        "schemeDowngraded": false,
+        "hostChanged": true,
+        "registrableDomainChanged": false,
+        "newlyContinuableUnderV3": true,
+        "currentSd9Derivation": "DERIVED, not quoted. The A3a SD7 pilot execution record deliberately carries no per-selection-index result, so no public record names this index's SD9 token. What is public: Batch-01 recorded pagesWithEvidence = 0 and acquisitionStatus = PENDING_SD7 for this index, and the pilot's frozen rule states that SD7 is removal-only, so an organisation with zero raw page evidence cannot reach MIN_PAGES_PER_ORGANISATION (4) under any reading of any unresolved detail. The failure is therefore mechanical.",
+        "currentSd9SourceRecords": [
+          "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+          "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json"
+        ],
+        "rawPageEvidenceCountOfRecord": 0
+      },
+      {
+        "selectionIndex": 7,
+        "currentAcquisitionOfRecordRunExists": true,
+        "currentAcquisitionOfRecordRunOpaqueRef": "d808fae09b353443abaa4a5405d892a0545c058ac0a503deb712ef922604a0fd",
+        "historicalFetchPolicyVersion": "orgunit-fetch-policy-v2",
+        "supersededRunsForThisOrganisation": 0,
+        "currentSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "currentSd9IsFailure": true,
+        "robotsRedirectObservations": 1,
+        "robotsHttpStatus": 301,
+        "requestedPathIsExactlyRobotsTxt": true,
+        "targetPathIsExactlyRobotsTxt": true,
+        "targetHasQuery": false,
+        "targetHasExplicitPort": false,
+        "targetMalformed": false,
+        "schemeDowngraded": false,
+        "hostChanged": true,
+        "registrableDomainChanged": false,
+        "newlyContinuableUnderV3": true,
+        "currentSd9Derivation": "QUOTED verbatim from the per-index entry of the bound execution record.",
+        "currentSd9SourceRecords": [
+          "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_V2_CONTINUATION_EXECUTION_RECORD_V1.json"
+        ],
+        "rawPageEvidenceCountOfRecord": 0
+      }
+    ],
+    "neitherHistoricalRunWasMutated": true
+  },
+  "authorityFlags": {
+    "targetedRevalidationAuthorised": true,
+    "networkAuthorised": true,
+    "institutionNetworkAuthorised": true,
+    "databaseResearchReadAuthorised": true,
+    "databaseResearchAppendOnlyWriteAuthorised": true,
+    "hostChangingRobotsRedirectContinuationAuthorised": true,
+    "crossRegistrableDomainContinuationAuthorised": false,
+    "thirdOrganisationAuthorised": false,
+    "index8Authorised": false,
+    "index9Authorised": false,
+    "indexTenOrAboveAuthorised": false,
+    "arbitraryHistoricalRerunAuthorised": false,
+    "reserveConsumptionAuthorised": false,
+    "replacementAuthorised": false,
+    "corpusReplacementAuthorised": false,
+    "corpusInclusionOfTheNewRunsAuthorised": false,
+    "historicalRecordMutationAuthorised": false,
+    "acquisitionOfRecordSupersessionAuthorised": false,
+    "sd9StateChangeAuthorised": false,
+    "p5StateChangeAuthorised": false,
+    "setPAuthorised": false,
+    "setRAuthorised": false,
+    "labellingAuthorised": false,
+    "providerInferenceAuthorised": false,
+    "devConfirmClassifierScoringAuthorised": false,
+    "holdoutSemanticClassifierAccessAuthorised": false,
+    "phase2EAuthorised": false,
+    "budgetWideningAuthorised": false,
+    "networkPolicyWideningAuthorised": false,
+    "rootPromotionAuthorised": false,
+    "sd7MutatingMeasurementAuthorised": false,
+    "sd7ReadOnlyMeasurementAuthorised": true
+  },
+  "frozenNetworkBoundsRestatedNotChanged": {
+    "statement": "Every value below is quoted from the landed, frozen implementation. This record changes none of them.",
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "TRACK_B_FLOOR": 8,
+    "MAX_SITEMAP_DOCUMENTS_PER_ROOT": 5,
+    "MAX_SITEMAP_DEPTH": 2,
+    "MAX_SITEMAP_URLS_PER_ROOT": 3000,
+    "MIN_HOST_PACING_SECONDS": 1.2,
+    "MAX_REDIRECT_CONTINUATION_HOPS": 5,
+    "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+    "CONNECT_TIMEOUT_MS": 30000,
+    "TOTAL_TIMEOUT_MS": 45000,
+    "MAX_BODY_BYTES": 5242880,
+    "noCeilingMayBeWidened": true
+  },
+  "executionDiscipline": {
+    "exactlyOneCliInvocationPerTarget": "npm run cli -- orgunits discover --organisation-id <private> --execute --json",
+    "executionOrder": ["selection index 1", "selection index 7"],
+    "concurrency": 1,
+    "index7MustNotStartIfIndex1Produces": [
+      "execution failure",
+      "provenance failure",
+      "persistence anomaly",
+      "policy-boundary violation",
+      "host-safety incident",
+      "unexpected cross-registrable continuation"
+    ],
+    "aNormalAcquisitionFailureIsNotAnIncidentAndDoesNotBlockIndex7": true,
+    "noBatchCommand": true,
+    "noRetry": true,
+    "noChangedArguments": true,
+    "noAlteredUrl": true,
+    "noManualCurlWgetOrBrowserRequest": true,
+    "noDirectRobotsFetch": true,
+    "noAlternateCrawler": true,
+    "noRootPromotion": true,
+    "allTrafficMustPassThroughTheLandedV3AcquisitionPath": true
+  },
+  "safeExecutionProcedure": {
+    "why": "An echeRowKey previously leaked into the operator transcript. This procedure is the already-approved remedy.",
+    "steps": [
+      "Resolve selection index -> organisation UUID LOCALLY into a shell variable, never echoed.",
+      "Redirect all CLI stdout and stderr to a local file outside git.",
+      "Derive only public-safe aggregates from that local file.",
+      "Link durable runs publicly only by opaque SHA-256 run ref."
+    ],
+    "neverPrintedOrPasted": [
+      "organisation_id",
+      "eche_row_key",
+      "requested_url",
+      "hostname",
+      "domain",
+      "redirect target",
+      "page titles",
+      "page text"
+    ],
+    "rawRunJsonKeptOutsideGit": true
+  },
+  "hostSafetyPrecondition": {
+    "required": [
+      "AC power",
+      "lid open",
+      "clean worktree",
+      "database reachable",
+      "sufficient disk",
+      "dedicated caffeinate -dimsu active",
+      "no unresolved sleep/wake event"
+    ],
+    "noWaiverIsGranted": true,
+    "why": "The F5 execution was lost to a host clamshell sleep whose symptoms were indistinguishable from institution-side latency. A host stall is NOT institution evidence.",
+    "ifHostSafetyFails": "STOP before that live request",
+    "ifSleepWakeOccursDuringARun": "preserve durable evidence, do not retry, stop before the second target if it has not started"
+  },
+  "requiredV3Provenance": {
+    "everyNewRunMustCarry": "orgunit-fetch-policy-v3",
+    "everyNewFetchObservationMustCarry": "orgunit-fetch-policy-v3",
+    "ifAnyNewRowCarriesV1OrV2": "STOP after the durable boundary and classify POLICY_VERSION_PROVENANCE_FAILURE; do not retry"
+  },
+  "optionCLiteLiveTraceExpectation": {
+    "ifTheExternalSiteHasNotChanged": [
+      "robots request #1 -> HTTP 3xx",
+      "redirect facts persisted",
+      "host changes",
+      "registrable domain unchanged",
+      "target qualifies under C-lite",
+      "robots request #2 issued",
+      "request #2 independently passes every gateway/network gate"
+    ],
+    "required": [
+      "two separately persisted fetch observations",
+      "the first redirect observation retained",
+      "a second URL-scoped RobotsAuthorisation minted",
+      "no gateway auto-follow",
+      "a distinct target host consumes a host-budget slot",
+      "no third robots request"
+    ],
+    "singleHopGuarantee": "If request #2 itself returns 3xx, the third robots request count must be 0. The final policy may remain unreadable and the result may still be OPTION_C_LITE_LIVE_PATH_CONFIRMED, because the question is whether the authorised one-hop transition worked.",
+    "initialAuthoritySemantics": {
+      "theRetrievedTargetPolicyGovernsTheINITIALAuthority": true,
+      "rootAuthorityIsNotChanged": true,
+      "noPromotionIsCreated": true,
+      "theTargetHostIsNotTreatedAsANewAcquisitionRoot": true,
+      "theResultIsNotCachedAsTheTargetOriginsOwnRobotsAuthority": true,
+      "noCacheContamination": true
+    }
+  },
+  "terminalClassifications": [
+    "OPTION_C_LITE_LIVE_PATH_CONFIRMED",
+    "EXTERNAL_SITE_DRIFT_REVALIDATION_INCONCLUSIVE",
+    "EXTERNAL_NETWORK_FAILURE_REVALIDATION_INCONCLUSIVE",
+    "OPTION_C_LITE_IMPLEMENTATION_FAILURE"
+  ],
+  "normalAcquisitionMayContinue": {
+    "statement": "If the resolved robots policy permits acquisition, that same single target run proceeds through the normal bounded engine. There is no manual stop after robots success.",
+    "hardCeilingsRemainUnchanged": true
+  },
+  "evidenceStatusOfTheNewRuns": {
+    "status": "TARGETED_REVALIDATION_EVIDENCE_ONLY",
+    "untilASeparateOwnerAdjudication": true,
+    "mustNot": [
+      "supersede the historical acquisition of record",
+      "edit any old execution record",
+      "change any old SD9 state",
+      "change P5 state",
+      "consume a reserve",
+      "create a replacement",
+      "be selected for SET_P or SET_R"
+    ]
+  },
+  "formalSd7Measurement": {
+    "appliesTo": "every new v3 run producing page evidence",
+    "readOnly": true,
+    "noNewNetwork": true,
+    "noDatabaseWrites": true,
+    "noLabels": true,
+    "detailRouting": {
+      "selectionIndex1": "the approved DEV_CONFIRM sealed root",
+      "selectionIndex7": "the approved FINAL_HOLDOUT sealed root"
+    },
+    "publicOutputOnly": [
+      "raw page count",
+      "post-SD7 page count",
+      "whether >= 4",
+      "whether any unresolved ambiguity could cross the threshold"
+    ],
+    "ifRawPagesIsZero": "follow the existing zero-page precedent: formal post-SD7 = 0, and no fake empty detail artifact is created"
+  },
+  "nextOwnerDecisionCandidates": {
+    "ifBothConfirmedAndSd7Determinate": "A2_ROBOTS_OPTION_C_LITE_REVALIDATION_EVIDENCE_ADJUDICATION",
+    "ifOneOrBothInconclusive": "A2_ROBOTS_OPTION_C_LITE_REVALIDATION_INCONCLUSIVE_REVIEW",
+    "ifImplementationFailure": "A2_ROBOTS_OPTION_C_LITE_REPAIR_INCIDENT_REVIEW"
+  },
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused.",
+    "noInventedFutureCommitShaIsBoundHere": "The result-record commit does not exist when this record is written and is deliberately absent rather than predicted."
+  }
+}

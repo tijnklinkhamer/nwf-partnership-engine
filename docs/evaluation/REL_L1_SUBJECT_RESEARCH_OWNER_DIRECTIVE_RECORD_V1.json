@@ -1,0 +1,56 @@
+{
+  "recordId": "REL_L1_SUBJECT_RESEARCH_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_BRIEF_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-26",
+  "branch": "feat/rel-l1-subject-research-v1",
+  "worktree": "~/wt-rel-l1-subject-research",
+  "startingHead": "fbe6a8c",
+  "startingHeadLineage": "Engine release candidate fbe6a8c (ADR 0017 accepted), over the Global R9 pin 40c3e5a",
+  "status": "LOCAL_SYNTHETIC_IMPLEMENTATION_UNDER_OWNER_DIRECTIVE__RATIFICATION_PENDING",
+  "isOwnerRatification": false,
+  "authority": {
+    "source": "OWNER directive to engineering lane L1 (2026-10-26): Track B deep research of discovery subjects - make subject research EXECUTABLE in code",
+    "authorised": [
+      "local source edits",
+      "local migrations on DISPOSABLE test databases",
+      "local test runs",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "any live network research",
+      "any live Claude/Agent SDK call, and any read of ~/.claude profiles",
+      "remote API cost",
+      "push, merge or deploy",
+      "staging or production access",
+      "capability activation",
+      "deleting existing evidence or files outside the worktree",
+      "weakening any security check or firewall"
+    ]
+  },
+  "migrationUnderThisBrief": "migrations/0018_subject_research_roots.sql",
+  "adr": "docs/adr/0025-global-subject-research-admission.md",
+  "adrSection": "s12 (lane L1 amendment; ADR status unchanged: Proposed)",
+  "admissionPolicyVersion": "subject-research-admission-policy-v1",
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "editsPriorMigrations": false,
+  "rewritesCohortPins": false,
+  "migrationAppliedTo": "disposable tmpfs PostgreSQL 16 test databases only",
+  "productionMigrationApplied": false,
+  "runtimeRoleGrantedAnything": false,
+  "researchRoleGrantedSubjectTables": false,
+  "networkUsed": false,
+  "realOrganisationsInserted": false,
+  "operationalKeyProvisioned": false,
+  "contactDataStored": false,
+  "classifierChanged": false,
+  "firewallFilesEdited": [],
+  "firewallFilesAdded": ["src/test/firewall/relL1SubjectResearch.firewall.test.ts"],
+  "openForOwner": [
+    "Ratify or reject ADR 0025 (with s12) and migrations 0017 and 0018.",
+    "Provision one ACTIVE operational OWNER review key (ADR 0023 s15); without it no real subject can be confirmed or admitted, so `orgunits subjects research --execute` can run only synthetic TEST_ONLY admissions under vitest.",
+    "Authorise (or not) an OWNER-path admission command; admissions are still recorded only through recordSubjectResearchAdmission on the owner connection.",
+    "Decide whether and when to apply migrations 0017 and 0018 to nwf_pe, with a measured lock window.",
+    "A per-run OWNER execution approval for the first live subject."
+  ]
+}

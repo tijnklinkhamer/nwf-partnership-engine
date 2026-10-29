@@ -1,0 +1,287 @@
+{
+  "recordId": "phase2b-2d2c-f0v-owner-freeze-approval-v1",
+  "recordKind": "OWNER_FREEZE_APPROVAL",
+  "approves": "REPLICATION_STUDY_FREEZE_ONLY",
+  "recordedAtUtc": "2026-09-15T20:38:04Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner's",
+  "approvedFreeze": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_REPLICATION_STUDY_FREEZE_F0V_V1.json",
+    "rawSha256": "77e26f30cc5e323660d564614ae13f1a0f2c1bbb1fc87df2e604127016377545",
+    "rawBytes": 19190,
+    "derivedStudyPlanSha256": "37c6f201195c2b99a6da1d9503baf271ed60f9bbdc4d36d293d29bff59b4a096",
+    "branchCommit": "5dd63eb109a49da8c9f055e00d3f553f7da4c287",
+    "branch": "feat/phase2b-2d2c-f0v-replication-study-freeze-preparation",
+    "freezeRevision": "F0V_REPLICATION_STUDY_V4_V5_N5",
+    "bytesNeverChangeOnApproval": true,
+    "statusFieldInsideTheBytesRemains": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL (by design; this record is the approval)"
+  },
+  "builtFrom": {
+    "methodology": {
+      "commit": "9454e0167fa8cc28d929a1fbf023b26c9727c9b6",
+      "path": "docs/audits/PHASE_2B_2D2C_F0U_REPLICATION_METHODOLOGY_REVIEW_2026-09.md",
+      "rawSha256": "d8b3e57992fe091aed95e7490d4b3c0fe0f4a7bfcc1bb6c7b09bd83252e79cf7",
+      "rawBytes": 59082,
+      "recommendation": "M1_FULL_PAIRED_REPLICATION_STUDY"
+    },
+    "f0i": {
+      "role": "V4 / attempt-3 already-frozen, already-approved 12-batch/49-document plan; source of every V4 slot's evaluations, unchanged",
+      "freezeFile": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json",
+      "freezeRawSha256": "018f7bc1d34ff92ae11491595bd42df986e5369652bf58b0fce19111467d615e",
+      "freezeRawBytes": 87754,
+      "planSha256": "3829955f64b9bdddb51ba7b5389363b0fa36c0449628206914f608f9f1830a2b",
+      "approvalRecordFile": "docs/evaluation/PHASE_2B_2D2C_F0I_OWNER_FREEZE_APPROVAL_V1.json",
+      "approvalRecordRawSha256": "39655f5eb5f5ace8af87357b5b44b6028ebd3d7bc9505d6ea05be9e2252f5b2a",
+      "historicalAttemptNo": 3,
+      "historicalRole": "PILOT_ONLY_NOT_COUNTED"
+    },
+    "f0o": {
+      "role": "V5 / attempt-4 already-frozen, already-approved 12-batch/49-document plan; source of every V5 slot's evaluations, unchanged",
+      "freezeFile": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json",
+      "freezeRawSha256": "77cccff133ceac9ca57ac30c4468690d99ae3d53a294e30249f97487c727a75e",
+      "freezeRawBytes": 97514,
+      "planSha256": "292d9424d487f3d69903a3b81172bd0a90c65adbd7ee6fa63cf3a9d0ced79898",
+      "approvalRecordFile": "docs/evaluation/PHASE_2B_2D2C_F0O_OWNER_FREEZE_APPROVAL_V1.json",
+      "approvalRecordRawSha256": "94eae6c19c1fad0c3d7ccb71494fe7c79dcaa9de2afa5842e01cc291d2e02719",
+      "historicalAttemptNo": 4,
+      "historicalRole": "PILOT_ONLY_NOT_COUNTED"
+    },
+    "rule": "F0V invents no new corpus, batch, document or identity. Every one of the 120 planned logical evaluations (10 slots x 12 frozen batches) is copied, field for field, from the corresponding already-verified F0I (V4) or F0O (V5) plan."
+  },
+  "studyDesign": {
+    "approvedDesign": "DESIGN_B_FULL_FROZEN_BATCH_RESAMPLING",
+    "designAPrimeExecutedFirst": false,
+    "designAPrimeRemainsUnscheduled": true,
+    "variantNames": ["PROMPT_V4_CANONICAL", "PROMPT_V5_CANONICAL"],
+    "nPerPrompt": 5,
+    "totalFreshRuns": 10,
+    "totalLogicalEvaluations": 120,
+    "v4LogicalEvaluations": 60,
+    "v5LogicalEvaluations": 60,
+    "historicalRunsCountTowardN": false,
+    "historicalRunsRole": "PILOT_ONLY",
+    "historicalAttempt3V4Run": "PILOT_ONLY_NOT_COUNTED",
+    "historicalAttempt4V5Run": "PILOT_ONLY_NOT_COUNTED",
+    "v1v2v3Rerun": false,
+    "v6": false
+  },
+  "slotOrder": [
+    {
+      "sequence": 1,
+      "slotId": "PAIR_1_V4",
+      "pairNumber": 1,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-1-v4"
+    },
+    {
+      "sequence": 2,
+      "slotId": "PAIR_1_V5",
+      "pairNumber": 1,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-1-v5"
+    },
+    {
+      "sequence": 3,
+      "slotId": "PAIR_2_V5",
+      "pairNumber": 2,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-2-v5"
+    },
+    {
+      "sequence": 4,
+      "slotId": "PAIR_2_V4",
+      "pairNumber": 2,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-2-v4"
+    },
+    {
+      "sequence": 5,
+      "slotId": "PAIR_3_V4",
+      "pairNumber": 3,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-3-v4"
+    },
+    {
+      "sequence": 6,
+      "slotId": "PAIR_3_V5",
+      "pairNumber": 3,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-3-v5"
+    },
+    {
+      "sequence": 7,
+      "slotId": "PAIR_4_V5",
+      "pairNumber": 4,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-4-v5"
+    },
+    {
+      "sequence": 8,
+      "slotId": "PAIR_4_V4",
+      "pairNumber": 4,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-4-v4"
+    },
+    {
+      "sequence": 9,
+      "slotId": "PAIR_5_V4",
+      "pairNumber": 5,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-5-v4"
+    },
+    {
+      "sequence": 10,
+      "slotId": "PAIR_5_V5",
+      "pairNumber": 5,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-5-v5"
+    }
+  ],
+  "slotOrderNeverRandomisedNeverReorderedAfterAnyResultExists": true,
+  "studyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5",
+  "studyRootNote": "A NAME ONLY. Neither this directory nor any of the 10 slot subdirectories under it exists, and none is created by this record.",
+  "approvedIdentities": {
+    "v4": {
+      "runtimeCommit": "7c3cb5b5b7e57c1c9cee03900c922a01b2075573",
+      "promptVersion": "orgunit-classifier-prompt-v4",
+      "promptSha256": "a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b",
+      "historicalFreezeLabel": "F0I",
+      "historicalFreezePath": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json",
+      "historicalFreezeRawSha256": "018f7bc1d34ff92ae11491595bd42df986e5369652bf58b0fce19111467d615e",
+      "historicalFreezeRawBytes": 87754,
+      "historicalPlanSha256": "3829955f64b9bdddb51ba7b5389363b0fa36c0449628206914f608f9f1830a2b",
+      "historicalAttemptNo": 3,
+      "historicalEvidenceRoot": "attempt-3-retry-1 (immutable, read-only comparator; never rerun)"
+    },
+    "v5": {
+      "runtimeCommit": "1bb7578ac962650675f05aec3507c57a49517239",
+      "promptVersion": "orgunit-classifier-prompt-v5",
+      "promptSha256": "4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9",
+      "historicalFreezeLabel": "F0O",
+      "historicalFreezePath": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json",
+      "historicalFreezeRawSha256": "77cccff133ceac9ca57ac30c4468690d99ae3d53a294e30249f97487c727a75e",
+      "historicalFreezeRawBytes": 97514,
+      "historicalPlanSha256": "292d9424d487f3d69903a3b81172bd0a90c65adbd7ee6fa63cf3a9d0ced79898",
+      "historicalAttemptNo": 4,
+      "historicalEvidenceRoot": "attempt-4 (immutable, read-only comparator; never rerun)"
+    }
+  },
+  "ceilings": {
+    "perRun": {
+      "v4": {
+        "logicalEvaluations": 12,
+        "documents": 49,
+        "maxProviderRequests": 61,
+        "maxAdapterAttempts": 183
+      },
+      "v5": {
+        "logicalEvaluations": 12,
+        "documents": 49,
+        "maxProviderRequests": 61,
+        "maxAdapterAttempts": 183
+      },
+      "v4EqualsV5": true
+    },
+    "fullStudy": {
+      "totalSlots": 10,
+      "totalLogicalEvaluations": 120,
+      "maxProviderRequests": 610,
+      "maxAdapterAttempts": 1830,
+      "derivation": "SUM_OF_TEN_SLOT_PER_RUN_TOTALS_NEVER_A_HARDCODED_MULTIPLICATION"
+    }
+  },
+  "executionBoundary": {
+    "goldBlind": true,
+    "noGoldLoadedByThisApprovalOrByF0V": true,
+    "allTenSlotsCompleteOrTerminalBeforeAnyScoringBegins": true,
+    "noIntermediatePrecisionRecallGateCalculation": true,
+    "noSemanticInspectionUsedToDecideWhetherToContinue": true
+  },
+  "noAdaptiveStopping": {
+    "nFrozenBeforeInference": true,
+    "slotCountFixedAt": 10,
+    "slotOrderFixed": true,
+    "promptOrderFixed": true,
+    "analysisContractFixed": true,
+    "rule": "A favourable or unfavourable intermediate result never changes the remaining slot count, slot order, prompt order, or analysis contract."
+  },
+  "inclusionRule": {
+    "classA": {
+      "id": "FAILURE_BEFORE_AUTHORISATION_CONSUMPTION",
+      "meaning": "No semantic replicate exists for the slot.",
+      "action": "Preserve evidence and pause that slot. Not included as a replicate; not silently skipped either - remains visible as a paused slot."
+    },
+    "classB": {
+      "id": "AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "meaning": "The candidate is spent, but no semantic replicate exists (analogous to F0K's attempt-3 dispatch repair).",
+      "action": "Do not auto-replace. Pause and require a separate owner-reviewed recovery authorisation for the SAME frozen slot."
+    },
+    "classC": {
+      "id": "PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "meaning": "Any provider request or semantic execution occurred for the slot.",
+      "action": "That slot is IRREVOCABLY part of the study, whether it completes successfully or ends in a genuine terminal failure/halt. Never replaced or discarded. This is the predeclared inclusion rule."
+    }
+  },
+  "futureAuthorisationModel": {
+    "model": "All ten run configurations must first be frozen (the F0V file this record approves). All ten execution-authorisation candidate files must later be materialised request-free. All ten exact candidate SHA-256 identities must be known and structurally verified before the first provider call. The owner may then approve all ten exact candidate hashes in ONE explicit owner decision. That decision does not approve any candidate whose exact bytes/hash were not listed. No generic authorisation for as-yet-unknown future candidate bytes is ever created.",
+    "candidatesCreatedByThisRecord": 0,
+    "candidatesCreatedByF0VTask": 0,
+    "outputRootsCreatedByThisRecord": 0
+  },
+  "holdout": {
+    "forbidden": true,
+    "inferenceDuring2D2C": "FORBIDDEN",
+    "noPreHoldoutTaskMayOpenOrParseAnyFileContainingHoldoutRows": true,
+    "forbiddenFiles": [
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-gold-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-adjudication-v1.jsonl"
+    ],
+    "noneOpenedByThisApprovalOrByF0V": true
+  },
+  "verifiedBeforeRecording": {
+    "freezeRawSha256Recomputed": "77e26f30cc5e323660d564614ae13f1a0f2c1bbb1fc87df2e604127016377545",
+    "freezeRawBytesRecomputed": 19190,
+    "recomputedByToolsGiven": "shasum -a 256 and an independent python utf-8 decode/re-encode round trip against the exact committed file bytes",
+    "statusFieldStillProposedPendingOwnerFreezeApproval": true,
+    "thisFileAuthorisesStillEmpty": true,
+    "exclusionsThisFreezeAuthorisesStillEmpty": true,
+    "studyPlanSha256AsPinnedInFreezeF0VTs": "37c6f201195c2b99a6da1d9503baf271ed60f9bbdc4d36d293d29bff59b4a096",
+    "studyPlanSha256IndependentlyRederivedByRunningTheExistingUnitTestSuite": "npx vitest run src/test/unit/orgunitClassify2D2CF0VFreeze.test.ts - 39/39 tests passed, including the studyPlanSha256(PLAN) === PROPOSED_F0V_PLAN_SHA256 assertion computed from the actual committed F0I/F0O/F0V bytes on disk, not from any literal typed in this record",
+    "nEqualsFiveTenSlotsHundredTwentyEvaluationsRecomputedFromCommittedBytes": true,
+    "sixtyV4SixtyV5RecomputedFromSlotVariantCounts": true,
+    "slotOrderByteForByteEqualToOwnerStatement": true,
+    "fullStudyCeilings610And1830RecomputedFromCommittedBytes": true,
+    "designAPrimeUnscheduledConfirmed": true,
+    "goldBlindNoAdaptiveStoppingInclusionSemanticsIntactConfirmed": true,
+    "holdoutForbiddenFilesListUnchangedConfirmed": true,
+    "headAtRecording": "5dd63eb109a49da8c9f055e00d3f553f7da4c287",
+    "localBranchEqualsRemoteBranchAtRecording": true,
+    "workingTreeClean": true
+  },
+  "ownerStatementAsReceived": "PHASE 2B-2D2C-F0V — OWNER FREEZE APPROVAL FOR V4/V5 N=5 REPLICATION STUDY — NO EXECUTION\n\nOwner decision:\n\nAPPROVE_F0V_REPLICATION_STUDY_FREEZE\n\nI approve the exact proposed replication-study freeze currently committed at:\n\ndocs/evaluation/PHASE_2B_2D2C_DEV_REPLICATION_STUDY_FREEZE_F0V_V1.json\n\non branch:\n\nfeat/phase2b-2d2c-f0v-replication-study-freeze-preparation\n\nexact branch HEAD:\n\n5dd63eb109a49da8c9f055e00d3f553f7da4c287\n\nThe exact freeze bytes I approve are:\n\nSHA-256:\n\n77e26f30cc5e323660d564614ae13f1a0f2c1bbb1fc87df2e604127016377545\n\nUTF-8 byte length:\n\n19190\n\nThe exact deterministically derived replication-study plan I approve is:\n\nSHA-256:\n\n37c6f201195c2b99a6da1d9503baf271ed60f9bbdc4d36d293d29bff59b4a096\n\nExact methodology source:\n\ncommit:\n\n9454e0167fa8cc28d929a1fbf023b26c9727c9b6\n\nmethodology raw SHA-256:\n\nd8b3e57992fe091aed95e7490d4b3c0fe0f4a7bfcc1bb6c7b09bd83252e79cf7\n\nmethodology bytes:\n\n59082\n\nThis is freeze approval only.\n\nIt approves exactly:\n\nDesign B full frozen-batch replication;\nN=5 fresh V4 runs;\nN=5 fresh V5 runs;\nhistorical Attempts 3/4 as pilot-only;\n10 fresh runs total;\n120 logical evaluations total;\nthe exact frozen ten-slot ordering;\nthe exact ten future output-root identities;\nthe exact V4/V5 runtime/prompt identities;\n61 provider / 183 adapter-attempt ceiling per run;\n610 provider / 1830 adapter-attempt ceiling for the complete study;\ngold-blind execution;\nno adaptive stopping;\nthe exact Class A/B/C failure/inclusion semantics;\nthe F0U diagnostic analysis contract;\nthe future model in which all ten exact candidate hashes must be known before the first provider call and may then be approved together in one explicit owner decision.\n\nIt does not authorise:\n\ncreation of any study output root;\ncreation of any execution-authorisation candidate;\nany auth-status/provider call;\nany classifier inference;\nany execution;\nany scoring;\nany HOLDOUT/mixed-file access;\nany V6 or prompt mutation;\nany gold/threshold/acceptance-rule change.\n\nBefore creating the approval record, independently re-read the committed freeze bytes at exact commit:\n\n5dd63eb109a49da8c9f055e00d3f553f7da4c287\n\nand require:\n\nraw SHA-256 exactly\n77e26f30cc5e323660d564614ae13f1a0f2c1bbb1fc87df2e604127016377545;\nUTF-8 byte length exactly 19190;\nstatus exactly PROPOSED_PENDING_OWNER_FREEZE_APPROVAL;\nthisFileAuthorises exactly [];\nderived study-plan SHA exactly\n37c6f201195c2b99a6da1d9503baf271ed60f9bbdc4d36d293d29bff59b4a096;\nmethodology identity exactly as approved above;\nN exactly 5 per prompt;\ntotal fresh runs exactly 10;\ntotal logical evaluations exactly 120;\nexactly 60 V4 and 60 V5 logical evaluations;\nhistorical Attempts 3 and 4 remain pilot-only and excluded from N;\nexact slot order remains:\nPAIR_1_V4, PAIR_1_V5, PAIR_2_V5, PAIR_2_V4, PAIR_3_V4, PAIR_3_V5, PAIR_4_V5, PAIR_4_V4, PAIR_5_V4, PAIR_5_V5;\nfull-study ceilings remain 610 / 1830;\nDesign A′ remains unscheduled;\ngold-blind/no-adaptive-stopping/inclusion semantics remain intact;\nno HOLDOUT eligibility or acceptance rule is introduced.\n\nIf any identity differs, STOP and do not create approval.\n\nIf everything matches, create a new additive immutable approval record:\n\ndocs/evaluation/PHASE_2B_2D2C_F0V_OWNER_FREEZE_APPROVAL_V1.json\n\nDo not modify the freeze JSON itself.\n\nDo not change its status field in place.\n\nThe approval record must bind at minimum:\n\nexact F0V freeze path;\nexact freeze raw SHA-256;\nexact freeze byte length;\nexact study-plan SHA-256;\nexact F0U methodology commit/SHA/bytes;\nexact N=5 / ten-slot order;\nexact V4/V5 runtime and prompt identities;\nexact future study-root/output-root names;\nexact per-run and study ceilings;\npilot-only status of historical Attempts 3/4;\ngold-blind execution;\nno-adaptive-stopping rule;\nClass A/B/C inclusion semantics;\nthe ten-exact-candidate future approval model;\nexplicit statement that freeze approval is not execution authorisation;\nexplicit HOLDOUT prohibition;\nexplicit prohibition on V6/prompt/gold/threshold/acceptance-rule mutation.\n\nThe approval record itself must authorise no provider call, inference or execution.\n\nCompute and report:\n\napproval-record SHA-256;\napproval-record UTF-8 byte length.\n\nCommit and push only the additive approval record plus strictly necessary immutable-approval tests, if required.\n\nDo not build execution machinery in this task.\n\nDo not create output directories.\n\nDo not create any of the ten future execution-authorisation candidates.\n\nStop after reporting:\n\nfreeze rehash;\nstudy-plan re-derivation;\napproval-record path;\napproval-record SHA/bytes;\ncommit SHA;\nbranch/worktree state;\nzero inference;\nzero provider/auth calls;\nzero scoring;\nzero HOLDOUT;\nzero output-root/candidate creation.",
+  "ownerStatementReceptionNote": "This session began after a /clear immediately preceding this task, so it holds no memory of any prior session's context. Unlike the historical F0I approval (which was recorded from an abbreviated post-/clear confirmation and later required a separate ratification record restoring full detail), this owner statement was received in this session's own current turn, complete and unabbreviated, and is transcribed verbatim above in full. Every hash, count and identity it names was independently recomputed in this session from the actual committed F0V/F0I/F0O bytes on disk at commit 5dd63eb109a49da8c9f055e00d3f553f7da4c287 - via shasum/python for the raw hash and byte length, and via running the existing pinned vitest suite (which reads the real files and re-derives the study plan) for the study-plan SHA-256, N/slot/ceiling counts and cross-identity agreement - before this record was written, and every one matched exactly. See verifiedBeforeRecording.",
+  "statementMarkerAsReceived": "APPROVE_F0V_REPLICATION_STUDY_FREEZE",
+  "statementMarkerExpected": "APPROVE_F0V_REPLICATION_STUDY_FREEZE",
+  "thisRecordAuthorises": [],
+  "thisRecordDoesNotAuthorise": [
+    "creation of any study output root",
+    "creation of any execution-authorisation candidate",
+    "any auth-status/provider call",
+    "any classifier inference",
+    "any execution",
+    "any scoring",
+    "any HOLDOUT/mixed-file access",
+    "any V6 or prompt mutation",
+    "any gold/threshold/acceptance-rule change",
+    "a merge, a pull request, a force-push, or a push to main"
+  ],
+  "freezeApprovalIsNotExecutionAuthorisation": true,
+  "permits": [
+    "pinning this record's raw SHA-256 in src/test/harness/phase2b2d2c/f0v/freezeF0V.ts (F0V_APPROVAL_RECORD_PATH / F0V_APPROVAL_RECORD_RAW_SHA256) by a reviewed, additive commit on the F0V preparation branch",
+    "extending the existing F0V freeze unit test to assert this record exists on disk and hashes to the pinned value, mirroring the F0I/F0O precedent",
+    "pushing the F0V branch feat/phase2b-2d2c-f0v-replication-study-freeze-preparation to origin",
+    "a future, separately-reviewed materialisation of all ten request-free execution-authorisation candidate files against this now-approved freeze - not built by this record, and not an execution authorisation"
+  ],
+  "nextGatedStep": "Materialisation of all ten request-free execution-authorisation candidate files (one per frozen slot), each structurally verified by exact byte/hash per S9's future protocol, followed by a SEPARATE, NEW owner decision approving all ten exact candidate hashes together in one explicit act. This freeze approval is not that materialisation and not that authorisation, and creates no output root and no candidate itself."
+}

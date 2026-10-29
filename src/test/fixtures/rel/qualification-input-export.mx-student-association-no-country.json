@@ -1,0 +1,299 @@
+{
+  "document": "nwf-pe.qualification-input-export.v1",
+  "producerVersion": "nwf-pe-qualification-input-producer-v1",
+  "targetContracts": {
+    "qualificationInput": "nwf-qualification-input/1-provisional",
+    "qualificationRubric": "nwf-qualification-rubric/V0-R2",
+    "researchInput": "nwf-qualification-research-input/1-provisional",
+    "researchReference": "nwf-research-provisional-reference/1-provisional"
+  },
+  "evidenceClass": "RESEARCH_REAL",
+  "instantRule": "WHOLE_SECOND_UTC_TRUNCATED_TOWARD_EPOCH",
+  "dateRuleVersion": "nwf-pe-stated-date-rules-v1",
+  "sourceRepository": "nwf-partnership-engine",
+  "readConsistency": "SINGLE_SNAPSHOT_TRANSACTION",
+  "subjectId": "66666666-0000-4000-8000-b10000000004",
+  "evaluatedAt": "2026-10-27T09:55:34Z",
+  "candidate": {
+    "candidateRef": "rp-candidate:66666666-0000-4000-8000-b10000000004",
+    "relations": []
+  },
+  "country": {
+    "value": null,
+    "standing": "CONFLICTING",
+    "rule": "ADR_0024_COUNTRY_OF_OPERATION_STATED",
+    "notRankableReason": "NO_STATED_COUNTRY"
+  },
+  "channels": [
+    {
+      "channelRef": "rp-channel:dddddddd-0000-4000-8000-b10000000041",
+      "kind": "RESOURCE_PAGE",
+      "visibility": "PUBLIC",
+      "websiteClaimId": "dddddddd-0000-4000-8000-b10000000041",
+      "admissionIds": [
+        "dddddddd-0000-4000-8000-b10000000040"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000014",
+      "publisherRelation": "THIRD_PARTY",
+      "capturedAt": "2026-10-26T09:00:00Z",
+      "c1": {
+        "captureKind": "ARTEFACT",
+        "contentDigest": null,
+        "originKey": "url.c7cbbd61422dcdb06a101cc29e686602969ec0edef9c8a4f49c8f7e6eff41ee8",
+        "derivedFromSourceRef": null,
+        "attesterRef": null,
+        "partnerRecordRef": null
+      },
+      "reproducibility": {
+        "kind": "EXTERNAL_REFERENCE_ONLY",
+        "origin": "https://sources.relp1-pilot-example.org/k-mx-student-association-no-country",
+        "accessedAt": "2026-10-26T09:00:00Z",
+        "contentDigest": null
+      },
+      "record": {
+        "kind": "PUBLIC_URL_UNRESOLVED",
+        "provenanceKey": "url:https://sources.relp1-pilot-example.org/k-mx-student-association-no-country|v="
+      }
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000034",
+      "publisherRelation": "SELF",
+      "capturedAt": "2026-10-27T09:55:33Z",
+      "c1": {
+        "captureKind": "ARTEFACT",
+        "contentDigest": "9ceeeef68215aa81f3b87cff71e6f2f118b472d3ed82bdadf10b28524784b130",
+        "originKey": "url.f72ab7e2740d2950a73fa7589f15cfd7a729d2bd998a29edeeb474648e231a8c",
+        "derivedFromSourceRef": null,
+        "attesterRef": null,
+        "partnerRecordRef": null
+      },
+      "reproducibility": {
+        "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
+        "contentDigest": "9ceeeef68215aa81f3b87cff71e6f2f118b472d3ed82bdadf10b28524784b130",
+        "bytesAvailable": false,
+        "origin": "https://www.idiomas-estudiantes-mty-fict.mx/nosotros/",
+        "digestRecordedAt": "2026-10-27T09:55:33Z"
+      },
+      "record": {
+        "kind": "PAGE_EVIDENCE",
+        "pageEvidenceId": "dddddddd-0000-4000-8000-b10000000034",
+        "fetchObservationId": "dddddddd-0000-4000-8000-b10000000003",
+        "researchRunId": "dddddddd-0000-4000-8000-b1000000002a",
+        "admissionId": "dddddddd-0000-4000-8000-b10000000040",
+        "extractionRuleVersion": "orgunit-extraction-v3",
+        "candidates": [
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b10000000004",
+            "track": "INTERNATIONAL_OFFICE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 2,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          },
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b10000000032",
+            "track": "LANGUAGE_CENTRE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 2,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          }
+        ]
+      }
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000037",
+      "publisherRelation": "SELF",
+      "capturedAt": "2026-10-27T09:55:33Z",
+      "c1": {
+        "captureKind": "ARTEFACT",
+        "contentDigest": "e8b1ddba6aa34cc2fe16f6faf8161a55c58433dc9d82c72d267f72fa2e6a42e1",
+        "originKey": "url.98372719d5e6c310439853d15b6d838438f5d110c47f6fb0ba2b7663d35fbe44",
+        "derivedFromSourceRef": null,
+        "attesterRef": null,
+        "partnerRecordRef": null
+      },
+      "reproducibility": {
+        "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
+        "contentDigest": "e8b1ddba6aa34cc2fe16f6faf8161a55c58433dc9d82c72d267f72fa2e6a42e1",
+        "bytesAvailable": false,
+        "origin": "https://www.idiomas-estudiantes-mty-fict.mx/",
+        "digestRecordedAt": "2026-10-27T09:55:33Z"
+      },
+      "record": {
+        "kind": "PAGE_EVIDENCE",
+        "pageEvidenceId": "dddddddd-0000-4000-8000-b10000000037",
+        "fetchObservationId": "dddddddd-0000-4000-8000-b10000000030",
+        "researchRunId": "dddddddd-0000-4000-8000-b1000000002a",
+        "admissionId": "dddddddd-0000-4000-8000-b10000000040",
+        "extractionRuleVersion": "orgunit-extraction-v3",
+        "candidates": [
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b10000000031",
+            "track": "INTERNATIONAL_OFFICE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 1,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          },
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b1000000001c",
+            "track": "LANGUAGE_CENTRE",
+            "candidateScore": "2.0000",
+            "rankWithinRoot": 1,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          }
+        ]
+      }
+    }
+  ],
+  "claims": [
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000009",
+      "claimKey": "channel.existence",
+      "subject": {
+        "kind": "CHANNEL",
+        "ref": "rp-channel:dddddddd-0000-4000-8000-b10000000041"
+      },
+      "mode": "OBSERVED",
+      "attribution": "EXACT",
+      "producedBy": "NWF_SYSTEM",
+      "value": {
+        "status": "EXISTS"
+      },
+      "basis": {
+        "origin": "ADMITTED_WEBSITE_CAPTURED",
+        "websiteClaimId": "dddddddd-0000-4000-8000-b10000000041",
+        "admissionIds": [
+          "dddddddd-0000-4000-8000-b10000000040"
+        ]
+      },
+      "researchRealConflicts": [
+        "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+        "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+      ]
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000018",
+      "claimKey": "channel.operator_binding",
+      "subject": {
+        "kind": "CHANNEL",
+        "ref": "rp-channel:dddddddd-0000-4000-8000-b10000000041"
+      },
+      "mode": "OBSERVED",
+      "attribution": "EXACT",
+      "producedBy": "NWF_SYSTEM",
+      "value": {
+        "operatorCandidateId": "rp-candidate:66666666-0000-4000-8000-b10000000004",
+        "basis": "HOSTED_ON_CANDIDATE_SITE"
+      },
+      "basis": {
+        "origin": "ADMITTED_WEBSITE_CAPTURED",
+        "websiteClaimId": "dddddddd-0000-4000-8000-b10000000041",
+        "admissionIds": [
+          "dddddddd-0000-4000-8000-b10000000040"
+        ]
+      },
+      "researchRealConflicts": [
+        "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+        "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+      ]
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000002b",
+      "claimKey": "candidate.kind",
+      "subject": {
+        "kind": "CANDIDATE",
+        "ref": "rp-candidate:66666666-0000-4000-8000-b10000000004"
+      },
+      "mode": "THIRD_PARTY_ASSERTED",
+      "attribution": "LIKELY",
+      "producedBy": "HUMAN_RESEARCHER",
+      "value": {
+        "kind": "STUDENT_ASSOCIATION"
+      },
+      "basis": {
+        "origin": "REGISTRY_ENTITY_KIND",
+        "identityClaimId": "dddddddd-0000-4000-8000-b10000000005",
+        "registryKind": "INDEPENDENT_STUDENT_ASSOCIATION"
+      },
+      "researchRealConflicts": []
+    }
+  ],
+  "claimLinks": [
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000009",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000034",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000009",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000037",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000018",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000034",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000018",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000037",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000002b",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000014",
+      "relation": "SUPPORTS"
+    }
+  ],
+  "excluded": [
+    {
+      "ref": "jurisdiction_claim:dddddddd-0000-4000-8000-b10000000026",
+      "reason": "COUNTRY_NOT_STATED"
+    },
+    {
+      "ref": "jurisdiction_claim:dddddddd-0000-4000-8000-b1000000003d",
+      "reason": "COUNTRY_NOT_STATED"
+    }
+  ],
+  "researchRuns": [
+    {
+      "runId": "dddddddd-0000-4000-8000-b1000000002a",
+      "admissionId": "dddddddd-0000-4000-8000-b10000000040",
+      "included": true,
+      "pages": 2
+    }
+  ],
+  "permissions": {
+    "qualification": "NONE",
+    "ranking": "NONE",
+    "publication": "NONE",
+    "memberRelease": "NONE",
+    "identityBinding": "NONE",
+    "outreach": "NONE",
+    "contactPermission": "NOT_GRANTED"
+  },
+  "limitations": {
+    "documentSignature": "NONE_NOT_A_SIGNED_EXPORT",
+    "scoring": "NONE_THE_OPERATOR_C1_RUBRIC_ALONE_SCORES",
+    "descriptors": "NONE_THE_OPERATOR_PAIRS_THE_OWNER_PILOT_DESCRIPTOR_FOR_THE_STATED_COUNTRY",
+    "identity": "PROVISIONAL_ENGINE_LOCAL_REFERENCES_I0_BINDS_IDENTITY_IN_THE_OPERATOR",
+    "country": "ADR_0024_COUNTRY_OF_OPERATION_STATED_ONLY_ELSE_NULL_NEVER_INFERRED",
+    "bytes": "RESPONSE_BODIES_ARE_NEVER_STORED_A_CAPTURE_IS_A_DIGEST_ONLY",
+    "pageText": "NO_PAGE_TEXT_IS_EXPORTED",
+    "classifier": "NO_CLASSIFIER_OR_PAGE_PHRASE_CLAIM_IS_EXPORTED",
+    "licence": "UNKNOWN_NO_STORED_SOURCE_RECORDS_A_LICENCE",
+    "asOf": "RECORDS_CREATED_AFTER_EVALUATED_AT_ARE_EXCLUDED",
+    "instants": "WHOLE_SECOND_UTC_TRUNCATED_TOWARD_EPOCH",
+    "completeness": "NOT_PROVEN",
+    "piiFields": "NONE_BY_CONSTRUCTION"
+  }
+}

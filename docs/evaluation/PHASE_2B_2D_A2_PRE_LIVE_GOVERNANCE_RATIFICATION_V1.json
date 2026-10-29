@@ -1,0 +1,184 @@
+{
+  "recordId": "phase2b-2d-a2-pre-live-governance-ratification-v1",
+  "recordKind": "OWNER_GOVERNANCE_RATIFICATION_AND_PROVENANCE_ERRATUM",
+  "records": "PHASE_2B_2D_A2_PRE_LIVE_GOVERNANCE_RATIFICATION_V1",
+  "recordedAtUtc": "2026-09-21T13:53:16Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time; never hand-typed",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "startingHead": "277cd59b97d91fde450ba32b5df1b1a44ffb936a",
+  "ownerDecisions": [
+    "APPROVE_PRECOMMITTED_RESERVE_CONSUMPTION_SEMANTICS_V1",
+    "APPROVE_PLAN_LITERAL_CONTINUATION_WINDOW_P1_P3_THRESHOLDS_V1",
+    "ACCEPT_APPEND_ONLY_PROVENANCE_TIMESTAMP_ERRATUM_V1"
+  ],
+  "bound": {
+    "ownerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "introducingCommit": "b17503a2420ff16cc0c71ac94709b54fe1f2ead6"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_P5_ACQUISITION_CONTINUATION_STRATEGY_V1.json",
+      "sha256": "619f326184c4b91b09a57413a6288356850dad2270e9b0d01c0e288dc76b4097",
+      "bytes": 60326,
+      "introducingCommit": "512f28306e3659528f566279e858665dfb7419bc"
+    },
+    "temporalTestCorrection": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_REPLACEMENT_LEDGER_TEMPORAL_TEST_CORRECTION_V1.json",
+      "sha256": "f0d08a934d08ae45308ce425eecd887a101e14d13f72f09312521be7d1c1b71b",
+      "bytes": 7328,
+      "introducingCommit": "faac3eabd4b956ce934f4532fb9a2ee1f11e3181"
+    },
+    "genesisReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "a80e429059875d1a1aeea1c35092d88ecbf0395cfe8c8efcb278d17dac1e4ee2",
+      "bytes": 4866,
+      "ledgerHash": "7e89966722961162067690abf5cf79cebac26e1697de8488f4f7ed0e8d303bda",
+      "entries": 0,
+      "introducingCommit": "36bd5316300b396aeb38d347ac4f46f885ccacba"
+    },
+    "windowPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_WINDOW_PLAN_V1.json",
+      "sha256": "f7f3dabfee398945f0f4c1750d0c61309b1ab2b048987fe8856545842338d9e1",
+      "bytes": 6458,
+      "windowPlanHash": "d33c2e05a9fdeb4dbf409187b64cf20ced0cd27adc0478ec99340829548f4cdc",
+      "introducingCommit": "36bd5316300b396aeb38d347ac4f46f885ccacba"
+    },
+    "offlineImplementationRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_BATCH_IMPLEMENTATION_V1.json",
+      "sha256": "73942e28e585ddb62539cc6ef0cf10bb3c08d62bcf7d0d5077d0ef195042a545",
+      "bytes": 8558,
+      "introducingCommit": "277cd59b97d91fde450ba32b5df1b1a44ffb936a"
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "unchanged": true
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "unchanged": true
+    }
+  },
+  "provenanceTimestampErratum": {
+    "ownerDecision": "ACCEPT_APPEND_ONLY_PROVENANCE_TIMESTAMP_ERRATUM_V1",
+    "classification": "RECORDED_AT_UTC_TIMEZONE_FORMATTING_ERRATUM",
+    "rule": "an erratum is recorded where a record's recordedAtUtc is LATER than the committer timestamp of the Git commit that first introduced the record",
+    "inspectionScope": "every JSON record introduced by b17503a, faac3ea, 36bd531 and 277cd59 (the range b17503a..277cd59 inclusive), plus the strategy record introduced by their parent 512f283 for context",
+    "commitTimestampSource": "git committer date of the introducing commit (git log --diff-filter=A), converted to UTC; author and committer dates are identical on every inspected commit",
+    "errata": [
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+        "introducingCommit": "b17503a2420ff16cc0c71ac94709b54fe1f2ead6",
+        "introducingCommitUtc": "2026-09-21T12:52:10Z",
+        "recordedAtUtcAsWritten": "2026-09-21T13:05:00Z",
+        "laterThanCommitBySeconds": 770,
+        "classification": "RECORDED_AT_UTC_TIMEZONE_FORMATTING_ERRATUM"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_REPLACEMENT_LEDGER_TEMPORAL_TEST_CORRECTION_V1.json",
+        "introducingCommit": "faac3eabd4b956ce934f4532fb9a2ee1f11e3181",
+        "introducingCommitUtc": "2026-09-21T13:03:54Z",
+        "recordedAtUtcAsWritten": "2026-09-21T14:05:00Z",
+        "laterThanCommitBySeconds": 3666,
+        "classification": "RECORDED_AT_UTC_TIMEZONE_FORMATTING_ERRATUM"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_BATCH_IMPLEMENTATION_V1.json",
+        "introducingCommit": "277cd59b97d91fde450ba32b5df1b1a44ffb936a",
+        "introducingCommitUtc": "2026-09-21T13:26:44Z",
+        "recordedAtUtcAsWritten": "2026-09-21T14:40:00Z",
+        "laterThanCommitBySeconds": 4396,
+        "classification": "RECORDED_AT_UTC_TIMEZONE_FORMATTING_ERRATUM"
+      }
+    ],
+    "inspectedWithoutErratum": [
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_P5_ACQUISITION_CONTINUATION_STRATEGY_V1.json",
+        "introducingCommit": "512f28306e3659528f566279e858665dfb7419bc",
+        "introducingCommitUtc": "2026-09-21T12:39:05Z",
+        "recordedAtUtcAsWritten": "2026-09-21T12:28:27Z",
+        "finding": "recordedAtUtc precedes the introducing commit; no erratum"
+      },
+      {
+        "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+        "introducingCommit": "36bd5316300b396aeb38d347ac4f46f885ccacba",
+        "finding": "carries no recordedAtUtc or other instant; nothing to compare"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_WINDOW_PLAN_V1.json",
+        "introducingCommit": "36bd5316300b396aeb38d347ac4f46f885ccacba",
+        "finding": "carries no recordedAtUtc or other instant; nothing to compare"
+      }
+    ],
+    "corroboration": "two of the three erroneous values (14:05:00Z and 14:40:00Z) were also LATER than the actual shell UTC clock at the time this ratification was prepared, so they cannot have been true instants of anything",
+    "historicalFilesModified": false,
+    "historicalTimestampsClaimedTrue": false,
+    "operativeChronology": "for chronology and provenance the introducing Git commit timestamp is the operative, durable NO-LATER-THAN boundary for each record above; the historical recordedAtUtc values are retained verbatim as written and are not relied on",
+    "mechanism": "classified by the owner as a timezone-conversion/formatting defect; this record asserts no finer mechanism than that",
+    "correctiveMeasureGoingForward": "every instant written by this live window is read from the shell with date -u and checked against the actual clock before commit and against its introducing commit timestamp after commit"
+  },
+  "ownerConfirmationOfB17503a": {
+    "confirmed": true,
+    "statement": "The owner confirms that the four decisions contained in b17503a are genuine owner decisions. The timestamp defect does NOT invalidate those decisions; it is metadata correction only.",
+    "decisions": [
+      "Q1 ascending selection-index reserve assignment",
+      "Q2 same-slot append-only replacement chain",
+      "Q3 mechanical replacement-reason precedence",
+      "Q4 window-local batch-pause semantics"
+    ]
+  },
+  "reserveConsumptionSemantics": {
+    "ownerDecision": "APPROVE_PRECOMMITTED_RESERVE_CONSUMPTION_SEMANTICS_V1",
+    "consumptionInstant": "a reserve becomes CONSUMED when its valid canonical replacement-ledger row is (1) appended, (2) committed and (3) pushed to origin, BEFORE any institution network activity",
+    "windowV1": "all four rows (3->0, 4->1, 6->2, 8->3) are appended and pushed together before request #1, so reserve consumed = 4 before request #1; this is intentional",
+    "assignedButUnstarted": {
+      "remainsConsumed": true,
+      "remainsCurrentOccupantOfItsSlot": true,
+      "returnedToReservePool": false,
+      "reassigned": false,
+      "state": "ASSIGNED_NOT_YET_EXECUTED",
+      "carriedInto": "a later explicitly-authorised window",
+      "ledgerRowDeleted": false,
+      "ledgerRolledBack": false
+    },
+    "replacementFailureInsideTheWindow": {
+      "runPreserved": true,
+      "ledgerAssignmentPreserved": true,
+      "effect": "a new pending replacement obligation for the SAME slot, conceptually",
+      "nextReserveAllocatedDuringThisWindow": false,
+      "reservePosition4AppendedDynamically": false,
+      "futureAssignmentRequires": "another precommitted, owner-authorised window"
+    }
+  },
+  "continuationWindowThresholds": {
+    "ownerDecision": "APPROVE_PLAN_LITERAL_CONTINUATION_WINDOW_P1_P3_THRESHOLDS_V1",
+    "governingContract": "the already-landed continuation-window gate (src/test/harness/phase2b2d/continuationWindow/windowGate.ts at 36bd531), accepted as-is; not modified",
+    "plannedWindowSize": 5,
+    "P1": "INVALID_ROOT_AUTHORITY on >= 3 consecutive completed work items within this window",
+    "P2": "robots blocked/unreadable on >= 3 consecutive items, OR strictly > 40% of the planned window size (3 of 5)",
+    "P3": "runTerminalState FAILED on >= 2 consecutive items, OR any ORCHESTRATION_ERROR immediately",
+    "P4": "any current persistence anomaly, immediately",
+    "P5": "raw page evidence < 4 on strictly > 30% of the planned window size (2 of 5)",
+    "P6": "generation-global: reserveConsumedCount > 10 AND successfulOrganisationCount < 50",
+    "P7": "any current generation/window invariant mismatch, immediately",
+    "P8": "any host-state anomaly during current live execution, immediately",
+    "gateModified": false
+  },
+  "unchanged": {
+    "methodologyR3": true,
+    "corpusAcquisitionPlanV1": true,
+    "windowPlanV1": true,
+    "continuationWindowGate": true,
+    "productionBehaviourChangedByThisRecord": false,
+    "productionCodeChanged": false,
+    "migrationCreated": false
+  },
+  "institutionNetworkExecutedBeforeThisRecord": false,
+  "replacementLedgerMutatedByThisRecord": false
+}

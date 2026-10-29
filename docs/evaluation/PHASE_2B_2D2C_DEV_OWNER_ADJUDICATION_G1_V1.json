@@ -1,0 +1,61 @@
+{
+  "recordId": "PHASE_2B_2D2C_DEV_OWNER_ADJUDICATION_G1_V1",
+  "schemaVersion": "phase2b-2d2c-dev-owner-adjudication-v1",
+  "kind": "SCORING_ONLY_OWNER_ADJUDICATION",
+  "status": "ACTIVE_SCORING_ONLY",
+  "purpose": "Durably records the owner's adjudication of the single unresolved DEVELOPMENT gold item. It confirms the label that was ALREADY committed and ALREADY scored; it changes no gold byte, no prediction, no denominator and no threshold. Its only effect on a derivation is to discharge F0B's BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION status, whose name states the event it was waiting for.",
+  "goldId": "ge789b0f0aedc398c",
+  "split": "DEVELOPMENT",
+  "decision": "KEEP_UNIT_PAGE",
+  "ownerStatement": "KEEP_UNIT_PAGE — I adjudicate ge789b0f0aedc398c as UNIT_PAGE based only on the frozen document and rubric.",
+  "basis": "FROZEN_DOCUMENT_AND_RUBRIC",
+  "modelPredictionsConsidered": false,
+  "metricEffectsConsidered": false,
+  "labelChanged": false,
+  "existingVerdictConfirmed": "UNIT_PAGE",
+  "existingUnitTypeConfirmed": "INTERNATIONAL_MOBILITY_OFFICE",
+  "recordedAtUtc": "2026-09-14T08:31:10Z",
+  "recordedAtUtcMeaning": "RECORDING TIME ONLY — the instant these bytes were written by the G2 closure task. It is NOT the instant the owner decided, which happened earlier in the G1 adjudication exchange and was not timestamped by any machine. Never present this value as the decision time.",
+  "adjudicationProcess": {
+    "packetTask": "PHASE_2B_2D2C_G1",
+    "blinded": true,
+    "blindingStatement": "The evidence packet presented to the owner carried the frozen document fields, the existing gold record, the applicable prompt-v1 and prompt-v2 rubric clauses and seven frozen DEVELOPMENT comparators. It carried NO model prediction, NO V1/V2 correctness, NO metric value, NO gate outcome and NO threshold effect.",
+    "optionsOffered": ["KEEP_UNIT_PAGE", "CHANGE_TO_NOT_A_UNIT", "RUBRIC_AMBIGUOUS"],
+    "evidenceSummaryLocation": "docs/audits/PHASE_2B_2D2C_G2_OWNER_ADJUDICATION_CLOSURE_2026-09.md",
+    "documentAndComparatorPacketNotCopiedHere": "The full frozen document and the comparator packet are deliberately NOT duplicated into this record. This file is a decision of record; the evidence summary lives in the audit."
+  },
+  "referencedGoldRecord": {
+    "fixturePath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl",
+    "fixtureRawSha256": "19d9cc3e9dcfe0b10930aa095075cd4828459377d9ea67c8dd296da6126fcd08",
+    "lineNumber": 25,
+    "recordByteLength": 1161,
+    "recordSha256": "8848d36ae9c88dcc593607c6fb5f8c3f1e2ecceca872be14ceff90b1c156f7a3",
+    "recordSha256Definition": "SHA-256 of the record's exact stored byte sequence, EXCLUDING its terminating LF. A loader recomputes this and refuses any difference, which is what makes 'no gold byte changed' checkable rather than asserted."
+  },
+  "parents": {
+    "inferenceFreezePath": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1.json",
+    "inferenceFreezeRawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+    "inferenceFreezeUnchangedByThisRecord": true,
+    "scoringSupplementPath": "docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json",
+    "scoringSupplementRawSha256": "dd00e1653deac617eb6ba82e537f090b34de37de5c939a0e52c0466fdc874db5",
+    "preservedAttemptAggregateSha256": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+    "preservedAttemptUnchangedByThisRecord": true
+  },
+  "effectOnScoring": {
+    "altersAnyPrediction": false,
+    "altersAnyGoldValue": false,
+    "altersAnyMetricDenominator": false,
+    "altersAnyThreshold": false,
+    "dischargesBlocker": "BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION",
+    "dischargeCondition": "The blocker is discharged ONLY because this record confirms byte-for-byte the label the derivation already scored. A record naming any other verdict or unit type would have required a new gold projection and a new derivation, not a discharge.",
+    "leaveOneOutStillReported": true,
+    "leaveOneOutMeaning": "The 13-item leave-one-out view remains computed and prominently reported. It is a sensitivity diagnostic showing how thin the 14-item unit-type denominator is; it is NOT evidence against the owner-confirmed primary label, and it never becomes the primary metric."
+  },
+  "prohibitions": [
+    "This record never becomes an input to inference.",
+    "This record never edits, supersedes or re-versions the F0B inference freeze.",
+    "This record authorises no gold-label change, here or for any other item.",
+    "This record authorises no HOLDOUT access, no new attempt and no new execution authorisation.",
+    "This record declares no prompt acceptable or production-ready."
+  ]
+}

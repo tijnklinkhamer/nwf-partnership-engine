@@ -1,0 +1,2218 @@
+{
+  "record": "PHASE_2B_2D_METHODOLOGY_V2_DRAW",
+  "recordKind": "DRAW_V2_GEN1",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "boundMethodology": {
+    "methodologyR3Path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+    "methodologyR3Sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "methodologyR3Bytes": 142306,
+    "methodologyApprovalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+    "methodologyApprovalSha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+    "methodologyApprovalCommit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0",
+    "sd2Rule": "Rank every FRAME-ELIGIBLE organisation by sha256(eche_row_key) ascending. Walk that rank from position 0, admitting each organisation to the SELECTION LIST until it holds ACQUISITION_TARGET_ORGANISATIONS = 110 entries; continue to admit a further ACQUISITION_RESERVE_ORGANISATIONS = 40 to the RESERVE LIST, in the same rank order. Both lists are committed together, BEFORE acquisition begins. Assign the split of the organisation at selection index i as SPLIT_ASSIGNMENT_CYCLE_V2_R2[i mod 22].",
+    "methodologyIsNotReopenedHere": true
+  },
+  "boundCorpusPlan": {
+    "corpusPlanPath": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+    "corpusPlanSha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+    "corpusPlanBytes": 45200,
+    "corpusPlanCommit": "6f2de0fd5a80f050857a14531e74b659f0ff30c1",
+    "corpusPlanApprovalPath": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+    "corpusPlanApprovalSha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14"
+  },
+  "boundAuthorisation": {
+    "authorityRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A1B_DRAW_AUTHORITY_RECORD_V1.json",
+    "authorityRecordSha256": "c24656400469cfe98136df4b705fc80b3916dd4fa66d4114305d101a468108d3",
+    "ownerDecision": "AUTHORISE_PHASE_2B_2D_A1B_DETERMINISTIC_DRAW_V1",
+    "networkAuthorised": false,
+    "databaseReadAuthorised": false,
+    "databaseWriteAuthorised": false,
+    "institutionAcquisitionAuthorised": false,
+    "replacementAuthorised": false,
+    "pageSelectionAuthorised": false,
+    "labellingAuthorised": false,
+    "providerInferenceAuthorised": false,
+    "holdoutExecutionAuthorised": false
+  },
+  "frame": {
+    "framePath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+    "artifactFileBytes": 3554080,
+    "frameCommit": "c64fad3474499d392d316e35c720310c76e9405b",
+    "eligibleOrganisationCount": 5820,
+    "frameWasTheOnlyInput": "A1 projected every SD1 eligibility decision into the frame bytes named here. This draw opened that one file, verified both of its hashes and its byte length before reading a single entry, and opened no database, no official source artifact, no historical evaluation fixture and no socket.",
+    "onlyIncludedEntriesParticipated": true,
+    "frameWasNotModified": true,
+    "undrawnFrameEntriesAreNotMarkedRejected": "Positions at or beyond rank 150 were simply not reached by this generation initial draw. They carry no marker, and the frame is unchanged."
+  },
+  "algorithm": {
+    "rankAlgorithmId": "SHA256_EXACT_UTF8_ECHE_ROW_KEY_ASC_V1",
+    "rankKey": "sha256(echeRowKey)",
+    "hashedBytes": "the UTF-8 bytes of the EXACT echeRowKey string stored in the frozen frame",
+    "noTrim": true,
+    "noLowercase": true,
+    "noUppercase": true,
+    "noLocaleTransform": true,
+    "noUnicodeNormalization": true,
+    "noPrefix": true,
+    "noSalt": true,
+    "seeded": false,
+    "rankRendering": "64-character lower-case hexadecimal",
+    "sortOrder": "ascending, plain lexicographic comparison of the 64-character string",
+    "whySortIsNotLocaleAware": "Every character of a lower-case hex digest is one of 0-9a-f: single-byte in UTF-8 and identically ordered in ASCII and UTF-16, so plain comparison IS byte comparison. localeCompare would add collation that varies by ICU version and locale, which a frozen draw cannot have.",
+    "collisionBetweenDistinctKeysIsAStop": "STOP_FAIL_CLOSED",
+    "noTieBreakRuleWasInvented": "SD2 freezes no tie-break rule. A collision between two distinct eche_row_keys refuses the draw rather than resolving it, because resolving it would be inventing methodology.",
+    "target": 110,
+    "reserve": 40,
+    "selectionPositions": "0..109",
+    "reservePositions": "110..149",
+    "cycleId": "SPLIT_ASSIGNMENT_CYCLE_V2_R2",
+    "cycleLength": 22,
+    "cycle": [
+      "DEV_TRAIN",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_TRAIN",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_TRAIN",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_TRAIN",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT"
+    ],
+    "cycleRepetitions": 5,
+    "splitAssignment": "SPLIT_ASSIGNMENT_CYCLE_V2_R2[i mod 22] where i is the 0-based selectionIndex",
+    "exactRealisedCounts": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    },
+    "exactCountsAreStructural": "20 : 45 : 45 reduces to 4 : 9 : 9, which sums to 22, and 110 / 22 = 5. The counts are a property of the cycle and the total, never of the data - no remainder rule, no rounding, no discretion.",
+    "assignmentIsLabelBlindDifficultyBlindResultBlind": "sha256(eche_row_key) is a content hash of a source-row identity. It cannot encode a label, a difficulty, a model result or an acquisition outcome, because none of those existed when it was computed."
+  },
+  "counts": {
+    "eligibleInputCount": 5820,
+    "selectionCount": 110,
+    "reserveCount": 40,
+    "rankedButUndrawnCount": 5670,
+    "splitCounts": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    }
+  },
+  "rootAuthorityDistribution": {
+    "drawnOrganisations": 150,
+    "organisationsWithZeroAuthorities": 0,
+    "organisationsWithExactlyOneAuthority": 150,
+    "organisationsWithMoreThanOneAuthority": 0,
+    "totalRootAuthorities": 150,
+    "totalWebsiteClaimAuthorities": 150,
+    "totalRootPromotionAuthorities": 0
+  },
+  "noAcquisitionTargetIsDerivedHere": {
+    "statement": "Entries carry root authority IDENTIFIERS exactly as the frame carried them, byte for byte. A2 re-resolves each identifier into a request target from the database under its own authority, as CLAUDE.md rule 18 requires.",
+    "containsNoCanonicalRootUrl": true,
+    "containsNoDomainOrHostname": true,
+    "containsNoInstitutionTitle": true,
+    "containsNoAcquisitionUrl": true,
+    "containsNoSitemapUrl": true,
+    "containsNoRobotsUrl": true,
+    "thisIsASelectionArtifactNotAnAcquisitionManifest": true
+  },
+  "replacementState": {
+    "noReplacementHasOccurred": true,
+    "noSelectedOrganisationIsDeclaredSuccessful": true,
+    "noSelectedOrganisationIsDeclaredFailed": true,
+    "noReserveEntryIsConsumed": true,
+    "reserveEntriesCarryNoSplit": true,
+    "reserveEntriesCarryNoInheritedSelectionIndex": true,
+    "reserveEntriesCarryNoReplacementReason": true,
+    "whyReserveEntriesHaveNoSplitField": "A reserve organisation acquires a split ONLY by inheriting a failed selection index under separately authorised A2 replacement. A reserve entry shaped to hold one would make that unauthorised step look like filling in a blank rather than like the separate action it is, so the field does not exist rather than being null.",
+    "noReplacementLedgerExistsYet": true,
+    "replacementWillBeAppendOnlyUnderFutureA2Authority": true
+  },
+  "hashing": {
+    "canonicalJsonConvention": "canonicalStringify (src/orgunits/classify/canonical.ts): object keys sorted ascending by code unit, arrays kept in their given order, no whitespace, JSON.stringify string escaping, undefined refused. The same canonicalizer the A1 frameHash, the classifier assembly hash and the gold corpus freeze hashes already use; no mechanically necessary difference arose, so none was introduced.",
+    "drawHashCoverage": "the entire draw payload EXCLUDING the drawHash field itself",
+    "drawHashIsNotTheFileHash": "drawHash identifies the draw CONTENT and is stable under reformatting. artifactFileSha256 identifies the committed FILE BYTES and is reported separately, never conflated with drawHash."
+  },
+  "selection": [
+    {
+      "selectionIndex": 0,
+      "echeRowKey": "SF TURKU01|999903064",
+      "organisationId": "7ec49477-ff03-4bb8-8fec-5ed2f3e91c21",
+      "rankHash": "0001d20a45264b0219d6af2b7352a28b7e375ccb83f05891dab9bdd529f5fbbc",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "4eea3a64-3e27-4ed4-b1dc-6aa438fcdf60"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 1,
+      "echeRowKey": "B ARLON09|949165080",
+      "organisationId": "0d2e6919-49ea-4637-a95e-17b89690efdd",
+      "rankHash": "000c0d2f94d3cd7303e05144001ae19a70c96a2e972e11335a53aabbc71d8f02",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "922d542f-03c1-470b-999c-59bf049c76fb"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 2,
+      "echeRowKey": "F BRIVE06|884103882",
+      "organisationId": "c1496e45-aaf9-4e0f-88c7-39ebd1dfd71c",
+      "rankHash": "0018facb1d0647b922146261899f233b5e460b7355bc8b7aee880c767e599a52",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "cd60d2eb-5cd0-4aa5-a2ea-7dd3c89dd5bb"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 3,
+      "echeRowKey": "E TOLEDO08|949075549",
+      "organisationId": "f1233cfc-a4e8-45d7-adc9-583f4ba83e84",
+      "rankHash": "001b5b5c1d25e8924a4456abf5e052a5bcc46da5be0f0a3a984fdc3ddc0d8f0d",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "a9980bd0-4801-4d23-95d9-670ad6d458a9"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 4,
+      "echeRowKey": "F PARIS258|949142770",
+      "organisationId": "d4c3a121-5822-442f-bd10-d15b0f79c763",
+      "rankHash": "001c9f735d1beabaafdcd5f18a5eeea35225eb2be5b77e58e16b1cb9bc0b1262",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "1880b14f-81da-4b74-ab38-8fb92d9e4e04"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 5,
+      "echeRowKey": "F SCEAUX01|949631553",
+      "organisationId": "ae9c59e5-f8c0-4160-a0eb-a24ecab90a01",
+      "rankHash": "0025bff992a5084aae948bcba6df4bea5670db133f7999dc1938c4b5a5215aed",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "8e99e831-aeb5-4c9a-b890-99bb1ed3966b"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 6,
+      "echeRowKey": "E BARCELO266|942020933",
+      "organisationId": "64f8f878-b324-4991-82bb-fef6bb8afecc",
+      "rankHash": "00286722c2148943d3163c2be497ee6530cf0d6404f664e52e9db7147d860c3e",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "2eb82db3-f76e-4b6d-bcc7-d86ee51b18ff"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 7,
+      "echeRowKey": "E BARCELO200|938215914",
+      "organisationId": "d35b3239-ef25-4917-8d26-5db4513ec9cf",
+      "rankHash": "002d7dc18bc9d9684306eeeefd684986e41e461a167492597d8e8eca76bfc5cf",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "e12ab78e-a48a-4f9a-a04c-1ea0607ba3c1"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 8,
+      "echeRowKey": "E MALAGA53|943599705",
+      "organisationId": "9469de9f-2b03-4ae9-a09a-3aef7441c491",
+      "rankHash": "002f029adff66e559da970dbcfa31da866d538930d198e862d2b68199642d02a",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "08450e67-9251-49e4-b13c-d02a5ef1d780"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 9,
+      "echeRowKey": "S MALMO02|999898505",
+      "organisationId": "ad9f67e9-bdf5-47c3-b034-4bd733584351",
+      "rankHash": "003b873f66f44552000ea0a19d1bdca636553f0e9ad6b7f1ac3af16f392c0de9",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "e8226bb7-bbc4-40b8-a1e2-68310139c204"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 10,
+      "echeRowKey": "E CADIZ41|938810136",
+      "organisationId": "0789d41e-1d7b-4a17-8155-1c2af3fabf99",
+      "rankHash": "004744d7921208c6e2cb39d4f1f80a391e41efa9cf23032641ae3166a38eaa1d",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "b0d8f298-b6cd-4a2b-8a1c-df492687ba9e"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 11,
+      "echeRowKey": "F BAYONNE13|913929733",
+      "organisationId": "fcbcab3d-8a3a-4da0-ad2b-c0428ecd685f",
+      "rankHash": "005ac3364e4abc653fbd8afbac6665692885522586351ac2d2d2ff6d553b758e",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "cb392c25-0b36-41a8-b07d-9260dce7c073"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 12,
+      "echeRowKey": "F PARIS465|913054211",
+      "organisationId": "277a858c-bddb-4ff1-afaa-3282823a2530",
+      "rankHash": "0064d823f0ad6273487e2cbaf53132d2beaa6664eae5047a9ea686bbfcff4e6e",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "c93bbe54-7b7c-4b99-b908-299379bd1203"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 13,
+      "echeRowKey": "E MADRID269|875994585",
+      "organisationId": "4011551a-6e15-4e86-a71a-321f2922789c",
+      "rankHash": "006b405a6d962077b53183cd349a9014dd8dd7d8eb2c6e8046e01a8094c80560",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "867a09bf-022b-442a-b245-0449177011a2"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 14,
+      "echeRowKey": "PL WARSZAW07|996314743",
+      "organisationId": "b9b86bb5-eeab-4948-a1ba-b025906ab00a",
+      "rankHash": "006badf9fb1b6b42d51373f35d03b16d3a0b0c01ee4b3d894eb1e544e748b198",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "bc757403-d9ed-4b67-8720-d12e4981a240"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 15,
+      "echeRowKey": "TR ZONGULD01|931849319",
+      "organisationId": "f23385d5-412a-4147-bb5a-4965f1402981",
+      "rankHash": "006d929a38e7384d0c32f76c596e3d4bbb15a5427d15fc3cc52e842bcc42ec68",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "f98b04f2-8d14-422a-9f32-4bb6d256cb71"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 16,
+      "echeRowKey": "E ALBACET11|948859433",
+      "organisationId": "adbdcf12-a639-4dee-99a9-f2ffe7f4ec2b",
+      "rankHash": "008a1c9218ed40eaf1ae1b62043f8e4d5713e7ac41abd9ea59f7f091b79943d4",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "8ebd88cf-4108-4051-a6ee-9bc9bf3f4ffb"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 17,
+      "echeRowKey": "CZ PISEK01|949642029",
+      "organisationId": "1206dc26-02de-4ce1-82a2-48327d2bc1ed",
+      "rankHash": "008ed60e41f9c968f46ae0d8c25a7d97bc398c18f2c2f79d4eb69b08e87e1350",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "7684fdfe-0d57-459e-b1f8-7b341a33c0a6"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 18,
+      "echeRowKey": "E ZARAGOZ28|945578214",
+      "organisationId": "50617dbd-3d57-4d52-9746-61b8480ab320",
+      "rankHash": "00ab1ab80216d1b811abfadf021ea0e83592414d5b67bd84950a87f3dcd0e8d6",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "8ba09bf3-d591-491a-a707-a9eb1ef94b03"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 19,
+      "echeRowKey": "E BARCELO262|941860786",
+      "organisationId": "f61ba5ec-bc30-45e9-9279-1f01daa61975",
+      "rankHash": "00ab6afbeb8cd976ba77cf27f71aa99bb8e65d6c3c3d65c8bd9a153ad596aa5c",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "d8f8486d-0625-4056-a695-8e31095ea367"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 20,
+      "echeRowKey": "I CAMERIN01|999845737",
+      "organisationId": "91e9611e-cc0a-4309-82f0-723700af43e4",
+      "rankHash": "00d08094182722a8252cadd29ef87cf6d183f9f9d978bda55bc72edefe11509f",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "fad6fa57-886c-4a4a-8796-d737b5e3da23"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 21,
+      "echeRowKey": "D ESSEN03|949567824",
+      "organisationId": "57e78560-5abb-4059-88c3-f4e255e0a4ba",
+      "rankHash": "00dc01d6d4511155ededc93f073541d2efc5c122d628911ffaf84ea19e01b089",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "8c423aa2-7056-4e70-8fee-4fdfd09b1d8c"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 22,
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "organisationId": "60269159-a1a0-4a2d-b51a-4d006eac0533",
+      "rankHash": "00ebd6a8e9d566d7f7863cfc0ca73455d99eb38e00e9b3d6c9d5e7e32081b0ee",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "3187e08d-8280-4f76-afbf-7792b77c853d"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 23,
+      "echeRowKey": "D KOLN14|904644020",
+      "organisationId": "7b372eee-3e2f-4ec1-b798-5953456fa25a",
+      "rankHash": "00efb121b8687cc971068e8b5457d6447e1b9699e994065dd87094df150f8828",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "01c2dd08-c050-4c94-803c-2f58adc1b665"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 24,
+      "echeRowKey": "F DOUAI15|948581431",
+      "organisationId": "20eb53e0-3246-4cd5-a511-7b2ca1c18254",
+      "rankHash": "0109d503b53779e383c5c949b4f70a05a62ef5c801e93e62537581025d2335be",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "15c275de-3768-49e6-b025-1b37b305507f"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 25,
+      "echeRowKey": "E MADRID221|895366164",
+      "organisationId": "acb1ae3c-0dc9-4c0c-90e4-e5e7db492ce1",
+      "rankHash": "011740f68a59cf6087a65995a7f9c59da2d220272b2f313e4d2df88fa64603ed",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "147c32dd-2ab7-439d-9253-f626f59c3ecc"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 26,
+      "echeRowKey": "F PARIS504|999993274",
+      "organisationId": "b0b8ec26-bcea-4885-b81c-2aa9ffd40697",
+      "rankHash": "012041f891b447f4114314a1112641c00322b70fab1b78cee4407bac86b59168",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "bb389641-0521-4eb8-bfd2-534a22f88834"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 27,
+      "echeRowKey": "D AMBERG01|999652416",
+      "organisationId": "e1983dd3-ffc3-40b4-9190-09ed9627f839",
+      "rankHash": "0132f358d2a37fa7350992d3c6ebfbc78c31b917e11533dac9b0a95676430c3c",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "02923d81-7353-476b-89e0-693a6dc0e9d2"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 28,
+      "echeRowKey": "E JAEN12|949594305",
+      "organisationId": "1dd483a6-b6c2-47e2-a3a8-d35639b62c8e",
+      "rankHash": "01382bd371d1a02afb172a3bfc1857a40292a7b1dcc2eec64590af4ceeefd795",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "dab75c98-d914-4373-b329-430d3a195494"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 29,
+      "echeRowKey": "F MONTPEL59|914225001",
+      "organisationId": "e1e8ddca-d2c7-4745-b115-5d4ad4bb1fad",
+      "rankHash": "013f5271c739b25367932fd8372b9fc5d059af8427bea4df15c0941a056f7407",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "809a5ccb-97f9-43cb-b36b-fdd52bc898ad"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 30,
+      "echeRowKey": "E JAEN05|949512631",
+      "organisationId": "dd2d68b2-35bc-4206-bace-c097321883bc",
+      "rankHash": "0145fe9b47a324818e55bc1c9967b23ecb333db8317d4a69b3f009859c1f772f",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "4cc962dc-58bb-4601-9db5-87c655b381cf"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 31,
+      "echeRowKey": "D OSNABRU01|999855049",
+      "organisationId": "fc6462f4-d02c-4ebb-b5a3-68b2cde74f8a",
+      "rankHash": "014f4a8783cd87a86cdf84d4e7069f5b3df778082d3292021f90dd15965fe144",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "8939e712-4ac4-4a9c-b034-29e669043490"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 32,
+      "echeRowKey": "I VICENZA04|948238148",
+      "organisationId": "ad6fc202-8946-4a31-a490-1fd81517bc02",
+      "rankHash": "0152d81a6173e8b9702f4fdf90a3732d6a64ac306fb788b79171386e7210011b",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "777889ac-f2d8-4465-840b-77c4587b8f4b"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 33,
+      "echeRowKey": "E CADIZ68|908195578",
+      "organisationId": "0e3d0705-96c7-4c6d-931b-bbc75b0292d4",
+      "rankHash": "01592a9fdd8ccaea95c9c864f4ed639788f6ea030517939042985863f5f2e00e",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "ff938a17-3d2c-43b8-9af4-ab33d7cf0588"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 34,
+      "echeRowKey": "E PALMA54|886099948",
+      "organisationId": "3a75826f-bba1-4aac-8995-b3b138613431",
+      "rankHash": "015b78822ce23238cb808404c531f7852ffe71c0a3573f27433cb43adcc48147",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "a3709ebc-4d89-4819-8dc7-d1c116893402"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 35,
+      "echeRowKey": "I MILANO29|944278123",
+      "organisationId": "8112c352-2c30-479b-a109-f78d6aea2f0f",
+      "rankHash": "017c7f48a9c507a96112d9cee3580fe43b22de94cf068d6d375d7c7f0fb5e0e2",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "127b6abf-5efd-4290-8073-f4d02b36fcd5"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 36,
+      "echeRowKey": "E ALBACET19|939909534",
+      "organisationId": "6a024811-e03f-4a8f-ad8b-fe0d2bedbbce",
+      "rankHash": "01a2b5c1f5cdad4144a26ab5c86cba89665a6e4b1e2fc39ad6fe4d16ec296e44",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "e580e87b-01cc-4f62-9706-698526f7ebce"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 37,
+      "echeRowKey": "F LAVAL13|884051987",
+      "organisationId": "1ee89f73-c93a-4fe1-8822-1b1bf3edf841",
+      "rankHash": "01c291686a4abacb907fa415c0fe1222f303a5129b49c1ffab23157ae9f783c8",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "3d94744a-6bc4-4585-a634-6c49d82eca82"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 38,
+      "echeRowKey": "E BARCELO245|945556583",
+      "organisationId": "c985ead4-3fd6-4296-bc9a-4c9b58cc2b7a",
+      "rankHash": "01d2587bc359378dffaf9e85fb9d5d70348af4e7a61aac53ea9cc54d519ca08e",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "d548e589-1748-45e8-b353-e5f114a71ac3"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 39,
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "organisationId": "10af0a1c-c5d8-46d4-b609-bc4d30e8cc55",
+      "rankHash": "01d432b408f63df98c89a54d2515d61a3694be75d3828b461f071ee68107ccfe",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "4102bab0-edd8-4df6-b4d4-640baf8a2e9f"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 40,
+      "echeRowKey": "E LA-CORU03|949576942",
+      "organisationId": "5c234652-b90c-43f1-903b-76b3c9eecf54",
+      "rankHash": "01da5f952bfd50a3ddabd962ff43bbbc6557535e623c940f81a97c8a78f769d7",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "f6c4f909-15c4-46be-8e3c-e5861e58d5c4"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 41,
+      "echeRowKey": "F PARIS476|919624603",
+      "organisationId": "3b063ac1-da08-4ac8-9279-7108943d7618",
+      "rankHash": "01e0d45e41e548a6b14bc66c2d8dc8268263d9525141300415c3275093eed331",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "b6692e97-0f3e-4dbe-baf3-8efd81d2f287"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 42,
+      "echeRowKey": "F LYON24|949218721",
+      "organisationId": "0908743b-6f3c-4890-8a6c-3d70efe75561",
+      "rankHash": "01e2cdc11b2df4ad715b378feb06e191b66eec50758df2fd4ab2568ad287d907",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "ace23f11-9bc1-4e0e-88a4-707916c4ce45"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 43,
+      "echeRowKey": "E MADRID74|949210185",
+      "organisationId": "b67d1651-8572-4526-a9bb-e4bf22f15916",
+      "rankHash": "01e834ed5496151d7a467400f961120c8b4c73613ae331b15eaa74c752559ba4",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "500cce15-27c0-4b97-b8eb-3ce45ba16143"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 44,
+      "echeRowKey": "E GIRONA14|949455013",
+      "organisationId": "7a942a74-d859-4bf2-be86-4aa3820363b3",
+      "rankHash": "01f7ffd11492c607341be87eb100f741f689f4cad72d3925ed3dc3ee4cee420c",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "5bf5dd8a-90b8-4f62-884a-efdffe08f21b"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 45,
+      "echeRowKey": "E MADRID93|939766556",
+      "organisationId": "e249b999-6c9f-4ebf-8acd-7772fab99ee1",
+      "rankHash": "01fa4f7f4855fd026981e523bb55afeae30d5cbafdf324c7c6de97c68a847725",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "bd645948-dd80-4d67-937f-4683174f0df6"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 46,
+      "echeRowKey": "E PAMPLON26|931749894",
+      "organisationId": "0f787e4f-b1a4-4852-9f3a-c897dd6734d3",
+      "rankHash": "020a096950eca5421b0a688c79da46bb5cb6e366063b944694dc0916a515ef25",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "0fb1f080-8485-45e3-b3e8-ad4a49d3c07c"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 47,
+      "echeRowKey": "F MARSEIL107|909261414",
+      "organisationId": "05d25269-40da-4661-9cbf-d5fbeefb93d0",
+      "rankHash": "020bf042743fda9d852cc795d7ce35b8f1a34a704c762f7c659dae7b1a09b9d5",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "79815323-e2d8-4845-873f-5cd2bdf33371"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 48,
+      "echeRowKey": "D HAMM01|950939889",
+      "organisationId": "abbbc55f-115b-4504-b8a0-c881cb7590bc",
+      "rankHash": "020d6b380d12ed8aff12fff48357c20da0fe657068620fc85ef04b7f02621d3a",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "6179bd73-0d7d-42ac-8b46-bfe64a839916"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 49,
+      "echeRowKey": "F MARTIGU02|890518395",
+      "organisationId": "a02c7c08-73c3-479c-a9da-b469ce67454b",
+      "rankHash": "0223c69148399c42bca4d47e68f13197bc760f8623bb8efb9c1304981054ad3c",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "b1b3caac-3890-43c8-bd4b-531c9af15c9d"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 50,
+      "echeRowKey": "TR RIZE01|882346921",
+      "organisationId": "ba46550d-e310-41b8-9f83-ffe3e523ba98",
+      "rankHash": "0229b1a1b0cc4d4a8b8d7028dc09107a319530f241205a97cd15db9932539ec7",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "fd634891-70de-43b6-92aa-27cf07d3a552"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 51,
+      "echeRowKey": "E TOLEDO19|939310753",
+      "organisationId": "9068cfe2-cfde-444e-87b5-f19eaf544ffe",
+      "rankHash": "023439a78732da3959444e76a66b9ac9009e68887533719eac813e8356782724",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "a24badba-b291-4a53-b77f-a19baee3b767"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 52,
+      "echeRowKey": "F ST-ETIE24|949013081",
+      "organisationId": "144ddfac-639d-46c4-8587-be18650d61d9",
+      "rankHash": "0239d4241849177d6ba8f00c4628c2eccf4d1105151c9d56b42631bbbefd6c2d",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "71697046-70e8-4c80-adda-2aaa5eb79f5a"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 53,
+      "echeRowKey": "F COURBEV04|948887563",
+      "organisationId": "83d06a9b-9bf7-41c1-8af7-f67debe9adea",
+      "rankHash": "025d8a17d97f8e45ebb553ac2861c6169f6ddbcf6b49d913567a545b3fdd40db",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "37f5353d-3300-4210-8645-471b2797a1b2"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 54,
+      "echeRowKey": "PL TARNOBR01|930222241",
+      "organisationId": "9fd9f195-b088-4031-8619-072a2aa88f7b",
+      "rankHash": "025f52f6b0da04072568a30412ce447a46f46065a0befd47eaa8376449c3754c",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "731cb33d-387e-451c-8531-02056dfe469e"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 55,
+      "echeRowKey": "I MILANO22|916443585",
+      "organisationId": "42eff96c-72ab-49bf-8a8b-26531407c1e3",
+      "rankHash": "02723dc82d591a62db37d5d09f91d863a288f48f55ba9254add425fab27c53aa",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "778bfc4e-4012-4606-93ad-447bd6f3d3d4"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 56,
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "organisationId": "9a45defc-0310-46eb-9660-f205d7e98f3b",
+      "rankHash": "027f538ae9a7fb0637637c09474c95a93a42e61584fbd73a8d95d302a8ac18b1",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "20fe50ad-27ad-4d18-8682-240d70955c05"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 57,
+      "echeRowKey": "A SALZBUR03|894813167",
+      "organisationId": "c7b2426e-23f6-4817-8e65-54c2ceb36530",
+      "rankHash": "02809488f92b496c989c4ffc5bef7c0fb98b7ff42507393feb72c3ce604dc2e2",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "b51a5c2c-5e19-4e4d-a2fe-043c6f55ab90"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 58,
+      "echeRowKey": "PL WARSZAW04|949365579",
+      "organisationId": "f66e5549-298e-4487-ad14-9dceb372a31a",
+      "rankHash": "02849ba69f99a9b81f76331f8afede31df21cd62e245f829351c6463d2653ced",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "a1d1f653-19da-48c1-ac7f-51002a7d585e"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 59,
+      "echeRowKey": "LV RIGA44|880036769",
+      "organisationId": "0b989bca-b688-4981-b0b6-0ed053097065",
+      "rankHash": "0293cb08eae54afdf865a15b64226dcf4ec1ed4e8398772dc9a88025c5db929c",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "c60a2632-b74d-4950-b046-98e6dc7bcd2a"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 60,
+      "echeRowKey": "D ERFURT03|998348736",
+      "organisationId": "2db5c3c2-074d-4aac-8b73-479f39854aed",
+      "rankHash": "029a6a5cd38826c65a064645b882ba4eaed0c6163100a492d448d90e57b3898e",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "053b2e42-26e0-4c6f-a9cc-76c2de662ec4"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 61,
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "organisationId": "3c1e76cb-eff6-483c-8797-2a23ea8f39be",
+      "rankHash": "02a01037c50037697409d5fe06e4b8f488c7b014e62cb1f4098218694c37aa0e",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "50a0ae71-49ca-439e-91d5-f8c22e9a61b4"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 62,
+      "echeRowKey": "I ROMA45|960098435",
+      "organisationId": "3622922a-198f-4d31-b7fe-82331721c4a4",
+      "rankHash": "02a9ec3e7199660e1853ea92c60bc6ef1a8c0d4d66db2b372da3fe59e53efda1",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "67a0500e-ee8b-497c-9ad7-aa143e4c2287"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 63,
+      "echeRowKey": "TR KIRSEHI01|970848460",
+      "organisationId": "645d8558-caca-4f3a-a352-7b61d7eb8537",
+      "rankHash": "02b8c063ca39824c7280c5168702fe278a836365bf4a213ae16c27445e23692a",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "748fc8d5-d8c6-4d8f-a07e-8cbf39e57f17"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 64,
+      "echeRowKey": "HR POZEGA01|949648916",
+      "organisationId": "a78ae12d-fa8a-49ae-949b-5975e7a415c9",
+      "rankHash": "02be8f5418c3083068c9aa31698c7cd3d91f6899bcb71235a1a141483f3ad548",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "f4d80f13-795a-48f9-8f23-5c12ee78eef6"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 65,
+      "echeRowKey": "E HUESCA18|938757756",
+      "organisationId": "6abfccb1-97f7-47ae-b38b-866e42a09633",
+      "rankHash": "02c588a1cff75510bb0b0f566a36c7c49b2f4e4ff6e6ca3c68abfebe4579bd7b",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "17b8dcbe-7245-466a-aa99-4b5be1802ac1"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 66,
+      "echeRowKey": "E SANTAND12|949656385",
+      "organisationId": "d2329f6a-7fc7-4ec5-b338-1d8c3548aae4",
+      "rankHash": "02d8ef466f12775fd3175620c7a90f2f811d856014a7b180d97d1d45a0b10c22",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "999a67cc-e177-4284-93f7-3b5a9030bcb2"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 67,
+      "echeRowKey": "F CHAMBER01|999618078",
+      "organisationId": "ce8fe85b-4d84-41f6-9db1-7c2d2e1ad1c8",
+      "rankHash": "02db0af3aacafafe19db73760e05e3c9bb60246e343922e9d2a6fa3dade3d8ae",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "58fa9459-2f51-4d18-8a98-1720bc4dafd3"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 68,
+      "echeRowKey": "F MARSEIL115|909904427",
+      "organisationId": "650ef0e4-2a7d-4d4a-9b26-2b504c0d8085",
+      "rankHash": "02dd989025fd6f55868a50b479c5a1d08f390c1c928964827be7aa5334ba8e85",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "d8a08c8a-d431-4476-a84e-adc5276f4a54"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 69,
+      "echeRowKey": "TR ISTANBU07|997203651",
+      "organisationId": "f61a0440-3399-42d8-8f82-dad3e2ee1805",
+      "rankHash": "02e386d19c2e708b2dc48d651fc3b4560efc2b591b18706be9dd150ceb6f65be",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "5c70fb81-0280-4704-8995-bddf08dc4768"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 70,
+      "echeRowKey": "F MORLAIX02|886276391",
+      "organisationId": "53b8f224-3964-48ea-a32e-e198e79fea2e",
+      "rankHash": "02ef2ca22359eeefc88d72dd2dc6d82dfba4e83b39019a5e24f7e3598862171f",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "7a5591d6-f66d-4941-b69c-0aa74085b0d9"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 71,
+      "echeRowKey": "F VALENCI20|909756114",
+      "organisationId": "a64a802d-8fd5-48ce-8d33-628f882389b2",
+      "rankHash": "02f978349a36a06c2b3cb490274de0eafa1d66eb164588d631f194d75fb5ba34",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "c896b381-2c1c-4c37-a04d-1450c46b5c69"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 72,
+      "echeRowKey": "E CORDOBA36|913560163",
+      "organisationId": "f2da31b8-5d9a-4eac-b30e-92306218eb5e",
+      "rankHash": "0325914d8801e9150d0452fd8c174231950323e9dd65fa51fdfcbf8f14abfaae",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "1cd17a29-5c5c-4595-be0a-4e592d93b038"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 73,
+      "echeRowKey": "E GIRONA24|911927653",
+      "organisationId": "d8386fa8-4eb6-47dd-a90c-e2da30a65bc1",
+      "rankHash": "032c3c01e3373cdce0bc9f5fb662ac302d834753b0e167dcacc67a8c37e7f814",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "a54f04d9-1798-4627-9048-5ac2f14e1151"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 74,
+      "echeRowKey": "F TOULOUS15|949422712",
+      "organisationId": "5d6f30ce-9f70-4821-bc43-563d82f50d3a",
+      "rankHash": "03309c5bb63e468a50308dd81ca3a1cbae13006f80bdcdaa1d22c443ed28ee4c",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "55ed18ee-95e2-4a81-aad9-0fe4e773589e"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 75,
+      "echeRowKey": "F TOULOUS142|946278651",
+      "organisationId": "e16b2479-b5e9-488b-836b-ee3d92c5c8ae",
+      "rankHash": "033f49f3a7f294a4b9e94203553b53c0c029355b7a2be59d92e760cebb273bd5",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "28f26b57-5e05-4694-a240-02621aa82614"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 76,
+      "echeRowKey": "F SARREGU03|912895713",
+      "organisationId": "bfa6bc9d-2582-4341-abf8-f43fa3eda061",
+      "rankHash": "033fd7f6b929c6e1360eaf155a2f33cb20a37a52f70e8833a6b3a74c7be083e9",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "845db6c3-3d3a-497e-b596-8ad21daed387"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 77,
+      "echeRowKey": "I NOVARA02|890705411",
+      "organisationId": "86b68aaf-bafa-4600-80ec-a197d00871b2",
+      "rankHash": "0346b3f7bcb770dea7727111c72044a2d2c35df98240f549a5c6c099364e61a3",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "d62fa1e3-6e70-41a7-9937-33d03ac36b24"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 78,
+      "echeRowKey": "F REIMS01|999888708",
+      "organisationId": "624d7fef-0513-4b74-bb49-c65e1c93a9e7",
+      "rankHash": "0353dc73a5e6a7a211e43bb2a815d226181ee8425fbb44c83f8acca9a7ffb74d",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "13a79992-af0f-401a-bbce-7cc7689c4c08"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 79,
+      "echeRowKey": "PL WARSZAW14|952136287",
+      "organisationId": "34ee2db0-d04e-49af-8dc2-5d870526a8a6",
+      "rankHash": "039a944b054c74dada2d840aca3a3088c0e626dc39fa0fd7b9ae39c1c907e1c7",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "bf66fcd2-6f8c-45ff-bcb6-01515d99a007"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 80,
+      "echeRowKey": "HU PECS02|931966689",
+      "organisationId": "66ac774d-9322-4674-bcf8-b9dd5cb29961",
+      "rankHash": "039dba86d388eafacb88fdd2b44f468ba74557496c7d678eff44742a67fec937",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "f0b52076-d114-4fa0-b824-f5ad816ac989"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 81,
+      "echeRowKey": "E BARCELO219|919810455",
+      "organisationId": "822535a7-b492-4674-9271-83d6fddd34a4",
+      "rankHash": "03a91461830cf6f3c35b18909d46ba2a89c4c699fbef10f742d0a2941146174b",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "135608ab-2afe-4c08-9119-bf007825898b"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 82,
+      "echeRowKey": "PL GNIEZNO01|949436389",
+      "organisationId": "665860a9-037d-42d0-8f4a-e73634050c04",
+      "rankHash": "03abbfb61c8fae22a788cb9c63b1fe944049adeaed707b6bce23fe7a54ad9d9d",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "90fedb80-f797-4b4f-92a3-a2d508a932de"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 83,
+      "echeRowKey": "E MADRID214|907423943",
+      "organisationId": "7dceb099-66a7-407c-ae4b-b0deadab1216",
+      "rankHash": "03ac6a8516b73dd25a6d51eb8212228d0322600e4cd1909394207a6ff17aa106",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "85d4f3da-6f44-40f4-88b1-931aa650c719"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 84,
+      "echeRowKey": "E HUESCA16|932681191",
+      "organisationId": "04541902-7184-4d82-baa7-050871a1b46f",
+      "rankHash": "03bd882d4a03b3608268ff8677a4485cba204fcdb7f0a828b56084e4523b2c57",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "436c1c63-5f48-4f9f-a074-b809d42efdb2"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 85,
+      "echeRowKey": "CZ OSTRAVA03|910756863",
+      "organisationId": "74c65d12-4aa1-430a-8e0e-d2b038bfaa9b",
+      "rankHash": "03c2961f10c9f76f6115fa07bc85186aebff50b9c4e6088a8c651aebf3c03a92",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "9ec9491f-b3ab-4e61-9d82-92c20a69521e"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 86,
+      "echeRowKey": "SI NOVA-GO05|949065946",
+      "organisationId": "438e8c1b-ff80-4e3d-a07d-5f2a7203416c",
+      "rankHash": "03c5f450cc00de4e98b3c95c2265ed8f9fe34c7723886dd9d639104e5037ec4d",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "f436a2cc-1aab-4415-ab43-3892b255aae7"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 87,
+      "echeRowKey": "E MURCIA37|949608176",
+      "organisationId": "66601c3a-96a6-44f4-be8c-039710482667",
+      "rankHash": "03c826ea7f233ab0081848c62519df7006525d7f9ae2d50e4b0e0ee54fab1ed8",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "cded34e9-3631-4d76-bd6a-7a971a8453cd"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 88,
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "organisationId": "423ff2d3-6464-4702-8a1b-81d82654ee1d",
+      "rankHash": "03c99eaa17d43bbca6ee55efc84669ad8be93f5ab698caf4d90678047e55e2fe",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "9cb2f572-9811-442d-8549-ce6ebb68a562"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 89,
+      "echeRowKey": "F CHAL-CH05|949554923",
+      "organisationId": "d4d0def6-ff0c-41d7-8887-665740676172",
+      "rankHash": "03d2f074dc73fa1bd28ef1c193a19f5c0352cceae2c5e6c9c489e86d0259e4eb",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "69563419-9417-4446-b82c-99ddbc85e277"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 90,
+      "echeRowKey": "F TOURCOI04|948681341",
+      "organisationId": "62642d08-ffe2-4273-835e-713ace856802",
+      "rankHash": "03d43a20cf676482429795e66f962dcf6bb0fcd1ea0bea6ccf7356812b43b850",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "c6fe4f03-8ba5-416d-b529-abaf1fef8d48"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 91,
+      "echeRowKey": "A EISENST05|949662593",
+      "organisationId": "6f63535a-68a0-4072-8992-d92a3ac6f94c",
+      "rankHash": "03df3e0246a434ce20335e991ce22dd0f32d94ce73dc5361c810c235d3018183",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "8aa96371-27fe-4288-b653-ac4300f727ce"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 92,
+      "echeRowKey": "HU BUDAPES20|947274259",
+      "organisationId": "d49ae9be-23f7-497e-96ca-2c71cfca68f9",
+      "rankHash": "03df9d2bebda02fd1b7992cd90c49e6366ffcc31cc1e57410807621b10caa424",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "dcfcd4fb-6e06-4bfb-948c-717450343571"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 93,
+      "echeRowKey": "I FIRENZE06|938824783",
+      "organisationId": "4df605fb-2cf1-4664-94c7-c907344cc6c7",
+      "rankHash": "03f20377c1a539bfc2041aa4c1f14cf7500d4f87c0178e906b83a1e801aa0b5d",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "7a1b0750-e2d2-4022-99ea-aadf23e33d36"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 94,
+      "echeRowKey": "BA SARAJEV03|949759496",
+      "organisationId": "c8f2b4af-d114-4c1b-966a-e40bebcbb93b",
+      "rankHash": "03fc22efe3d0fe51960afdfb3fcd8ece418c9e8a7064fb033a1d28896f28bbd3",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "0be5cbf4-3655-4b24-bedc-76214dda8a58"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 95,
+      "echeRowKey": "TR ISTANBU30|946597102",
+      "organisationId": "742d5b68-de6e-4416-a2ff-6bd265d07903",
+      "rankHash": "04066a62aa83f4e1417ae228f35e404f6f9ae5e22d3dbc52e9493bcf63ba3d05",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "d7fbd418-a409-4df6-a2b6-9ff2c1d75465"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 96,
+      "echeRowKey": "F PERPIGN13|949648140",
+      "organisationId": "21ae4790-56e7-4ceb-87b9-5114fefdd6db",
+      "rankHash": "0436db16e01756f59057a23cfbbbdbc905c491ed80ee07817763a3237d3c8473",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "4a801319-c09c-46c2-a5e9-8ed17461f9b5"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 97,
+      "echeRowKey": "B HASSELT20|998390737",
+      "organisationId": "99c866a6-4b20-469f-a49d-cd8a92b9ba98",
+      "rankHash": "0446f3476f3452f40ebc31f072d5b3084a34732b02bcf67fab6e2de19aafcfd6",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "c8c39473-71e3-4472-8535-19898da5082b"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 98,
+      "echeRowKey": "I BARI07|947062314",
+      "organisationId": "ce8ce454-7365-44fa-80cc-4298247d344b",
+      "rankHash": "0459d8d79217bb9b7fcad692d9a6c6caf57cf5e8c6762df13142c991760e78bc",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "06b60e58-a6f3-4dd4-8643-625ba9677130"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 99,
+      "echeRowKey": "E VIGO14|948992808",
+      "organisationId": "51e68f66-343b-4314-8b46-2455559cae90",
+      "rankHash": "045de560c2f9f74ae3452c5dec22fec2f8cfb408ee5a6f126266c1c6adfa9528",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "b191d281-1229-4eb4-8b20-99a6f3f8f504"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 100,
+      "echeRowKey": "F ARRAS16|893931922",
+      "organisationId": "1b63a994-a445-46dc-a50b-2bf841e355be",
+      "rankHash": "04652d52e55a40887831e2b4a6d7b7138a32681c386258ec5bd708c2a38a17ed",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "3d04be2e-b27a-4942-bafc-89241fa66a3d"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 101,
+      "echeRowKey": "HU BUDAPES26|944411692",
+      "organisationId": "3439f9b3-8259-4884-b6e3-f0af20ffdb37",
+      "rankHash": "0469fd085dd5c7de360ee541b5c326f81a7be4485bed85010c8f445d982fa118",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "af5e97bc-1cee-4ca8-954e-eaa806ff4330"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 102,
+      "echeRowKey": "F RENNES67|948093909",
+      "organisationId": "2329a212-5e65-4848-a071-99b083bdfab4",
+      "rankHash": "0473dcd4c4e3dc8d844c2f9bf93db91365028c92b0a5f36846fa5ef9364f885c",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "cf967554-154d-491f-ad19-e92a25d7fad0"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 103,
+      "echeRowKey": "E BARCELO31|945958842",
+      "organisationId": "38067a64-ffcf-4a05-af5e-d5febcb97992",
+      "rankHash": "047cb3fb5a918be92d62258469f97e68db5731ef0a5bb8de35da81784c3ce462",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "456c4801-bfbf-4d96-a3bb-511ffe5df58b"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 104,
+      "echeRowKey": "F PARIS520|949449193",
+      "organisationId": "019c1389-1b1e-4bfd-bad9-680ce6542475",
+      "rankHash": "0484c08df8a9cd6e5f59cb8ec6dd35e9dc9f11acc4c39b804bb8df5c4631b489",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "0163e0d2-da2a-4764-9a1f-37ff369ff380"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 105,
+      "echeRowKey": "F PARIS523|879192772",
+      "organisationId": "32184537-9e39-4d98-a437-98ea6d2385b8",
+      "rankHash": "0487b539edc433ad1914932f7298df8acdbf6819b1fd75ff4921a7594e5f36b6",
+      "split": "DEV_TRAIN",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "c315c3a6-e93e-4d3c-b885-6ca94728dca3"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 106,
+      "echeRowKey": "PL KIELCE08|949406125",
+      "organisationId": "289f816b-1dd9-4e4c-9420-d433d205445f",
+      "rankHash": "0495b60ee5b464b923d9bcda90584ed1a76037160b07bf1ab52080d56c8a9b72",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "b5122a00-50fc-46d3-8b9d-730a85977a9f"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 107,
+      "echeRowKey": "E BARCELO208|928145859",
+      "organisationId": "88f329f3-9a5c-431f-ad4f-8efd27d91cae",
+      "rankHash": "04a0e912a4807dc3e73c2c5044f15e13a1672863d8c1e5363aa2cec7cabecf72",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "6d298893-4f0d-48e9-b1ee-ba00f199c7c6"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 108,
+      "echeRowKey": "RS UZICE02|894723151",
+      "organisationId": "bf614244-5cb3-4235-92aa-cc3da3e1a529",
+      "rankHash": "04ac9e34fc71beffd3b6593845e1034a6c90d98b8ef386a67eaf5919ba79ccb7",
+      "split": "DEV_CONFIRM",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "c8b5bcf4-30ba-47d8-8e38-7537c8828ecb"
+        }
+      ]
+    },
+    {
+      "selectionIndex": 109,
+      "echeRowKey": "E JAEN09|944922300",
+      "organisationId": "4f32cdf8-2a6b-42f7-9566-940699ba0ebd",
+      "rankHash": "04ae505e1d46c605c1e86943d9bf2aa388375fa3612707a15e32cfbbe1397107",
+      "split": "FINAL_HOLDOUT",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "2ed6cb22-1bf3-4a86-bb9a-12bc603249e1"
+        }
+      ]
+    }
+  ],
+  "reserve": [
+    {
+      "reserveRankPosition": 0,
+      "echeRowKey": "LV RIGA40|946131405",
+      "organisationId": "94b21b70-932d-4589-9cf7-e5f4595b034a",
+      "rankHash": "04af3b096162a02ad7c0d04c6866709a72adeeabfa7dad0f856d7c14189ed974",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "8b51b42e-fcab-4e13-a54e-ddf7b57ba60a"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 1,
+      "echeRowKey": "F FONTAIN02|937830921",
+      "organisationId": "81af4e67-1dc4-469a-80a4-ce18516e17a8",
+      "rankHash": "04b889dd614950c53820ae596cb18e21cc84942d29bf9694c107e2ca14960468",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "07540ebc-f05a-4fb7-8ab8-8c315aabde1d"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 2,
+      "echeRowKey": "RO CLUJNAP08|949238606",
+      "organisationId": "bb951da1-1a45-4316-9481-344906de7db8",
+      "rankHash": "04c1dca351863993dfd2ef143aac4285c47749b5bb44a7869448f717c3341a54",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "3be269c9-4a0b-443e-af2d-f87bdcb92cf6"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 3,
+      "echeRowKey": "D MAGDEBU01|999873285",
+      "organisationId": "31303dfa-346b-4bb7-9a5a-b7b0364785b6",
+      "rankHash": "04cd5b8a0bd691051b0b15da8d757acbf0b60c368ee8cb94289d860aed035382",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "0bb5ade5-429c-4d9f-b26d-0faeea4aa97a"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 4,
+      "echeRowKey": "A WIEN68|996709824",
+      "organisationId": "1d03af76-5181-443f-9beb-7112901b7dc8",
+      "rankHash": "04d521b7ab99142911af434f00116dd5ef889a52eba7fb2258fadf3c1ae0ba3d",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "26c40211-19a7-4e4e-8ac2-331bda66e1de"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 5,
+      "echeRowKey": "E VALENCI26|949461221",
+      "organisationId": "5376c136-014f-4138-923b-53b32fbfbb77",
+      "rankHash": "04d7c8fd10a27f6cea8d8c57b6a78f0eb2f3f3b7d77c906489844091696545e5",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "24171dce-9151-43bf-be7d-615d0c78290c"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 6,
+      "echeRowKey": "I ROMA35|920607116",
+      "organisationId": "6b404465-1b23-498e-9e90-7fb08c877814",
+      "rankHash": "04e2c7c5085dfdc3eb0628fc457da999a2417e30d3d4019ebbde07e2faf9f105",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "86606bc7-92cc-4c8f-9045-29b8eca2c2d3"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 7,
+      "echeRowKey": "E GIJON17|947309567",
+      "organisationId": "09ce6282-6a48-43ee-ac67-8429de0a1e52",
+      "rankHash": "04fb98cf162d66503dc3e975ca00bb7ad7d303f322b8d4c4422c2157247a0286",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "fbc4f0f9-658b-4b47-9a4a-99fd425309e6"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 8,
+      "echeRowKey": "F GRENOBL57|945081380",
+      "organisationId": "bebc8eee-08fd-4f46-9265-7f64a496de79",
+      "rankHash": "04fbe787b9175463f7260a09de2a5bbc6135316e667321c0b683d24a39b28952",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "ac6c4d79-8d6a-4834-a023-8a325a774053"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 9,
+      "echeRowKey": "E JAEN13|949626218",
+      "organisationId": "848b55bb-15d6-4408-b961-71e1101bed72",
+      "rankHash": "04fdaf9a3ad45ff10d403412183e04e64460324f4e20652346d026ac3d1c8bf1",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "324ccf3e-7509-45d0-b2e0-03a4de8969b6"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 10,
+      "echeRowKey": "I CALTANI01|938981826",
+      "organisationId": "641fdb85-11b0-420f-924e-e76b5d814f81",
+      "rankHash": "04ff616701a2f4c24ad2b68875a1999cd8f3be1882f3d7fc657ad7d748cc19f6",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "96c63405-4dc6-420e-a8f2-b68a09833684"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 11,
+      "echeRowKey": "E TERUEL05|949185741",
+      "organisationId": "3da522a2-9619-497a-b952-fdd938233566",
+      "rankHash": "05022f686fff40f51a77699b29568991c52659c78f18990da75e55fdb99bf8af",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "9b27d254-25ac-49d5-9ceb-04311f509b8b"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 12,
+      "echeRowKey": "E MALAGA04|948945181",
+      "organisationId": "100ecfe7-70f6-4be7-989e-4d194e119f37",
+      "rankHash": "050cd9d1996354311b0510c0c91b939700aef723ab29b7772bc0b54d1335779a",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "b9aaa2bd-80a9-4c90-a66e-3958363cf0fe"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 13,
+      "echeRowKey": "E TERUEL03|948961283",
+      "organisationId": "18064236-f5a0-4983-9daf-a77481cdd444",
+      "rankHash": "0512571c8ca06f8e1ced55bcfbeceee66579dbc7cfde35de323292d3d9f86c8d",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "a5a98fff-e6d8-42ba-9f49-c9dedde7b8a5"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 14,
+      "echeRowKey": "E TUDELA01|948981556",
+      "organisationId": "69840c8f-d0fc-4500-9de2-0f5605dd52d5",
+      "rankHash": "053832d482a86b0d114e71d468794da0d566065c530beaf725638cb8b42d5be0",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "cfbcdbd4-d566-4a1c-b1d5-0dcf4b0c29b3"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 15,
+      "echeRowKey": "F MARSEIL59|949467914",
+      "organisationId": "4d51c7c4-ca7a-4a63-a48a-f50d75851525",
+      "rankHash": "053d60c5756eba6fa07d750bef38f31d76cca2267114284c1a778572544290a6",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "15f1af81-8cf8-4f26-94e0-ab79c8784459"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 16,
+      "echeRowKey": "SI KOPER03|998802793",
+      "organisationId": "d40bbcdb-f3c0-4952-825d-6440a4f251ef",
+      "rankHash": "0549831068933bba0ec2a8459dc2fc36fb4bb49415f3a8dc040634274d050321",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "aacbfb89-b0cd-4bbf-9408-c9becb1a77ba"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 17,
+      "echeRowKey": "F LAROCHE01|949453267",
+      "organisationId": "15686119-bfd0-4cd6-ad21-54c35be3d60b",
+      "rankHash": "055112fcaa8b95dd4b62325ba2a0badd1ac779343824b863116e35d06276d9a1",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "f03e9edf-b33b-4601-8773-8dd48ff0ade6"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 18,
+      "echeRowKey": "E LA-CORU07|949201164",
+      "organisationId": "484c8546-e0f5-4971-8287-a88e01eae3a9",
+      "rankHash": "0554a89723c83cf6f3a97b238f86351ae06a7ced0995d8b8d1c4830ca92d6d94",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "6c201c69-6e9b-4ca2-9b59-e87c72921618"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 19,
+      "echeRowKey": "F TOULON21|937437004",
+      "organisationId": "e46ca565-cd92-466f-a06a-809bccb8451b",
+      "rankHash": "055d235e125d64447ab7bba1329739f9841963b6bfd7d12960b76dcdd2187503",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "76a04454-8371-494a-ad43-50b78ad422fc"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 20,
+      "echeRowKey": "F ARRAS14|928442776",
+      "organisationId": "2b4a91d0-583e-42e8-8ba5-c163f5eda504",
+      "rankHash": "056441cbebbb546ae075eec44dd43e29df4b35451cfdb47fb7ba6ccbbc67e9c0",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "b98d0129-eadf-488b-b01d-ee691d8c6749"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 21,
+      "echeRowKey": "HR ZAGREB01|999933231",
+      "organisationId": "f1e0c8a0-266e-4f71-813e-5a2d5224c100",
+      "rankHash": "0567c8b0d49a2fe34c7a4252e4b38d53c23f9d014dbdb62d0da377c53218cf02",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "ba076e9b-3126-42e9-ba8e-25f07395151d"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 22,
+      "echeRowKey": "I GROSSETO01|912782029",
+      "organisationId": "4106ebe8-7921-4073-8c4f-6bbb14502522",
+      "rankHash": "056992002377e53b9ee059413e81b6a1053584d6553745fca2ac1d4775b839df",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "acd398e9-3b52-4985-a030-e76cab01c7b5"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 23,
+      "echeRowKey": "E MADRID63|942358784",
+      "organisationId": "f5d71293-6411-40fd-bbb4-017cc1d65321",
+      "rankHash": "0579431892bbdb943280b1b45ccedd442088c65a7705fa9c00a39c3f5ee16a80",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "4215e1e5-199b-4dbc-86f9-33d00fa61895"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 24,
+      "echeRowKey": "RS BELGRAD01|968338294",
+      "organisationId": "1d7f3d3f-d9c0-478a-b771-32dbfe987f40",
+      "rankHash": "05884092b407cbd96afdf1f50689f14d5793d653d27c47208d92b8bf13eb5d01",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "bbfa0fc9-a702-49a4-be8b-56f89d420b0b"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 25,
+      "echeRowKey": "MK SKOPJE11|948987376",
+      "organisationId": "925e77c5-e1d6-446c-be83-26daddcb0d2b",
+      "rankHash": "05950fe4d247642a6a73ee630574f53477a5b65e08d3577ee59cd5974222fac7",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "ac26a1f8-d850-4900-9940-272c17d34992"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 26,
+      "echeRowKey": "E BARCELO133|949147426",
+      "organisationId": "b0055981-3121-4938-a8a8-9174baec7b0a",
+      "rankHash": "059a8793e7a751631664ccdf5fc8e835d1131f0884563ebfa6ce3fb9a1ac14c1",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "b0e5b539-2e73-4cf2-b41a-d097b224f87e"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 27,
+      "echeRowKey": "I MILANO27|894242613",
+      "organisationId": "3cf92dc5-c740-4ba9-9826-79c8a6df7af8",
+      "rankHash": "059ae0fd49de78d2eb5d6bd17370b259b20c8fab7d885974c2d1a948a5671b34",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "f8fd29b4-6494-4423-b218-7cdfecb4da38"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 28,
+      "echeRowKey": "BA TUZLA02|995904045",
+      "organisationId": "f2598f47-f2e6-4816-ad15-a38bf6fca1be",
+      "rankHash": "05a3fd6f7282be884724d58bf27c2967c36fd224bbde0838412b8dfc6143b57e",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "42433c09-3e9b-4565-9bd0-5a602cbf74dc"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 29,
+      "echeRowKey": "I MACERAT01|960068462",
+      "organisationId": "91d5d548-99ec-44df-be44-c710077ea4ac",
+      "rankHash": "05a455e2d8b1b5a7f0589ff8b6328c8612e31899b0981c3fc777c638ed770b53",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "604ec93f-0678-46bb-af47-81e2949aef88"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 30,
+      "echeRowKey": "E CUENCA02|949600707",
+      "organisationId": "33a797e2-4c39-418c-9219-c70441b1de73",
+      "rankHash": "05a961397e4d9b3193a6a861e08a52e30eaf84c392309d2ce00cb31f90daa0f3",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "20e82c2e-3e75-4686-97f1-3a5b76b0331c"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 31,
+      "echeRowKey": "E CUENCA15|921706805",
+      "organisationId": "102ed7cd-f51a-4750-8f4f-eca3a3997bc1",
+      "rankHash": "05aa9da40e7ddb793ae5a97efa8921b72911656ed3a161c968ab71e025163fec",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "0a272199-684f-432f-a24b-5fefd6cf9c0d"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 32,
+      "echeRowKey": "PL SIEDLCE03|936684866",
+      "organisationId": "058fe2ce-7f3e-45c7-8396-e17595f860fa",
+      "rankHash": "05bc0c07e28fae3828ee1b6cdd8cf38f0fe64a85623b8055f0c651e1974a0833",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "89219dbc-117e-440b-9693-8ca41fc40d94"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 33,
+      "echeRowKey": "F ALES06|946114139",
+      "organisationId": "3624c5b9-d4ba-413b-afb9-4f968ad39702",
+      "rankHash": "05d1be36fd657517dd54cc80d009233497d0c62bde2e2a50722fe976d1b51348",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "312a7c26-9cab-4e4d-9fe8-064fe96145f9"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 34,
+      "echeRowKey": "F PARIS341|939333548",
+      "organisationId": "5c0ab169-1df3-4738-ba40-0cb27f928c3e",
+      "rankHash": "05e964b32f4888bef57cc107d3321a72864c4fa3038e073ed7ef7bb0fb19b939",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "577da3a0-3b56-4ae5-b75b-5c773a3215c6"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 35,
+      "echeRowKey": "E LAS-PAL11|949607206",
+      "organisationId": "0b4edd7b-77af-444e-b6e9-f918a9548014",
+      "rankHash": "05eb82cabba3ad1c4ff3e5574bcfc8856f2c916f6dfae2ac72cc28b50f696cdc",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "96036307-ee0c-4a55-a8d9-c5f42456e456"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 36,
+      "echeRowKey": "E PALMA45|944773793",
+      "organisationId": "79eb0b78-a2d4-4f04-bedc-06f616e2c081",
+      "rankHash": "05f0f47b90029d115ae0f83dd3d0824d98e1f3af71882be033b7fcb31fd2e61c",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "ac43b273-9d8d-4964-ae05-d7924244c9e2"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 37,
+      "echeRowKey": "D TRIER02|998087418",
+      "organisationId": "87f7e753-abab-4e82-9838-3ff6f8c65d37",
+      "rankHash": "0612f1c3fd2ead8c66f8685801bb07833854bd4d362d1e7cd99e471435f910b4",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "447067f1-c5fe-4454-a42d-bb6592217c21"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 38,
+      "echeRowKey": "F BESANCO35|914191245",
+      "organisationId": "07bdc377-72b2-474d-b871-d8d3c17bcdd6",
+      "rankHash": "061b017d97ad9d7fc5af9d1e7be6aea15154363ab81163894283d45adbd7cbe3",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "4d290b3c-48e8-4b57-8274-4b949beb9b85"
+        }
+      ]
+    },
+    {
+      "reserveRankPosition": 39,
+      "echeRowKey": "E MURCIA83|903306681",
+      "organisationId": "682580bc-7632-4de1-94e2-b2dfb090d24a",
+      "rankHash": "061c3070c88bedc34d4d06f73bbd1d1846156205dbb837a7374a635a65d6f70a",
+      "rootAuthorityCount": 1,
+      "rootAuthorities": [
+        {
+          "type": "WEBSITE_CLAIM",
+          "id": "151524ca-6d48-4314-832b-bca21f5f6ea8"
+        }
+      ]
+    }
+  ],
+  "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+}

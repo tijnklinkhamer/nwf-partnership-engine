@@ -1,0 +1,178 @@
+{
+  "recordId": "phase2b-2d-robots-option-b-repair-implementation-v1",
+  "recordKind": "IMPLEMENTATION_RECORD",
+  "recordedAtUtc": "2026-09-19T00:00:00Z",
+  "recordedBy": "claude-code-session",
+  "whatThisRecordIs": "An IMMUTABLE record of what the ADR 0012 Option-B repair actually changed, and of the freeze-collision resolution that made it landable without touching one byte of frozen history. It records; it authorises nothing.",
+
+  "selectedOption": "B",
+  "scope": "SAME_HOST_SINGLE_HOP_ROBOTS_REDIRECT_CONTINUATION",
+  "fetchPolicyVersion": "orgunit-fetch-policy-v2",
+  "historicalFreezePolicyVersion": "orgunit-fetch-policy-v1",
+  "historicalFreezeBytesChanged": false,
+  "historicalFreezeVerifierSemantics": "PINNED_RUN_PROVENANCE_NOT_CURRENT_ACQUISITION_CONSTANT",
+  "historicalIsolationSemantics": "BASE_TO_PHASE_END_NOT_BASE_TO_HEAD",
+  "productionFilesChanged": [
+    "src/orgunits/web/policy.ts",
+    "src/orgunits/web/robots.ts",
+    "src/orgunits/orchestrator/rootRunner.ts"
+  ],
+  "migrationRequired": false,
+  "networkExecuted": false,
+  "targetedRevalidationAuthorised": false,
+  "batch03Authorised": false,
+  "thisFileAuthorises": [],
+
+  "provenance": {
+    "ownerDecisionRecord": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_FREEZE_COLLISION_OWNER_DECISION_V1.json",
+    "ownerDecisionCommit": "471bcd9557ee3ecf39319ea6e4b7f015a80e1cd2",
+    "verifierAndTemporalScopeCommit": "01658bf15d83e6a21cd85c00e10e0e8afac89676",
+    "implementationCommit": "b6a8490d695a40886c0619ba81411f31198e849e",
+    "repairBaseCommit": "74d8139cc3358ae600bb8751ae81121711ae313b",
+    "branch": "feat/phase2b-2d-a2-batch-02"
+  },
+
+  "theRepair": {
+    "adrPath": "docs/adr/0012-same-host-robots-redirect-continuation.md",
+    "adrSha256": "7b240eef21960940cdcc569ee4d85d4137fee1ee746884ecbd3d5095ee15a47a",
+    "adrBytes": 16804,
+    "adrUnchangedThroughout": true,
+    "gatewayStillFollowsNothing": true,
+    "gatewayFileChanged": false,
+    "redirectModuleChanged": false,
+    "whatIsNew": "ONE separately authorised second gateway request, decided in robots.ts after the first request's redirect facts were derived and persisted, under a freshly minted exactly-URL-scoped RobotsAuthorisation.",
+    "maxRobotsRedirectContinuationHops": 1,
+    "theOnlyContinuableShape": {
+      "hops": 1,
+      "hostname": "byte-identical, case-insensitively",
+      "scheme": "unchanged, or http -> https",
+      "path": "exactly /robots.txt",
+      "query": "none",
+      "fragment": "none",
+      "explicitPort": "refused",
+      "selfRedirect": "refused",
+      "malformedOrCredentialBearingTarget": "refused"
+    },
+    "crossHostContinuation": "REFUSED, including the www canonicalisation ADR 0008 accepts for ordinary pages, because robots.txt is a per-ORIGIN policy",
+    "notWidenedToOptionC": true,
+    "predicate": "src/orgunits/web/robots.ts::continuationTargetFor"
+  },
+
+  "whyRootRunnerWasRequired": {
+    "mechanicalReason": "A robots resolution may now issue two gateway requests instead of one, and RequestBudget.consume THROWS rather than clamping when the total ceiling is exceeded.",
+    "whatChanged": [
+      "the per-attempt prediction reserves 2 potential robots requests instead of 1",
+      "the charge became a COUNT (robotsFetch.attempts.length) instead of a boolean"
+    ],
+    "totalRequestCeilingChanged": false,
+    "totalRequestCeiling": 60,
+    "anyOtherOrchestratorBehaviourChanged": false,
+    "ownerAcceptedThisExactChange": true,
+    "pinnedBy": "src/test/unit/orgunitRobotsOptionBRepairScope.test.ts"
+  },
+
+  "theFreezeCollisionResolution": {
+    "resolution": "PIN_HISTORICAL_FETCH_POLICY_VERSION",
+    "ruleRemoved": "freeze.inputConstruction.context.fetchPolicyVersion === production FETCH_POLICY_VERSION",
+    "ruleNow": "historical provenance must equal the exact provenance frozen for that historical input",
+    "implementedIn": "src/test/harness/phase2b2d2c/batches.ts",
+    "fetchPolicyVersionMovedOutOf": "ReconstructionAlgorithms",
+    "fetchPolicyVersionMovedInto": "HistoricalRunProvenance",
+    "checksAdded": [
+      "the frozen inputConstruction value exists and has the form of a fetch-policy version",
+      "EVERY frozen batch context carries that exact frozen value, or the freeze is refused as self-contradictory"
+    ],
+    "stillComparedToThisBuildUnchanged": [
+      "ruleVersion",
+      "assemblyVersion",
+      "classifier.assemblyVersion",
+      "outputSchemaVersion"
+    ],
+    "callSitesCorrected": 13,
+    "syntheticVariantRuntimesCorrected": 7,
+    "syntheticRuntimeCorrection": "They export the FROZEN fetch-policy version instead of this worktree's, which is what variantRoot.ts has always required of a real variant root and the same reviewed pattern already used for the v6->v3 prompt reconstruction.",
+    "newFreezeCreated": false,
+    "freezeJsonFilesEdited": 0,
+    "ownerFreezeApprovalFilesEdited": 0,
+    "historicalHashesEdited": 0,
+    "provedBy": "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts"
+  },
+
+  "theHistoricalRangeCorrection": {
+    "defect": "Eight assertions across six files proved a HISTORICAL phase claim with `git diff <PHASE_BASE> --`, which compares the base commit to the WORKING TREE, converting 'this phase did not modify production' into 'no future phase may ever modify production'.",
+    "correction": "BASE..PHASE_TERMINAL for every one of them.",
+    "protectedPathsChanged": false,
+    "assertionsChanged": false,
+    "oldFirewallsWeakened": false,
+    "pathsAddedToAnyOldAllowlist": 0,
+    "pathsRemovedFromA1bAllowlist": 8,
+    "filesCorrected": [
+      "src/test/unit/orgunitClassifyAcceptanceMethodologyV2R2.test.ts",
+      "src/test/firewall/phase2b2d2cF7RestartExecution.firewall.test.ts",
+      "src/test/firewall/phase2b2d2cF9ScoringAdapter.firewall.test.ts",
+      "src/test/unit/orgunitCorpus2DA1FrameIsolation.test.ts",
+      "src/test/unit/orgunitCorpus2DA1bDrawIsolation.test.ts",
+      "src/test/unit/orgunitCorpus2DA2AcquisitionGate.test.ts",
+      "src/test/unit/orgunitCorpus2DA3aSd7PilotIsolation.test.ts"
+    ],
+    "everyRangeVerifiedToStillSatisfyItsOriginalClaim": true,
+    "everyEndpointReadFromGitAncestry": true,
+    "noShaGuessed": true,
+    "theCurrentPhaseGetsItsOwnIsolationTest": "src/test/unit/orgunitRobotsOptionBRepairScope.test.ts"
+  },
+
+  "validation": {
+    "npmRunValidateExitCode": 0,
+    "testFiles": "172 passed | 5 skipped (177)",
+    "tests": "4293 passed | 75 skipped (4368)",
+    "testsFailed": 0,
+    "focusedOptionBAndProvenanceSuites": "9 files, 234 tests, 0 failed",
+    "historicalFreezeFamilySuites": "9 files, 277 tests, 0 failed",
+    "historicalIsolationAndTemporalRangeSuites": "7 files, 246 tests, 0 failed",
+    "preExistingBaselineFailureResolved": "docs/evaluation/PHASE_2B_2D_ACQUISITION_YIELD_ROOT_CAUSE_RESULT_V1.json no longer trips A1b, because A1b no longer polices future descendants as though they were A1b - the filename was NOT added to an A1b allowlist"
+  },
+
+  "workingDatabaseUntouched": {
+    "database": "nwf_pe",
+    "inspectedAfterImplementation": true,
+    "rowsWritten": 0,
+    "rowsRewritten": 0,
+    "orgunitResearchRuns": 7,
+    "orgunitResearchRunCompletions": 7,
+    "orgunitFetchObservations": 78,
+    "orgunitRedirectObservations": 4,
+    "orgunitPageEvidence": 59,
+    "orgunitPageCandidates": 118,
+    "orgunitRootPromotions": 0,
+    "orgunitRootPromotionRevocations": 0,
+    "organisations": 6139,
+    "websiteClaims": 6139,
+    "everyRunRowFetchPolicyVersion": "orgunit-fetch-policy-v1",
+    "everyObservationRowFetchPolicyVersion": "orgunit-fetch-policy-v1",
+    "rowsCarryingV2": 0,
+    "noHistoricalEvidenceReinterpreted": true
+  },
+
+  "zeroLiveExecution": {
+    "institutionRequests": 0,
+    "dnsLookups": 0,
+    "tlsHandshakes": 0,
+    "executeAcquisitionRuns": 0,
+    "reserveConsumed": 0,
+    "replacementsCreated": 0,
+    "everyTestUsedAScriptedTransport": true
+  },
+
+  "stillUnauthorised": [
+    "TARGETED_REVALIDATION",
+    "BATCH_03",
+    "RESERVE_CONSUMPTION",
+    "REPLACEMENT",
+    "PROVIDER_INFERENCE",
+    "LABELS",
+    "HOLDOUT_SEMANTIC_ACCESS",
+    "PHASE_2E"
+  ],
+  "terminalState": "PHASE_2B_ROBOTS_OPTION_B_REPAIR_IMPLEMENTED_AWAITING_TARGETED_REVALIDATION",
+  "nextOwnerDecision": "A2_ROBOTS_OPTION_B_TARGETED_REVALIDATION_AUTHORISATION"
+}

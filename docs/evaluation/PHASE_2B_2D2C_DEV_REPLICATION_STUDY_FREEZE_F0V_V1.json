@@ -1,0 +1,345 @@
+{
+  "freezeId": "PHASE_2B_2D2C_DEV_REPLICATION_STUDY_FREEZE_F0V_V1",
+  "version": "phase2b-2d2c-dev-replication-study-freeze-f0v-v1",
+  "status": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL",
+  "freezeRevision": "F0V_REPLICATION_STUDY_V4_V5_N5",
+  "purpose": "Freeze the exact configuration of a future V4/V5 N=5 paired replication study (F0U recommendation M1), for a SEPARATE, LATER owner decision to authorise execution. This file authorises NO provider request, NO classifier inference, NO auth-status call, NO output-root creation, NO execution-authorisation candidate, NO execution, NO scoring, NO HOLDOUT/mixed-file access, NO V6/prompt change and NO gold/threshold change.",
+  "approvalModel": {
+    "rule": "This file is PROPOSED. It becomes the frozen replication-study configuration only when a separate owner freeze-approval record names this file's exact raw SHA-256. The bytes of this file never change on approval; the approval is a separate record, so the hash presented for approval is the hash that is approved.",
+    "approvalRecord": "docs/evaluation/PHASE_2B_2D2C_F0V_OWNER_FREEZE_APPROVAL_V1.json (does not exist until the owner approves)",
+    "thisFileAuthorises": [],
+    "executionAuthorisationIsSeparate": "A freeze approval here is NOT an execution authorisation for any of the 10 replication slots. Each slot additionally requires its own future output root and its own future execution-authorisation candidate, materialised request-free and approved by exact byte/hash per S9's future protocol. None exists yet, and none is created by this file or by the F0V task that proposed it."
+  },
+  "ownerApprovalRequired": [
+    "the F0U methodology commit/path/raw SHA-256 this freeze is built from",
+    "the F0U process-deviation disclosure (S1 of the F0V owner instruction), preserved and not force-pushed away",
+    "the two F0U methodological clarifications (batch-preservation rationale; the residual-provider-side-unknowns estimand), encoded verbatim",
+    "the approved study design: Design B full frozen-batch resampling, N=5 per prompt, 10 fresh runs, historical Attempt-3/Attempt-4 runs pilot-only and not counted toward N=5",
+    "the exact 10-slot order (PAIR_1_V4 .. PAIR_5_V5) and that it is frozen, never randomised, never reordered after any result exists",
+    "the exact 10 future output-root identities under the suggested study root, not yet created",
+    "the V4/V5 runtime, prompt and historical-plan identities, independently reverified against F0I/F0O production constants",
+    "the gold-blind execution boundary and the predeclared inclusion/no-adaptive-stopping rule",
+    "the pinned F0U analysis contract and interpretation labels, explicitly as diagnostic reporting only, never a new HOLDOUT acceptance gate",
+    "the future ten-exact-candidate owner-approval model (S9): one up-front approval naming all ten exact future candidate hashes, never a generic approval for as-yet-unknown bytes"
+  ],
+  "methodology": {
+    "commit": "9454e0167fa8cc28d929a1fbf023b26c9727c9b6",
+    "branch": "design/phase2b-2d2c-f0u-replication-methodology",
+    "path": "docs/audits/PHASE_2B_2D2C_F0U_REPLICATION_METHODOLOGY_REVIEW_2026-09.md",
+    "rawSha256": "d8b3e57992fe091aed95e7490d4b3c0fe0f4a7bfcc1bb6c7b09bd83252e79cf7",
+    "rawBytes": 59082,
+    "recommendation": "M1_FULL_PAIRED_REPLICATION_STUDY",
+    "ownerDecision": "APPROVE_F0U_M1_FOR_REPLICATION_STUDY_FREEZE_PREPARATION_ONLY"
+  },
+  "processDeviationDisclosure": {
+    "unauthorisedCommit": "444dce0a84838116246b48ed9b3f3a3994fd2324",
+    "unauthorisedCommitParent": "71933872510c1a27e5e011d76641999c029bea24",
+    "unauthorisedCommitFilesChanged": [
+      "docs/audits/PHASE_2B_2D2C_F0U_REPLICATION_METHODOLOGY_REVIEW_2026-09.md"
+    ],
+    "cause": "Created and pushed by a background research fork despite an explicit read-only research directive; the fork inherited the outer task's own actionable instructions (write, commit, push) and acted on them independently and out of band.",
+    "supersededByCommit": "9454e0167fa8cc28d929a1fbf023b26c9727c9b6",
+    "supersedingCommitIsDirectChildOfUnauthorisedCommit": true,
+    "forcePushOccurred": false,
+    "historyRewritten": false,
+    "priorCommitDeleted": false,
+    "mainTouched": false,
+    "classification": "PROCEDURAL_AGENT_CONTROL_DEVIATION_NOT_EMPIRICAL_EVIDENCE_CONTAMINATION",
+    "classificationRationale": "No gold label, hash, gate outcome or empirical artifact was read, written or altered by the deviation - it produced one alternative, unreviewed draft of the same methodology document, later reconciled. It is an agent-control/process-hygiene finding, not a finding about the two historical DEV attempts or their evidence."
+  },
+  "clarifications": {
+    "batchPreservationRationale": "The historical execution context is multi-document batching (F0O/F0I: one provider call per ~4-document logical batch). The effect, if any, of sibling documents on a focal item's output is UNMEASURED - it is not established that batch-mates are causally material, and it is not established that they are immaterial. Therefore replication preserves the FULL, unmodified 12-batch composition rather than assuming batch context is irrelevant; batch-03's historical mixed 3-accepted/1-rejected first-pass outcome is cited only as evidence that documents are not scored as fully separable independent draws within a call, never as proof of causal dependence between specific batch-mates.",
+    "estimand": "This study does not isolate pure sampling randomness. The local/client-side contract is pinned (S4 identities; no temperature/top_p/seed exposed anywhere in the classifier call path; SDK/CLI versions byte-identical across the V4 and V5 runtimes). F0U S3 identifies residual PROVIDER-SIDE unknowns this harness cannot observe or control: whether the requested model id `claude-sonnet-5` resolves to an immutable backend snapshot or could be repointed over time; unobservable provider/SDK prompt-caching behaviour; and other provider-side state not exposed by any persisted artifact. The correct study estimand is therefore: RUN-TO-RUN BEHAVIOURAL VARIABILITY AND PAIRED V4/V5 DIFFERENCES UNDER THE PINNED LOCAL HARNESS/RUNTIME/MODEL-ID CONTRACT, WITH EXPLICITLY DISCLOSED RESIDUAL PROVIDER-SIDE UNKNOWNS - never a claim of isolating pure sampling randomness in the abstract."
+  },
+  "studyDesign": {
+    "recommendedBy": "F0U_M1",
+    "approvedDesign": "DESIGN_B_FULL_FROZEN_BATCH_RESAMPLING",
+    "designAPrimeExecutedFirst": false,
+    "designAPrimeNote": "F0U's optional batch-preserving critical-batch pre-check (Design A') remains documented methodology context only (F0U S4/S13) and is NOT part of this frozen study; the approved next experiment is Design B directly.",
+    "variantNames": ["PROMPT_V4_CANONICAL", "PROMPT_V5_CANONICAL"],
+    "nPerPrompt": 5,
+    "totalFreshRuns": 10,
+    "unitOfReplication": "ONE_FULL_FROZEN_12_BATCH_49_DOCUMENT_RUN_PER_PROMPT_VARIANT",
+    "historicalRunsCountTowardN": false,
+    "historicalRunsRole": "PILOT_ONLY",
+    "historicalAttempt3V4Run": "PILOT_ONLY_NOT_COUNTED",
+    "historicalAttempt4V5Run": "PILOT_ONLY_NOT_COUNTED",
+    "v1v2v3Rerun": false,
+    "v6": false
+  },
+  "slots": [
+    {
+      "sequence": 1,
+      "slotId": "PAIR_1_V4",
+      "pairNumber": 1,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-1-v4"
+    },
+    {
+      "sequence": 2,
+      "slotId": "PAIR_1_V5",
+      "pairNumber": 1,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-1-v5"
+    },
+    {
+      "sequence": 3,
+      "slotId": "PAIR_2_V5",
+      "pairNumber": 2,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-2-v5"
+    },
+    {
+      "sequence": 4,
+      "slotId": "PAIR_2_V4",
+      "pairNumber": 2,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-2-v4"
+    },
+    {
+      "sequence": 5,
+      "slotId": "PAIR_3_V4",
+      "pairNumber": 3,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-3-v4"
+    },
+    {
+      "sequence": 6,
+      "slotId": "PAIR_3_V5",
+      "pairNumber": 3,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-3-v5"
+    },
+    {
+      "sequence": 7,
+      "slotId": "PAIR_4_V5",
+      "pairNumber": 4,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-4-v5"
+    },
+    {
+      "sequence": 8,
+      "slotId": "PAIR_4_V4",
+      "pairNumber": 4,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-4-v4"
+    },
+    {
+      "sequence": 9,
+      "slotId": "PAIR_5_V4",
+      "pairNumber": 5,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "futureOutputRootName": "pair-5-v4"
+    },
+    {
+      "sequence": 10,
+      "slotId": "PAIR_5_V5",
+      "pairNumber": 5,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "futureOutputRootName": "pair-5-v5"
+    }
+  ],
+  "studyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5",
+  "studyRootNote": "A NAME ONLY. Neither this directory nor any of the 10 slot subdirectories under it is created by this file or by the F0V task that proposed it.",
+  "identities": {
+    "v4": {
+      "runtimeCommit": "7c3cb5b5b7e57c1c9cee03900c922a01b2075573",
+      "promptVersion": "orgunit-classifier-prompt-v4",
+      "promptSha256": "a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b",
+      "historicalFreezeLabel": "F0I",
+      "historicalFreezePath": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json",
+      "historicalFreezeRawSha256": "018f7bc1d34ff92ae11491595bd42df986e5369652bf58b0fce19111467d615e",
+      "historicalFreezeRawBytes": 87754,
+      "historicalPlanSha256": "3829955f64b9bdddb51ba7b5389363b0fa36c0449628206914f608f9f1830a2b",
+      "historicalAttemptNo": 3,
+      "historicalEvidenceRoot": "attempt-3-retry-1 (immutable, read-only comparator; never rerun)"
+    },
+    "v5": {
+      "runtimeCommit": "1bb7578ac962650675f05aec3507c57a49517239",
+      "promptVersion": "orgunit-classifier-prompt-v5",
+      "promptSha256": "4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9",
+      "historicalFreezeLabel": "F0O",
+      "historicalFreezePath": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json",
+      "historicalFreezeRawSha256": "77cccff133ceac9ca57ac30c4468690d99ae3d53a294e30249f97487c727a75e",
+      "historicalFreezeRawBytes": 97514,
+      "historicalPlanSha256": "292d9424d487f3d69903a3b81172bd0a90c65adbd7ee6fa63cf3a9d0ced79898",
+      "historicalAttemptNo": 4,
+      "historicalEvidenceRoot": "attempt-4 (immutable, read-only comparator; never rerun)"
+    },
+    "reverificationRule": "Every identity above is independently reverified before freezing against this build's production constants (freezeF0I.ts / freezeF0O.ts) and against a live `git rev-parse HEAD` in both pinned runtime worktrees; the F0V freeze unit test performs this reverification on every run."
+  },
+  "corpus": {
+    "scope": "DEVELOPMENT",
+    "itemCount": 49,
+    "canonicalCorpusPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.jsonl",
+    "canonicalManifestPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.manifest.jsonl",
+    "derivedCorpusRawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+    "derivedManifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+    "derivedCorpusContentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2",
+    "identicalAcrossV4AndV5": "F0O S5 (identityFieldsUnchangedFromF0I): every batch's assemblyInputSha256, goldIds, docIndices and corpusLineNumbers are unchanged between F0I and F0O - the same 49-document, 12-batch structure is reused for both prompt variants, and this freeze reuses it again unmodified for all 10 replication slots.",
+    "holdoutFilesNeverRead": [
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl"
+    ],
+    "additionalForbiddenFilesForThisStudy": [
+      "src/test/fixtures/evaluation/orgunit-classifier-gold-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-adjudication-v1.jsonl"
+    ],
+    "noneOpenedByF0V": true
+  },
+  "perRunPolicy": {
+    "repairPolicy": {
+      "enabled": true,
+      "maxRoundsPerLogicalEvaluation": 1,
+      "minimumRemainingBudgetMs": 120000
+    },
+    "retryPolicy": {
+      "maxTransientRetriesPerRequest": 2,
+      "backoffMs": [500, 1000]
+    },
+    "liveness": {
+      "tier1": {
+        "attemptSoftDeadlineMs": 300000,
+        "abortCloseSettlementGraceMs": 10000,
+        "totalProviderCallBudgetMs": 600000
+      },
+      "tier2": {
+        "parentWatchdogMs": 700000,
+        "gracefulTerminationWindowMs": 10000,
+        "stderrTailMaxChars": 2048
+      }
+    },
+    "runConfig": { "maxTurns": 3, "thinking": "disabled" },
+    "requestedModelId": "claude-sonnet-5",
+    "agentSdk": { "package": "@anthropic-ai/claude-agent-sdk", "version": "0.3.251" }
+  },
+  "perRunCeilingTotals": {
+    "v4": {
+      "logicalEvaluations": 12,
+      "originalRequests": 12,
+      "documents": 49,
+      "maxRepairRequests": 49,
+      "maxProviderRequests": 61,
+      "maxAdapterAttempts": 183
+    },
+    "v5": {
+      "logicalEvaluations": 12,
+      "originalRequests": 12,
+      "documents": 49,
+      "maxRepairRequests": 49,
+      "maxProviderRequests": 61,
+      "maxAdapterAttempts": 183
+    },
+    "v4EqualsV5": true
+  },
+  "fullStudyCeilings": {
+    "totalSlots": 10,
+    "totalLogicalEvaluations": 120,
+    "maxProviderRequests": 610,
+    "maxAdapterAttempts": 1830,
+    "derivation": "SUM_OF_TEN_SLOT_PER_RUN_TOTALS_NEVER_A_HARDCODED_MULTIPLICATION",
+    "derivationNote": "610 = 10 x 61 and 1830 = 10 x 183 only because V4's and V5's per-run totals happen to agree exactly (perRunCeilingTotals.v4EqualsV5); the F0V freeze unit test derives this figure by summing each of the 10 slots' own per-run ceiling, never by multiplying a bare literal by 10."
+  },
+  "executionBoundary": {
+    "goldBlind": true,
+    "noGoldLoadedInF0V": true,
+    "allTenSlotsCompleteOrTerminalBeforeAnyScoringBegins": true,
+    "noIntermediatePrecisionRecallGateCalculation": true,
+    "noSemanticInspectionUsedToDecideWhetherToContinue": true
+  },
+  "noAdaptiveStopping": {
+    "nFrozenBeforeInference": true,
+    "slotCountFixedAt": 10,
+    "slotOrderFixed": true,
+    "promptOrderFixed": true,
+    "analysisContractFixed": true,
+    "rule": "A favourable or unfavourable intermediate result never changes the remaining slot count, slot order, prompt order, or analysis contract."
+  },
+  "inclusionRule": {
+    "classA": {
+      "id": "FAILURE_BEFORE_AUTHORISATION_CONSUMPTION",
+      "meaning": "No semantic replicate exists for the slot.",
+      "action": "Preserve evidence and pause that slot. Not included as a replicate; not silently skipped either - remains visible as a paused slot."
+    },
+    "classB": {
+      "id": "AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "meaning": "The candidate is spent, but no semantic replicate exists (analogous to F0K's attempt-3 dispatch repair).",
+      "action": "Do not auto-replace. Pause and require a separate owner-reviewed recovery authorisation for the SAME frozen slot."
+    },
+    "classC": {
+      "id": "PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "meaning": "Any provider request or semantic execution occurred for the slot.",
+      "action": "That slot is IRREVOCABLY part of the study, whether it completes successfully or ends in a genuine terminal failure/halt. Never replaced or discarded. This is the predeclared inclusion rule."
+    }
+  },
+  "futureAuthorisationModel": {
+    "model": "All ten run configurations must first be frozen (this file). All ten execution-authorisation candidate files must later be materialised request-free. All ten exact candidate SHA-256 identities must be known and structurally verified before the first provider call. The owner may then approve all ten exact candidate hashes in ONE explicit owner decision. That decision does not approve any candidate whose exact bytes/hash were not listed. No generic authorisation for as-yet-unknown future candidate bytes is ever created.",
+    "candidatesCreatedByThisFile": 0,
+    "candidatesCreatedByF0VTask": 0
+  },
+  "analysisContract": {
+    "sixFrozenDevGates": {
+      "minSchemaValidSpanVerifiedRate": 0.99,
+      "minUnitPageRecall": 0.95,
+      "minUnitPagePrecision": 0.9,
+      "minUnitTypeAccuracy": 0.85,
+      "minHardNegativeRejection": 0.9,
+      "maxNeedsReviewRate": 0.15
+    },
+    "sixFrozenDevGatesSource": "F0O scoring.gates, restated verbatim; identical to F0S S9's six-gate table for both historical attempts.",
+    "perReplicatePerPromptReporting": [
+      "distribution of each of the six frozen gate metrics across the 5 replications",
+      "devGateOutcome distribution (FROZEN_GATES_PASSED_ON_DEV vs FROZEN_GATES_FAILED_ON_DEV counts)",
+      "mean/median/min/max for precision and recall",
+      "exact per-run confusion counts",
+      "per-item (all 49) verdict frequency",
+      "per-item (all 49) validator-acceptance frequency (first-pass vs post-repair)",
+      "per-item (all 49) repair-trigger frequency"
+    ],
+    "pairedV4V5Reporting": [
+      "paired precision difference per pair (5 values)",
+      "paired recall difference per pair (5 values)",
+      "paired hard-negative-rejection difference per pair (5 values)",
+      "total verdict-disagreement count per pair and pooled",
+      "corrections and regressions per pair and pooled"
+    ],
+    "criticalAndControlItemFrequencyTables": [
+      "g04d170f4d3fda759",
+      "g0ec0d43dad311a77",
+      "g536c8b148048fcbc",
+      "gdb5b7246327094ef",
+      "g57607d4278d6dc23",
+      "ge789b0f0aedc398c",
+      "gf65026e32d9da8db",
+      "g4454e841c09dd8d0",
+      "ga435ea22d4b11cf4"
+    ],
+    "interpretationLabels": [
+      "STABLE_WITHIN_PROMPT",
+      "UNSTABLE_WITHIN_PROMPT",
+      "V5_REPRODUCIBLY_BETTER",
+      "V5_REPRODUCIBLY_WORSE",
+      "NO_CLEAR_PROMPT_EFFECT"
+    ],
+    "labelsAreDiagnosticReportingOnly": true,
+    "labelsDoNotReplaceOrCreateAHoldoutAcceptanceGate": true,
+    "doesNotRetroactivelyAlterHistoricalGateOutcomes": true,
+    "historicalV4GateOutcomeFrozen": "FROZEN_GATES_FAILED_ON_DEV",
+    "historicalV5GateOutcomeFrozen": "FROZEN_GATES_FAILED_ON_DEV"
+  },
+  "holdout": {
+    "forbidden": true,
+    "inferenceDuring2D2C": "FORBIDDEN",
+    "noPreHoldoutTaskMayOpenOrParseAnyFileContainingHoldoutRows": true,
+    "forbiddenFiles": [
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-gold-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-adjudication-v1.jsonl"
+    ],
+    "f0vRequiresOnly": "DEVELOPMENT-only corpus material and already-published protocol identities."
+  },
+  "exclusions": {
+    "thisFreezeAuthorises": []
+  }
+}

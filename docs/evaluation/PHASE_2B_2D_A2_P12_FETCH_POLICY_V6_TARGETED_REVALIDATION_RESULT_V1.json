@@ -1,0 +1,372 @@
+{
+  "record": "PHASE_2B_2D_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_RESULT_V1",
+  "recordKind": "TARGETED_CAPABILITY_REVALIDATION_EVIDENCE_PENDING_ADJUDICATION",
+  "recordedAtUtc": "2026-09-21T20:41:32Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "f8923fc961ce2753be723099d633345fbe9011bd",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+
+  "bound": {
+    "targetedAuthority": {
+      "ownerDecision": "AUTHORISE_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_V1",
+      "path": "docs/evaluation/PHASE_2B_2D_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+      "sha256": "e4b7b2d290a4a586a172e4eae2712f028114f811f662edc4d749e7e60ba5564d",
+      "bytes": 8771,
+      "commit": "1d6cee614df14b8b9156d4d26e2ca462ffc50548",
+      "pushedAndRefetchedBeforeInstitutionNetworkUtc": "2026-09-21T20:32:53Z"
+    },
+    "v6Implementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_V6_IMPLEMENTATION_V1.json",
+      "sha256": "48879c82078f037cb0e04ad26adddc41679877e0393df678c6f8a48fc7a71532",
+      "bytes": 10404,
+      "commit": "f8923fc961ce2753be723099d633345fbe9011bd"
+    },
+    "v6PolicyRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_FETCH_POLICY_V6_REPAIR_V1.json",
+      "sha256": "76d6a8bc102313bf844558bc7d78843b7517e43a1fcdf1ce4dfdfe16bc998c93",
+      "bytes": 9861,
+      "commit": "679eb1ad05d3730ddca9334d51fc15217f34b579"
+    },
+    "capabilityReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REVIEW_V1.json",
+      "sha256": "eac03dc122d3e7b8a575e82f1a9509145aec2ac3b00eca3d86ca5b1e3a1e5066",
+      "bytes": 18903,
+      "commit": "69dff793439a8d20d29894100c4b73e064206308"
+    },
+    "windowV2EvidenceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "9503dec328acaae530dd2574b0a7f14c7b2ed67e3f5fa1fdbce0f41830c0e563",
+      "bytes": 18185,
+      "commit": "69dff793439a8d20d29894100c4b73e064206308"
+    },
+    "windowV2Result": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_RESULT_V1.json",
+      "sha256": "c16ec72e84b938d338d3108291e4d9899c438d9123ab90a80a0674c8eb0e9576",
+      "bytes": 22408,
+      "commit": "575b706d1c33f7b62eb3ac5000780581bc901dbe"
+    },
+    "historicalV4RunRefSha256": "fdc6f64fbdd9b66a93007e28b001675063a59b67f5eb02d38dda7c181d1b10aa",
+    "v6RunRefSha256": "dbd6ba8045d7842477798c148c8d7061b6c924ec4591d7ce5516749f171cb5fd"
+  },
+
+  "targetBinding": {
+    "workItemId": "P:12",
+    "kind": "PRIMARY",
+    "selectionIndex": 12,
+    "split": "DEV_TRAIN",
+    "currentOccupant": "ORIGINAL_SELECTION",
+    "reservePosition": null,
+    "drawEntrySha256": "62918025160460de236c6dc48350beb89172a08864cad98b5a2bb44e51393391",
+    "drawEntryDigestRecomputedAndMatched": true,
+    "windowV2PlanWorkItemMatched": true,
+    "rootAuthorityCount": 1,
+    "rootAuthorityType": "WEBSITE_CLAIM",
+    "frozenRootIsCurrentStructurallyValidClaim": true,
+    "v6RunRootEqualsFrozenRoot": true,
+    "v6RunRootEqualsHistoricalV4Root": true,
+    "everyV6ObservationBoundToTargetOrganisationAndRoot": true,
+    "promotionRoots": 0,
+    "alternateOrganisationOrRoot": false
+  },
+
+  "dryRun": {
+    "count": 1,
+    "mode": "DRY_RUN",
+    "organisationBindingCorrect": true,
+    "roots": 1,
+    "rootEqualsFrozen": true,
+    "institutionDnsOrHttp": 0,
+    "databaseWrites": 0
+  },
+
+  "hostSafety": {
+    "power": "battery (AC not required)",
+    "batteryPercentBefore": 100,
+    "batteryPercentAfter": 100,
+    "doNotStartThresholdPercent": 20,
+    "lidOpenBeforeAndAfter": true,
+    "caffeinateDimsuActiveAndAssertionsVerified": true,
+    "diskFreeGiB": 677,
+    "databaseHealthy": true,
+    "competingAcquisitionProcess": false,
+    "sleepWakeDuringLiveTarget": 0,
+    "lastSleepWakeEventBeforeRunUtc": "2026-09-21T20:16:31Z",
+    "hostStateAnomaly": false
+  },
+
+  "execution": {
+    "command": "npm run cli -- orgunits discover --organisation-id <private> --execute --json, exactly once",
+    "liveInvocations": 1,
+    "manualRetries": 0,
+    "curlWgetBrowserOrDirectRequests": 0,
+    "startedUtc": "2026-09-21T20:34:07Z",
+    "finishedUtc": "2026-09-21T20:38:57Z",
+    "cliExitCode": 0,
+    "rawRunJsonLocation": "outside the repository, in the session scratchpad only"
+  },
+
+  "policyProof": {
+    "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+    "runRuleVersion": "orgunit-signal-rules-v1",
+    "newObservations": 38,
+    "newObservationsStampedV6": 38,
+    "newV1V2V3V4V5RunsOrObservations": 0,
+    "policyMismatch": false
+  },
+
+  "v6Run": {
+    "runTerminalState": "COMPLETED",
+    "completionErrorKind": null,
+    "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+    "gatewayRequests": 38,
+    "pageAttempts": 35,
+    "robotsRequests": 2,
+    "sitemapRequests": 1,
+    "sitemapUrlsAccepted": 0,
+    "distinctHostsUsed": 1,
+    "circuitOpenHosts": 0,
+    "frontierUrlsObserved": 53,
+    "rawPages": 1,
+    "rawPageDiscoveryMethod": { "ROOT": 1 },
+    "candidateRows": 2,
+    "redirectObservations": 0,
+    "persistenceAnomaly": false,
+    "budgetsRespected": {
+      "MAX_TOTAL_REQUESTS_PER_ROOT": { "limit": 60, "used": 38 },
+      "MAX_PAGE_ATTEMPTS_PER_ROOT": { "limit": 35, "used": 35 },
+      "MAX_HOSTS_PER_ROOT": { "limit": 8, "used": 1 },
+      "sitemapDocuments": { "limit": 5, "used": 1 }
+    },
+    "requestStatusBreakdown": {
+      "ROBOTS": { "CONNECT_TIMEOUT": 1, "404": 1 },
+      "ROOT": { "200": 1 },
+      "SITEMAP": { "404": 1 },
+      "LINK": { "404": 31, "CONNECTION_RESET": 2, "CONNECT_TIMEOUT": 1 }
+    }
+  },
+
+  "retryAndRedirectFacts": {
+    "robotsPolicyResolution": {
+      "requests": 2,
+      "attempt1": { "errorKind": "CONNECT_TIMEOUT", "errorSubtype": null },
+      "attempt2": { "httpStatus": 404, "errorKind": null },
+      "retryUrlSameAsFailedUrl": true,
+      "retryAttemptNoIncremented": true,
+      "transportRetryPairs": 1,
+      "classification": "V4_BOUNDED_ROBOTS_TRANSPORT_RETRY_EXERCISED_AND_POLICY_RESOLVED_NO_ROBOTS_FILE"
+    },
+    "robotsRedirectContinuations": 0,
+    "ordinaryPageRetries": 0,
+    "httpResponseRetries": 0,
+    "linkTransportErrorsNotRetried": { "CONNECTION_RESET": 2, "CONNECT_TIMEOUT": 1 },
+    "errorSubtypeNullIsAdmissible": "neither CONNECT_TIMEOUT nor CONNECTION_RESET is refined by migration 0012 (only TLS_FAILURE and DNS_FAILURE are), so NULL is the only admissible subtype",
+    "withinLandedV6Boundary": true
+  },
+
+  "formalSd7": {
+    "method": "analyseOrganisation + toSealedRecord (src/test/harness/phase2b2d/sd7/), exact-duplicate pass first, read-only over the v6 run's page evidence only",
+    "rawPageCount": 1,
+    "postSd7Min": 1,
+    "postSd7Max": 1,
+    "countIsExact": true,
+    "formalCountOfRecord": 1,
+    "exactDuplicateRowsRemoved": 0,
+    "nearDuplicateEdges": 0,
+    "shortTextUnresolved": 0,
+    "nonTransitiveComponents": 0,
+    "unauditableComponents": 0,
+    "wholeRangeAtOrAbove4": false,
+    "wholeRangeBelow4": true,
+    "decidedByCase": "B",
+    "labelsOrClassifierUsed": false,
+    "sealedDetail": {
+      "root": "~/Developer/phase2b-2d-methodology-v2/gen1-dev-train",
+      "file": "P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_SD7_DETAIL_V1.json",
+      "sha256": "f0d75b307d58869e92fabf00520f6b3578ab248b5b839de78f817d1c6656ade3",
+      "bytes": 1198,
+      "writtenWithExclusiveCreate": true,
+      "committedToGit": false,
+      "historicalV4SealedFileUntouched": {
+        "file": "PRIMARY_10_14_WINDOW_V2_SD7_DETAIL_P_12.json",
+        "sha256": "fb63977638cc4d388d935ce019776183a70a25decf16da59001d5898baed112d"
+      }
+    }
+  },
+
+  "diagnosticSd9": {
+    "value": "ACQUISITION_UNSUCCESSFUL",
+    "harnessStatus": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "rule": "every admissible formal post-SD7 result is < 4",
+    "diagnosticOnly": true,
+    "p12AorStatusUpdated": false
+  },
+
+  "v4VsV6Comparison": {
+    "networkUsedForComparison": 0,
+    "fetchPolicy": { "v4": "orgunit-fetch-policy-v4", "v6": "orgunit-fetch-policy-v6" },
+    "runTerminalState": { "v4": "COMPLETED", "v6": "COMPLETED" },
+    "rootTerminalReason": { "v4": "PAGE_BUDGET_EXHAUSTED", "v6": "PAGE_BUDGET_EXHAUSTED" },
+    "gatewayRequests": {
+      "v4": 37,
+      "v6": 38,
+      "differenceExplainedBy": "one additional robots.txt request: the v4-landed bounded transport retry after a CONNECT_TIMEOUT"
+    },
+    "pageAttempts": { "v4": 35, "v6": 35 },
+    "rawPages": { "v4": 1, "v6": 1 },
+    "formalSd7": { "v4": { "min": 1, "max": 1 }, "v6": { "min": 1, "max": 1 } },
+    "diagnosticSd9": { "v4": "ACQUISITION_UNSUCCESSFUL", "v6": "ACQUISITION_UNSUCCESSFUL" },
+    "rootPage": {
+      "sameRequestedUrl": true,
+      "v4HttpStatus": 200,
+      "v6HttpStatus": 200,
+      "sameDecodedBodyHash": false,
+      "sameByteCount": false,
+      "note": "the root document's bytes differ between the runs; no body is stored, so what changed is not knowable"
+    },
+    "linkAttempts": {
+      "v4": { "count": 34, "2xx": 0, "3xx": 0, "4xx": 34, "5xx": 0, "transportError": 0 },
+      "v6": { "count": 34, "2xx": 0, "3xx": 0, "4xx": 31, "5xx": 0, "transportError": 3 },
+      "v4GenericServer404": 33,
+      "v4ApplicationRendered404": 1,
+      "v6GenericServer404": 30,
+      "v6ApplicationRendered404": 1,
+      "genericServer404BodyHashIdenticalAcrossRuns": true,
+      "v6RobotsAndSitemap404ShareTheGenericBodyHash": true,
+      "perUrlTransitions": {
+        "generic404ToGeneric404": 30,
+        "applicationRendered404ToApplicationRendered404": 1,
+        "generic404ToConnectionReset": 2,
+        "generic404ToConnectTimeout": 1
+      }
+    },
+    "linkFrontierSetComparison": {
+      "method": "exact requested_url sets computed privately; only counts and digests exposed",
+      "v4DistinctLinkUrls": 34,
+      "v6DistinctLinkUrls": 34,
+      "overlap": 34,
+      "union": 34,
+      "jaccard": 1,
+      "setsIdentical": true,
+      "attemptOrderIdentical": true,
+      "discoveryParentSetIdentical": true,
+      "discoveryParentCount": 1,
+      "setDigestSha256OfSortedNewlineJoinedUrls": {
+        "v4": "695c45e180d7e3496489682edc65fc4ecfae49c7848b6ff1649ca3501b65f559",
+        "v6": "695c45e180d7e3496489682edc65fc4ecfae49c7848b6ff1649ca3501b65f559"
+      },
+      "v6PathsThatAreAPrefixedV4Path": 0,
+      "v4PathsThatAreAPrefixedV6Path": 0
+    }
+  },
+
+  "documentBaseEffectClassification": "V6_FRONTIER_NOT_MATERIALLY_CHANGED",
+  "documentBaseEffect": {
+    "documentBaseCapabilityMateriallyAffectedObservedAcquisitionEvidence": false,
+    "DOCUMENT_BASE_CAPABILITY_MATERIALLY_AFFECTED_P12_REVALIDATION": false,
+    "basis": "Under v6 (FIRST href-bearing live <base>, title/textarea excluded from discovery) the attempted LINK frontier is byte-identical to v4: the same 34 URLs, in the same order, from the same single parent page. No v6 URL is a re-based form of a v4 URL. The link 404s recur with the same generic server 404 body.",
+    "whatThisDoesProve": "On this run, v6 document-base resolution produced exactly the URLs the page-URL-only v4 resolution produced, so the base-href hypothesis does not explain the P:12 all-404 frontier.",
+    "whatThisDoesNotProve": "Whether the root page contains a <base> element. The identical frontier is consistent with no href-bearing base, a base that resolves to the same directory as the page URL, or an unusable base that falls back to the page URL. No body is stored, and v6 does not persist which case applied.",
+    "p12HtmlInspected": false,
+    "networkVarianceNote": "three LINK URLs that returned the generic 404 under v4 returned transport errors under v6 (2 CONNECTION_RESET, 1 CONNECT_TIMEOUT); the robots.txt request also needed one transport retry. This is host-side variance, not a capability effect, and moved no page into or out of the evidence set."
+  },
+
+  "databaseDeltas": {
+    "role": "nwf_readonly",
+    "orgunit_research_runs": { "before": 23, "after": 24, "delta": 1 },
+    "orgunit_research_run_completions": { "before": 23, "after": 24, "delta": 1 },
+    "orgunit_fetch_observations": { "before": 483, "after": 521, "delta": 38 },
+    "orgunit_redirect_observations": { "before": 32, "after": 32, "delta": 0 },
+    "orgunit_page_evidence": { "before": 354, "after": 355, "delta": 1 },
+    "orgunit_page_candidates": { "before": 708, "after": 710, "delta": 2 },
+    "orgunit_root_promotions": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_root_promotion_revocations": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_classification_subjects": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_classifier_calls": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_classifier_call_completions": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_page_classifications": { "before": 0, "after": 0, "delta": 0 },
+    "newV6Runs": 1,
+    "newV6Observations": 38,
+    "newV5Runs": 0,
+    "runPolicyCountsAfter": { "v1": 7, "v2": 2, "v3": 3, "v4": 11, "v5": 0, "v6": 1 },
+    "runsWithoutCompletion": 0,
+    "allDeltasAttributableToTheOneAuthorisedRun": true
+  },
+
+  "replacementLedger": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256Before": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+    "sha256After": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+    "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+    "entries": 4,
+    "byteIdentical": true,
+    "append": false,
+    "reserveConsumed": 4,
+    "reservePosition4": "UNASSIGNED"
+  },
+
+  "generation1StateUnchanged": {
+    "successfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+    "failureSelectionIndices": [10],
+    "pendingCapabilityReviewSelectionIndices": [12],
+    "pendingReplacementObligations": [10],
+    "neverStarted": { "from": 13, "to": 109 },
+    "p6": false,
+    "p10": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "p11": "ACQUISITION_SUCCESSFUL",
+    "p12": "ACQUISITION_STATUS_PENDING_CAPABILITY_REVIEW",
+    "p12AddedToSuccessOrFailure": false,
+    "p12ReplacementObligationCreated": false
+  },
+
+  "windowV2": {
+    "terminal": "PAUSE_P5_LOW_RAW_YIELD",
+    "reopened": false,
+    "p13": "NEVER_STARTED",
+    "p14": "NEVER_STARTED",
+    "v6EvidenceAppliedToWindowV2P5Counters": false
+  },
+
+  "scopeProofs": {
+    "institutionLiveInvocations": 1,
+    "otherInstitutionNetwork": 0,
+    "p10OrP11Rerun": false,
+    "p13OrP14Executed": false,
+    "otherSelectionIndexTouched": false,
+    "reserveAssignment": false,
+    "crawlerRepair": false,
+    "fetchPolicyV7": false,
+    "productionCodeChanged": false,
+    "migrationCreated": false,
+    "classifierExecutions": 0,
+    "providerInference": 0,
+    "labelsCreated": 0,
+    "setP": 0,
+    "setR": 0,
+    "a3": false,
+    "phase2E": false,
+    "aorAdjudicated": false
+  },
+
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "organisationUuids": 0,
+    "echeRowKeys": 0,
+    "hostnames": 0,
+    "urls": 0,
+    "pageTitlesOrText": 0,
+    "publicLinkageIsOnly": [
+      "workItemId",
+      "selectionIndex",
+      "drawEntrySha256",
+      "SHA-256(run UUID)",
+      "SHA-256 of the sorted LINK URL set"
+    ]
+  },
+
+  "implementationOrProvenanceIncident": false,
+  "nextOwnerDecision": "A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_EVIDENCE_ADJUDICATION",
+  "terminalState": "PHASE_2B_2D_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_COMPLETE_AWAITING_EVIDENCE_ADJUDICATION"
+}

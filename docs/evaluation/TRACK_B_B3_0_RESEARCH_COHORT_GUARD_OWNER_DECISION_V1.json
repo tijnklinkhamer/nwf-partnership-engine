@@ -1,0 +1,123 @@
+{
+  "recordId": "track-b-b3-0-research-cohort-guard-owner-decision-v1",
+  "recordKind": "RESEARCH_COHORT_PROTECTION_LOCAL_IMPLEMENTATION_RECORD",
+  "records": "TRACK_B_B3_0_RESEARCH_COHORT_GUARD_OWNER_DECISION_V1",
+  "recordedAtUtc": "2026-10-15T12:34:48Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/pe-discovery-research-cohort-guard-v1",
+  "worktree": "~/wt-pe-research-cohort-guard",
+  "startingHead": "02ddcf25931a91397216a6c20c91bef9c16663e4",
+  "startingHeadLineage": {
+    "b1_1Parent": "6bbb84af801af778615e4733ca499c6ec051aae7",
+    "b1_1Implementation": "4fe03b19ab11f3d8c615ff05544408cc60da6c35",
+    "b1_1FirewallPin": "02ddcf25931a91397216a6c20c91bef9c16663e4"
+  },
+  "status": "LOCAL_UNCOMMITTED_PENDING_OWNER_REVIEW",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "authorisesLiveExecution": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. No HTTP, no DNS, no institutional request. Every test transport is scripted, and the integration run was additionally wrapped in a scratch process-level guard that refused all non-loopback TCP and DNS (zero refusals were logged).",
+  "databaseWrittenByThisRecord": "none",
+  "databaseUsedByTests": "one disposable PostgreSQL 16 container only (local image, tmpfs data, loopback port, unique superuser and database, no volume, destroyed after use). The shared nwf_pe_postgres cluster was never connected to.",
+  "inferenceUsed": "none. No classifier attempt, no model or provider call.",
+  "protectedCohortContentInspected": false,
+  "ownerDecisions": ["AUTHORISE_B3_0_RESEARCH_COHORT_GUARD_LOCAL_IMPLEMENTATION_V1"],
+  "ownerDecisionScope": {
+    "authorised": [
+      "create the isolated worktree ~/wt-pe-research-cohort-guard on branch feat/pe-discovery-research-cohort-guard-v1 from 02ddcf2",
+      "implement a narrow research-side guard that reuses the existing classifier evaluation-cohort authority",
+      "enforce it before any research run row, network activity or evidence write, on the CLI and on the internal orchestration entry points",
+      "add synthetic tests, a narrowly scoped repair-scope firewall and this record",
+      "run offline tests, and bounded integration tests against one independently verified disposable PostgreSQL 16 instance"
+    ],
+    "notAuthorised": [
+      "commit, push, merge or deploy - every change stays local and uncommitted for OWNER review",
+      "live research, live HTTP or DNS, or new research runs against real organisations",
+      "reading or enumerating protected cohort contents or HOLDOUT payloads",
+      "changing cohort membership, pinned cohort artifacts or their SHA-256 pins",
+      "classifier attempts, model inference, prompt or signal changes",
+      "fetch-policy version, B1.1 frontier, budget, robots, pacing, SSRF or gateway changes",
+      "an OWNER override flag, an environment bypass, or any identity exemption",
+      "duplicate-run prevention, budget aggregation, batch execution, resume/retry, UI, publication or host-cap (H1) work"
+    ]
+  },
+  "implementedDelta": {
+    "productionFilesChanged": [
+      "src/orgunits/orchestrator/researchCohortGuard.ts (new)",
+      "src/orgunits/orchestrator/orchestrate.ts",
+      "src/orgunits/orchestrator/rootRunner.ts",
+      "src/cli/commands/discover.ts"
+    ],
+    "classifierGuardChanged": false,
+    "artifactPinsChanged": false,
+    "cohortArtifactsChanged": false,
+    "newMatcher": false,
+    "newRegistry": false,
+    "fetchPolicyVersionChanged": false,
+    "frontierChanged": false,
+    "budgetsChanged": false,
+    "gatewayOrRobotsChanged": false,
+    "signalsChanged": false,
+    "migrationAdded": false,
+    "dependencyAdded": false,
+    "overrideFlagAdded": false,
+    "enforcementPoints": [
+      "planOrganisationResearch, called by runOrganisationDiscovery BEFORE startRun and by the CLI dry run",
+      "enforceRootResearchEligibility, called by runRootAcquisition after root resolution and before any request"
+    ],
+    "refusal": {
+      "code": "RESEARCH_COHORT_GUARD_REFUSED",
+      "kinds": [
+        "PROTECTED_OR_INELIGIBLE",
+        "AUTHORITY_UNAVAILABLE",
+        "IDENTITY_CONFLICT",
+        "IDENTITY_UNVERIFIED"
+      ],
+      "disclosure": "code, kind and a fixed reason only; PROTECTED and CONFLICT verdicts collapse to COHORT_INELIGIBLE; an outside-frame identity (reachable only when nothing involved is protected) is RESEARCH_IDENTITY_AUTHORITY_ABSENT"
+    },
+    "engineeringRecord": "docs/audits/TRACK_B_B3_0_RESEARCH_COHORT_GUARD_V1.md",
+    "firewall": "src/test/firewall/phase2bResearchCohortGuard.firewall.test.ts (REPAIR_TERMINAL_COMMIT null until committed)"
+  },
+  "openRequirements": [
+    "OWNER review of this local change and its commit plan",
+    "on commit: pin REPAIR_TERMINAL_COMMIT in phase2bResearchCohortGuard.firewall.test.ts (two-commit precedent 4fe03b1 -> 02ddcf2)",
+    "this guard does not authorise live research; B1.1 H1, Track A v8 contract acceptance and any live-run authority remain separate decisions",
+    "any reviewed change to a pinned cohort artifact (including a legitimate ledger append) refuses ALL research and ALL operator classification until the classifier guard's pins are re-reviewed"
+  ],
+  "r1Correction": {
+    "records": "TRACK_B_B3_0_R1_RESEARCH_ELIGIBILITY_ARCHITECTURE_CORRECTION",
+    "ownerDecision": "do not commit B3.0 yet; one bounded correction and final verification pass",
+    "status": "LOCAL_UNCOMMITTED_PENDING_OWNER_REVIEW",
+    "finding": "protected membership is decidable without a frame match (every protected key is a frame key, checked at registry build), but the frame binding is the ONLY identity authority the Engine holds; nwf_research cannot read ingest provenance, and exact matching cannot see a protected institution under a new source-row key",
+    "policy": "RESEARCH ELIGIBILITY POLICY V1 (decideResearchEligibility): ELIGIBLE only for the classifier's ALLOWED verdict; PROTECTED and CONFLICT -> COHORT_INELIGIBLE; IDENTITY_UNVERIFIED (outside the frame) -> RESEARCH_IDENTITY_AUTHORITY_ABSENT, still a refusal; exhaustive over the verdict kinds",
+    "outsideFrameResearchSupported": false,
+    "outsideFrameIsProofOf": "neither protection nor permission",
+    "classifierSemanticsChanged": false,
+    "productionFilesChanged": ["src/orgunits/orchestrator/researchCohortGuard.ts"],
+    "requiredBeforeAdmittingNewOrganisations": [
+      "new ECHE rows (later artifact or rebuilt database): an OWNER-approved, SHA-256-pinned ECHE-successor identity authority with a continuity rule against protected institutions under changed PIC/Erasmus codes, plugged in only at the IDENTITY_UNVERIFIED branch",
+      "organisations ECHE does not publish (sub-units, ESN sections, associations, clubs, communities): a separately authorised B2 identity contract; not representable in organisations today"
+    ],
+    "fullValidation": {
+      "command": "npm run validate (after npm run db:migrate:test)",
+      "exitCode": 0,
+      "testFiles": {
+        "passed": 332,
+        "skipped": 5
+      },
+      "tests": {
+        "passed": 9997,
+        "failed": 0,
+        "skipped": 75
+      },
+      "build": "passed",
+      "database": "one disposable postgres:16-alpine (cf78e767...) container, --pull never, tmpfs data, no mounts, 127.0.0.1 dynamic port, superuser nwf_owner with a random password, database nwf_pe_test; working-database URLs unset; removed afterwards, volume and container sets equal to baseline",
+      "networkGuard": "scratch NODE_OPTIONS preload refusing all non-loopback TCP and DNS; zero refusals logged"
+    },
+    "networkUsed": "none",
+    "inferenceUsed": "none",
+    "protectedCohortContentInspected": false
+  }
+}

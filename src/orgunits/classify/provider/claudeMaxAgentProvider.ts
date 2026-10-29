@@ -16,27 +16,56 @@
  *   2. PROFILE HYGIENE (names-only readdir): the dedicated profile exists
  *      and holds no semantic/config surface (`profileHygiene.ts`). No file
  *      content — credentials above all — is ever read.
+ *   2a. EXECUTABLE RESOLUTION (ADR 0010 Amendment A, 2026-09-13): the
+ *      exact SDK-bundled native Claude Code binary is resolved and
+ *      verified ONCE through the injected `ClaudeCodeExecutableResolver`
+ *      seam (production: `claudeCodeExecutable.ts` against this
+ *      namespace's own package root; tests: a fake). A refusal of any
+ *      kind is a provider-neutral `AUTH_FAILURE` with zero subprocesses.
+ *      The one resolved path is then handed to BOTH the auth-status
+ *      runner and the SDK invocation, so the preflight oracle and the
+ *      inference subprocess are the same file by construction — never an
+ *      external `claude` found on `PATH`.
  *   3. SCRATCH ISOLATION: one fresh scratch `cwd`, unique per invocation,
  *      removed afterwards on success AND failure (`runtimeIsolation.ts`).
  *      The PROFILE directory persists: Claude Code owns and refreshes the
  *      stored login inside it, and this engine never writes or deletes it.
- *   4. STORED-LOGIN CHECK: the request-free `claude auth status --json`,
- *      executed through the injected `ClassifierAuthStatusRunner` seam
- *      under the SAME sanitized child environment and SAME dedicated
- *      profile the SDK subprocess will use, evaluated by the pure
- *      `authStatus.ts` (logged in, `claude.ai` method, `firstParty`
- *      provider, `max` subscription when reported). Any failure returns
- *      the provider-neutral `AUTH_FAILURE` outcome with ZERO SDK-runner
- *      invocations.
+ *   4. STORED-LOGIN CHECK: the request-free `auth status --json` of the
+ *      resolved binary, executed through the injected
+ *      `ClassifierAuthStatusRunner` seam under the SAME sanitized child
+ *      environment and SAME dedicated profile the SDK subprocess will
+ *      use, evaluated by the pure `authStatus.ts` (logged in, `claude.ai`
+ *      method, `firstParty` provider, `max` subscription when reported).
+ *      Any failure returns the provider-neutral `AUTH_FAILURE` outcome
+ *      with ZERO SDK-runner invocations.
  *   5. INVOCATION: the hermetic invocation (sdkOptions.ts) over the
- *      allowlist-built child environment (environment.ts), executed
- *      through the injected `AgentSdkRunner` seam — the provider itself
- *      imports no SDK and opens no socket.
+ *      allowlist-built child environment (environment.ts) and the resolved
+ *      executable, executed through the injected `AgentSdkRunner` seam —
+ *      the provider itself imports no SDK and opens no socket.
  *   6. BOUNDED TRANSIENT RETRY: the landed `retry.ts` helper, max 2
  *      retries, exponential backoff on the injected `Clock`. ONLY
  *      `PROVIDER_TRANSIENT` attempts retry; AUTH_FAILURE,
  *      USAGE_LIMIT_EXHAUSTED, PROVIDER_REFUSAL, STRUCTURED_OUTPUT_FAILED
  *      and TIMEOUT reach the caller on their first occurrence.
+ *   6a. TOTAL BUDGET (2D2B-2): ONE monotonic window of
+ *      `CLASSIFIER_CALL_TOTAL_BUDGET_MS`, opened on the injected `Clock`
+ *      immediately before the first runner attempt and never reset per
+ *      retry. Before EVERY attempt: no budget left -> terminal TIMEOUT with
+ *      zero further runner calls; otherwise the runner's deadline is
+ *      `min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remaining)`. Backoff sleeps
+ *      spend the same window. Worst case, a call ends within the budget
+ *      plus one hard-kill grace. A deadline TIMEOUT's bounded diagnostics
+ *      go to the optional `onAttemptDiagnostics` hook (and, only under
+ *      `NWF_PE_VERBOSE`, to `debug()` on stderr) — never into the result.
+ *   6b. ATTEMPT WITNESSES (CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1): the
+ *      adapter observes each of its own attempts around the unchanged retry
+ *      helper and asks the mapping module for a CLOSED witness (closed-list
+ *      members and integers only). A non-OK result's detail is the fixed
+ *      category text followed by the rendered witnesses, so the reason code
+ *      and every attempt's structure reach `error_summary` with no raw
+ *      provider text. Witnesses also go to `onAttemptWitness`; a non-timeout
+ *      throw's raw bounded diagnostics go ONLY to the local
+ *      `onAttemptFailureDiagnostics` hook. Nothing here changes an outcome.
  *   7. MAPPING: outcomes translate through the ONE centralized mapping
  *      module (outcomeMapping.ts). Structured output is returned RAW
  *      (`unknown`) for the landed layer-2 validator — never re-validated,
@@ -66,23 +95,50 @@ import { retryTransient } from '../retry.js';
 import { realClock, type Clock } from '../../orchestrator/clock.js';
 import { runClassifierPreflight } from './preflight.js';
 import { checkProfileHygiene } from './profileHygiene.js';
+import {
+  resolveProductionClaudeCodeExecutable,
+  type ClaudeCodeExecutableResolver,
+} from './claudeCodeExecutable.js';
 import { evaluateAuthStatus, type AuthStatusExecution } from './authStatus.js';
 import type { ClassifierAuthStatusRunner } from './authStatusRunner.js';
 import { buildChildEnvironment } from './environment.js';
 import { createScratchWorkspace } from './runtimeIsolation.js';
 import { buildAgentSdkInvocation } from './sdkOptions.js';
-import type { AgentSdkRunner, AgentSdkRunResult } from './agentSdkRunner.js';
+import {
+  AgentSdkAttemptError,
+  AgentSdkTimeoutError,
+  CLASSIFIER_CALL_SOFT_DEADLINE_MS,
+  CLASSIFIER_CALL_TOTAL_BUDGET_MS,
+  type AgentSdkAttemptFailureStage,
+  type AgentSdkDiagnostics,
+  type AgentSdkRunner,
+  type AgentSdkRunResult,
+} from './agentSdkRunner.js';
 import {
   classifyRunResult,
   classifyThrownFailure,
+  classifyTotalBudgetExhausted,
+  renderProviderFailureDiagnostic,
+  witnessNotStartedAttempt,
+  witnessReturnedAttempt,
+  witnessThrownAttempt,
   type ClassifiedAttempt,
+  type ProviderAttemptWitness,
 } from './outcomeMapping.js';
+import { debug } from '../../../logging/log.js';
 
 export interface ClaudeMaxAgentProviderOptions {
   /** REQUIRED. Production: `createProductionAgentSdkRunner()`. Tests: a fake. */
   readonly runner: AgentSdkRunner;
   /** REQUIRED. Production: `createProductionAuthStatusRunner()`. Tests: a fake. */
   readonly authStatusRunner: ClassifierAuthStatusRunner;
+  /**
+   * Resolves the SDK-bundled native Claude Code binary both subprocesses
+   * run. Defaults to the production resolver over this namespace's own
+   * package root (`claudeCodeExecutable.ts`); tests inject a fake that
+   * names a synthetic absolute path. Never a PATH lookup.
+   */
+  readonly claudeCodeExecutable?: ClaudeCodeExecutableResolver;
   /**
    * The orchestration-process environment. Defaults to reading
    * `process.env` at `classify()` time — the ONE sanctioned read point.
@@ -95,26 +151,74 @@ export interface ClaudeMaxAgentProviderOptions {
   readonly clock?: Clock;
   /** Closed model allowlist override — for tests with fake model ids only. */
   readonly allowedModels?: readonly string[];
+  /**
+   * Receives the EXACT, deeply frozen diagnostics of an attempt that hit the
+   * liveness deadline, before the error is reduced to an outcome. The
+   * capture point for a future bounded evaluation harness; independent of
+   * `NWF_PE_VERBOSE`. A hook that throws cannot change the outcome.
+   */
+  readonly onAttemptDiagnostics?: (diagnostics: AgentSdkDiagnostics) => void;
+  /**
+   * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: receives EVERY attempt's
+   * closed, deeply frozen witness (closed-list members and integers only),
+   * in attempt order, as it is observed — successes included. In memory
+   * only; independent of `NWF_PE_VERBOSE`. A hook that throws cannot change
+   * the outcome.
+   */
+  readonly onAttemptWitness?: (witness: ProviderAttemptWitness) => void;
+  /**
+   * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: receives the EXACT, deeply
+   * frozen diagnostics of a NON-timeout attempt that THREW (stream failure,
+   * stream ended without a result, query construction failure) — the
+   * snapshot that used to become unreachable the moment the error escaped
+   * the runner. LOCAL DEBUG CAPTURE ONLY: it can hold a raw bounded stderr
+   * tail, so it is never persisted, never placed in a detail, never a public
+   * field. Deliberately a SEPARATE hook from `onAttemptDiagnostics`, whose
+   * landed contract is timeout-only. A hook that throws cannot change the
+   * outcome.
+   */
+  readonly onAttemptFailureDiagnostics?: (
+    failureStage: AgentSdkAttemptFailureStage,
+    diagnostics: AgentSdkDiagnostics,
+  ) => void;
 }
 
 export class ClaudeMaxAgentProvider implements ClassifierProvider {
   readonly #runner: AgentSdkRunner;
   readonly #authStatusRunner: ClassifierAuthStatusRunner;
+  readonly #claudeCodeExecutable: ClaudeCodeExecutableResolver;
   readonly #env: () => Readonly<Record<string, string | undefined>>;
   readonly #repoRoot: string;
   readonly #clock: Clock;
   readonly #allowedModels: readonly string[] | undefined;
+  readonly #onAttemptDiagnostics: ((diagnostics: AgentSdkDiagnostics) => void) | undefined;
+  readonly #onAttemptWitness: ((witness: ProviderAttemptWitness) => void) | undefined;
+  readonly #onAttemptFailureDiagnostics:
+    | ((failureStage: AgentSdkAttemptFailureStage, diagnostics: AgentSdkDiagnostics) => void)
+    | undefined;
 
   constructor(options: ClaudeMaxAgentProviderOptions) {
     this.#runner = options.runner;
     this.#authStatusRunner = options.authStatusRunner;
+    this.#claudeCodeExecutable =
+      options.claudeCodeExecutable ?? resolveProductionClaudeCodeExecutable;
     this.#env = options.env ?? (() => ({ ...process.env }));
     this.#repoRoot = options.repoRoot ?? process.cwd();
     this.#clock = options.clock ?? realClock;
     this.#allowedModels = options.allowedModels;
+    this.#onAttemptDiagnostics = options.onAttemptDiagnostics;
+    this.#onAttemptWitness = options.onAttemptWitness;
+    this.#onAttemptFailureDiagnostics = options.onAttemptFailureDiagnostics;
   }
 
   async classify(request: ClassifierProviderRequest): Promise<ClassifierProviderResult> {
+    // ADR 0011: a caller-supplied window is opened HERE, at entry, so that
+    // pre-flight and the auth-status check spend it too - a caller composing
+    // a bounded repair inside an outer window can then account exactly.
+    // Without one, the frozen window opens immediately before the first
+    // runner attempt, exactly as 2D2B-2 landed it.
+    const callEnteredAt = this.#clock.now();
+    const callerWindowMs = resolveCallerWindowMs(request.totalBudgetMs);
     const parentEnv = this.#env();
 
     const preflight = runClassifierPreflight({
@@ -137,6 +241,14 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
       return refusal(`pre-flight ${hygiene.kind}: ${hygiene.detail}`);
     }
 
+    // ONE resolution, ONE executable, for both subprocesses below. A
+    // refusal here opens no scratch directory and spawns nothing.
+    const executable = this.#claudeCodeExecutable();
+    if (!executable.ok) {
+      return refusal(`pre-flight CLAUDE_CODE_EXECUTABLE_${executable.kind}: ${executable.detail}`);
+    }
+    const executablePath = executable.provenance.executablePath;
+
     const scratch = await createScratchWorkspace();
     try {
       const childEnv = buildChildEnvironment({
@@ -144,11 +256,12 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         configDir: preflight.profileDir,
       });
 
-      // The request-free stored-login check runs under the SAME environment
-      // and SAME profile the SDK subprocess will receive.
+      // The request-free stored-login check runs under the SAME environment,
+      // SAME profile and SAME executable the SDK subprocess will receive.
       let authStatusExecution: AuthStatusExecution;
       try {
         authStatusExecution = await this.#authStatusRunner.run({
+          executablePath,
           env: childEnv,
           cwd: scratch.scratchCwd,
         });
@@ -168,6 +281,7 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         request,
         childEnv,
         scratchCwd: scratch.scratchCwd,
+        claudeCodeExecutablePath: executablePath,
       });
 
       interface AttemptOutcome {
@@ -175,12 +289,59 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         /** The normalized run result behind `classified`, when the runner returned one (null on a thrown transport failure). */
         readonly runResult: AgentSdkRunResult | null;
       }
+      // ONE window for the whole attempt sequence, opened once, never reset.
+      // The frozen window opens here; a caller-supplied one was opened at
+      // entry and is never wider than the frozen total.
+      const totalBudgetMs =
+        callerWindowMs === null
+          ? CLASSIFIER_CALL_TOTAL_BUDGET_MS
+          : Math.min(CLASSIFIER_CALL_TOTAL_BUDGET_MS, callerWindowMs);
+      const budgetStartedAt = callerWindowMs === null ? this.#clock.now() : callEnteredAt;
+      // CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: this adapter observes its
+      // OWN attempts around the provider-neutral retry helper (which stays
+      // unchanged): one closed witness per attempt, derived by the ONE
+      // mapping authority. Observation only - no witness feeds a decision.
+      const witnesses: ProviderAttemptWitness[] = [];
       const attempt = async (): Promise<AttemptOutcome> => {
+        const ordinal = witnesses.length + 1;
+        const remainingMs = totalBudgetMs - (this.#clock.now() - budgetStartedAt);
+        if (remainingMs <= 0) {
+          const classified = classifyTotalBudgetExhausted();
+          this.#observe(witnesses, witnessNotStartedAttempt({ ordinal, classified }));
+          return { classified, runResult: null };
+        }
+        const deadlineMs = Math.min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remainingMs);
+        const attemptStartedAt = this.#clock.now();
         try {
-          const runResult = await this.#runner.run(invocation);
-          return { classified: classifyRunResult(runResult), runResult };
+          const runResult = await this.#runner.run(invocation, { deadlineMs });
+          const classified = classifyRunResult(runResult);
+          this.#observe(
+            witnesses,
+            witnessReturnedAttempt({
+              ordinal,
+              elapsedMs: this.#clock.now() - attemptStartedAt,
+              result: runResult,
+              classified,
+            }),
+          );
+          return { classified, runResult };
         } catch (error) {
-          return { classified: classifyThrownFailure(error), runResult: null };
+          if (error instanceof AgentSdkTimeoutError) {
+            this.#captureTimeoutDiagnostics(error.diagnostics);
+          } else if (error instanceof AgentSdkAttemptError) {
+            this.#captureFailureDiagnostics(error);
+          }
+          const classified = classifyThrownFailure(error);
+          this.#observe(
+            witnesses,
+            witnessThrownAttempt({
+              ordinal,
+              elapsedMs: this.#clock.now() - attemptStartedAt,
+              error,
+              classified,
+            }),
+          );
+          return { classified, runResult: null };
         }
       };
 
@@ -198,6 +359,7 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
           inputTokens: usage?.inputTokens ?? null,
           outputTokens: usage?.outputTokens ?? null,
           outcomeDetail: null,
+          outcomeReasonCode: null,
         };
       }
       return {
@@ -206,7 +368,13 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         responseModelId: usage?.responseModelId ?? null,
         inputTokens: usage?.inputTokens ?? null,
         outputTokens: usage?.outputTokens ?? null,
-        outcomeDetail: boundDetail(finalAttempt.classified.detail),
+        // The fixed category detail, then the closed per-attempt diagnostic:
+        // the reason code and every attempt's STRUCTURE reach the existing
+        // `error_summary` column without a migration and without raw text.
+        outcomeDetail: boundDetail(
+          `${finalAttempt.classified.detail} ${renderProviderFailureDiagnostic(witnesses)}`,
+        ),
+        outcomeReasonCode: finalAttempt.classified.reasonCode,
       };
     } finally {
       // The SCRATCH directory only. The dedicated profile directory is
@@ -214,6 +382,81 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
       await scratch.cleanup();
     }
   }
+
+  /**
+   * Records one attempt's closed witness, hands it to the optional hook, and
+   * - only for a non-OK attempt, only under `NWF_PE_VERBOSE` - renders it to
+   * `debug()`. The witness holds no raw text, so the verbose line cannot
+   * either. Nothing here can alter the attempt's outcome.
+   */
+  #observe(witnesses: ProviderAttemptWitness[], witness: ProviderAttemptWitness): void {
+    witnesses.push(witness);
+    if (this.#onAttemptWitness !== undefined) {
+      try {
+        this.#onAttemptWitness(witness);
+      } catch {
+        debug('classifier provider: the onAttemptWitness hook threw; ignored.');
+      }
+    }
+    if (witness.outcome !== 'OK') {
+      debug(`classifier provider: attempt failed ${renderProviderFailureDiagnostic([witness])}`);
+    }
+  }
+
+  /**
+   * Hands a non-timeout THROWN attempt's diagnostics to the local capture
+   * hook, and only under `NWF_PE_VERBOSE` renders its CLOSED progress trace
+   * to `debug()` - never its stderr tail, which stays inside the hook.
+   * Neither path can reach the provider result or alter the outcome.
+   */
+  #captureFailureDiagnostics(error: AgentSdkAttemptError): void {
+    if (this.#onAttemptFailureDiagnostics !== undefined) {
+      try {
+        this.#onAttemptFailureDiagnostics(error.failureStage, error.diagnostics);
+      } catch {
+        debug('classifier provider: the onAttemptFailureDiagnostics hook threw; ignored.');
+      }
+    }
+    const trace = error.diagnostics.progress
+      .map((entry) => `${entry.stage}(+${entry.elapsedMs}ms)`)
+      .join(' ');
+    debug(`classifier provider: attempt ${error.failureStage}; progress: ${trace}`);
+  }
+
+  /**
+   * Hands a timed-out attempt's diagnostics to the capture hook (always,
+   * when one is configured) and to `debug()` (which emits only under
+   * `NWF_PE_VERBOSE`, on stderr). Neither path can reach the provider
+   * result, and neither can alter the attempt's outcome.
+   */
+  #captureTimeoutDiagnostics(diagnostics: AgentSdkDiagnostics): void {
+    if (this.#onAttemptDiagnostics !== undefined) {
+      try {
+        this.#onAttemptDiagnostics(diagnostics);
+      } catch {
+        debug('classifier provider: the onAttemptDiagnostics hook threw; ignored.');
+      }
+    }
+    const trace = diagnostics.progress
+      .map((entry) => `${entry.stage}(+${entry.elapsedMs}ms)`)
+      .join(' ');
+    debug(
+      `classifier provider: attempt TIMEOUT; progress: ${trace}; ` +
+        `stderr tail (${diagnostics.stderrTail.length} chars): ${JSON.stringify(diagnostics.stderrTail)}`,
+    );
+  }
+}
+
+/**
+ * A caller-supplied window, normalised: `null` when absent (the frozen
+ * window applies), otherwise a non-negative integer number of milliseconds.
+ * A malformed value (non-finite, negative) is treated as ZERO, which yields
+ * a terminal TIMEOUT before any runner attempt - never as "no bound".
+ */
+function resolveCallerWindowMs(totalBudgetMs: number | undefined): number | null {
+  if (totalBudgetMs === undefined) return null;
+  if (!Number.isFinite(totalBudgetMs) || totalBudgetMs < 0) return 0;
+  return Math.floor(totalBudgetMs);
 }
 
 /** An AUTH_FAILURE refusal with zero SDK-runner invocations. */
@@ -225,6 +468,9 @@ function refusal(detail: string): ClassifierProviderResult {
     inputTokens: null,
     outputTokens: null,
     outcomeDetail: boundDetail(detail),
+    // Every `refusal()` is a pre-inference control-plane refusal: the runner
+    // was never invoked, so no SDK condition exists to name.
+    outcomeReasonCode: 'PRE_FLIGHT_REFUSAL',
   };
 }
 

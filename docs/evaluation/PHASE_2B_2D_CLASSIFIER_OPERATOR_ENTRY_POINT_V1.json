@@ -1,0 +1,152 @@
+{
+  "record": "PHASE_2B_2D_CLASSIFIER_OPERATOR_ENTRY_POINT_V1",
+  "recordKind": "NON_EVALUATION_CLASSIFIER_OPERATOR_ENTRY_POINT_RESULT",
+  "task": "CLASSIFIER_OPERATOR_ENTRY_POINT_V1",
+  "recordedAtUtc": "2026-10-06T21:20:47Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/classifier-operator-entry-point-v1",
+  "isEvaluationResult": false,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "ownerDecisions": ["AUTHORISE_CLASSIFIER_OPERATOR_ENTRY_POINT_V1"],
+
+  "canonicalBase": {
+    "commit": "3390f61f44f65513ca6b71969b528591f3978e49",
+    "branch": "feat/engine-runtime-lineage-reconciliation-v1",
+    "terminalState": "ENGINE_RUNTIME_LINEAGE_RECONCILED_FETCH_POLICY_V7_READY_FOR_OPERATOR_ENTRY_POINT",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+    "migrationsThrough": "0012"
+  },
+  "reconciliationFreeze": {
+    "commit": "900f45c37311fdbd4eb6bae3f7038a16104cbf84",
+    "path": "src/test/unit/engineRuntimeLineageReconciliationV1.test.ts",
+    "change": "lineage, changed-surface, manifest, migration, docs and record assertions moved onto R52_TERMINAL..ENGINE_RUNTIME_RECONCILIATION_TERMINAL and the exact terminal tree; four reconciliation commits pinned; src/cli/ added to the forbidden reconciliation surface; absence of any classifier operator entry point at the terminal asserted; nothing weakened"
+  },
+
+  "command": "nwf-pe orgunits classify",
+  "usage": "nwf-pe orgunits classify --organisation-id <uuid> --run-id <uuid> --model <model-id> [--attempt <N>] [--execute] [--json]",
+  "scope": "ONE_EXPLICIT_ORGANISATION_ONE_EXPLICIT_RESEARCH_RUN",
+  "requiredInputs": ["organisationId", "runId", "modelId"],
+  "attemptDefault": 1,
+  "attemptAutoIncrement": false,
+  "modelDefault": null,
+  "latestRunSelection": false,
+  "organisationSweep": false,
+  "discoveryChaining": false,
+  "dryRunProviderCalls": 0,
+  "dryRunClassifierWrites": 0,
+  "researchRoleCompletionGate": true,
+  "classifierRoleExecution": true,
+  "completedReuse": true,
+  "nonCompletedAttemptRefusal": true,
+  "globalMultiBatchPrecheck": true,
+  "repairPolicy": "DISABLED",
+  "runConfig": {},
+  "requestConfig": {},
+
+  "gateOrder": [
+    "ARGUMENT_BOUNDS",
+    "PURE_CLASSIFIER_PREFLIGHT (runClassifierPreflight; with --execute every refusal is final; MODEL_NOT_ALLOWED is final in every mode)",
+    "RESEARCH_ROLE_COMPLETION_GATE (checkRunCompleted; pool closed before the classifier phase)",
+    "CLASSIFIER_ROLE_PLAN (assembleClassifierHandoff + buildClassifierCallIdentity + findCallStateAtIdentity for every batch)",
+    "GLOBAL_START_DECISION (any ATTEMPT_ALREADY_EXISTS_NON_COMPLETED refuses the whole execution start)",
+    "PRODUCTION_PROVIDER_CONSTRUCTION (only with --execute, only when a batch is READY_NEW_ATTEMPT, by dynamic import)",
+    "runOrganisationClassification (the landed runtime, unchanged)"
+  ],
+  "planStates": ["READY_NEW_ATTEMPT", "REUSABLE_COMPLETED", "NO_CANDIDATES"],
+  "refusalState": "ATTEMPT_ALREADY_EXISTS_NON_COMPLETED",
+  "persistedIdentityStates": ["ABSENT", "COMPLETED", "PARTIAL", "FAILED", "NO_COMPLETION_RECORDED"],
+  "exitSemantics": {
+    "zero": [
+      "dry run whose --execute would be permitted to start",
+      "NO_CANDIDATES",
+      "every batch REUSED",
+      "every newly EXECUTED batch COMPLETED, alone or with REUSED batches"
+    ],
+    "nonZero": [
+      "missing or invalid argument",
+      "research run not COMPLETED",
+      "organisation/run mismatch or any other assembly refusal",
+      "pure preflight refusal (dry run: reported, and the exit is non-zero)",
+      "non-completed attempt collision",
+      "any executed batch PARTIAL or FAILED (persisted rows are kept; no rollback)",
+      "unexpected runtime or database error"
+    ]
+  },
+  "productionProvider": {
+    "class": "ClaudeMaxAgentProvider",
+    "runners": ["production Agent SDK runner", "production auth-status runner"],
+    "executable": "the provider's own default: the SDK-bundled Claude Code binary, never PATH",
+    "loadedBy": "dynamic import on the execute path only (src/cli/commands/classifyProvider.ts)",
+    "apiKeyProvider": false,
+    "credentialRead": false,
+    "fallbackProvider": false
+  },
+
+  "changedProductionSurface": [
+    "src/cli/commands/classify.ts",
+    "src/cli/commands/classifyProvider.ts",
+    "src/cli/index.ts",
+    "src/orgunits/classify/callIdentity.ts",
+    "src/orgunits/classify/operatorPlan.ts",
+    "src/orgunits/classify/orchestrate.ts",
+    "src/orgunits/classify/persist.ts"
+  ],
+  "productionChangeNotes": {
+    "src/orgunits/classify/orchestrate.ts": "the inline identity-tuple block replaced by buildClassifierCallIdentity; byte-equality to the terminal blob with exactly that replacement is test-pinned",
+    "src/orgunits/classify/persist.ts": "additive only: findCallStateAtIdentity, a SELECT over the six identity-index columns; no line removed",
+    "src/orgunits/classify/callIdentity.ts": "new pure helper over the unchanged computeFinalInputSha256 and the frozen version constants",
+    "src/orgunits/classify/operatorPlan.ts": "new read-only planner; no write, no provider",
+    "src/cli/index.ts": "additive: usage, three string options (run-id, model, attempt) and one route"
+  },
+  "testSurface": [
+    "src/test/unit/engineRuntimeLineageReconciliationV1.test.ts",
+    "src/test/unit/classifierOperatorEntryPointV1.test.ts",
+    "src/test/integration/classifierOperatorEntryPoint.test.ts"
+  ],
+  "transitiveWebReach": {
+    "directImportsUnderOrgunitsWeb": 0,
+    "transitive": [
+      "src/orgunits/web/evidenceCanonical.ts",
+      "src/orgunits/web/extract.ts",
+      "src/orgunits/web/redact.ts"
+    ],
+    "reason": "pre-existing: the landed classifier runtime (document.ts, ordering.ts, validate.ts, repair.ts) reuses these pure text helpers; none opens a socket, and the set is test-pinned by exact name"
+  },
+
+  "classifierSemanticChange": false,
+  "promptChange": false,
+  "outputSchemaChange": false,
+  "taxonomyChange": false,
+  "validationChange": false,
+  "rankingOrSelectionChange": false,
+  "modelAllowlistChange": false,
+  "providerOutcomeMappingChange": false,
+  "repairRuleChange": false,
+  "migrationChange": false,
+  "grantChange": false,
+  "liveClassificationExecutedDuringSlice": false,
+  "productionProviderConstructedDuringSlice": false,
+  "institutionNetworkAccess": false,
+  "workingDatabaseWritten": false,
+  "humanEvaluationDependency": false,
+  "humanReviewResumed": false,
+  "devConfirmOpened": false,
+  "finalHoldoutOpened": false,
+  "a5Authorised": false,
+  "modelSelected": false,
+  "mainUpdated": false,
+
+  "focusedValidation": {
+    "reconciliationFreezeTest": "31 passed",
+    "operatorUnitTest": "48 passed, 4 skipped until this record existed",
+    "operatorIntegrationTest": "28 passed against nwf_pe_test",
+    "existingClassifierIntegration": "86 passed (orchestrate, repair-orchestrate, discover CLI, grants, assemble)",
+    "firewalls": "19 files, 466 passed",
+    "providerExecution": "ScriptedTestProvider only; no real Claude invocation"
+  },
+  "finalValidation": "one `caffeinate -dimsu npm run validate` after this record is committed; its exit is reported to the owner, not written here (a file cannot carry the result of a run that includes it)",
+
+  "terminalState": "CLASSIFIER_OPERATOR_ENTRY_POINT_READY_FOR_READ_MODELS",
+  "nextSlice": "CLASSIFIER_OPERATOR_READ_MODELS_V1"
+}

@@ -1,0 +1,76 @@
+{
+  "recordId": "phase2b-2d2c-f0e-owner-freeze-approval-v1",
+  "recordKind": "OWNER_FREEZE_APPROVAL",
+  "approves": "DEVELOPMENT_CONFIGURATION_FREEZE_ONLY",
+  "recordedAtUtc": "2026-09-14T18:41:10Z",
+  "recordedBy": "claude-code-session under explicit owner instruction (session_01HyBuqsQUmfqx9LmeJoNJud); the approval itself is the owner’s",
+  "approvedFreeze": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0E_V1.json",
+    "rawSha256": "3b49461af417f8846306dacea561da8865956934f40e72b91ec06db7b1639587",
+    "rawBytes": 86878,
+    "derivedAttempt2PlanSha256": "6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25",
+    "branchCommit": "6becec50cb34c4d45c021caf3ed40759e415c5a9",
+    "branch": "feat/phase2b-2d2c-f0e-runtime-repin-replacement-freeze",
+    "freezeRevision": "F0E_V3B_R1_ATTEMPT_2",
+    "bytesNeverChangeOnApproval": true,
+    "statusFieldInsideTheBytesRemains": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL (by design; this record is the approval)"
+  },
+  "supersedes": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0C_V1.json",
+    "rawSha256": "d3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9",
+    "derivedAttempt2PlanSha256": "133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143",
+    "approvalRecord": "docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_V1.json",
+    "approvalRecordRawSha256": "61eb52f3193636ff496d403140538cfd370964b82e7b660fbe6d9944a831dd22",
+    "ratificationRecord": "docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_RATIFICATION_V1.json",
+    "ratificationRecordRawSha256": "bad4b359b319039a4341c66ad04efd7a92285725cd526b934d7883cb40162cba",
+    "reason": "Finding F1: F0C pinned runtime 0c0d738, whose source/default repair floor constant was still 60000 ms while F0C stated and froze 120000 ms. Owner decision 2026-09-14: Option B (runtime re-pin). F0C, its approval and its ratification remain immutable historical evidence and must not be used to authorise attempt 2."
+  },
+  "approvedIdentities": {
+    "runtimeCommit": "8224e630b9310f1eeada608a34627e854b30f5aa",
+    "runtimeBaseCommitSuperseded": "0c0d73803ed1155d568afe50a6657b7be7276dbb",
+    "r1Commit": "9c509107fd66afdc979364a135bf94eb64379972",
+    "promptVersion": "orgunit-classifier-prompt-v3",
+    "promptSha256": "d05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1",
+    "predecessorF0BRawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+    "attempt1ComparatorInventorySha256": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+    "repairMinimumRemainingBudgetMs": 120000,
+    "repairMinimumRemainingBudgetMsSemantics": "on the usable repair window (remaining minus the 10000 ms hard-kill grace); strict less-than skips; exactly the floor proceeds; exported by the corrected runtime itself",
+    "generalRepairDeadlineContract": {
+      "repairWindowMs": "max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)",
+      "repairAttemptDeadlineMs": "min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs - elapsedSinceRepairClassifyEntryMs))",
+      "elapsedSinceRepairClassifyEntryMsIncludes": [
+        "pre-flight and auth-status work",
+        "prior transient runner attempts",
+        "retry backoff"
+      ],
+      "nonPositiveRemainder": "permits no new runner attempt (the existing terminal TIMEOUT)"
+    }
+  },
+  "verifiedBeforeRecording": {
+    "freezeRawSha256Recomputed": "3b49461af417f8846306dacea561da8865956934f40e72b91ec06db7b1639587",
+    "planSha256Rebuilt": "6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25",
+    "runtimeCommitInBytes": "8224e630b9310f1eeada608a34627e854b30f5aa",
+    "supersedesRawSha256InBytes": "d3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9",
+    "headAtRecording": "6becec50cb34c4d45c021caf3ed40759e415c5a9",
+    "workingTreeClean": true,
+    "v3bRootVerifiedByReadinessCli": "every attempt-1 check and every repair check ok, REPAIR_DEFAULT_FLOOR_CONSTANT included; verifier unchanged from F0D",
+    "fullGateOnTheseBytes": "npm run validate with PHASE2B_2D2C_ATTEMPT1_ROOT set: 123 files, 2660 passed, 4 deliberately skipped, exit 0"
+  },
+  "ownerStatementAsReceived": "APPROVE_F0E_FREEZE\n\nI approve the Phase 2B-2D2C-F0E DEVELOPMENT configuration freeze whose raw SHA-256 is\n\n3b49461af417f8846306dacea561da8865956934f40e72b91ec06db7b1639587\n\nwith derived attempt-2 plan SHA-256\n\n6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25\n\nruntime V3B:\n\n8224e630b9310f1eeada608a34627e854b30f5aa\n\ncut directly from superseded runtime:\n\n0c0d73803ed1155d568afe50a6657b7be7276dbb\n\non R1:\n\n9c509107fd66afdc979364a135bf94eb64379972\n\nprompt:\n\norgunit-classifier-prompt-v3\n\nprompt SHA-256:\n\nd05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1\n\nF0E supersedes the previously approved F0C raw SHA-256:\n\nd3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9\n\nwith its derived plan:\n\n133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143\n\nfor future execution because Finding F1 proved that F0C pinned a runtime whose source/default repair floor was still 60000 ms.\n\npredecessor F0B:\n\nc3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157\n\nattempt-1 comparator inventory:\n\nee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137\n\nREPAIR_MINIMUM_REMAINING_BUDGET_MS = 120000 ms on the usable repair window, as exported by the corrected runtime itself.\n\nThe frozen general repair deadline contract remains:\n\nrepairWindowMs = max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)\n\nrepairAttemptDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs - elapsedSinceRepairClassifyEntryMs))\n\nwhere elapsedSinceRepairClassifyEntryMs includes pre-flight/auth-status work, prior transient runner attempts and retry backoff. A non-positive remainder permits no new runner attempt.\n\nI approve F0E as the replacement DEVELOPMENT freeze and DEVELOPMENT plan for any future attempt-2 execution.\n\nThis approval does not authorise inference, attempt 2, an execution authorisation, a consumption marker, HOLDOUT or mixed-label access, gold or threshold changes, migration application, database writes, or merge/push to main.",
+  "statementMarkerAsReceived": "APPROVE_F0E_FREEZE",
+  "statementMarkerExpected": "APPROVE_F0E_FREEZE",
+  "thisRecordAuthorises": [],
+  "thisRecordDoesNotAuthorise": [
+    "inference of any kind (no Agent SDK query(), no Claude execution or auth call)",
+    "attempt 2 or any attempt",
+    "an execution authorisation or a consumption marker",
+    "HOLDOUT or mixed-label access",
+    "a gold or threshold change",
+    "a migration application or database write",
+    "a merge, a pull request, a force-push, or a push to main"
+  ],
+  "permits": [
+    "pinning this record’s raw SHA-256 in src/test/harness/phase2b2d2c/f0c/freezeF0E.ts (F0E_APPROVAL_RECORD_RAW_SHA256) by a reviewed, additive commit on the F0E preparation branch"
+  ],
+  "nextGatedStep": "A SEPARATE, NEW owner execution authorisation for attempt 2 (version phase2b-2d2c-f0e-execution-authorisation-v1) naming this freeze, this record and an empty output root, presented after this approval is pinned. This freeze approval is not that authorisation."
+}

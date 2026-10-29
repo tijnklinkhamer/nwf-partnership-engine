@@ -1,0 +1,203 @@
+{
+  "record": "PHASE_2B_2D_A3_R39_DEV_TRAIN_INCREMENTAL_DURABLE_EVIDENCE_CENSUS_V1",
+  "recordKind": "PUBLIC_AGGREGATE_ONLY_INCREMENTAL_EVIDENCE_CENSUS",
+  "task": "A3_R39_INCREMENTAL_DEV_TRAIN_DURABLE_EVIDENCE_V5",
+  "ownerDecision": "AUTHORISE_A3_R39_INCREMENTAL_DEV_TRAIN_DURABLE_EVIDENCE_V5",
+  "split": "DEV_TRAIN",
+  "r38bTip": "834b3d99e41044ec5c93ec8ec905b4c2887c6ae8",
+  "r38bScopePinCommit": "904281b8fa0b155c0522b41996c9731231869659",
+  "implementationCommit": "96433af504dfd6e1ba4e96deeb95f22c31158e20",
+  "thisFileAuthorises": [],
+  "r38bReproduction": {
+    "committedRecord": "docs/evaluation/PHASE_2B_2D_A3_R38B_PUBLIC_GOVERNANCE_AUTHORITY_CENSUS_V5.json",
+    "reproducedBeforeDatabase": true,
+    "freshR38bCensusEqualsCommitted": true,
+    "comparedTopLevelFieldCount": 32,
+    "differingSemanticPathCount": 0,
+    "excludedFields": [],
+    "overallContinuity": {
+      "v4Ready": 69,
+      "v5Ready": 110,
+      "unchanged": 69,
+      "new": 41,
+      "changed": 0,
+      "retracted": 0
+    },
+    "driftProofBoundToExactSnapshotsAndContinuityByIdentity": true
+  },
+  "governanceDelta": {
+    "registryV4Version": "COMMITTED_A2_GOVERNANCE_REGISTRY_V4",
+    "registryV4CheckpointCommit": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+    "registryV5Version": "COMMITTED_A2_GOVERNANCE_REGISTRY_V5",
+    "registryV5CheckpointCommit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+    "v4DevTrainReadyCount": 13,
+    "v5DevTrainReadyCount": 20,
+    "unchangedAuthorityCount": 13,
+    "newAuthorityCount": 7,
+    "changedExistingAuthorityCount": 0,
+    "removedAuthorityCount": 0,
+    "freshR38bCensusEquality": true,
+    "derivedBy": "R38B_deriveDevTrainAuthorityContinuityV4ToV5",
+    "continuityBridge": "R38A_compareR17WithCrossGenerationAuthorities",
+    "deltaDerivedFromMintedGovernanceSnapshots": true,
+    "r38aContinuityBridgeModified": false,
+    "r20LowerEvidenceLayerModified": false,
+    "newAuthoritiesByOccupantSourceKind": {
+      "GENERATION1_RESERVE_REPLACEMENT": 1,
+      "GENERATION2_RESERVE_REPLACEMENT": 2,
+      "PRIMARY": 4
+    },
+    "newAuthoritiesByAcquisitionGeneration": {
+      "METHODOLOGY_V2_GEN1": 1,
+      "METHODOLOGY_V3_GEN2": 6
+    }
+  },
+  "canonicalHistory": {
+    "r33Record": "PHASE_2B_2D_A3_R33_DEV_TRAIN_INCREMENTAL_DURABLE_EVIDENCE_CENSUS_V1",
+    "r37Record": "PHASE_2B_2D_A3_R37_DEV_TRAIN_INCREMENTAL_REACHABLE_MEMBERSHIP_SD9_CENSUS_V1",
+    "r33HistoricalPriorEvidenceCount": 6,
+    "r33NewlyBoundEvidenceCount": 7,
+    "r33EvidenceCoverageCount": 13,
+    "r33V4DevTrainReadyCount": 13,
+    "r37ReadinessCoverageCount": 13,
+    "freshV4DevTrainReadyCount": 13,
+    "freshV4ToV5UnchangedCount": 13,
+    "historicalCoverageEqualsFreshV4DevTrainReady": true,
+    "everyHistoricalAuthorityClassifiedUnchanged": true,
+    "readFromCommittedAggregateRecordsOnly": true,
+    "historicalAuthoritiesReRead": false,
+    "historicalEvidenceReminted": false,
+    "historicalDownstreamArtifactsReproduced": false
+  },
+  "coverage": {
+    "historicalCanonicalEvidenceCoverageCount": 13,
+    "historicalCanonicalReadinessCoverageCount": 13,
+    "v4DevTrainReadyCount": 13,
+    "v5DevTrainReadyCount": 20,
+    "unchangedCanonicalCoverageCount": 13,
+    "newlyBoundDeltaCount": 7,
+    "changedExistingCount": 0,
+    "removedCount": 0,
+    "evidenceCoverageAfterR39": 20,
+    "evidenceCoverageEqualsV5DevTrainReady": true,
+    "downstreamReadinessCoverageAfterR39": 13,
+    "legacyAuthorityEvidenceRequests": 0,
+    "deltaAuthorityEvidenceRequests": 7,
+    "twentyItemEvidenceBatchMinted": false,
+    "newDeltaItemsPassedDocumentDedupeSd7K3SetPSetRReachableMembershipOrSd9": false
+  },
+  "deltaEvidence": {
+    "matchedRuns": 7,
+    "distinctDurableRuns": 7,
+    "allRunsDistinct": true,
+    "validCompletions": 7,
+    "fetchObservationRows": 280,
+    "pageEvidenceSourceRows": 224,
+    "distinctResponseSha256Documents": 223,
+    "candidateRows": 448,
+    "runsWithCandidateRowsEqualToTwicePages": 7,
+    "duplicateDocumentSourceRows": 2,
+    "multipleExtractionVersionDocuments": 0
+  },
+  "versionBreakdown": {
+    "scope": "THE_SEVEN_NEW_V5_DELTA_RUNS_ONLY",
+    "acquisitionPolicyVersionCounts": {
+      "orgunit-fetch-policy-v7": 7
+    },
+    "pageExtractionRuleVersionCounts": {
+      "orgunit-extraction-v2": 224
+    },
+    "candidateSignalRuleVersionCounts": {
+      "orgunit-signal-rules-v1": 448
+    },
+    "candidateTrackCounts": {
+      "INTERNATIONAL_OFFICE": 224,
+      "LANGUAGE_CENTRE": 224
+    }
+  },
+  "integrity": {
+    "identityContaminationCount": 0,
+    "fetchPolicyMismatchCount": 0,
+    "relationalOrphanCount": 0,
+    "sameDocumentSameExtractionConflictCount": 0,
+    "candidateTrackPairViolationCount": 0,
+    "multipleExtractionVersionDocuments": 0,
+    "everyR20LowerInvariantSatisfiedForEveryMintedItem": true
+  },
+  "databaseAccess": {
+    "role": "nwf_readonly",
+    "database": "nwf_pe",
+    "transactionReadOnly": true,
+    "transactionIsolation": "repeatable read",
+    "poolConnections": 1,
+    "readOnlySnapshotTransactions": 1,
+    "sqlStatements": 45,
+    "expectedSqlStatementsForUnchangedR20LowerLayer": 45,
+    "lowerEvidenceLoads": 7,
+    "legacyAuthorityEvidenceQueries": 0,
+    "deltaAuthorityEvidenceQueries": 7,
+    "unchangedAuthorityIdentityParameterHits": 0,
+    "devConfirmEvidenceReads": 0,
+    "finalHoldoutEvidenceReads": 0,
+    "writes": 0,
+    "institutionNetworkRequests": 0,
+    "sealedRootReads": 0
+  },
+  "semantics": {
+    "governanceReproducedBeforeDatabase": true,
+    "deltaDerivedFromMintedGovernanceSnapshots": true,
+    "deltaProvedAdditiveBeforeDatabase": true,
+    "historicalCoverageProvedBeforeDatabase": true,
+    "unchangedAuthoritiesRebound": false,
+    "newEvidenceMintedOnlyForV5Delta": true,
+    "r20AuthorityAdapterModified": false,
+    "r20AuthorityAdapterUsed": false,
+    "r20LowerEvidenceLayerModified": false,
+    "v5SpecificRequestAdapterUsed": true,
+    "requestAdapterRunsOnlyAfterV5BrandAndDeltaVerification": true,
+    "allSevenLowerReadsCompletedBeforeAnyMint": true,
+    "mintedOnlyAfterSnapshotClosedCleanly": true,
+    "oneShotBindingPerV5SnapshotPerProcess": true,
+    "runReferenceConvention": "A3_CANONICAL_RUN_REF_V1",
+    "documentAssemblyPerformed": false,
+    "sd7Performed": false,
+    "samplePreparationPerformed": false,
+    "readinessPerformed": false,
+    "completeCorpusPreflightRun": false,
+    "sealedEvidenceOpened": false
+  },
+  "whatThisIsNot": [
+    "NOT_A_TWENTY_ITEM_EVIDENCE_BATCH",
+    "NOT_A_REREAD_OF_THE_THIRTEEN_CANONICAL_AUTHORITIES",
+    "NOT_A_DOCUMENT_SOURCE_ASSEMBLY",
+    "NOT_AN_SD7_GRAPH",
+    "NOT_SET_P_OR_SET_R",
+    "NOT_REACHABLE_MEMBERSHIP",
+    "NOT_A_COMPLETE_CORPUS_PREFLIGHT",
+    "NOT_A2_ACQUISITION_AUTHORITY",
+    "NOT_A_GOVERNANCE_V6",
+    "NOT_AN_A5_FREEZE"
+  ],
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "reservePositions": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runIdentifiers": false,
+    "runReferenceDigests": false,
+    "drawScheduleOrFrameEntryDigests": false,
+    "perSlotLedgerHashes": false,
+    "rowIdentifiers": false,
+    "documentDigests": false,
+    "urlsOrHosts": false,
+    "titlesHeadingsOrText": false,
+    "scoresOrSignals": false,
+    "sealedFilenames": false,
+    "perAuthorityRowCounts": false,
+    "whichNewAuthoritiesAreGeneration2Reserves": false,
+    "aggregateCountsAndVersionLabelsOnly": true
+  },
+  "terminalState": "R39_INCREMENTAL_DEV_TRAIN_DURABLE_EVIDENCE_V5_COMPLETE_READY_FOR_INCREMENTAL_DOCUMENT_SOURCE_ASSEMBLY",
+  "nextOwnerQuestion": "Should R40 assemble canonical document sources for ONLY the seven new R39 V5 evidence items, preserving the thirteen historical R34/R37 document-and-downstream slots untouched?",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}

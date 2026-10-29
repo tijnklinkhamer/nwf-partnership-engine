@@ -1,0 +1,433 @@
+/**
+ * WW E-SD / ADR 0027 D4-D5, ADR 0028 - READING A STORED GRANT AND APPENDING A
+ * GRANTED RUN'S OWN EVIDENCE.
+ *
+ * Every statement here runs on a connection already narrowed to
+ * `nwf_source_discovery` (`inSourceDiscoveryTransaction`, store.ts). That
+ * capability can READ `source_discovery_grants` and can never write it
+ * (migration 0022): only the migration owner inserts a grant. It appends, by
+ * INSERT only:
+ *
+ *   - a v2 plan as a `source_discovery_briefs` row (idempotent by digest);
+ *   - the run row and its grant-use row, in ONE run-start transaction, before
+ *     the first query - the database re-checks the slot, the window and that
+ *     the run carries the grant's plan, geography and provider;
+ *   - one query-call START per provider call, committed BEFORE the call
+ *     (migration 0025): the database's own permission for that one search,
+ *     re-checking the grant's window on its own clock and requiring an OWNER
+ *     smoke verification for any call that is not the D8 smoke;
+ *   - one terminal query-call row per provider call, matching its start (no
+ *     prompt, no response text), and in the same transaction its OBSERVATION
+ *     (migration 0027): which gate surfaces were consulted and how many
+ *     searches the WebSearch reported - the terminal row cannot commit
+ *     without it;
+ *   - one known-mark per v2-plan nomination (re-derived by the database);
+ *   - the terminal completion row.
+ *
+ * It also READS, for the wiring layer, the nominations a granted run may
+ * hand on (`admissibleNominationsOfRun`, WW H-SD P1-9).
+ *
+ * Nothing here requests a URL, calls a model or reads a nomination's page.
+ */
+import { planBody, type DiscoveryPlan } from './planner/plan.js';
+import { DISCOVERY_PLAN_VERSION } from './planner/vocabulary.js';
+import type { Queryable } from './store.js';
+import type { QueryCallOutcome, RunCompletionOutcome, RunCompletionReason } from './grant.js';
+
+/** One grant row joined to its registered plan and its spent slots. */
+export interface StoredGrantRow {
+  readonly grantId: string;
+  readonly briefId: string;
+  readonly briefKey: string;
+  readonly planDigest: string;
+  readonly storedPlan: unknown;
+  readonly geographyClaim: readonly string[];
+  readonly geography: string;
+  readonly providerKey: string;
+  readonly modelId: string;
+  readonly maxQueries: number;
+  readonly maxResultsPerQuery: number;
+  readonly maxRuns: number;
+  readonly runsUsed: number;
+  readonly issuedAt: Date;
+  readonly expiresAt: Date;
+}
+
+export async function loadStoredGrant(
+  q: Queryable,
+  grantId: string,
+): Promise<StoredGrantRow | null> {
+  const { rows } = await q.query<{
+    id: string;
+    brief_id: string;
+    brief_key: string;
+    plan_digest: string;
+    query_plan: unknown;
+    geography_claim: string[];
+    geography: string;
+    provider_key: string;
+    model_id: string;
+    max_queries: number;
+    max_results_per_query: number;
+    max_runs: number;
+    runs_used: number;
+    issued_at: Date;
+    expires_at: Date;
+  }>(
+    `SELECT g.id, g.brief_id, b.brief_key, g.plan_digest, b.query_plan, b.geography_claim,
+            g.geography, g.provider_key, g.model_id, g.max_queries, g.max_results_per_query,
+            g.max_runs, g.issued_at, g.expires_at,
+            (SELECT count(*) FROM source_discovery_grant_uses u WHERE u.grant_id = g.id)::int
+              AS runs_used
+       FROM source_discovery_grants g
+       JOIN source_discovery_briefs b ON b.id = g.brief_id AND b.plan_digest = g.plan_digest
+      WHERE g.id = $1`,
+    [grantId],
+  );
+  const r = rows[0];
+  return r === undefined
+    ? null
+    : {
+        grantId: r.id,
+        briefId: r.brief_id,
+        briefKey: r.brief_key,
+        planDigest: r.plan_digest,
+        storedPlan: r.query_plan,
+        geographyClaim: r.geography_claim,
+        geography: r.geography,
+        providerKey: r.provider_key,
+        modelId: r.model_id,
+        maxQueries: r.max_queries,
+        maxResultsPerQuery: r.max_results_per_query,
+        maxRuns: r.max_runs,
+        runsUsed: r.runs_used,
+        issuedAt: r.issued_at,
+        expiresAt: r.expires_at,
+      };
+}
+
+export class PlanRegistrationRefused extends Error {
+  constructor(detail: string) {
+    super(`PLAN_NOT_REGISTRABLE: ${detail}`);
+    this.name = 'PlanRegistrationRefused';
+  }
+}
+
+/**
+ * Registers a v2 plan by its digest, so an OWNER grant can name it.
+ * Idempotent: the same plan is one row. An exhausted (empty) plan is refused:
+ * there is nothing a grant could authorise.
+ */
+export async function registerPlan(q: Queryable, plan: DiscoveryPlan): Promise<string> {
+  if (plan.queries.length === 0) {
+    throw new PlanRegistrationRefused(`plan ${plan.planId} has no query.`);
+  }
+  const targetKinds = [...new Set(plan.queries.map((query) => query.dimensions.orgKind))];
+  await q.query(
+    `INSERT INTO source_discovery_briefs
+        (brief_key, plan_digest, query_plan, geography_claim, target_kinds, languages)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     ON CONFLICT (brief_key, plan_digest) DO NOTHING`,
+    [
+      DISCOVERY_PLAN_VERSION,
+      plan.digest,
+      JSON.stringify(planBody(plan)),
+      [plan.geography],
+      targetKinds,
+      [...plan.languages],
+    ],
+  );
+  const { rows } = await q.query<{ id: string }>(
+    `SELECT id FROM source_discovery_briefs WHERE brief_key = $1 AND plan_digest = $2`,
+    [DISCOVERY_PLAN_VERSION, plan.digest],
+  );
+  return rows[0]!.id;
+}
+
+/**
+ * The run-start transaction's two rows: the SEARCH_PROVIDER run and its
+ * grant use, claiming the grant's NEXT slot. A concurrent run racing for the
+ * same slot loses on the unique (grant_id, run_seq) index.
+ */
+export async function startGrantedRun(
+  q: Queryable,
+  input: {
+    grantId: string;
+    briefId: string;
+    geography: string;
+    providerKey: string;
+    actorKey: string;
+  },
+): Promise<{ runId: string; runSeq: number }> {
+  const run = await q.query<{ id: string }>(
+    `INSERT INTO source_discovery_runs
+        (run_kind, provider_key, brief_id, geography, actor_key, started_at)
+     VALUES ('SEARCH_PROVIDER', $1, $2, $3, $4, clock_timestamp())
+     RETURNING id`,
+    [input.providerKey, input.briefId, input.geography, input.actorKey],
+  );
+  const runId = run.rows[0]!.id;
+  const use = await q.query<{ run_seq: number }>(
+    `INSERT INTO source_discovery_grant_uses (grant_id, run_id, run_seq, actor_key)
+     VALUES ($1, $2,
+             (SELECT count(*) + 1 FROM source_discovery_grant_uses WHERE grant_id = $1),
+             $3)
+     RETURNING run_seq`,
+    [input.grantId, runId, input.actorKey],
+  );
+  return { runId, runSeq: use.rows[0]!.run_seq };
+}
+
+export interface QueryCallStartInsert {
+  readonly runId: string;
+  readonly callSeq: number;
+  readonly queryId: string;
+  readonly modelId: string;
+  readonly sdkVersion: string;
+  readonly smoke: boolean;
+}
+
+/**
+ * The database's permission for ONE provider call (migration 0025), inserted
+ * and committed BEFORE the call. Refused (23514) outside the grant's window
+ * by the database clock, or for a non-smoke call without a smoke
+ * verification for this SDK version and model.
+ *
+ * Returns how many milliseconds the grant has left, by the DATABASE clock at
+ * the start (WW H-SD, P2-15a): the call's own deadline, so no search
+ * outlives its grant.
+ */
+export async function insertQueryCallStart(
+  q: Queryable,
+  c: QueryCallStartInsert,
+): Promise<{ readonly grantRemainingMs: number }> {
+  const { rows } = await q.query<{ remaining_ms: string }>(
+    `INSERT INTO source_discovery_query_call_starts
+        (run_id, call_seq, query_id, model_id, sdk_version, smoke)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING floor(extract(epoch FROM (
+                 (SELECT gr.expires_at
+                    FROM source_discovery_grant_uses u
+                    JOIN source_discovery_grants gr ON gr.id = u.grant_id
+                   WHERE u.run_id = $1) - started_at)) * 1000)::bigint AS remaining_ms`,
+    [c.runId, c.callSeq, c.queryId, c.modelId, c.sdkVersion, c.smoke],
+  );
+  return { grantRemainingMs: Number(rows[0]!.remaining_ms) };
+}
+
+/** Whether the OWNER has verified a D8 smoke for this SDK version and model (migration 0025). */
+export async function smokeVerificationExists(
+  q: Queryable,
+  sdkVersion: string,
+  modelId: string,
+): Promise<boolean> {
+  const { rows } = await q.query<{ present: boolean }>(
+    `SELECT EXISTS (SELECT 1 FROM source_discovery_smoke_verifications
+                     WHERE sdk_version = $1 AND model_id = $2) AS present`,
+    [sdkVersion, modelId],
+  );
+  return rows[0]!.present;
+}
+
+export interface QueryCallInsert {
+  readonly runId: string;
+  readonly callSeq: number;
+  readonly queryId: string;
+  readonly outcome: QueryCallOutcome;
+  readonly resultCount: number | null;
+  readonly modelId: string;
+  readonly sdkVersion: string;
+  readonly smoke: boolean;
+  readonly startedAt: Date;
+  readonly endedAt: Date;
+}
+
+export async function insertQueryCall(q: Queryable, c: QueryCallInsert): Promise<void> {
+  await q.query(
+    `INSERT INTO source_discovery_query_calls
+        (run_id, call_seq, query_id, outcome, result_count, model_id, sdk_version, smoke,
+         started_at, ended_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+    [
+      c.runId,
+      c.callSeq,
+      c.queryId,
+      c.outcome,
+      c.resultCount,
+      c.modelId,
+      c.sdkVersion,
+      c.smoke,
+      c.startedAt.toISOString(),
+      c.endedAt.toISOString(),
+    ],
+  );
+}
+
+export interface QueryCallObservationInsert {
+  readonly runId: string;
+  readonly callSeq: number;
+  readonly hookInvoked: boolean;
+  readonly permissionInvoked: boolean;
+  /** How many searches the approved WebSearch reported; null when none was observed. */
+  readonly searchCount: number | null;
+}
+
+/**
+ * What one call observed (migration 0027), in the SAME transaction as its
+ * terminal row. The database refuses a RESULTS call whose observation is not
+ * exactly one search through a consulted gate surface.
+ */
+export async function insertQueryCallObservation(
+  q: Queryable,
+  o: QueryCallObservationInsert,
+): Promise<void> {
+  await q.query(
+    `INSERT INTO source_discovery_query_call_observations
+        (run_id, call_seq, hook_invoked, permission_invoked, search_count)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [o.runId, o.callSeq, o.hookInvoked, o.permissionInvoked, o.searchCount],
+  );
+}
+
+export async function insertKnownMark(
+  q: Queryable,
+  nominationId: string,
+  alreadyKnown: boolean,
+): Promise<void> {
+  await q.query(
+    `INSERT INTO source_discovery_nomination_known_marks (nomination_id, already_known)
+     VALUES ($1, $2)`,
+    [nominationId, alreadyKnown],
+  );
+}
+
+export interface RunCompletionInsert {
+  readonly runId: string;
+  readonly outcome: RunCompletionOutcome;
+  readonly reason: RunCompletionReason | null;
+  readonly queriesAttempted: number;
+  readonly inserted: number;
+  readonly duplicated: number;
+  readonly refused: number;
+  readonly known: number;
+}
+
+export async function insertRunCompletion(q: Queryable, c: RunCompletionInsert): Promise<void> {
+  await q.query(
+    `INSERT INTO source_discovery_run_completions
+        (run_id, outcome, reason, queries_attempted, nominations_inserted,
+         nominations_duplicated, nominations_refused, nominations_known)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [
+      c.runId,
+      c.outcome,
+      c.reason,
+      c.queriesAttempted,
+      c.inserted,
+      c.duplicated,
+      c.refused,
+      c.known,
+    ],
+  );
+}
+
+/** One nomination a granted run may hand on, as the wiring layer reads it. */
+export interface AdmissibleNomination {
+  readonly nominationId: string;
+  readonly registrableDomain: string;
+  readonly queryId: string;
+  readonly callSeq: number;
+}
+
+/**
+ * Why a run's nominations are or are not handed on (WW H-SD, P1-9):
+ *
+ *   NOT_A_GRANTED_RUN  no such run, or not a claude-max-web-search run with a
+ *                      grant use: nothing is admissible;
+ *   RUN_NOT_COMPLETED  the run has no completion row yet (it is running, or
+ *                      its completion was never recorded): nothing is
+ *                      admissible YET;
+ *   COMPLETED          the run is complete; `nominations` holds exactly the
+ *                      admissible ones (possibly none).
+ */
+export type AdmissibleNominationsState = 'NOT_A_GRANTED_RUN' | 'RUN_NOT_COMPLETED' | 'COMPLETED';
+
+export interface AdmissibleNominationsOfRun {
+  readonly state: AdmissibleNominationsState;
+  readonly nominations: readonly AdmissibleNomination[];
+}
+
+/**
+ * THE NOMINATIONS A GRANTED RUN MAY HAND ON (WW H-SD, P1-9). Only from a
+ * live-search run that has a grant use AND a completion row (whatever its
+ * outcome: a call that ended RESULTS before a later failure is still a
+ * permitted search's result), and only from its query calls that ended
+ * RESULTS with an observation of exactly ONE search, and only once an
+ * OWNER smoke verification exists for that call's SDK version and model
+ * (migration 0025's runtime-level verification, which migration 0027 binds
+ * to a smoke that showed the hook invoked and exactly one search). So the
+ * very first smoke's nominations wait for the OWNER to verify that smoke; a
+ * non-smoke call could only start under such a verification anyway; and a
+ * later grant's smoke on an already-verified runtime is as admissible as any
+ * other call. Nothing is ranked, valued or filtered beyond that: order is
+ * creation order, then id.
+ *
+ * READ ONLY. Works on any connection that can SELECT these tables
+ * (`nwf_readonly`, or the source-discovery capability).
+ */
+export async function admissibleNominationsOfRun(
+  q: Queryable,
+  runId: string,
+): Promise<AdmissibleNominationsOfRun> {
+  const { rows: runs } = await q.query<{ granted: boolean; completed: boolean }>(
+    `SELECT EXISTS (SELECT 1 FROM source_discovery_grant_uses u WHERE u.run_id = r.id)
+              AS granted,
+            EXISTS (SELECT 1 FROM source_discovery_run_completions c WHERE c.run_id = r.id)
+              AS completed
+       FROM source_discovery_runs r
+      WHERE r.id = $1 AND r.run_kind = 'SEARCH_PROVIDER'
+        AND r.provider_key = 'claude-max-web-search'`,
+    [runId],
+  );
+  const run = runs[0];
+  if (run === undefined || !run.granted) return { state: 'NOT_A_GRANTED_RUN', nominations: [] };
+  if (!run.completed) return { state: 'RUN_NOT_COMPLETED', nominations: [] };
+  const { rows } = await q.query<{
+    id: string;
+    registrable_domain: string;
+    query_id: string;
+    call_seq: number;
+  }>(
+    `SELECT n.id, n.registrable_domain, n.query_id, qc.call_seq
+       FROM source_discovery_nominations n
+       JOIN source_discovery_query_calls qc
+         ON qc.run_id = n.discovery_run_id AND qc.query_id = n.query_id
+       JOIN source_discovery_query_call_observations o
+         ON o.run_id = qc.run_id AND o.call_seq = qc.call_seq
+      WHERE n.discovery_run_id = $1
+        AND n.discovery_method = 'SEARCH_PROVIDER'
+        AND n.provider_key = 'claude-max-web-search'
+        AND qc.outcome = 'RESULTS'
+        AND o.search_count = 1
+        AND EXISTS (
+              SELECT 1 FROM source_discovery_smoke_verifications v
+               WHERE v.sdk_version = qc.sdk_version AND v.model_id = qc.model_id)
+      ORDER BY n.created_at, n.id`,
+    [runId],
+  );
+  return {
+    state: 'COMPLETED',
+    nominations: rows.map((r) => ({
+      nominationId: r.id,
+      registrableDomain: r.registrable_domain,
+      queryId: r.query_id,
+      callSeq: r.call_seq,
+    })),
+  };
+}
+
+/** A unique-violation (23505) or check-violation (23514) from the run-start transaction. */
+export function sqlstateOf(error: unknown): string | null {
+  const code = (error as { code?: unknown } | null)?.code;
+  return typeof code === 'string' ? code : null;
+}

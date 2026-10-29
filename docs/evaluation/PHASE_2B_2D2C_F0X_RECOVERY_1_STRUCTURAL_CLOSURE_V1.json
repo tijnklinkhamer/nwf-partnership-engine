@@ -1,0 +1,889 @@
+{
+  "closureId": "PHASE_2B_2D2C_F0X_RECOVERY_1_STRUCTURAL_CLOSURE_V1",
+  "closureVersion": "phase2b-2d2c-f0x-recovery-1-structural-closure-v1",
+  "status": "STRUCTURALLY_CLOSED_REQUEST_FREE",
+  "scope": "DEVELOPMENT_ONLY",
+  "studyId": "REPLICATION_V4_V5_N5",
+  "ownerMethodologicalDecision": {
+    "decisionDate": "2026-09-16",
+    "decision": "ALL_TEN_RECOVERY_1_SLOTS_COUNT_TOWARD_THE_FROZEN_N5_STUDY",
+    "includedReplicatesPerPrompt": {
+      "PROMPT_V4_CANONICAL": 5,
+      "PROMPT_V5_CANONICAL": 5
+    },
+    "stoppedSlotsNeverReplacedOrRerun": ["PAIR_4_V5", "PAIR_4_V4", "PAIR_5_V4"],
+    "basis": {
+      "f0vInclusionRuleClassCAction": "That slot is IRREVOCABLY part of the study, whether it completes successfully or ends in a genuine terminal failure/halt. Never replaced or discarded. This is the predeclared inclusion rule.",
+      "f0uSection": "F0U §7 predeclared inclusion rule: a run that reaches a genuine terminal failure/halt is included exactly as recorded; no replacement run is substituted."
+    },
+    "historicalAttempt3V4AndAttempt4V5": "PILOT_ONLY_NOT_COUNTED_TOWARD_N5"
+  },
+  "frozenIdentities": {
+    "f0uMethodologyRawSha256": "d8b3e57992fe091aed95e7490d4b3c0fe0f4a7bfcc1bb6c7b09bd83252e79cf7",
+    "f0vFreezeRawSha256": "77e26f30cc5e323660d564614ae13f1a0f2c1bbb1fc87df2e604127016377545",
+    "f0vApprovalRecordRawSha256": "ed127c305f8b60a3269d8d993ca832307d8c2d31d6e8367af8709f1b6873a311",
+    "f0vPlanSha256": "37c6f201195c2b99a6da1d9503baf271ed60f9bbdc4d36d293d29bff59b4a096",
+    "recoveryOverlayRawSha256": "960289f935f11a12d9e2dd03d4c154bec022e450b2c675d1a384b209b6d69399",
+    "executionIntegrationCommit": "883feeb83482f61be7908ccd8159d70bb4b43c0f",
+    "studyExecutionApprovalSha256": "4edadcd77d09ce79423723f27602bd3f4ac29ef16e60707aa3efac5cbfe67ae2",
+    "historicalBytesEdited": false
+  },
+  "study": {
+    "studyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1",
+    "controlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1-control",
+    "startedAtUtc": "2026-09-16T15:14:22.446Z",
+    "completedAtUtc": "2026-09-16T16:15:58.314Z",
+    "wholeStudyTree": {
+      "fileCount": 1191,
+      "treeSha256": "009ea90aab5936ac4dde1c1880f42c79580611fb99c5c63b2f038c82428b49dc"
+    },
+    "controlTree": {
+      "fileCount": 12,
+      "treeSha256": "f174d1e165f3cb23e0fc05fd2c22d9ea819b7210436bb79596b2c4289fd317dc"
+    },
+    "studyManifest": {
+      "fileSha256": "de5622c3d2af96d7d5b1c1569acb8185394427fed16c76c1c8f16dd0f4952d17",
+      "recordSha256": "09588c2df052c8f21417a6e65486abd474b045a9c942dd8c87b23cc6b4e02379"
+    },
+    "studyTerminal": {
+      "fileSha256": "d7c00e06fb3d6ebd0babffe6bbb49819ce993bebe539a0c8b324196f615131c6",
+      "recordSha256": "be456b6a2750d25bea0a8e49fe4c974bcc81cc3b6d4aa50856890aa3892759a3",
+      "outcome": "COMPLETED_ALL_SLOTS",
+      "slotsCompleted": 10
+    },
+    "studyEvents": {
+      "count": 20,
+      "fingerprintSha256": "96456995e8b58766593d99a2bf17935238cb693b6f83402942e8120f23393348",
+      "everyRecordSha256Verified": true
+    }
+  },
+  "inventory": {
+    "path": "docs/evaluation/PHASE_2B_2D2C_F0X_RECOVERY_1_EXECUTION_INVENTORY_V1.json",
+    "rawSha256": "61495b71d5a3702502708c1b19ee9fdbbad82e294ef359d79d496ed2b8477070",
+    "version": "phase2b-2d2c-f0x-recovery-1-execution-inventory-v1"
+  },
+  "completedAllSlotsInterpretation": {
+    "recordedOutcome": "COMPLETED_ALL_SLOTS",
+    "means": "All ten frozen slots reached a durably closed Class C terminal state, in the frozen order.",
+    "doesNotMean": "It does not mean that all 120 logical evaluations completed, nor that ten full 49-item replicates exist.",
+    "recordRewritten": false
+  },
+  "reconciledTotals": {
+    "method": "Re-derived from the preserved artifacts by the execution inventory; never copied from an operator report.",
+    "slots": 10,
+    "logicalEvaluationsPlanned": 120,
+    "logicalEvaluationsStarted": 98,
+    "logicalEvaluationsEndedWithoutStop": 95,
+    "logicalEvaluationsEndedWithStop": 3,
+    "logicalEvaluationsNeverStarted": 22,
+    "originalProviderRequests": 98,
+    "repairProviderRequests": 10,
+    "providerRequests": 108,
+    "adapterAttempts": 108,
+    "authStatusInvocations": 108,
+    "originalProviderOutcomes": {
+      "OK": 94,
+      "STRUCTURED_OUTPUT_FAILED": 1,
+      "TIMEOUT": 3
+    },
+    "tier2Outcomes": {
+      "COMPLETED": 97,
+      "TIMED_OUT_KILLED": 1
+    },
+    "repairCallsByDisposition": {
+      "ACCEPTED": 10
+    },
+    "classA": 0,
+    "classB": 0,
+    "classC": 10,
+    "ambiguous": 0,
+    "durablyClosed": 10
+  },
+  "slots": [
+    {
+      "slotId": "PAIR_1_V4",
+      "sequence": 1,
+      "pairNumber": 1,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-1-v4",
+      "candidateAuthorisationSha256": "e5d031da3817b199e5716b867c6ce409d48c302b44680242bec23893f16a34d9",
+      "fileCount": 154,
+      "treeSha256": "0099a1476bd79c42a4333a9f636978f295dcb676ec9780ac301fcb543520688b",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "ALL_12_PLANNED_EVALUATIONS_ENDED_WITHOUT_STOP",
+      "experimentTerminal": {
+        "kind": "COMPLETION",
+        "path": "experiments/attempt-3/experiment-completion.json",
+        "fileSha256": "c82453e7d5072950aa13582fdfeb360775f1144ee10d0c5c8d689d6168c50fdb",
+        "recordSha256": "caaccd0787069579a1c4e35ab77e29ffeb23f37fa4bb31f0a4b48591b7138594",
+        "status": "COMPLETED_ALL_PLANNED",
+        "stopKind": null,
+        "stopCondition": null,
+        "atSequence": null,
+        "atUtc": "2026-09-16T15:18:07.771Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T15:14:22.683Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 12,
+        "endedWithoutStop": 12,
+        "endedWithStop": 0,
+        "notStarted": 0
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 49,
+        "inTerminalStoppedEvaluation": 0,
+        "inEvaluationsNeverStarted": 0
+      },
+      "providerRequests": {
+        "original": 12,
+        "repair": 3,
+        "total": 15
+      },
+      "adapterAttempts": 15,
+      "authStatusInvocations": 15,
+      "originalProviderOutcomes": {
+        "OK": 12
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 12
+      },
+      "repairCallsByDisposition": {
+        "ACCEPTED": 3
+      },
+      "terminalStoppedEvaluation": null,
+      "nonTerminalProviderFailures": []
+    },
+    {
+      "slotId": "PAIR_1_V5",
+      "sequence": 2,
+      "pairNumber": 1,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-1-v5",
+      "candidateAuthorisationSha256": "ee922a5ffb7dffdaa8c6bde79aa7dda9a11799552697a0cb32c76c2160ccd864",
+      "fileCount": 142,
+      "treeSha256": "2c316d9fa90c2859230888432e6f4abed4d3e440d1b8c6dd602564c40ad9ffab",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "ALL_12_PLANNED_EVALUATIONS_ENDED_WITHOUT_STOP",
+      "experimentTerminal": {
+        "kind": "COMPLETION",
+        "path": "experiments/attempt-4/experiment-completion.json",
+        "fileSha256": "e8befc4834163ba3406bae09d8318d35ed0a5993c6df0042daa8591e1a323e13",
+        "recordSha256": "8dc9874d8b7d4ac62a5bd39c45bf8d67435362878cc25d2a2bd6f0fbf0b732d7",
+        "status": "COMPLETED_ALL_PLANNED",
+        "stopKind": null,
+        "stopCondition": null,
+        "atSequence": null,
+        "atUtc": "2026-09-16T15:22:19.860Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T15:18:07.857Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 12,
+        "endedWithoutStop": 12,
+        "endedWithStop": 0,
+        "notStarted": 0
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 49,
+        "inTerminalStoppedEvaluation": 0,
+        "inEvaluationsNeverStarted": 0
+      },
+      "providerRequests": {
+        "original": 12,
+        "repair": 1,
+        "total": 13
+      },
+      "adapterAttempts": 13,
+      "authStatusInvocations": 13,
+      "originalProviderOutcomes": {
+        "OK": 12
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 12
+      },
+      "repairCallsByDisposition": {
+        "ACCEPTED": 1
+      },
+      "terminalStoppedEvaluation": null,
+      "nonTerminalProviderFailures": []
+    },
+    {
+      "slotId": "PAIR_2_V5",
+      "sequence": 3,
+      "pairNumber": 2,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-2-v5",
+      "candidateAuthorisationSha256": "09985fb921af8896f2f1a0c472a232448b00a18bc7a8e5280f78309791cc690c",
+      "fileCount": 136,
+      "treeSha256": "dfc4acb105500e5ee6206ff2842b1d8cd351989d75864caba8e5b709c905e5c6",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "ALL_12_PLANNED_EVALUATIONS_ENDED_WITHOUT_STOP",
+      "experimentTerminal": {
+        "kind": "COMPLETION",
+        "path": "experiments/attempt-4/experiment-completion.json",
+        "fileSha256": "bdf1b9f8e5b45f2d3865c04b26108cd7757bae62304d591f0bb694a4ab68f329",
+        "recordSha256": "93a1708d3c78c64c2030a5e52c509a5d1dc8677f2210bc9d79efa39b8ce5066b",
+        "status": "COMPLETED_ALL_PLANNED",
+        "stopKind": null,
+        "stopCondition": null,
+        "atSequence": null,
+        "atUtc": "2026-09-16T15:26:40.596Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T15:22:20.020Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 12,
+        "endedWithoutStop": 12,
+        "endedWithStop": 0,
+        "notStarted": 0
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 49,
+        "inTerminalStoppedEvaluation": 0,
+        "inEvaluationsNeverStarted": 0
+      },
+      "providerRequests": {
+        "original": 12,
+        "repair": 0,
+        "total": 12
+      },
+      "adapterAttempts": 12,
+      "authStatusInvocations": 12,
+      "originalProviderOutcomes": {
+        "OK": 12
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 12
+      },
+      "repairCallsByDisposition": {},
+      "terminalStoppedEvaluation": null,
+      "nonTerminalProviderFailures": []
+    },
+    {
+      "slotId": "PAIR_2_V4",
+      "sequence": 4,
+      "pairNumber": 2,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-2-v4",
+      "candidateAuthorisationSha256": "d632ede95649c67dbceb47137c3e7eefdd4592639d72151cbc343d0188c75faf",
+      "fileCount": 136,
+      "treeSha256": "4064915d66a865ca1057f86961f83ac7100b377db7dad25f571a7b544b3691c8",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "ALL_12_PLANNED_EVALUATIONS_ENDED_WITHOUT_STOP",
+      "experimentTerminal": {
+        "kind": "COMPLETION",
+        "path": "experiments/attempt-3/experiment-completion.json",
+        "fileSha256": "630fe0ef08f004cf53bf74af0b5c12c908ac017d2f86a67064b3986adf181248",
+        "recordSha256": "c9d98e1244248a97f46c87fc08d29b14ff73f3b07169b80cfb584cf21793e55a",
+        "status": "COMPLETED_ALL_PLANNED",
+        "stopKind": null,
+        "stopCondition": null,
+        "atSequence": null,
+        "atUtc": "2026-09-16T15:30:34.641Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T15:26:40.732Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 12,
+        "endedWithoutStop": 12,
+        "endedWithStop": 0,
+        "notStarted": 0
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 49,
+        "inTerminalStoppedEvaluation": 0,
+        "inEvaluationsNeverStarted": 0
+      },
+      "providerRequests": {
+        "original": 12,
+        "repair": 0,
+        "total": 12
+      },
+      "adapterAttempts": 12,
+      "authStatusInvocations": 12,
+      "originalProviderOutcomes": {
+        "OK": 12
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 12
+      },
+      "repairCallsByDisposition": {},
+      "terminalStoppedEvaluation": null,
+      "nonTerminalProviderFailures": []
+    },
+    {
+      "slotId": "PAIR_3_V4",
+      "sequence": 5,
+      "pairNumber": 3,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-3-v4",
+      "candidateAuthorisationSha256": "56b6c8213b67f14ad81e2d8f0ac4ae3419a5157cdf26e5e2543a63a68813d754",
+      "fileCount": 145,
+      "treeSha256": "f6dee8f7020c7985a7fc9965d822d0b0c1ad2ffa6f2ef17ca5f2aea14e970f22",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "ALL_12_PLANNED_EVALUATIONS_ENDED_WITHOUT_STOP",
+      "experimentTerminal": {
+        "kind": "COMPLETION",
+        "path": "experiments/attempt-3/experiment-completion.json",
+        "fileSha256": "7503d3cf0c47fd7dd67929f86530f80e86d9e6e10b42eb445afc0da80e33ea6e",
+        "recordSha256": "fdbf22829a9a892ef7b82fc184fe5d8253f731a13cf575870f60f05234a26df1",
+        "status": "COMPLETED_ALL_PLANNED",
+        "stopKind": null,
+        "stopCondition": null,
+        "atSequence": null,
+        "atUtc": "2026-09-16T15:34:14.857Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T15:30:34.774Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 12,
+        "endedWithoutStop": 12,
+        "endedWithStop": 0,
+        "notStarted": 0
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 49,
+        "inTerminalStoppedEvaluation": 0,
+        "inEvaluationsNeverStarted": 0
+      },
+      "providerRequests": {
+        "original": 12,
+        "repair": 2,
+        "total": 14
+      },
+      "adapterAttempts": 14,
+      "authStatusInvocations": 14,
+      "originalProviderOutcomes": {
+        "OK": 11,
+        "STRUCTURED_OUTPUT_FAILED": 1
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 12
+      },
+      "repairCallsByDisposition": {
+        "ACCEPTED": 2
+      },
+      "terminalStoppedEvaluation": null,
+      "nonTerminalProviderFailures": [
+        {
+          "logicalBatchOrdinal": 9,
+          "documents": 4,
+          "providerOutcome": "STRUCTURED_OUTPUT_FAILED",
+          "providerOutcomeDetail": "structured output failed: the run terminated (error_max_turns) without a structured result.",
+          "validationResultPresent": false,
+          "rawOutputCheckpointPresent": false
+        }
+      ]
+    },
+    {
+      "slotId": "PAIR_3_V5",
+      "sequence": 6,
+      "pairNumber": 3,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-3-v5",
+      "candidateAuthorisationSha256": "7ed9aaeccb6bb4178bb33302e7503430bfe655141c4b988298c341d5115aa17f",
+      "fileCount": 148,
+      "treeSha256": "dc5728d9f8ba23ed0048a73d46895bb324c2b067f0480e2065c49fcd396d2f9d",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "ALL_12_PLANNED_EVALUATIONS_ENDED_WITHOUT_STOP",
+      "experimentTerminal": {
+        "kind": "COMPLETION",
+        "path": "experiments/attempt-4/experiment-completion.json",
+        "fileSha256": "041e1c0a1387c9229c72b472ad04be102d3e3fe233246c44d3d41a18305b06db",
+        "recordSha256": "fe1d17151cc524511171db836f76121dc52f24c370b1aabefd6d57ad44e761fc",
+        "status": "COMPLETED_ALL_PLANNED",
+        "stopKind": null,
+        "stopCondition": null,
+        "atSequence": null,
+        "atUtc": "2026-09-16T15:37:50.880Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T15:34:15.020Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 12,
+        "endedWithoutStop": 12,
+        "endedWithStop": 0,
+        "notStarted": 0
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 49,
+        "inTerminalStoppedEvaluation": 0,
+        "inEvaluationsNeverStarted": 0
+      },
+      "providerRequests": {
+        "original": 12,
+        "repair": 2,
+        "total": 14
+      },
+      "adapterAttempts": 14,
+      "authStatusInvocations": 14,
+      "originalProviderOutcomes": {
+        "OK": 12
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 12
+      },
+      "repairCallsByDisposition": {
+        "ACCEPTED": 2
+      },
+      "terminalStoppedEvaluation": null,
+      "nonTerminalProviderFailures": []
+    },
+    {
+      "slotId": "PAIR_4_V5",
+      "sequence": 7,
+      "pairNumber": 4,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-4-v5",
+      "candidateAuthorisationSha256": "f30f792ea1989e43d552fd292d0211d6c9f4c6276b38aebccf3017042a986e02",
+      "fileCount": 129,
+      "treeSha256": "cb9b5a124351c63639ed43d2a3072d946ce3053775077df0ec1b35489d554e5d",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "EXPERIMENT_STOPPED_BEFORE_ALL_PLANNED_EVALUATIONS",
+      "experimentTerminal": {
+        "kind": "STOP",
+        "path": "experiments/attempt-4/experiment-stop.json",
+        "fileSha256": "b1914477041d95ecb0c140a105a4fdae12b65bd0308dfebba7fff1b0f169fd02",
+        "recordSha256": "66194af91649bb553e6ac614ba705b04bb5fc301c91ad5bf40d7ec4c057acb13",
+        "status": null,
+        "stopKind": "TIER1_TIMEOUT_DECISION_RULE",
+        "stopCondition": null,
+        "atSequence": 11,
+        "atUtc": "2026-09-16T15:48:31.412Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T15:37:50.990Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 11,
+        "endedWithoutStop": 10,
+        "endedWithStop": 1,
+        "notStarted": 1
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 41,
+        "inTerminalStoppedEvaluation": 3,
+        "inEvaluationsNeverStarted": 5
+      },
+      "providerRequests": {
+        "original": 11,
+        "repair": 1,
+        "total": 12
+      },
+      "adapterAttempts": 12,
+      "authStatusInvocations": 12,
+      "originalProviderOutcomes": {
+        "OK": 10,
+        "TIMEOUT": 1
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 11
+      },
+      "repairCallsByDisposition": {
+        "ACCEPTED": 1
+      },
+      "terminalStoppedEvaluation": {
+        "logicalBatchOrdinal": 11,
+        "documents": 3,
+        "providerOutcome": "TIMEOUT",
+        "providerOutcomeDetail": "the provider invocation exceeded its liveness deadline and was aborted and closed (TIMEOUT; terminal, never retried).",
+        "monotonicWallTimeMs": 303393,
+        "tier1DiagnosticsCaptured": 1,
+        "tier2Outcome": "COMPLETED",
+        "tier2HardKillDisposition": "NOT_REQUIRED",
+        "tier2GracePhaseVerdict": null,
+        "haltKind": "TIER1_TIMEOUT_DECISION_RULE",
+        "stopCondition": null,
+        "validationResultPresent": false
+      },
+      "nonTerminalProviderFailures": []
+    },
+    {
+      "slotId": "PAIR_4_V4",
+      "sequence": 8,
+      "pairNumber": 4,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-4-v4",
+      "candidateAuthorisationSha256": "a3e91bb502cbd752c645900ec59cb6a9e4a38daad9af3d684ac80864bea8ec6e",
+      "fileCount": 24,
+      "treeSha256": "fb1253480be6cec913f0bf1aa8b5870b1b9378b9bddfc7bdc054df6a6c55b274",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "EXPERIMENT_STOPPED_BEFORE_ALL_PLANNED_EVALUATIONS",
+      "experimentTerminal": {
+        "kind": "STOP",
+        "path": "experiments/attempt-3/experiment-stop.json",
+        "fileSha256": "e8af8596896aa1dc1e28576b9f1dcde18c0642c637ebe9deaf5625d78ca0958a",
+        "recordSha256": "d0f13b3f8c7318655f273b1347eb4a2fb2ffb03c043e2f2dca5ea3d81b6fa391",
+        "status": null,
+        "stopKind": "STOP_CONDITION",
+        "stopCondition": "CHILD_EXITED_UNCONFIRMED",
+        "atSequence": 2,
+        "atUtc": "2026-09-16T16:06:48.957Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T15:48:31.517Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 2,
+        "endedWithoutStop": 1,
+        "endedWithStop": 1,
+        "notStarted": 10
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 3,
+        "inTerminalStoppedEvaluation": 5,
+        "inEvaluationsNeverStarted": 41
+      },
+      "providerRequests": {
+        "original": 2,
+        "repair": 0,
+        "total": 2
+      },
+      "adapterAttempts": 2,
+      "authStatusInvocations": 2,
+      "originalProviderOutcomes": {
+        "OK": 1,
+        "TIMEOUT": 1
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 1,
+        "TIMED_OUT_KILLED": 1
+      },
+      "repairCallsByDisposition": {},
+      "terminalStoppedEvaluation": {
+        "logicalBatchOrdinal": 2,
+        "documents": 5,
+        "providerOutcome": "TIMEOUT",
+        "providerOutcomeDetail": "the provider invocation exceeded its liveness deadline and was aborted and closed (TIMEOUT; terminal, never retried).",
+        "monotonicWallTimeMs": 1082976,
+        "tier1DiagnosticsCaptured": 1,
+        "tier2Outcome": "TIMED_OUT_KILLED",
+        "tier2HardKillDisposition": "EXECUTED",
+        "tier2GracePhaseVerdict": "CHILD_EXITED_UNCONFIRMED",
+        "haltKind": "STOP_CONDITION",
+        "stopCondition": "CHILD_EXITED_UNCONFIRMED",
+        "validationResultPresent": false
+      },
+      "nonTerminalProviderFailures": []
+    },
+    {
+      "slotId": "PAIR_5_V4",
+      "sequence": 9,
+      "pairNumber": 5,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-5-v4",
+      "candidateAuthorisationSha256": "a4861de529207bbcd5996a9f87cffb3ba14f5aec983712a85655742f79a2b467",
+      "fileCount": 13,
+      "treeSha256": "6c90e364deda3e96fe18a7230ebe87339d14c31ca182ed92246913e67ce32ff8",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "EXPERIMENT_STOPPED_BEFORE_ALL_PLANNED_EVALUATIONS",
+      "experimentTerminal": {
+        "kind": "STOP",
+        "path": "experiments/attempt-3/experiment-stop.json",
+        "fileSha256": "8699b6aa31aa66e90240837dc71fe67044414dabc1f5a2ae8766cb38c413fa0c",
+        "recordSha256": "efb318439991ef1afd20dea07be55a111122683312d34d8479fff217019086a0",
+        "status": null,
+        "stopKind": "TIER1_TIMEOUT_DECISION_RULE",
+        "stopCondition": null,
+        "atSequence": 1,
+        "atUtc": "2026-09-16T16:11:52.198Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T16:06:49.049Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 1,
+        "endedWithoutStop": 0,
+        "endedWithStop": 1,
+        "notStarted": 11
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 0,
+        "inTerminalStoppedEvaluation": 3,
+        "inEvaluationsNeverStarted": 46
+      },
+      "providerRequests": {
+        "original": 1,
+        "repair": 0,
+        "total": 1
+      },
+      "adapterAttempts": 1,
+      "authStatusInvocations": 1,
+      "originalProviderOutcomes": {
+        "TIMEOUT": 1
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 1
+      },
+      "repairCallsByDisposition": {},
+      "terminalStoppedEvaluation": {
+        "logicalBatchOrdinal": 1,
+        "documents": 3,
+        "providerOutcome": "TIMEOUT",
+        "providerOutcomeDetail": "the provider invocation exceeded its liveness deadline and was aborted and closed (TIMEOUT; terminal, never retried).",
+        "monotonicWallTimeMs": 302496,
+        "tier1DiagnosticsCaptured": 1,
+        "tier2Outcome": "COMPLETED",
+        "tier2HardKillDisposition": "NOT_REQUIRED",
+        "tier2GracePhaseVerdict": null,
+        "haltKind": "TIER1_TIMEOUT_DECISION_RULE",
+        "stopCondition": null,
+        "validationResultPresent": false
+      },
+      "nonTerminalProviderFailures": []
+    },
+    {
+      "slotId": "PAIR_5_V5",
+      "sequence": 10,
+      "pairNumber": 5,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "outputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-5-v5",
+      "candidateAuthorisationSha256": "374c3802deca904e2dd328518c9093f49e7f2a8baee6c4b84ac97e8998124b02",
+      "fileCount": 142,
+      "treeSha256": "d6b1edec36dce7b9d43495a50bb348efb65a4b466c5139820c8d0030b4dff02c",
+      "inclusionClass": "CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "durablyClosed": true,
+      "countsTowardN": true,
+      "replacementOrRerunEligible": false,
+      "structuralTerminalCondition": "ALL_12_PLANNED_EVALUATIONS_ENDED_WITHOUT_STOP",
+      "experimentTerminal": {
+        "kind": "COMPLETION",
+        "path": "experiments/attempt-4/experiment-completion.json",
+        "fileSha256": "94a21cae7158fbac4a56cfeb0d04fe11f92428af65e17eea5f656fd7dd7eaf32",
+        "recordSha256": "02439a132d470f8bde6ee20f8082eee4a229bfae83571816600e1aed294f37cd",
+        "status": "COMPLETED_ALL_PLANNED",
+        "stopKind": null,
+        "stopCondition": null,
+        "atSequence": null,
+        "atUtc": "2026-09-16T16:15:58.291Z"
+      },
+      "experimentStartedAtUtc": "2026-09-16T16:11:52.310Z",
+      "evaluations": {
+        "planned": 12,
+        "started": 12,
+        "endedWithoutStop": 12,
+        "endedWithStop": 0,
+        "notStarted": 0
+      },
+      "documents": {
+        "inEvaluationsEndedWithoutStop": 49,
+        "inTerminalStoppedEvaluation": 0,
+        "inEvaluationsNeverStarted": 0
+      },
+      "providerRequests": {
+        "original": 12,
+        "repair": 1,
+        "total": 13
+      },
+      "adapterAttempts": 13,
+      "authStatusInvocations": 13,
+      "originalProviderOutcomes": {
+        "OK": 12
+      },
+      "tier2Outcomes": {
+        "COMPLETED": 12
+      },
+      "repairCallsByDisposition": {
+        "ACCEPTED": 1
+      },
+      "terminalStoppedEvaluation": null,
+      "nonTerminalProviderFailures": []
+    }
+  ],
+  "perPrompt": {
+    "PROMPT_V4_CANONICAL": {
+      "includedSlots": 5,
+      "slotIds": ["PAIR_1_V4", "PAIR_2_V4", "PAIR_3_V4", "PAIR_4_V4", "PAIR_5_V4"],
+      "allTwelveEvaluationsEndedWithoutStop": 3,
+      "experimentStoppedBeforeAllPlanned": 2,
+      "slotsWithANonTerminalProviderFailure": ["PAIR_3_V4"]
+    },
+    "PROMPT_V5_CANONICAL": {
+      "includedSlots": 5,
+      "slotIds": ["PAIR_1_V5", "PAIR_2_V5", "PAIR_3_V5", "PAIR_4_V5", "PAIR_5_V5"],
+      "allTwelveEvaluationsEndedWithoutStop": 4,
+      "experimentStoppedBeforeAllPlanned": 1,
+      "slotsWithANonTerminalProviderFailure": []
+    }
+  },
+  "terminalFailures": {
+    "reportedAs": "RELIABILITY_AND_LIVENESS_OBSERVATIONS_THAT_ARE_PART_OF_THE_STUDY_OUTCOME",
+    "slots": [
+      {
+        "slotId": "PAIR_4_V5",
+        "variantName": "PROMPT_V5_CANONICAL",
+        "evaluationsEndedWithoutStop": 10,
+        "evaluationsStarted": 11,
+        "terminal": {
+          "logicalBatchOrdinal": 11,
+          "documents": 3,
+          "providerOutcome": "TIMEOUT",
+          "providerOutcomeDetail": "the provider invocation exceeded its liveness deadline and was aborted and closed (TIMEOUT; terminal, never retried).",
+          "monotonicWallTimeMs": 303393,
+          "tier1DiagnosticsCaptured": 1,
+          "tier2Outcome": "COMPLETED",
+          "tier2HardKillDisposition": "NOT_REQUIRED",
+          "tier2GracePhaseVerdict": null,
+          "haltKind": "TIER1_TIMEOUT_DECISION_RULE",
+          "stopCondition": null,
+          "validationResultPresent": false
+        },
+        "experimentStop": {
+          "kind": "STOP",
+          "path": "experiments/attempt-4/experiment-stop.json",
+          "fileSha256": "b1914477041d95ecb0c140a105a4fdae12b65bd0308dfebba7fff1b0f169fd02",
+          "recordSha256": "66194af91649bb553e6ac614ba705b04bb5fc301c91ad5bf40d7ec4c057acb13",
+          "status": null,
+          "stopKind": "TIER1_TIMEOUT_DECISION_RULE",
+          "stopCondition": null,
+          "atSequence": 11,
+          "atUtc": "2026-09-16T15:48:31.412Z"
+        }
+      },
+      {
+        "slotId": "PAIR_4_V4",
+        "variantName": "PROMPT_V4_CANONICAL",
+        "evaluationsEndedWithoutStop": 1,
+        "evaluationsStarted": 2,
+        "terminal": {
+          "logicalBatchOrdinal": 2,
+          "documents": 5,
+          "providerOutcome": "TIMEOUT",
+          "providerOutcomeDetail": "the provider invocation exceeded its liveness deadline and was aborted and closed (TIMEOUT; terminal, never retried).",
+          "monotonicWallTimeMs": 1082976,
+          "tier1DiagnosticsCaptured": 1,
+          "tier2Outcome": "TIMED_OUT_KILLED",
+          "tier2HardKillDisposition": "EXECUTED",
+          "tier2GracePhaseVerdict": "CHILD_EXITED_UNCONFIRMED",
+          "haltKind": "STOP_CONDITION",
+          "stopCondition": "CHILD_EXITED_UNCONFIRMED",
+          "validationResultPresent": false
+        },
+        "experimentStop": {
+          "kind": "STOP",
+          "path": "experiments/attempt-3/experiment-stop.json",
+          "fileSha256": "e8af8596896aa1dc1e28576b9f1dcde18c0642c637ebe9deaf5625d78ca0958a",
+          "recordSha256": "d0f13b3f8c7318655f273b1347eb4a2fb2ffb03c043e2f2dca5ea3d81b6fa391",
+          "status": null,
+          "stopKind": "STOP_CONDITION",
+          "stopCondition": "CHILD_EXITED_UNCONFIRMED",
+          "atSequence": 2,
+          "atUtc": "2026-09-16T16:06:48.957Z"
+        }
+      },
+      {
+        "slotId": "PAIR_5_V4",
+        "variantName": "PROMPT_V4_CANONICAL",
+        "evaluationsEndedWithoutStop": 0,
+        "evaluationsStarted": 1,
+        "terminal": {
+          "logicalBatchOrdinal": 1,
+          "documents": 3,
+          "providerOutcome": "TIMEOUT",
+          "providerOutcomeDetail": "the provider invocation exceeded its liveness deadline and was aborted and closed (TIMEOUT; terminal, never retried).",
+          "monotonicWallTimeMs": 302496,
+          "tier1DiagnosticsCaptured": 1,
+          "tier2Outcome": "COMPLETED",
+          "tier2HardKillDisposition": "NOT_REQUIRED",
+          "tier2GracePhaseVerdict": null,
+          "haltKind": "TIER1_TIMEOUT_DECISION_RULE",
+          "stopCondition": null,
+          "validationResultPresent": false
+        },
+        "experimentStop": {
+          "kind": "STOP",
+          "path": "experiments/attempt-3/experiment-stop.json",
+          "fileSha256": "8699b6aa31aa66e90240837dc71fe67044414dabc1f5a2ae8766cb38c413fa0c",
+          "recordSha256": "efb318439991ef1afd20dea07be55a111122683312d34d8479fff217019086a0",
+          "status": null,
+          "stopKind": "TIER1_TIMEOUT_DECISION_RULE",
+          "stopCondition": null,
+          "atSequence": 1,
+          "atUtc": "2026-09-16T16:11:52.198Z"
+        }
+      }
+    ]
+  },
+  "structuralObservations": [
+    {
+      "id": "NON_TERMINAL_STRUCTURED_OUTPUT_FAILURE_INSIDE_A_COMPLETED_SLOT",
+      "slots": [
+        {
+          "slotId": "PAIR_3_V4",
+          "structuralTerminalCondition": "ALL_12_PLANNED_EVALUATIONS_ENDED_WITHOUT_STOP",
+          "failures": [
+            {
+              "logicalBatchOrdinal": 9,
+              "documents": 4,
+              "providerOutcome": "STRUCTURED_OUTPUT_FAILED",
+              "providerOutcomeDetail": "structured output failed: the run terminated (error_max_turns) without a structured result.",
+              "validationResultPresent": false,
+              "rawOutputCheckpointPresent": false
+            }
+          ]
+        }
+      ],
+      "statement": "A slot whose experiment completed all twelve planned evaluations can still hold an evaluation with no structured output. Its documents have no validator verdict, yet the evaluation ended without a stop. The frozen F0I/F0O scoring contract restates the acceptance protocol treatment below. The earlier attempt scorers never met this shape and refuse it; the replication-analysis clarification states how it is scored.",
+      "frozenProviderFailureTreatment": "Provider failures and usage-limit outcomes keep the existing protocol treatment (INVALID is never a missing observation; usage-limit interruptions never count against quality).",
+      "acceptanceProtocolSection5": "docs/evaluation/PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md §5: any structured-output failure is counted INVALID, never a missing observation."
+    },
+    {
+      "id": "TIER1_WALL_TIME_BEYOND_THE_FROZEN_DEADLINES",
+      "slots": [
+        {
+          "slotId": "PAIR_4_V4",
+          "terminal": {
+            "logicalBatchOrdinal": 2,
+            "documents": 5,
+            "providerOutcome": "TIMEOUT",
+            "providerOutcomeDetail": "the provider invocation exceeded its liveness deadline and was aborted and closed (TIMEOUT; terminal, never retried).",
+            "monotonicWallTimeMs": 1082976,
+            "tier1DiagnosticsCaptured": 1,
+            "tier2Outcome": "TIMED_OUT_KILLED",
+            "tier2HardKillDisposition": "EXECUTED",
+            "tier2GracePhaseVerdict": "CHILD_EXITED_UNCONFIRMED",
+            "haltKind": "STOP_CONDITION",
+            "stopCondition": "CHILD_EXITED_UNCONFIRMED",
+            "validationResultPresent": false
+          }
+        }
+      ],
+      "statement": "The recorded provider wall time exceeds both the frozen 300000 ms Tier-1 soft deadline and the frozen 700000 ms Tier-2 watchdog. The artifacts do not record why. The cause is UNKNOWN and is not inferred here."
+    }
+  ],
+  "zeroScoringConfirmation": {
+    "goldLabelsLoaded": false,
+    "scoringSupplementOpened": false,
+    "ownerAdjudicationRecordOpened": false,
+    "scorerRun": false,
+    "classifierVerdictsParsedByThisClosure": false,
+    "holdoutSplitAccess": "NONE",
+    "mixedLabelFileAccess": "NONE"
+  },
+  "evidenceModified": false
+}

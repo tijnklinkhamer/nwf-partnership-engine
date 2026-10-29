@@ -1,0 +1,82 @@
+{
+  "recordId": "phase2b-2d2c-f0c-owner-freeze-approval-v1",
+  "recordKind": "OWNER_FREEZE_APPROVAL",
+  "approves": "DEVELOPMENT_CONFIGURATION_FREEZE_ONLY",
+  "recordedAtUtc": "2026-09-14T14:57:54Z",
+  "recordedBy": "claude-code-session under explicit owner instruction (session_01HyBuqsQUmfqx9LmeJoNJud); the approval itself is the owner's",
+  "approvedFreeze": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0C_V1.json",
+    "rawSha256": "d3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9",
+    "rawBytes": 82304,
+    "derivedAttempt2PlanSha256": "133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143",
+    "branchCommit": "5ddb558ff5404b1e5f1633e6def634a2a57fd7e3",
+    "branch": "feat/phase2b-2d2c-f0c-v3-r1-configuration-freeze",
+    "bytesNeverChangeOnApproval": true,
+    "statusFieldInsideTheBytesRemains": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL (by design; this record is the approval)"
+  },
+  "approvedIdentities": {
+    "runtimeCommit": "0c0d73803ed1155d568afe50a6657b7be7276dbb",
+    "r1Commit": "9c509107fd66afdc979364a135bf94eb64379972",
+    "promptVersion": "orgunit-classifier-prompt-v3",
+    "promptSha256": "d05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1",
+    "predecessorF0BRawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+    "attempt1ComparatorInventorySha256": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+    "repairMinimumRemainingBudgetMs": 120000,
+    "repairMinimumRemainingBudgetMsSemantics": "on the usable repair window (remaining minus the 10000 ms hard-kill grace); strict less-than skips; exactly the floor proceeds",
+    "generalRepairDeadlineContract": {
+      "repairWindowMs": "max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)",
+      "repairAttemptDeadlineMs": "min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs - elapsedSinceRepairClassifyEntryMs))",
+      "elapsedSinceRepairClassifyEntryMsIncludes": [
+        "pre-flight and auth-status work",
+        "prior transient runner attempts",
+        "retry backoff"
+      ],
+      "nonPositiveRemainder": "permits no new runner attempt (the existing terminal TIMEOUT)"
+    }
+  },
+  "verifiedBeforeRecording": {
+    "freezeRawSha256Recomputed": "d3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9",
+    "planSha256Rebuilt": "133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143",
+    "headAtRecording": "5ddb558ff5404b1e5f1633e6def634a2a57fd7e3",
+    "workingTreeClean": true,
+    "promptSha256RecomputedFromProductionBytes": "d05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1",
+    "f0bRawSha256Recomputed": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+    "attempt1InventoryRecomputedWithTheScorerLoader": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+    "ancestry": [
+      "0c0d738 (V3) is an ancestor of 5ddb558",
+      "9c50910 (R1) is an ancestor of 5ddb558"
+    ],
+    "fullGateOnTheseBytes": "npm run validate with PHASE2B_2D2C_ATTEMPT1_ROOT set: 116 files, 2576 passed, 4 deliberately skipped, exit 0"
+  },
+  "ownerStatementAsReceived": "PPROVE_F0C_FREEZE\n\nI approve the Phase 2B-2D2C-F0C DEVELOPMENT configuration freeze whose raw SHA-256 is\n\nd3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9\n\nwith derived attempt-2 plan SHA-256\n\n133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143\n\nat branch commit\n\n5ddb558ff5404b1e5f1633e6def634a2a57fd7e3\n\nruntime:\n\n0c0d73803ed1155d568afe50a6657b7be7276dbb\n\non R1:\n\n9c509107fd66afdc979364a135bf94eb64379972\n\nprompt:\n\norgunit-classifier-prompt-v3\n\nprompt SHA-256:\n\nd05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1\n\npredecessor F0B:\n\nc3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157\n\nattempt-1 comparator inventory:\n\nee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137\n\nREPAIR_MINIMUM_REMAINING_BUDGET_MS = 120000 ms on the usable repair window.\n\nThe frozen general repair deadline contract is:\n\nrepairWindowMs = max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)\n\nrepairAttemptDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs - elapsedSinceRepairClassifyEntryMs))\n\nwhere elapsedSinceRepairClassifyEntryMs includes all time already spent inside the repair classify call, including pre-flight/auth-status work, prior transient runner attempts and retry backoff. A non-positive remainder permits no new runner attempt.\n\nThis approval freezes the exact F0C bytes and DEVELOPMENT plan named above.\n\nIt authorises no inference, no attempt 2, no execution authorisation, no consumption marker, no HOLDOUT or mixed-label access, no gold or threshold change, no migration application, and no merge or push to main.\n\nThe F0C branch may now be pushed to origin.",
+  "statementMarkerAsReceived": "PPROVE_F0C_FREEZE",
+  "statementMarkerExpected": "APPROVE_F0C_FREEZE",
+  "statementMarkerNote": "The marker arrived with its leading letter dropped; every identity, hash, commit, value and formula in the statement matches the presented bytes exactly, and the statement explicitly instructs recording and pushing, so it was recorded verbatim as received and the discrepancy is noted here rather than corrected.",
+  "supersededProposalsNeverRecorded": [
+    {
+      "rawSha256": "0782fc3f9ab459c95bd6f8d6b34c69820a493a3bab2c40f06a51946314a8491a",
+      "planSha256": "80fa11403115f2aa6e43261543131e8b34cc340030cf2f5a30fc71a39ca41ff7"
+    },
+    {
+      "rawSha256": "7bde30ada493d28a80c7aa683e6b8f0a3d81a24e7ae1e22c41ddecda43e9ef34",
+      "planSha256": "fdd79d3e23cc22187dec7d874a30f61a4f71096d9f0f5c3287bff2698456f9aa"
+    },
+    {
+      "rawSha256": "5368efa6b9ac3a0ccd16c52bbff4f02da845715125cc094897141f14f24b5f78",
+      "planSha256": "49521dee7a2f48c04557973ff75a339c35031522dc90bf2f758be95af185e02d",
+      "note": "an owner approval statement named this hash; a stale checklist line was found before recording; the owner chose to re-freeze; that statement is void and was never recorded"
+    }
+  ],
+  "thisRecordAuthorises": [],
+  "thisRecordDoesNotAuthorise": [
+    "inference of any kind (no Agent SDK query(), no Claude execution or auth call)",
+    "attempt 2 or any attempt",
+    "an execution authorisation or a consumption marker",
+    "HOLDOUT or mixed-label access",
+    "a gold or threshold change",
+    "a migration application or production database write",
+    "a merge, a pull request, a force-push, or a push to main"
+  ],
+  "permits": ["pushing the F0C branch feat/phase2b-2d2c-f0c-v3-r1-configuration-freeze to origin"],
+  "nextGatedPhase": "Scorer re-pin for attempt 2 against F0C raw SHA d3de146f…, rebuild and verify the V3 root, plan-only verification of the frozen 12-evaluation plan (zero inference); then attempt 2 requires a SEPARATE, NEW owner execution authorisation presented after that verification. This freeze approval is not that authorisation."
+}

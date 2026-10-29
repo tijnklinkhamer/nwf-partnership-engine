@@ -50,10 +50,17 @@
  *      orphaned, malformed one (guard 1 cannot see those, because there is
  *      no matching `-->` for it to find).
  *
+ * RCDATA HYGIENE (fetch policy v6). `<title>` and `<textarea>` hold TEXT in
+ * HTML, so an `<a href>` or `<base href>` written inside one is never an
+ * element. Under v1..v5 guard 1 kept their content and this module read it as
+ * live markup. Both extractors here now read `stripNonNavigableMarkup`
+ * (extract.ts): `stripNonContent` plus complete title/textarea elements
+ * removed - one layered sanitiser, not a second pipeline in this file.
+ *
  * PURE. No network, no database, no filesystem, no clock.
  */
 import { redactContactData } from '../web/redact.js';
-import { stripNonContent } from '../web/extract.js';
+import { stripNonNavigableMarkup } from '../web/extract.js';
 import { MAX_DISCOVERED_ANCHORS_PER_PAGE } from './constants.js';
 
 export interface DiscoveredAnchor {
@@ -106,8 +113,9 @@ export function extractDiscoveryAnchors(html: string): DiscoveredAnchor[] {
   // content are removed BEFORE the anchor regex ever sees the document -
   // exactly what extractPage does for main-text extraction, and for the
   // same reason: neither is live markup a visitor's browser would ever turn
-  // into a real, followable link.
-  const contentOnly = stripNonContent(html);
+  // into a real, followable link. Since v6 so is <title>/<textarea> content,
+  // which is RCDATA text rather than markup.
+  const contentOnly = stripNonNavigableMarkup(html);
   let match: RegExpExecArray | null;
   ANCHOR_PATTERN.lastIndex = 0;
   while ((match = ANCHOR_PATTERN.exec(contentOnly)) !== null) {
@@ -131,6 +139,11 @@ export type LinkResolution = { ok: true; url: string } | { ok: false };
  * fragment - a fragment never reaches the wire (url.ts refuses one on the
  * request URL), so two anchors differing only by fragment must resolve to
  * the SAME frontier URL rather than two.
+ *
+ * Since fetch policy v5 the orchestrator passes the DOCUMENT BASE here
+ * (`resolveDocumentBase`, below), which is the page URL itself whenever the
+ * page has no usable `<base href>`. This function's body is byte-identical
+ * to v4's, deliberately: that is half of the no-base compatibility proof.
  */
 export function resolveAnchorHref(pageUrl: string, hrefRaw: string): LinkResolution {
   try {
@@ -140,4 +153,126 @@ export function resolveAnchorHref(pageUrl: string, hrefRaw: string): LinkResolut
   } catch {
     return { ok: false };
   }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * THE HTML DOCUMENT BASE (fetch policy v5).
+ *
+ * Under v1..v4 every href was resolved against the fetched document URL,
+ * whatever the document said. A browser does not do that: HTML resolves a
+ * relative href against the DOCUMENT BASE URL, which a `<base href>` element
+ * overrides. A page served at "/" with `<base href="/app/">` and an anchor
+ * `href="contact/"` links to "/app/contact/"; v4 requested "/contact/"
+ * instead - a URL no visitor's browser would ever ask for
+ * (docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REVIEW_V1.json).
+ *
+ * THE SELECTION RULE IS THE HTML ONE, NOT "THE FIRST VALID ONE"
+ * (owner decision APPROVE_HTML_DOCUMENT_BASE_FIRST_HREF_ELEMENT_SEMANTICS_V1):
+ *
+ *   1. the FIRST `<base>` element, in document order, that HAS an href
+ *      attribute is the only one that counts;
+ *   2. a `<base target=...>` with no href claims nothing and is skipped;
+ *   3. every later `<base href>` is ignored;
+ *   4. the chosen href is resolved against the fetched document URL;
+ *   5. if that does not produce an http(s) URL - it fails to parse, or it is
+ *      `javascript:`, `data:` or any other scheme - the document base is the
+ *      fetched document URL, and the search does NOT continue to a later
+ *      `<base href>`.
+ *
+ * The base is read from `stripNonNavigableMarkup`'s output - the same
+ * sanitiser anchor discovery uses - so a `<base>` inside a comment, script,
+ * style, noscript, svg, template or iframe is never seen, and since v6
+ * neither is one written as text inside `<title>` or `<textarea>`. The first
+ * href-bearing rule above applies to what survives that filter. There is
+ * exactly one sanitiser; this module does not write a second.
+ *
+ * THE BASE CHANGES RESOLUTION ONLY. It is never fetched, never persisted and
+ * grants no authority: every URL resolved against it still goes through the
+ * orchestrator's `admissibleUrl` (root scope, host policy, URL validation)
+ * and then the gateway's own checks, exactly as a v4 URL did. A base on
+ * another registrable domain only produces URLs that gate refuses.
+ *
+ * KNOWN OPEN CAPABILITY (owner decision
+ * DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1):
+ * attribute values - anchor hrefs and the base href alike - are used AS
+ * WRITTEN. HTML character references (`&amp;`, `&#47;`, ...) are NOT decoded.
+ * v5 fixes base ELEMENT SELECTION and URL RESOLUTION for attribute values as
+ * this bounded extractor exposes them; it is not a complete HTML parser, and
+ * no partial entity decoder is added here.
+ * ---------------------------------------------------------------------------
+ */
+
+/**
+ * One `<base ...>` start tag. The attribute group admits quoted values that
+ * contain `>`, so `<base href="/a>b/">` is read as one tag. The lookahead
+ * keeps `<basefont>` and a `<base-x>` custom element out.
+ */
+const BASE_TAG_PATTERN = /<base(?=[\s/>])((?:[^>"']|"[^"]*"|'[^']*')*)>/gi;
+
+/**
+ * One attribute inside a start tag: a name, then optionally `=` and a
+ * double-quoted, single-quoted or unquoted value. A valueless attribute
+ * (`<base href>`) has an empty value, as in HTML.
+ */
+const ATTRIBUTE_PATTERN = /([^\s"'>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g;
+
+/** The href of one start tag's attribute text, or null when it has no href attribute. */
+function hrefAttributeOf(attributes: string): string | null {
+  ATTRIBUTE_PATTERN.lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = ATTRIBUTE_PATTERN.exec(attributes)) !== null) {
+    // HTML keeps the FIRST occurrence of a duplicated attribute.
+    if (match[1]!.toLowerCase() === 'href') return match[2] ?? match[3] ?? match[4] ?? '';
+  }
+  return null;
+}
+
+/**
+ * The href of the FIRST `<base>` element that has an href attribute, exactly
+ * as written (surrounding whitespace trimmed, as URL parsing would), or null
+ * when no `<base>` in the live markup has one.
+ *
+ * It returns the first href-bearing base's value even when that value is
+ * unusable: deciding usability is `resolveDocumentBase`'s job, and returning
+ * a LATER base instead would be the "first valid base" reading HTML does not
+ * have.
+ */
+export function extractDocumentBaseHref(html: string): string | null {
+  const contentOnly = stripNonNavigableMarkup(html);
+  BASE_TAG_PATTERN.lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = BASE_TAG_PATTERN.exec(contentOnly)) !== null) {
+    const href = hrefAttributeOf(match[1] ?? '');
+    if (href !== null) return href.trim();
+  }
+  return null;
+}
+
+export type DocumentBase =
+  | { readonly source: 'BASE_ELEMENT'; readonly url: string }
+  | {
+      readonly source: 'DOCUMENT_URL';
+      readonly url: string;
+      readonly reason: 'NO_BASE_HREF' | 'BASE_HREF_UNPARSEABLE' | 'BASE_HREF_NOT_HTTP';
+    };
+
+/**
+ * The document base URL: the first href-bearing `<base>`'s value resolved
+ * against the FETCHED DOCUMENT URL, or the fetched document URL itself when
+ * there is none or it is unusable. Never a later `<base>`.
+ */
+export function resolveDocumentBase(documentUrl: string, baseHref: string | null): DocumentBase {
+  if (baseHref === null)
+    return { source: 'DOCUMENT_URL', url: documentUrl, reason: 'NO_BASE_HREF' };
+  let resolved: URL;
+  try {
+    resolved = new URL(baseHref, documentUrl);
+  } catch {
+    return { source: 'DOCUMENT_URL', url: documentUrl, reason: 'BASE_HREF_UNPARSEABLE' };
+  }
+  if (resolved.protocol !== 'http:' && resolved.protocol !== 'https:') {
+    return { source: 'DOCUMENT_URL', url: documentUrl, reason: 'BASE_HREF_NOT_HTTP' };
+  }
+  return { source: 'BASE_ELEMENT', url: resolved.toString() };
 }

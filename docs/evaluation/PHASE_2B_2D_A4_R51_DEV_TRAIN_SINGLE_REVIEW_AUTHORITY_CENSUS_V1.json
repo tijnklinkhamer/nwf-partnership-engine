@@ -1,0 +1,54 @@
+{
+  "record": "PHASE_2B_2D_A4_R51_DEV_TRAIN_SINGLE_REVIEW_AUTHORITY_CENSUS_V1",
+  "recordKind": "PUBLIC_AGGREGATE_ONLY_DEV_TRAIN_SINGLE_REVIEW_AUTHORITY_CENSUS",
+  "task": "A4_R51_DEV_TRAIN_HUMAN_SINGLE_REVIEW_AUTHORISATION_AND_TOOLING_V1",
+  "split": "DEV_TRAIN",
+  "r50Terminal": "8c0d36af8b5a28403ee781a754d50f979dbf2e0b",
+  "thisFileAuthorises": [],
+  "bindings": {
+    "packageHash": "9664388949f5d8686fe32af2fb4fb8f933787faf6daf11349d5b8a402db4066e",
+    "packageFileSha256": "91442149a4763ced8b28dfe35bfbcb00c2781baed594c19169c7cbaac80619ed",
+    "rubricVersion": "METHODOLOGY_V2_HUMAN_LABELLING_RUBRIC_V1",
+    "rubricSha256": "e3af57d8d2503e4fc87ce707427762aabfed420bb670a262b9302a7ea78e1d69",
+    "ownerApprovalSha256": "26ec30cd7fcb3f29fa982e17059d9cdd6eb6652b6e20be6a5e86c7256f05a561",
+    "authoritySha256": "85b86173a2fdeeef58b44bd46846b0d67a42b755706f66c2f3163b60afab0866",
+    "reviewToolSha256": "864839a50be49b21d3c871a24951582d5733f76612fc6c07bf4937491d3f8f8a"
+  },
+  "review": {
+    "itemsAuthorised": 222,
+    "singleReviewPerItem": true,
+    "dualReview": false,
+    "multipleHumanActorsAcrossDifferentItemsAllowed": true,
+    "secondLabelForSameItemAllowed": false,
+    "languageDeferralIsWorkflowNotNeedsReview": true,
+    "toolReady": true,
+    "completedResponseExpectedRecords": 222
+  },
+  "labelBoundary": {
+    "humanLabelsAlreadyPresent": 0,
+    "modelLabels": 0,
+    "goldRecords": 0,
+    "adjudications": 0,
+    "humanReviewAuthorised": true,
+    "humanReviewExecuted": false,
+    "completedResponseFileExists": false,
+    "devTrainRealisedSetREnrichment": "NOT_YET_MEASURABLE_PRE_LABEL"
+  },
+  "access": {
+    "databaseConnections": 0,
+    "r47Reproduced": false,
+    "privateAuthorityLoaded": false,
+    "devConfirmOpened": false,
+    "finalHoldoutOpened": false,
+    "modelCalls": 0,
+    "networkRequests": 0
+  },
+  "identityDisclosure": {
+    "goldIdsDisclosed": false,
+    "urlsDisclosed": false,
+    "pageTextDisclosed": false,
+    "actorIdentitiesDisclosed": false
+  },
+  "terminalState": "A4_DEV_TRAIN_HUMAN_SINGLE_REVIEW_AUTHORISED_TOOL_READY_AWAIT_HUMAN_COMPLETION",
+  "nextAction": "HUMAN: open the offline R51 review tool and complete the review. Not Claude, not a model."
+}

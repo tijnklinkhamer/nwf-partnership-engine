@@ -1,0 +1,1369 @@
+{
+  "version": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R1",
+  "status": "PROPOSED",
+  "thisFileAuthorises": [],
+  "createdInPhase": "PHASE_2B_2D (methodology revision R1; NOT Phase 2B-2E)",
+  "revises": {
+    "document": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL.json",
+    "sha256": "c53e9d26e7bf8d798d7b3057f109335ab9f07427ab51f3e1b4a80974b16ee86e",
+    "relationship": "REVISION. The original is retained unmodified as proposal history and is NOT superseded, because it was never approved. Where R1 and the original disagree, R1 states the disagreement and shows the arithmetic that forced it.",
+    "whatR1Changes": [
+      "D2 is re-derived candidate-independently from operating characteristics rather than from the reuse of MAX_SUBGROUP_SHORTFALL. The original's certified floor of target - 0.10 is REFUTED: at every denominator worth acquiring it is not the binding condition, so it adds nothing to the decision.",
+      "The SIXTH gate is present. The original's feasibility table listed five and said six; the sixth is a CEILING gate needing an UPPER confidence bound, and it is the only frozen gate already certifiable at the historical denominator.",
+      "The percentile cluster bootstrap is DEMOTED from binding instrument to reporting, and replaced by an exact bound on a design-effect-deflated denominator, because the bootstrap's own coverage at ~30 clusters is unknown.",
+      "Corpus options A/B/C are stated with full numbers, so D3 is directly decidable.",
+      "N = 5 full replication is answered, not carried forward: at a fixed inference budget it is strictly worse than more items.",
+      "The existing historical HOLDOUT is retired from Methodology V2 rather than argued about.",
+      "Six semantic gates and seven structural preconditions replace the six-versus-eleven ambiguity."
+    ]
+  },
+
+  "APPROVED_OWNER_DECISIONS": ["D1", "D4", "D5", "D6"],
+  "PENDING_OWNER_DECISIONS": ["D2", "D3"],
+
+  "exclusions": {
+    "noProviderExecution": true,
+    "noProviderInference": true,
+    "noCandidateInference": true,
+    "noPromptCandidateCreated": true,
+    "noV6Rescore": true,
+    "noHoldoutAccess": true,
+    "noHoldoutItemInspection": true,
+    "noNewLabels": true,
+    "noLiveWebAcquisition": true,
+    "noInstitutionRequest": true,
+    "noPhase2EExecution": true,
+    "noRuntimeModelPromotion": true,
+    "noProductionDefaultChanged": true,
+    "noGoldChanged": true,
+    "noThresholdAppliedToAnyExistingResult": true,
+    "noNewNetworkAuthority": true,
+    "noClassifierRuntimeCodeTouched": true
+  },
+
+  "supersedes": {
+    "nothing": true,
+    "note": "R1 supersedes NOTHING until a separate owner approval record naming this file's SHA-256 exists. F6_FINAL_DEV_DECISION_RULE_V1 and the F9 result DEV_NOT_READY_FOR_HOLDOUT remain the operative, immutable history, and the original proposal remains the operative proposal history."
+  },
+
+  "candidateIndependence": {
+    "noCandidateExistedWhenThisWasWritten": true,
+    "promptUnchanged": true,
+    "v6NotBackTestedUnderThisRule": true,
+    "noHistoricalPassFailUsedToSelectAmongDesigns": true,
+    "statement": "No design, level, margin, denominator or corpus option in this document was selected by computing what would make V1-V6 pass. The D2 comparison is computed from binomial arithmetic at four pre-registered true rates, with no reference to any observed result. The D3 options are sized from the gates' own operating characteristics. Historical results appear only as METHODOLOGICAL CONTEXT - denominator sizes, observed clustering, observed run-to-run variance - exactly as the revision instruction permits."
+  },
+
+  "sectionA_terminology": {
+    "resolves": "the six-versus-eleven ambiguity recorded as d10 in the original proposal",
+    "ownerDecision": "D6 (APPROVED)",
+    "sixSemanticQualityGates": [
+      { "id": "G1", "name": "schemaSpanValidity", "direction": "higher is better" },
+      { "id": "G2", "name": "unitPageRecall", "direction": "higher is better" },
+      { "id": "G3", "name": "unitPagePrecision", "direction": "higher is better" },
+      { "id": "G4", "name": "unitTypeAccuracy", "direction": "higher is better" },
+      { "id": "G5", "name": "hardNegativeRejection", "direction": "higher is better" },
+      { "id": "G6", "name": "needsReviewRate", "direction": "lower is better" }
+    ],
+    "sevenStructuralPreconditions": [
+      {
+        "id": "S1",
+        "name": "completeEvidence",
+        "rule": "every planned evaluation produced an observed item result; no imputation, no substitution, no extrapolation from an observed prefix"
+      },
+      {
+        "id": "S2",
+        "name": "correctReliabilitySemantics",
+        "rule": "the declared reliability-semantics version is the one this build implements; a study whose recorded semantics this build does not implement is refused"
+      },
+      {
+        "id": "S3",
+        "name": "minimumSampleFeasibility",
+        "rule": "every gate passes the section-F feasibility precondition at its PLANNED denominator before the freeze, and at its REALISED denominator after scoring"
+      },
+      {
+        "id": "S4",
+        "name": "noForbiddenMissingness",
+        "rule": "non-terminal infrastructure failures do not exceed the frozen ceiling; a terminal failure makes the study INADMISSIBLE, never partial"
+      },
+      {
+        "id": "S5",
+        "name": "correctSplitProvenance",
+        "rule": "every evaluated goldId belongs to the declared split, and the splits' organisation-disjointness holds"
+      },
+      {
+        "id": "S6",
+        "name": "candidateFrozenBeforeConfirmation",
+        "rule": "prompt version, output schema version and request configuration were hashed and committed before the first provider request of the confirmation run, and are unchanged after it"
+      },
+      {
+        "id": "S7",
+        "name": "noExecutionContamination",
+        "rule": "approved Claude Max subscription path only (ADR 0010); zero tool, MCP, browser or isolation violations; no gold label loaded by or reachable from the inference path"
+      }
+    ],
+    "reclassifiedFromTheElevenKeyObject": {
+      "isolationViolations": "STRUCTURAL PRECONDITION S7, not a semantic gate",
+      "evidenceSpanVerification": "folded INTO semantic gate G1, which is 'schema AND span validity' as a single gate",
+      "unitNameVerification": "folded INTO semantic gate G1",
+      "languageSubgroupRules": "REPORTING ONLY. The historical EN stratum held 7 gold items against MIN_SUBGROUP_SIZE_FOR_GATING of 20, so it could never fail a gate; calling it a gate was already vacuous."
+    },
+    "aStructuralConditionIsNeverCalledASemanticGate": true
+  },
+
+  "sectionB_existingHoldout": {
+    "ownerDecision": "SECTION 2 of the revision instruction (APPROVED)",
+    "disclosedEvent": {
+      "classification": "PROCEDURAL_HOLDOUT_ACCESS_WITHOUT_ITEM_LEVEL_SEMANTIC_DISCLOSURE",
+      "whatHappened": "During methodology research, two historical mixed-split files were parsed by code for aggregate counts: src/test/fixtures/evaluation/orgunit-classifier-gold-v1.jsonl and src/test/fixtures/evaluation/orgunit-classifier-adjudication-v1.jsonl.",
+      "whatWasSurfaced": "aggregate counts only: countryCode over all 160 pool items, items per organisation over the pool, the pool-wide proposed-verdict distribution, and the proposed-verdict distribution of the 88-item residual belonging to neither split.",
+      "whatWasNotSurfaced": "no individual HOLDOUT label, verdict, identity, rationale, URL, title or model outcome was surfaced to the operator.",
+      "independentlyObtainable": "The aggregate totals were derivable from committed development-side material alone: PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md section 2 publishes the 72-item distribution and the committed DEVELOPMENT-only fixture gives the 49-item distribution.",
+      "notCalled": ["no access", "item-level leakage"],
+      "holdoutInferenceRun": false,
+      "holdoutLabelsRead": false
+    },
+    "dispositionForMethodologyV2": {
+      "existingHistoricalHoldout": "HISTORICAL_EVALUATION_ONLY",
+      "eligibleAsFinalHoldout": false,
+      "questionRemoved": "The question of whether the historical HOLDOUT is still usable is removed entirely rather than adjudicated. It is retired.",
+      "requirementForTheMethodologyV2FinalHoldout": "newly acquired, organisation-disjoint from DEV_TRAIN and DEV_CONFIRM, and sealed BEFORE any candidate capable of reaching it exists",
+      "notInspectedInThisTask": true
+    }
+  },
+
+  "sectionC_D2": {
+    "status": "PENDING OWNER DECISION",
+    "whyTheOriginalDerivationWasNotAccepted": {
+      "originalRule": "certifiedFloor = pointEstimateTarget - MAX_SUBGROUP_SHORTFALL (0.10)",
+      "objection1_categoryError": "MAX_SUBGROUP_SHORTFALL is a SUBGROUP CATASTROPHE TOLERANCE - how far one language stratum may fall below a gate before the multilingual gate fails outright. A statistical uncertainty margin is a different quantity in a different category. That 0.10 already exists in the repository establishes that 0.10 is a number this project has approved for something else; it does not establish that it is the right uncertainty margin.",
+      "objection2_theFloorDoesNothing": "REFUTED BY ARITHMETIC, not by preference. With the point condition retained at 0.95 and the floor at 0.85, the two conditions have the SAME critical count at every denominator at or above 60 - so the floor never binds and the rule is exactly design A (point estimate only) wearing a certification label.",
+      "objection2Evidence": {
+        "metric": "unitPageRecall",
+        "pointTarget": 0.95,
+        "floor": 0.85,
+        "alpha": 0.05,
+        "rows": [
+          {
+            "denominator": 60,
+            "criticalCountPointOnly": 57,
+            "criticalCountWithFloor": 57,
+            "floorBinds": false
+          },
+          {
+            "denominator": 80,
+            "criticalCountPointOnly": 76,
+            "criticalCountWithFloor": 76,
+            "floorBinds": false
+          },
+          {
+            "denominator": 120,
+            "criticalCountPointOnly": 114,
+            "criticalCountWithFloor": 114,
+            "floorBinds": false
+          },
+          {
+            "denominator": 160,
+            "criticalCountPointOnly": 152,
+            "criticalCountWithFloor": 152,
+            "floorBinds": false
+          },
+          {
+            "denominator": 200,
+            "criticalCountPointOnly": 190,
+            "criticalCountWithFloor": 190,
+            "floorBinds": false
+          }
+        ]
+      }
+    },
+
+    "fourDesignsCompared": {
+      "note": "All four are stated exactly as the revision instruction defines them, including the point-estimate condition that all four carry. Every probability below is EXACT binomial arithmetic under independent items - no simulation, no seed, no candidate.",
+      "commonParameters": {
+        "alpha": 0.05,
+        "boundType": "exact one-sided Clopper-Pearson",
+        "evaluatedTrueRates": [0.9, 0.95, 0.975, 1.0]
+      },
+      "designs": [
+        {
+          "id": "D2_A",
+          "name": "POINT_TARGET_ONLY",
+          "rule": "point estimate >= frozen threshold; feasibility and minimum-denominator requirements only",
+          "statisticalInterpretation": "An ESTIMATE, not an inference. The rule makes no confidence statement at all, so no true rate is ever established or excluded.",
+          "falseAcceptImplications": "Uncontrolled and, worse, essentially FIXED by the threshold rather than by the sample: acceptance at the threshold converges to about 0.5 from above as the denominator grows, and acceptance at threshold - 0.05 is 0.2228 at n=40 and still 0.0081 at n=200. There is no denominator at which the rule certifies anything.",
+          "falseRejectImplications": "A candidate whose true rate is EXACTLY the threshold is rejected between about 32% and 42% of the time, and that fraction converges to 50%, worsening with n. This is intrinsic: requiring an unbiased estimate to land at or above its own mean is a coin toss.",
+          "minimumDenominator": "none in principle; but the gate is degenerate wherever maxErrorsUnderPointThreshold is 0, which is the defect the whole revision exists to remove",
+          "minimumOrganisationCount": "none, because no inference is made",
+          "sensitivityToClustering": "NONE, because it claims nothing that clustering could invalidate. This is not a virtue: it is the absence of a claim.",
+          "feasibilityForAllSixGates": "trivially feasible for all six, because feasibility of an estimate is not a constraint",
+          "verdict": "This is what the status quo ACTUALLY is. It is honest only if the gates are relabelled descriptive."
+        },
+        {
+          "id": "D2_B",
+          "name": "TARGET_PLUS_EXACT_BOUND",
+          "rule": "point estimate >= frozen threshold AND one-sided 95% lower bound >= that SAME threshold",
+          "statisticalInterpretation": "A genuine certification at the frozen threshold: P(accept | true rate <= threshold) <= 0.05 by construction. The lower bound never exceeds the point estimate, so the point condition is REDUNDANT and the rule is a single inequality.",
+          "falseAcceptImplications": "Bounded by alpha at the threshold, and far smaller below it: at n=120, acceptance at a true rate of 0.90 is 0.0000 (to four places) for the 0.95 recall gate.",
+          "falseRejectImplications": "SEVERE and irreducible. Acceptance at exactly the threshold cannot exceed alpha - it is 0.0461 at n=60, 0.0155 at n=120, 0.0264 at n=200. Even at a true rate of 0.975 it is only 0.2189 at n=60 and 0.4383 at n=200.",
+          "minimumDenominator": {
+            "certify_0.99": 299,
+            "certify_0.95": 59,
+            "certify_0.90": 29,
+            "certify_0.85": 19,
+            "certify_0.75": 11
+          },
+          "denominatorForEightyPercentPowerAtThresholdPlusPointZeroThree": {
+            "metric": "unitPageRecall",
+            "trueRate": 0.98,
+            "denominator": 234
+          },
+          "minimumOrganisationCount": "same as any other item-level rule; but the bound is only valid if items are independent, which they are not",
+          "sensitivityToClustering": "HIGH and unmitigated. The nominal 0.05 is not the actual error rate - see the clustered-coverage table below.",
+          "feasibilityForAllSixGates": "G1 at 0.99 requires 299 flawless items and NEVER acquires an error tolerance at any attainable denominator; the other five are feasible but at denominators the acquisition programme cannot reach with useful power",
+          "verdict": "Statistically the strictest and the most defensible in principle. Rejected on cost and on power: it rejects a candidate that exactly meets the owner's own frozen bar at least 95 times in 100, at every denominator."
+        },
+        {
+          "id": "D2_C",
+          "name": "TARGET_PLUS_FIXED_UNCERTAINTY_MARGIN",
+          "rule": "point estimate >= frozen threshold AND 95% lower bound >= threshold - delta, for a separately justified delta",
+          "statisticalInterpretation": "Two conditions controlling two different things: 95% confidence that the true rate is not MATERIALLY below the target, plus an unbiased point estimate at or above the target. It certifies the FLOOR, never the target.",
+          "falseAcceptImplications": "Controlled at the floor, not at the target. Between floor and target the rule's acceptance is governed by whichever condition binds. At delta = 0.10 the point condition binds from n = 60 upward, so acceptance at threshold - 0.05 is exactly design A's: 0.1374 at n=60, 0.0382 at n=120. At delta = 0.05 the bound binds up to about n = 100 and the point condition takes over thereafter.",
+          "falseRejectImplications": "Inherits design A's coin-toss at the target wherever the point condition binds (0.6473 at n=60, 0.6063 at n=120, 0.5831 at n=200), and is stricter than that wherever the bound binds.",
+          "minimumDenominator": {
+            "delta_0.10_recall_floor_0.85": 19,
+            "delta_0.05_recall_floor_0.90": 29
+          },
+          "minimumOrganisationCount": "unaddressed by the design",
+          "sensitivityToClustering": "HIGH and unmitigated, identically to B.",
+          "feasibilityForAllSixGates": "feasible at achievable denominators for G2-G6; G1 at 0.99 is not certifiable below 299 regardless of delta, because delta has no defined meaning for it",
+          "verdict": "This is the original proposal's rule. Its delta = 0.10 instance is refuted above: the floor never binds. Its delta = 0.05 instance is a real rule, but it certifies a level whose validity clustering destroys."
+        },
+        {
+          "id": "D2_D",
+          "name": "CLUSTER_AWARE_BOUND",
+          "rule": "point estimate >= frozen threshold AND a cluster-aware 95% lower bound >= the certification level, with an exact pre-registered method suitable for the proposed organisation count",
+          "instantiation": "The revision instruction requires an EXACT, PRE-REGISTERED method suitable for the proposed organisation count. A percentile cluster bootstrap is NOT suitable at ~30 clusters: its coverage there is itself unknown, and a decision rule may not rest on an instrument whose error rate is unknown - which is the exact defect this revision exists to remove. R1 therefore instantiates D as an EXACT Clopper-Pearson bound computed on a DESIGN-EFFECT-DEFLATED denominator: n_eff = floor(n / DEFF), k_eff = floor((k/n) * n_eff), DEFF = 1 + (cbar - 1) * rho, floored at 1.",
+          "statisticalInterpretation": "The same certification statement as C, made on the amount of information a clustered sample actually carries rather than on the amount an independent sample would have carried.",
+          "falseAcceptImplications": "The only design of the four whose stated error rate survives the clustering this corpus demonstrably has. See the clustered-coverage table.",
+          "falseRejectImplications": "Strictly stronger than C at the same level, so strictly less powerful: at n=120, acceptance at a true rate of 0.975 is 0.9186 against C's 0.9684; at n=80 it is 0.6767 against 0.8594.",
+          "minimumDenominator": "C's minimum multiplied by DEFF: at cbar = 4 and rho = 0.10, DEFF = 1.3, so a 0.90 floor needs 40 rather than 29",
+          "minimumOrganisationCount": "at least 10 organisations per metric denominator, so an ICC can be estimated at all - a MECHANICAL SAFETY BOUND, NOT A CALIBRATED VALUE. It is deliberately NOT the 30 the original proposal required, because the bootstrap that needed 30 is demoted.",
+          "sensitivityToClustering": "This is the design that answers it.",
+          "feasibilityForAllSixGates": "feasible for G2-G6 at the corpus sizes in section D; G1 at 0.99 is not certifiable at any attainable denominator under deflation either (n = 509 is the first feasible one and it still tolerates zero errors)",
+          "verdict": "RECOMMENDED, with the certification level set per metric from the frozen materiality margins - see below."
+        }
+      ],
+
+      "operatingCharacteristics": {
+        "metric": "unitPageRecall",
+        "pointTarget": 0.95,
+        "alpha": 0.05,
+        "clusteringForD": { "averageClusterSize": 4, "icc": 0.1, "designEffect": 1.3 },
+        "columns": [
+          "trueRate 0.90 (= target - 0.05)",
+          "trueRate 0.95 (= target)",
+          "trueRate 0.975 (= target + 0.025)",
+          "trueRate 1.0"
+        ],
+        "rows": [
+          {
+            "design": "D2_A",
+            "denominator": 60,
+            "criticalCount": 57,
+            "acceptance": [0.1374, 0.6473, 0.9368, 1.0]
+          },
+          {
+            "design": "D2_A",
+            "denominator": 120,
+            "criticalCount": 114,
+            "acceptance": [0.0382, 0.6063, 0.9684, 1.0]
+          },
+          {
+            "design": "D2_A",
+            "denominator": 200,
+            "criticalCount": 190,
+            "acceptance": [0.0081, 0.5831, 0.9874, 1.0]
+          },
+          {
+            "design": "D2_B",
+            "denominator": 60,
+            "criticalCount": 60,
+            "acceptance": [0.0018, 0.0461, 0.2189, 1.0]
+          },
+          {
+            "design": "D2_B",
+            "denominator": 120,
+            "criticalCount": 119,
+            "acceptance": [0.0, 0.0155, 0.1954, 1.0]
+          },
+          {
+            "design": "D2_B",
+            "denominator": 200,
+            "criticalCount": 196,
+            "acceptance": [0.0, 0.0264, 0.4383, 1.0]
+          },
+          {
+            "design": "D2_C",
+            "delta": 0.1,
+            "denominator": 60,
+            "criticalCount": 57,
+            "acceptance": [0.1374, 0.6473, 0.9368, 1.0]
+          },
+          {
+            "design": "D2_C",
+            "delta": 0.1,
+            "denominator": 120,
+            "criticalCount": 114,
+            "acceptance": [0.0382, 0.6063, 0.9684, 1.0]
+          },
+          {
+            "design": "D2_C",
+            "delta": 0.1,
+            "denominator": 200,
+            "criticalCount": 190,
+            "acceptance": [0.0081, 0.5831, 0.9874, 1.0]
+          },
+          {
+            "design": "D2_C",
+            "delta": 0.05,
+            "denominator": 60,
+            "criticalCount": 59,
+            "acceptance": [0.0138, 0.1916, 0.5557, 1.0]
+          },
+          {
+            "design": "D2_C",
+            "delta": 0.05,
+            "denominator": 120,
+            "criticalCount": 114,
+            "acceptance": [0.0382, 0.6063, 0.9684, 1.0]
+          },
+          {
+            "design": "D2_C",
+            "delta": 0.05,
+            "denominator": 200,
+            "criticalCount": 190,
+            "acceptance": [0.0081, 0.5831, 0.9874, 1.0]
+          },
+          {
+            "design": "D2_D",
+            "delta": 0.05,
+            "denominator": 60,
+            "criticalCount": 59,
+            "acceptance": [0.0138, 0.1916, 0.5557, 1.0]
+          },
+          {
+            "design": "D2_D",
+            "delta": 0.05,
+            "denominator": 120,
+            "criticalCount": 115,
+            "acceptance": [0.016, 0.4415, 0.9186, 1.0]
+          },
+          {
+            "design": "D2_D",
+            "delta": 0.05,
+            "denominator": 200,
+            "criticalCount": 190,
+            "acceptance": [0.0081, 0.5831, 0.9874, 1.0]
+          }
+        ],
+        "readingNote": "Acceptance is NOT monotone in the denominator for an exact discrete test: at the 0.90 floor under deflation the recall gate accepts a true 0.975 candidate 0.5557 of the time at n=60, 0.4750 at n=70 and 0.6770 at n=80. A pre-registered denominator must therefore be chosen on its COMPUTED operating characteristic, never by rounding a sample-size formula upward.",
+        "recomputedBy": "src/test/unit/orgunitClassifyAcceptanceMethodologyV2R1.test.ts"
+      },
+
+      "clusteredCoverage": {
+        "question": "Does a rule's NOMINAL error rate survive the clustering this corpus has?",
+        "answer": "For A, B and C: no. For D: yes, provided the deflation uses an ICC at least as large as the truth.",
+        "simulation": {
+          "algorithm": "beta-binomial cluster model: each organisation draws its own true rate from a Beta with the requested mean and intraclass correlation, sampled as the ratio of two Marsaglia-Tsang gamma variates off a single mulberry32 stream; each of its items is an independent Bernoulli draw at that organisation's rate",
+          "seed": 20260918,
+          "repetitions": 20000,
+          "deterministicRepeatability": "the same (spec, seed, repetitions) returns the identical acceptance count on every run and on every machine; asserted in src/test/unit/orgunitClassifyAcceptanceMethodologyV2R1.test.ts",
+          "trueRate": 0.9,
+          "interpretationOfTrueRate": "0.90 is the certification level, so the tabulated acceptance probability IS the rule's false-accept rate at the boundary it claims to defend"
+        },
+        "rows": [
+          {
+            "rule": "D2_C delta 0.05",
+            "organisations": 20,
+            "itemsPerOrganisation": 4,
+            "trueIcc": 0.1,
+            "nominal": 0.035306,
+            "actual": 0.05895
+          },
+          {
+            "rule": "D2_D delta 0.05",
+            "organisations": 20,
+            "itemsPerOrganisation": 4,
+            "trueIcc": 0.1,
+            "nominal": 0.010684,
+            "actual": 0.02275
+          },
+          {
+            "rule": "D2_C delta 0.05",
+            "organisations": 30,
+            "itemsPerOrganisation": 4,
+            "trueIcc": 0.1,
+            "nominal": 0.038236,
+            "actual": 0.06105
+          },
+          {
+            "rule": "D2_D delta 0.05",
+            "organisations": 30,
+            "itemsPerOrganisation": 4,
+            "trueIcc": 0.1,
+            "nominal": 0.01604,
+            "actual": 0.0294
+          },
+          {
+            "rule": "D2_C delta 0.05",
+            "organisations": 30,
+            "itemsPerOrganisation": 4,
+            "trueIcc": 0.2,
+            "nominal": 0.038236,
+            "actual": 0.08055
+          },
+          {
+            "rule": "D2_D delta 0.05",
+            "organisations": 30,
+            "itemsPerOrganisation": 4,
+            "trueIcc": 0.2,
+            "nominal": 0.01604,
+            "actual": 0.04445
+          },
+          {
+            "rule": "D2_C delta 0.1",
+            "organisations": 20,
+            "itemsPerOrganisation": 8,
+            "trueIcc": 0.2,
+            "nominal": 0.01735,
+            "actual": 0.09225
+          }
+        ],
+        "twoConsequencesForDesign": [
+          "ITEMS PER ORGANISATION IS A FIRST-ORDER DESIGN LEVER. At icc 0.2 the same 160 items lose about five times their nominal error control at 8 pages per organisation and about three times at 4. Many organisations with few pages each beats few organisations with many.",
+          "THE DEFLATION MUST BE ABLE TO ESCALATE. Deflating at 0.10 when the truth is 0.20 leaves actual acceptance at 0.0445; deflating at the truth brings it to 0.0083. The rule therefore deflates at max(pre-registered floor, observed ICC), never at the smaller of the two."
+        ]
+      },
+
+      "recommendedMethod": {
+        "id": "D2_D_EXACT_DEFLATED_MATERIALITY_MARGIN",
+        "baseDesign": "D2_D",
+        "rule": "for each gate: pointEstimate meets the frozen threshold AND the exact one-sided 95% bound, computed on the design-effect-deflated denominator of THAT GATE'S OWN numerator and denominator, meets the certification level",
+        "certificationLevelDerivation": {
+          "principle": "certificationLevel = frozenThreshold -/+ the metric's OWN frozen NON_INFERIORITY_MARGIN",
+          "source": "NON_INFERIORITY_MARGINS in src/orgunits/classify/evaluation/protocol.ts",
+          "whyThisConstantAndNotMAX_SUBGROUP_SHORTFALL": "NON_INFERIORITY_MARGINS is the only set of already-frozen, owner-approved constants in this repository whose SEMANTIC CATEGORY is 'the smallest difference this project considers material'. A certification level says: we are 95% confident the candidate is not MATERIALLY below the target, using this project's own definition of material. MAX_SUBGROUP_SHORTFALL says something else about something else.",
+          "perMetric": [
+            {
+              "gate": "G2 unitPageRecall",
+              "threshold": 0.95,
+              "margin": 0.05,
+              "level": 0.9,
+              "marginSource": "NON_INFERIORITY_MARGINS.unitPageRecall"
+            },
+            {
+              "gate": "G3 unitPagePrecision",
+              "threshold": 0.9,
+              "margin": 0.05,
+              "level": 0.85,
+              "marginSource": "NON_INFERIORITY_MARGINS.unitPagePrecision"
+            },
+            {
+              "gate": "G4 unitTypeAccuracy",
+              "threshold": 0.85,
+              "margin": 0.1,
+              "level": 0.75,
+              "marginSource": "NON_INFERIORITY_MARGINS.unitTypeAccuracy"
+            },
+            {
+              "gate": "G5 hardNegativeRejection",
+              "threshold": 0.9,
+              "margin": 0.05,
+              "level": 0.85,
+              "marginSource": "NON_INFERIORITY_MARGINS.hardNegativeRejection"
+            },
+            {
+              "gate": "G6 needsReviewRate",
+              "threshold": 0.15,
+              "margin": 0.1,
+              "level": 0.25,
+              "marginSource": "ANALOGY_NOT_DERIVATION - NON_INFERIORITY_MARGINS has NO entry for needsReviewRate. 0.10 is taken from falseNoOnGoldUnknownRate, the only lower-is-better RATE margin in the frozen set. This is the weakest derivation in the document and is flagged as such rather than dressed up."
+            },
+            {
+              "gate": "G1 schemaSpanValidity",
+              "threshold": 0.99,
+              "margin": null,
+              "level": null,
+              "marginSource": "NONE EXISTS, and none is invented. See sectionC.gateOneTreatment."
+            }
+          ]
+        },
+        "designEffectRule": {
+          "formula": "DEFF = 1 + (cbar - 1) * rho, floored at 1",
+          "cbar": "the average number of items THIS GATE'S OWN denominator contributes per organisation - not the split's average. A gate whose denominator is a sparse subset of the sample (unitPagePrecision, whose denominator is the items the candidate answered UNIT_PAGE) is clustered far less than the sample it was drawn from, and charging it the sample's design effect would overcharge it.",
+          "rho": "max(RHO_FLOOR, observed ANOVA intraclass correlation over the split's organisations)",
+          "RHO_FLOOR": 0.1,
+          "rhoFloorClassification": "MECHANICAL SAFETY BOUND, NOT A CALIBRATED VALUE. It is not a measurement of this corpus: the existing 49-item DEVELOPMENT set has 12 organisations and no recorded organisation-level ICC.",
+          "escalationOnly": "the observed ICC may only RAISE the assumed value, never lower it. An ICC estimated from few clusters is noisy, and a noisy estimate that can only shrink the effective denominator is safe while one that can enlarge it is not.",
+          "rounding": "effective trials round DOWN, effective successes round DOWN; both directions are conservative",
+          "honestLimitation": "the bound is EXACT conditional on the effective denominator; the effective denominator itself rests on the ICC. This is an approximation, stated as one. The clustered-coverage table measures how good it is rather than assuming it."
+        },
+        "whyNotB": "B is the only design that certifies the frozen threshold itself, and it is the right answer if cost were no object. It is rejected because its acceptance probability at a true rate exactly equal to the owner's own frozen target cannot exceed 0.05 at ANY denominator, and reaching 80% acceptance for a candidate at 0.98 needs 234 gold unit pages in EACH gated split. That is not a smaller version of the current problem - it is the current problem's mirror image.",
+        "whyNotC": "C at delta 0.10 does not bind and therefore is not a certification rule at all. C at delta 0.05 is a real rule, but its nominal 0.05 error rate is 0.061 to 0.092 in fact once organisation clustering is present, and this corpus is built out of organisations.",
+        "whyNotA": "A makes no claim. It is retained only as the honest label for the status quo.",
+        "openPointOnTheRedundancyOfThePointCondition": "At the denominators section D proposes, the deflated bound at a 0.05 margin already implies the point target for recall: the critical counts of 'bound only' and 'point + bound' are identical at every denominator from 40 to 200. The point condition therefore costs nothing there. It begins to bind again at about n = 300, where it becomes the stricter condition and caps acceptance at a true rate equal to the target at 0.568. This is REPORTED, not resolved: whether the owner wants the point ambition to bind at large denominators is a preference, not an arithmetic question."
+      },
+
+      "gateOneTreatment": {
+        "problem": "G1's frozen threshold is 0.99. Certifying 0.99 needs 299 flawless items undeflated, and 509 under a design effect of 1.7 - and at 509, at 600 and at 700 the deflated critical count still EQUALS the denominator. The gate first tolerates a SINGLE error at 473 items undeflated, and at 805 under a design effect of 1.7.",
+        "consequence": "At every corpus size this project could acquire - CORPUS_OPTION_C's largest gated split is 920 items and its deflated effective size is far below 473 - a 0.99 schema/span-validity gate IS a zero-tolerance gate. That is arithmetic, not a policy preference.",
+        "R1Recommendation": "Freeze G1 as a ZERO-TOLERANCE SEMANTIC GATE, honestly named: zero items whose structured output is still invalid after the one bounded ADR 0011 repair round, and zero unverifiable evidence spans or non-null unitName values, over every evaluated item in the split. Report the exact rate and its lower bound alongside, as information.",
+        "whyThisIsNotARelabelling": "It is the same requirement the frozen 0.99 already imposes at every attainable denominator; naming it zero-tolerance removes a threshold that implies a tolerance the denominator never supplies. D6 requires G1 to remain one of the six SEMANTIC GATES, and it does: it is a gate with a zero-tolerance rule, not a structural precondition.",
+        "alternativeIfTheOwnerPrefersARateGate": "certify 0.95 instead of 0.99: feasible from n = 200 with a tolerance of 1, and from n = 300 with a tolerance of 3. R1 does not recommend it, because 0.95 is a level this project has never endorsed for schema validity and adopting it would be lowering the bar to make it measurable."
+      },
+
+      "sixGateRuleUnderTheRecommendedMethod": {
+        "commonForm": "ACCEPT the gate iff (point condition) AND (deflated exact bound condition) AND (the gate passed the feasibility precondition at both its planned and its realised denominator)",
+        "gates": [
+          {
+            "id": "G1",
+            "metric": "schemaSpanValidity",
+            "direction": "higher is better",
+            "pointTarget": 0.99,
+            "certificationLevel": null,
+            "rule": "postRepairInvalidCount === 0 AND unverifiableSpanCount === 0 AND unverifiedNonNullUnitNameCount === 0",
+            "denominator": "every evaluated item in the split",
+            "boundReported": "exact one-sided 95% lower bound on the validity rate, reported, non-binding"
+          },
+          {
+            "id": "G2",
+            "metric": "unitPageRecall",
+            "direction": "higher is better",
+            "pointTarget": 0.95,
+            "certificationLevel": 0.9,
+            "rule": "pointEstimate >= 0.95 AND deflatedLowerBound >= 0.90",
+            "denominator": "gold UNIT_PAGE items in SET_R of the split"
+          },
+          {
+            "id": "G3",
+            "metric": "unitPagePrecision",
+            "direction": "higher is better",
+            "pointTarget": 0.9,
+            "certificationLevel": 0.85,
+            "rule": "pointEstimate >= 0.90 AND deflatedLowerBound >= 0.85",
+            "denominator": "items in SET_P answered UNIT_PAGE by a validator-accepted result",
+            "denominatorIsCandidateDetermined": true
+          },
+          {
+            "id": "G4",
+            "metric": "unitTypeAccuracy",
+            "direction": "higher is better",
+            "pointTarget": 0.85,
+            "certificationLevel": 0.75,
+            "rule": "pointEstimate >= 0.85 AND deflatedLowerBound >= 0.75",
+            "denominator": "items whose GOLD verdict is UNIT_PAGE in SET_R (the 2D2C convention, adopted explicitly; resolves d11)",
+            "additionalRequirement": "at least 2 gold items in any unit_type class that is gated; a class with fewer is REPORTED and explicitly NOT GATED, never folded silently into the aggregate"
+          },
+          {
+            "id": "G5",
+            "metric": "hardNegativeRejection",
+            "direction": "higher is better",
+            "pointTarget": 0.9,
+            "certificationLevel": 0.85,
+            "rule": "pointEstimate >= 0.90 AND deflatedLowerBound >= 0.85",
+            "denominator": "gold hard negatives in SET_P of the split"
+          },
+          {
+            "id": "G6",
+            "metric": "needsReviewRate",
+            "direction": "lower is better",
+            "pointTarget": 0.15,
+            "certificationLevel": 0.25,
+            "rule": "pointEstimate <= 0.15 AND deflatedUPPERBound <= 0.25",
+            "denominator": "all items in SET_P of the split",
+            "directionOfUncertainty": "UPPER confidence bound. This is an upper-bound problem, not an LCB problem: a ceiling gate asks whether the true rate is at most X, and a lower bound would certify the opposite direction. The original proposal's five-row feasibility table omitted this gate entirely."
+          }
+        ],
+        "G6Detail": {
+          "bestAttainableUpperBoundIsAtZeroEvents": "1 - alpha ** (1 / n)",
+          "historicalDenominatorAsContextOnly": {
+            "denominator": 49,
+            "bestAttainableUpperBound": 0.0593,
+            "certifiableAt_0.25": true,
+            "certifiableAt_0.15": true,
+            "maxEventsStillCertifying_0.25": 6,
+            "maxEventsStillCertifying_0.15": 2,
+            "pointEstimateEventTolerance_0.15": 7,
+            "finding": "G6 is the ONLY one of the six frozen gates already certifiable at the historical DEVELOPMENT denominator - which is exactly why a five-row feasibility table that omits it flatters the diagnosis. But its certification tolerance (2 events) is STRICTER than its point tolerance (7 events): an observation of 7/49 = 0.1429 passes the point gate and fails certification at either ceiling, since the upper bound there is 0.2516.",
+            "classification": "METHODOLOGICAL CONTEXT ONLY. No candidate's needs-review rate is evaluated anywhere in this document."
+          },
+          "minimumFeasibleDenominator": { "ceiling_0.25": 11, "ceiling_0.15": 19 },
+          "proposedDenominatorAndBound": "the SET_P size of the gated split; see section D",
+          "exactPassRule": "eventCount / denominator <= 0.15 AND clopperPearsonUpperBound on the deflated denominator <= 0.25"
+        }
+      }
+    }
+  },
+
+  "sectionD_D3_corpusOptions": {
+    "status": "PENDING OWNER DECISION",
+    "candidateIndependence": "The three options are sized from the gates' own operating characteristics under the recommended D2 method. No option was sized by computing what would make any candidate pass, and no historical pass or fail was consulted.",
+    "planningAssumptions": {
+      "goldUnitPagePrevalenceInAProductionLikeSample": 0.175,
+      "prevalenceSource": "28 proposed UNIT_PAGE items in the historical 160-item pool. METHODOLOGICAL CONTEXT AND A PLANNING ASSUMPTION, not a measurement of the production distribution, which is the whole ECHE register.",
+      "hardNegativeShareOfAProductionLikeSample": 0.43,
+      "hardNegativeShareSource": "21 of 49 in the historical DEVELOPMENT set; same classification",
+      "expectedPrecisionDenominator": "SET_P * prevalence * recall / precision, approximately 0.185 * SET_P at the targets",
+      "positiveYieldWhenEnrichingSET_R": 0.5,
+      "positiveYieldClassification": "ASSUMPTION. Enrichment uses the frozen deterministic signal layer's Track A/B ranking, whose positive yield has never been measured on a fresh cohort.",
+      "consequenceOfTheseBeingAssumptions": "Every denominator below is an EXPECTED denominator. Structural precondition S3 requires the feasibility check to be repeated on the REALISED denominator after scoring; a gate whose realised denominator falls below its pre-registered minimum is INADMISSIBLE for that metric - never a pass, and never a fail."
+    },
+    "commonToAllThreeOptions": {
+      "splits": ["DEV_TRAIN", "DEV_CONFIRM", "FINAL_HOLDOUT"],
+      "organisationDisjoint": true,
+      "gatedSplits": ["DEV_CONFIRM", "FINAL_HOLDOUT"],
+      "gatedSplitsAreEqualSize": "Both are sized identically, because FINAL_HOLDOUT is the binding confirmatory test and a one-shot test with less power than its own rehearsal would be indefensible.",
+      "perOrganisationCaps": { "SET_P": 8, "SET_R": 4 },
+      "capRationale": "Items per organisation is a first-order lever on error control, not a convenience: at icc 0.2 the same item count loses about five times its nominal error control at 8 pages per organisation and about three at 4. SET_R carries the two highest-stakes gates and gets the tighter cap.",
+      "dualReviewScope": "all gold UNIT_PAGE items in gated splits plus a random 15% of gold negatives"
+    },
+    "options": [
+      {
+        "id": "CORPUS_OPTION_A",
+        "name": "MINIMUM_DEFENSIBLE",
+        "isTheSmallestGenuinelyAdequateDesign": true,
+        "definition": "the smallest design in which every one of the six gates is feasible with a NON-ZERO error tolerance under the recommended D2 method",
+        "organisations": { "total": 70, "DEV_TRAIN": 20, "DEV_CONFIRM": 25, "FINAL_HOLDOUT": 25 },
+        "documentsApproximate": { "perGatedSplit": 320, "total": 840 },
+        "perGatedSplit": { "SET_P": 200, "SET_R_goldUnitPages": 60, "SET_R_labelledPages": 120 },
+        "requiredMinimumUnitPagePositives": 60,
+        "requiredMinimumHardNegatives": 86,
+        "minimumRepresentationPerSemanticClass": 2,
+        "derivedGateProfile": [
+          {
+            "gate": "G2 unitPageRecall",
+            "denominator": 60,
+            "cbar": 4,
+            "criticalCount": 59,
+            "errorTolerance": 1,
+            "falseAcceptAt_0.90": 0.0138,
+            "powerAt_0.95": 0.1916,
+            "powerAt_0.975": 0.5557
+          },
+          {
+            "gate": "G3 unitPagePrecision",
+            "denominator": 37,
+            "cbar": 2,
+            "criticalCount": 36,
+            "errorTolerance": 1,
+            "falseAcceptAt_0.85": 0.018,
+            "powerAt_0.9": 0.104,
+            "powerAt_0.925": 0.224
+          },
+          {
+            "gate": "G4 unitTypeAccuracy",
+            "denominator": 60,
+            "cbar": 4,
+            "criticalCount": 53,
+            "errorTolerance": 7,
+            "falseAcceptAt_0.80": 0.067,
+            "powerAt_0.85": 0.305,
+            "powerAt_0.875": 0.52
+          },
+          {
+            "gate": "G5 hardNegativeRejection",
+            "denominator": 86,
+            "cbar": 4,
+            "criticalCount": 81,
+            "errorTolerance": 5,
+            "falseAcceptAt_0.85": 0.007,
+            "powerAt_0.9": 0.129,
+            "powerAt_0.925": 0.368
+          },
+          {
+            "gate": "G6 needsReviewRate",
+            "denominator": 200,
+            "cbar": 8,
+            "criticalCount": 30,
+            "eventTolerance": 30,
+            "falseAcceptAt_0.20": 0.043,
+            "powerAt_0.15": 0.549,
+            "powerAt_0.125": 0.879
+          },
+          {
+            "gate": "G1 schemaSpanValidity",
+            "denominator": 320,
+            "rule": "zero-tolerance",
+            "feasible": true
+          }
+        ],
+        "everyGateMathematicallyFeasible": true,
+        "organisationClusteredUncertaintyEstimable": true,
+        "expectedAcquisitionBurden": "70 organisations through the Phase 2B-1e bounded discovery orchestrator; approximately 840 documents to adjudicate",
+        "expectedHumanLabelBurden": "approximately 216 dual-reviewed items (120 gold positives across both gated splits plus a 15% negative sample), so roughly 432 independent human labels, plus roughly 22 owner adjudications at 90% agreement",
+        "mainStatisticalLimitation": "G3 unitPagePrecision has an error tolerance of 1 and accepts a genuinely-good candidate (true precision 0.925) only 22% of the time. That is the same class of defect this revision exists to remove - an over-strictness invisible in the threshold - merely smaller than the frozen rule's.",
+        "mainCostLimitation": "none relative to the others; this is the cheap option"
+      },
+      {
+        "id": "CORPUS_OPTION_B",
+        "name": "BALANCED",
+        "definition": "every gate carries an error tolerance of at least 3, and the two highest-stakes gates reach roughly 0.76 to 0.82 acceptance for a candidate performing a quarter of a margin above target",
+        "organisations": { "total": 110, "DEV_TRAIN": 20, "DEV_CONFIRM": 45, "FINAL_HOLDOUT": 45 },
+        "documentsApproximate": { "perGatedSplit": 560, "total": 1370 },
+        "perGatedSplit": { "SET_P": 360, "SET_R_goldUnitPages": 100, "SET_R_labelledPages": 200 },
+        "requiredMinimumUnitPagePositives": 100,
+        "requiredMinimumHardNegatives": 155,
+        "minimumRepresentationPerSemanticClass": 2,
+        "derivedGateProfile": [
+          {
+            "gate": "G2 unitPageRecall",
+            "denominator": 100,
+            "cbar": 4,
+            "criticalCount": 97,
+            "errorTolerance": 3,
+            "falseAcceptAt_0.90": 0.0078,
+            "powerAt_0.95": 0.2578,
+            "powerAt_0.975": 0.759
+          },
+          {
+            "gate": "G3 unitPagePrecision",
+            "denominator": 66,
+            "cbar": 2,
+            "criticalCount": 62,
+            "errorTolerance": 4,
+            "falseAcceptAt_0.85": 0.023,
+            "powerAt_0.9": 0.198,
+            "powerAt_0.925": 0.443
+          },
+          {
+            "gate": "G4 unitTypeAccuracy",
+            "denominator": 100,
+            "cbar": 4,
+            "criticalCount": 85,
+            "errorTolerance": 15,
+            "falseAcceptAt_0.80": 0.129,
+            "powerAt_0.85": 0.568,
+            "powerAt_0.875": 0.82
+          },
+          {
+            "gate": "G5 hardNegativeRejection",
+            "denominator": 155,
+            "cbar": 4,
+            "criticalCount": 141,
+            "errorTolerance": 14,
+            "falseAcceptAt_0.85": 0.02,
+            "powerAt_0.9": 0.408,
+            "powerAt_0.925": 0.813
+          },
+          {
+            "gate": "G6 needsReviewRate",
+            "denominator": 360,
+            "cbar": 8,
+            "criticalCount": 54,
+            "eventTolerance": 54,
+            "falseAcceptAt_0.20": 0.009,
+            "powerAt_0.15": 0.536,
+            "powerAt_0.125": 0.932
+          },
+          {
+            "gate": "G1 schemaSpanValidity",
+            "denominator": 560,
+            "rule": "zero-tolerance",
+            "feasible": true
+          }
+        ],
+        "everyGateMathematicallyFeasible": true,
+        "organisationClusteredUncertaintyEstimable": true,
+        "expectedAcquisitionBurden": "110 organisations; approximately 1370 documents",
+        "expectedHumanLabelBurden": "approximately 355 dual-reviewed items (200 gold positives plus a 15% negative sample), so roughly 710 independent human labels, plus roughly 36 owner adjudications at 90% agreement",
+        "mainStatisticalLimitation": "G3 unitPagePrecision remains the weakest gate at 0.443 acceptance for a true 0.925 candidate, because its denominator is an unavoidably small, candidate-determined fraction of a prevalence-faithful sample",
+        "mainCostLimitation": "roughly 1.6x option A's acquisition and human-review burden"
+      },
+      {
+        "id": "CORPUS_OPTION_C",
+        "name": "HIGH_CONFIDENCE",
+        "definition": "the recall gate reaches 0.95 acceptance for a candidate a quarter of a margin above target, and every gate carries a double-digit error tolerance except precision",
+        "organisations": { "total": 170, "DEV_TRAIN": 20, "DEV_CONFIRM": 75, "FINAL_HOLDOUT": 75 },
+        "documentsApproximate": { "perGatedSplit": 920, "total": 2090 },
+        "perGatedSplit": { "SET_P": 600, "SET_R_goldUnitPages": 160, "SET_R_labelledPages": 320 },
+        "requiredMinimumUnitPagePositives": 160,
+        "requiredMinimumHardNegatives": 258,
+        "minimumRepresentationPerSemanticClass": 2,
+        "derivedGateProfile": [
+          {
+            "gate": "G2 unitPageRecall",
+            "denominator": 160,
+            "cbar": 4,
+            "criticalCount": 153,
+            "errorTolerance": 7,
+            "falseAcceptAt_0.90": 0.0075,
+            "powerAt_0.95": 0.4494,
+            "powerAt_0.975": 0.9511
+          },
+          {
+            "gate": "G3 unitPagePrecision",
+            "denominator": 111,
+            "cbar": 2,
+            "criticalCount": 103,
+            "errorTolerance": 8,
+            "falseAcceptAt_0.85": 0.01,
+            "powerAt_0.9": 0.209,
+            "powerAt_0.925": 0.546
+          },
+          {
+            "gate": "G4 unitTypeAccuracy",
+            "denominator": 160,
+            "cbar": 4,
+            "criticalCount": 136,
+            "errorTolerance": 24,
+            "falseAcceptAt_0.80": 0.066,
+            "powerAt_0.85": 0.554,
+            "powerAt_0.875": 0.858
+          },
+          {
+            "gate": "G5 hardNegativeRejection",
+            "denominator": 258,
+            "cbar": 4,
+            "criticalCount": 233,
+            "errorTolerance": 25,
+            "falseAcceptAt_0.85": 0.008,
+            "powerAt_0.9": 0.486,
+            "powerAt_0.925": 0.923
+          },
+          {
+            "gate": "G6 needsReviewRate",
+            "denominator": 600,
+            "cbar": 8,
+            "criticalCount": 90,
+            "eventTolerance": 90,
+            "falseAcceptAt_0.20": 0.001,
+            "powerAt_0.15": 0.528,
+            "powerAt_0.125": 0.97
+          },
+          {
+            "gate": "G1 schemaSpanValidity",
+            "denominator": 920,
+            "rule": "zero-tolerance",
+            "feasible": true
+          }
+        ],
+        "everyGateMathematicallyFeasible": true,
+        "organisationClusteredUncertaintyEstimable": true,
+        "expectedAcquisitionBurden": "170 organisations; approximately 2090 documents",
+        "expectedHumanLabelBurden": "approximately 562 dual-reviewed items (320 gold positives plus a 15% negative sample), so roughly 1124 independent human labels, plus roughly 56 owner adjudications at 90% agreement",
+        "mainStatisticalLimitation": "acceptance at a true rate exactly equal to the target stays near 0.5 for G4 and G6, because the point-estimate condition binds there. No denominator removes that; only dropping the point condition would.",
+        "mainCostLimitation": "roughly 2.5x option A. On a solo-operated internal tool this is a multi-month labelling programme, and the dual-review requirement doubles the human hours again."
+      }
+    ],
+    "minimumViableOption": "CORPUS_OPTION_A",
+    "recommendedOption": "CORPUS_OPTION_B",
+    "recommendationReasoning": "A is genuinely adequate by the letter of the feasibility precondition and is the smallest design that is. It is not recommended because its precision gate tolerates one error and accepts a genuinely-good candidate 22% of the time - a smaller instance of exactly the pathology this revision exists to remove, and one that would be discovered only after the corpus had been built. B lifts every gate's tolerance to at least 3 and the two gates that carry the product's real failure modes to roughly 0.76 and 0.81 acceptance, at about 1.6x A's cost rather than C's 2.5x. C buys most of its extra power on gates that were not the binding ones. NOT chosen because it is likely to pass any candidate: no candidate was scored under any option, and V6 was not back-tested.",
+    "statedDesignAlternativeForPrecision": {
+      "problem": "G3's denominator is candidate-determined and is only about 18.5% of SET_P, so precision is the most expensive gate per unit of information in every option.",
+      "alternative": "stratify SET_P by the FROZEN deterministic signal-layer score and oversample the high-score stratum with pre-registered, known inclusion probabilities, then estimate precision as a weighted ratio. The strata are defined by a frozen, candidate-independent ruleset, so no sealing is broken and no candidate output is consulted.",
+      "cost": "the exact binomial bound no longer applies to a weighted ratio estimator; the uncertainty would need a different pre-registered method, which reintroduces approximation into the one place R1 removed it",
+      "recommendation": "NOT adopted here. Recorded so the owner can ask for it if precision cost dominates the D3 decision."
+    }
+  },
+
+  "sectionE_sampling": {
+    "samplingUnitIsTheOrganisation": true,
+    "aPageIsNotAnIndependentTopLevelSample": true,
+    "rules": [
+      {
+        "id": "SD1",
+        "question": "how organisations enter the sampling frame",
+        "rule": "an organisation is frame-eligible iff it has at least one STRUCTURALLY_VALID website claim or one live, un-revoked root promotion in the ECHE-derived register, and belongs to a declared stratum. The frame is enumerated and committed BEFORE any draw."
+      },
+      {
+        "id": "SD2",
+        "question": "how organisations are assigned to splits",
+        "rule": "organisations are ranked within each stratum by a content-derived key, sha256(eche_row_key), ascending, and assigned to DEV_TRAIN / DEV_CONFIRM / FINAL_HOLDOUT under a frozen pattern committed before acquisition. The key is label-blind, difficulty-blind and result-blind by construction, and the drawn list is committed BEFORE acquisition begins."
+      },
+      {
+        "id": "SD3",
+        "question": "how pages are sampled within an organisation",
+        "rule": "SET_P takes a deterministic pseudo-random sample of the organisation's discovered, policy-authorised pages with NO class filtering, ranked by sha256(documentSha256). SET_R takes the organisation's pages ranked by the FROZEN deterministic Track A/B signal score, which is candidate-independent."
+      },
+      {
+        "id": "SD4",
+        "question": "maximum page contribution from one organisation",
+        "rule": "8 pages in SET_P and 4 in SET_R, per organisation, per split. No organisation may contribute more than 1/10 of any gate's denominator; if the cap alone does not secure that, the organisation's contribution is truncated by the same deterministic rank."
+      },
+      {
+        "id": "SD5",
+        "question": "how class enrichment avoids invalidating prevalence-sensitive metrics",
+        "rule": "enrichment happens ONLY in SET_R, and SET_R is used ONLY for metrics conditional on the GOLD class (G2 recall, G4 unit_type). Every prevalence-dependent metric (G3, G5, G6) is computed ONLY on the unfiltered SET_P. The enrichment factor is recorded with the corpus."
+      },
+      {
+        "id": "SD6",
+        "question": "duplicate and near-duplicate pages",
+        "rule": "exact duplicates are removed by documentSha256 as production does. Near-duplicates are detected by the landed cross-page boilerplate primitive: two pages of the same organisation whose extracted text agrees above a pre-registered shingle threshold contribute at most one item, the earlier by deterministic rank. The threshold is a MECHANICAL SAFETY BOUND and is recorded as uncalibrated."
+      },
+      {
+        "id": "SD7",
+        "question": "multilingual pages",
+        "rule": "declared_lang is recorded per item as the DOCUMENT's own declaration and never as a country or learner-language signal. Language is a REPORTING stratum, not a gate (section A). A stratum below MIN_SUBGROUP_SIZE_FOR_GATING is reported with its raw counts and explicitly marked NOT GATED."
+      },
+      {
+        "id": "SD8",
+        "question": "university-wide versus organisation-unit pages",
+        "rule": "SET_P is prevalence-faithful and therefore carries whatever mix production would carry - it is NOT balanced, because balancing it would destroy the prevalence the precision and needs-review gates depend on. SET_R records the distinction as a REPORTED stratum so a recall failure concentrated on one page type is visible, and it is never used to reweight a gate."
+      }
+    ],
+    "preventingOneOrganisationFromDominating": "SD4's per-gate 1/10 cap is the binding rule; the per-split page caps are the mechanism that normally makes it unnecessary. Both are checked mechanically at freeze time and again at scoring time."
+  },
+
+  "sectionF_prevalenceAndEnrichment": {
+    "twoPurposesKeptApart": {
+      "A_productionLikePerformance": "estimated on SET_P only, which is prevalence-faithful and unfiltered",
+      "B_enoughRarePositivesAndHardNegatives": "secured by SET_R, which is enriched and is never read as a population estimate"
+    },
+    "metricClassification": [
+      {
+        "gate": "G1 schemaSpanValidity",
+        "estimatedOn": "SET_P and SET_R together",
+        "class": "class-conditional and prevalence-independent in intent; the union is used because structured-output validity is a property of the response format, and any prevalence sensitivity it turns out to have is REPORTED as a split between the two samples rather than assumed away"
+      },
+      {
+        "gate": "G2 unitPageRecall",
+        "estimatedOn": "SET_R",
+        "class": "class-conditional (conditional on GOLD being UNIT_PAGE) and therefore prevalence-independent; positive enrichment is legitimate and efficient"
+      },
+      {
+        "gate": "G3 unitPagePrecision",
+        "estimatedOn": "SET_P ONLY",
+        "class": "PREVALENCE-DEPENDENT (conditional on the MODEL predicting UNIT_PAGE). Estimating it on SET_R would inflate it by construction."
+      },
+      {
+        "gate": "G4 unitTypeAccuracy",
+        "estimatedOn": "SET_R",
+        "class": "class-conditional (conditional on GOLD being UNIT_PAGE); prevalence-independent"
+      },
+      {
+        "gate": "G5 hardNegativeRejection",
+        "estimatedOn": "SET_P ONLY",
+        "class": "class-conditional on the gold hard_negative flag, but the hard-negative SHARE is itself a property of the sample, so it is estimated on the prevalence-faithful sample to keep the denominator meaningful"
+      },
+      {
+        "gate": "G6 needsReviewRate",
+        "estimatedOn": "SET_P ONLY",
+        "class": "PREVALENCE-DEPENDENT. An enriched needs-review rate is not a population rate."
+      }
+    ],
+    "noSilentReinterpretation": "No enriched precision and no enriched NEEDS_REVIEW prevalence is ever reported as a population quantity. A metric estimated on SET_R carries its sample name in its own reported label.",
+    "weighting": "NO weighting is used anywhere, because the two-sample design removes the need for it: every prevalence-dependent metric lives entirely on the prevalence-faithful sample. If the stated precision alternative in section D were ever adopted, its weights would be pre-registered with known inclusion probabilities before any draw.",
+    "everyWeightingRuleIsPreRegisterable": true
+  },
+
+  "sectionG_confirmationSealing": {
+    "principle": "DEV_CONFIRM must not become DEV_TRAIN through repeated inspection.",
+    "whatAPromptDeveloperSeesAfterAFailedDEV_CONFIRMCandidate": {
+      "permitted": [
+        "PASS or FAIL per frozen gate",
+        "the aggregate numerator and denominator of each gate",
+        "the study-level outcome: ACCEPT, REJECT or INADMISSIBLE",
+        "the structural-precondition outcomes",
+        "the realised denominators and the feasibility re-check results"
+      ],
+      "forbidden": [
+        "item IDs",
+        "URLs and titles",
+        "per-item gold labels",
+        "per-item model outputs",
+        "individual error examples",
+        "any listing, count or property that identifies WHICH items failed",
+        "per-organisation breakdowns, which at a per-organisation cap of 4 to 8 would come close to naming items"
+      ],
+      "isThisTheDefault": true,
+      "richerFeedbackJustification": "NOT proposed. Richer feedback is what turns a confirmation split into a training split, and with a three-candidate budget the multiplicity argument only holds if each candidate is designed without knowledge of which confirmation items the previous one failed. Any exception would have to explain how candidate 3 is still independent evidence, and R1 has no such explanation to offer."
+    },
+    "burnRule": "any inspection of a DEV_CONFIRM item by a prompt author permanently moves that item to DEV_TRAIN and it must be replaced from reserve before the next scoring; the replacement is drawn by the same frozen deterministic rank",
+    "budget": {
+      "candidatesPerMethodologyGeneration": 3,
+      "source": "owner decision D5 (APPROVED)",
+      "afterCandidateThreeFails": "the methodology generation CLOSES. A new prompt may continue only under a NEW methodology generation with a NEW DEV_CONFIRM set drawn from organisations never previously used.",
+      "inadmissibleDoesNotConsumeASlot": "an INADMISSIBLE study measured nothing about the candidate, so the same frozen candidate is re-run after the execution environment is repaired"
+    }
+  },
+
+  "sectionH_finalHoldoutSeal": {
+    "requirements": [
+      "organisation-disjoint from DEV_TRAIN and DEV_CONFIRM",
+      "inaccessible to prompt development: no item, document, label, per-item result or pre-freeze aggregate",
+      "dual-reviewed before use (section I)",
+      "cryptographically frozen: a corpus content hash and a split-scoped manifest committed before any candidate capable of reaching it exists",
+      "ONE-SHOT for exactly one selected candidate/configuration",
+      "accessed only after that candidate has PASSED DEV_CONFIRM and is frozen, and after a separate explicit owner HOLDOUT authorisation naming that exact candidate"
+    ],
+    "oneShotSemantics": {
+      "source": "owner decision D5 (APPROVED)",
+      "onFailure": [
+        "the HOLDOUT is RETIRED",
+        "no threshold may be changed and re-run against it",
+        "no prompt may be changed and re-run against it",
+        "any future candidate requires a NEW methodology generation and a fresh, previously unseen FINAL_HOLDOUT"
+      ],
+      "noRepeatedHoldoutAttempts": true,
+      "supersedesTheOriginalProposal": "The original proposal's HOLDOUT multiplicity budget of 3 is REPLACED by strict one-shot. The original's Bonferroni argument is moot: a family of one needs no correction."
+    },
+    "whatIsReturnedOnFailure": {
+      "duringTheActiveMethodologyGeneration": "the terminal PASS or FAIL and the pre-authorised aggregate reporting ONLY. No item-level information of any kind.",
+      "preAuthorisedAggregateReporting": "per-gate pass/fail, per-gate numerator and denominator, the realised denominators, and the structural-precondition outcomes - the same surface as a failed DEV_CONFIRM"
+    },
+    "sealedFileDiscipline": "DEV_CONFIRM and FINAL_HOLDOUT labels MUST live in split-scoped files. The historical mixed 72-record and 160-record files are exactly why the boundary event in section B could happen at all: a development aggregate could not be computed without opening bytes that also contained holdout rows.",
+    "statusToday": "FINAL_HOLDOUT does not exist. It is not acquired, not labelled, not hashed and not enumerated. This document opens nothing."
+  },
+
+  "sectionI_goldPolicy": {
+    "ownerDecision": "D4 (APPROVED)",
+    "whichSplitsRequireDualReview": {
+      "DEV_TRAIN": "NO. Its labels are working material for diagnosis and certify nothing.",
+      "DEV_CONFIRM": "YES - required.",
+      "FINAL_HOLDOUT": "YES - required."
+    },
+    "whatNeedsNoHuman": [
+      "every deterministic or provenance-derived field: goldId, documentSha256, split assignment, language stratum, discovery method, track membership, sparse and truncated flags"
+    ],
+    "whatRequiresHumanConfirmation": [
+      "the page-level verdict (UNIT_PAGE / NOT_A_UNIT / NEEDS_REVIEW)",
+      "unit_type on every gold UNIT_PAGE item",
+      "the hard_negative flag"
+    ],
+    "whyFrozenProvenanceCannotAnswerThese": "The deterministic signal layer cannot separate a UNIT from a DEGREE PROGRAMME - that separation is the entire reason the semantic classifier exists (ADR 0007). No deterministic rule can supply the label the classifier is graded against.",
+    "minimumDefensibleDualReviewProcess": {
+      "step1_independentFirstLabels": "two human reviewers label independently from the same frozen rubric and the same frozen document. Neither sees the other's label, and neither sees any model output, metric, threshold or gate outcome. This is the G1 packet's own blinding design, generalised.",
+      "step2_blindSecondReview": "the second reviewer's pass is blind to the first: the tooling presents the item in the same frozen form and records the label without ever displaying the first label",
+      "step3_deterministicAgreementRecord": "a per-item agree/disagree record, plus percent agreement and Cohen's kappa over the dual-reviewed set, committed with the corpus and RECOMPUTED in CI so a later edit cannot silently change them",
+      "step4_disagreementResolution": "only DISAGREEMENTS reach adjudication. The adjudicator sees the frozen document, the rubric and the two anonymised candidate labels - and NO model output, no metric, no gate outcome and no threshold effect. At 90% agreement this is roughly 22 to 56 items across the whole corpus depending on the D3 option.",
+      "ownerNeedNotBeOneOfTheTwoReviewers": true,
+      "ownerRoleIsAdjudicationOnly": "the design deliberately minimises owner work: full review of the small high-stakes class, sampling for the large low-stakes class, and owner involvement only where two humans disagreed",
+      "scope": "ALL gold UNIT_PAGE items in the two gated splits (the rare, high-stakes, gate-carrying class) plus a random 15% sample of gold negatives",
+      "purposeOfTheNegativeSample": "to MEASURE label error rate and inter-rater agreement, which have never been measured anywhere in this repository - there is no second annotator, no percent agreement and no kappa in the history, and the only blinded review that exists covered exactly one item",
+      "secondReviewerMustBeHuman": "No model output may define or confirm gold. If no second human is available, the corpus records UNMEASURED_LABEL_ERROR as a stated limitation - never a fabricated agreement statistic.",
+      "noFabrication": "an item whose correct label cannot be determined from its own captured evidence is labelled NEEDS_REVIEW or excluded with its reason recorded; it is never guessed"
+    },
+    "historicalLabelsAreNotUpgraded": "The 49 historical DEVELOPMENT labels stay as they are, in DEV_TRAIN_DIAGNOSTIC_ONLY. Re-reviewing them would spend the scarce human budget on a split that certifies nothing."
+  },
+
+  "sectionJ_splitsAndTheHistoricalCorpus": {
+    "ownerDecision": "D1 (APPROVED)",
+    "splits": [
+      {
+        "name": "DEV_TRAIN",
+        "sealed": false,
+        "promptAuthorsMayInspect": "everything - items, documents, gold labels, rationales, full model outputs, per-item results",
+        "purpose": "candidate design and diagnosis; unlimited iteration",
+        "usedForAcceptanceDecision": false,
+        "dualReviewRequired": false
+      },
+      {
+        "name": "DEV_CONFIRM",
+        "sealed": true,
+        "promptAuthorsMayInspect": "NOTHING beyond the section-G feedback surface",
+        "purpose": "the DEV_READY_FOR_HOLDOUT decision",
+        "usedForAcceptanceDecision": true,
+        "dualReviewRequired": true,
+        "scoringBudget": 3
+      },
+      {
+        "name": "FINAL_HOLDOUT",
+        "sealed": true,
+        "promptAuthorsMayInspect": "NOTHING",
+        "purpose": "the single confirmatory test before Phase 2E eligibility",
+        "usedForAcceptanceDecision": true,
+        "dualReviewRequired": true,
+        "scoringBudget": 1
+      }
+    ],
+    "disjointness": "STRICTLY ORGANISATION-DISJOINT. No organisation may appear in more than one split. This is a deliberate reversal of PHASE_2B_2D_GOLD_CORPUS_PROTOCOL.md section 17 ('every organisation contributes to both sides').",
+    "historicalDevelopmentSet": {
+      "becomes": "DEV_TRAIN_DIAGNOSTIC_ONLY",
+      "items": 49,
+      "mayBeInspectedDuringFuturePromptDevelopment": true,
+      "mayEverAgainCertifyARuntimeCandidate": false,
+      "rationale": "its labels are already burned by five successive iterations of inspection, which is exactly what a training split is for; discarding it would waste real adjudicated evidence, and promoting it would launder adaptive reuse into a decision"
+    },
+    "historicalEvidenceImmutable": "F5, F6 and F9 evidence remains immutable and is reinterpreted nowhere in this document. The canonical F9 result DEV_NOT_READY_FOR_HOLDOUT stands."
+  },
+
+  "sectionK_feasibilityPrecondition": {
+    "rule": "A study freeze is INVALID unless, for EVERY gate, all of the following hold at the PLANNED denominator - and the same check is repeated at the REALISED denominator after scoring, where a failure makes that metric INADMISSIBLE rather than a pass or a fail.",
+    "conditions": [
+      "K1 FEASIBLE: certificationBoundary(rule).feasible === true - some attainable observation certifies the gate",
+      "K2 NON-DEGENERATE: criticalCount is strictly inside the denominator, so the gate tolerates at least one error. A gate whose critical count equals its denominator is a zero-tolerance gate wearing a percentage label, which is defect d2 of the original diagnosis. G1 is the ONE declared exception, because it is frozen as a zero-tolerance gate honestly and explicitly.",
+      "K3 CLUSTER-ESTIMABLE: the gate's own denominator draws on at least MIN_ORGANISATIONS_PER_GATE organisations, so an intraclass correlation can be estimated at all",
+      "K4 CLASS MINIMUM: any gated sub-class has at least 2 gold items; a class with fewer is REPORTED and explicitly NOT GATED",
+      "K5 NON-VACUOUS: a gate whose denominator is 0 is INADMISSIBLE for that metric, never a pass - a change from the frozen metrics.ts behaviour, where a vacuous gate returns pass: true"
+    ],
+    "MIN_ORGANISATIONS_PER_GATE": 10,
+    "minOrganisationsClassification": "MECHANICAL SAFETY BOUND, NOT A CALIBRATED VALUE. It is deliberately NOT the original proposal's 30: that 30 existed because a percentile cluster bootstrap is unreliable below it, and R1 demotes the bootstrap to reporting.",
+    "certifyMeansTheFinalD2Method": "K1 and K2 are evaluated under whichever D2 design the owner approves, NOT under the currently-unapproved target-minus-0.10 rule.",
+    "provenMechanicallyBeforeFreezeApproval": true,
+    "everyCurrentlyFrozenGateFailsThisCheck": {
+      "atHistoricalDEVDenominators": [
+        {
+          "gate": "G1 schemaValidSpanVerified",
+          "threshold": 0.99,
+          "denominator": 49,
+          "bestAttainableLowerBound": 0.9407,
+          "certifiable": false,
+          "trialsNeeded": 299,
+          "pointEstimateErrorTolerance": 0
+        },
+        {
+          "gate": "G2 unitPageRecall",
+          "threshold": 0.95,
+          "denominator": 14,
+          "bestAttainableLowerBound": 0.8074,
+          "certifiable": false,
+          "trialsNeeded": 59,
+          "pointEstimateErrorTolerance": 0
+        },
+        {
+          "gate": "G3 unitPagePrecision",
+          "threshold": 0.9,
+          "denominator": 15,
+          "bestAttainableLowerBound": 0.819,
+          "certifiable": false,
+          "trialsNeeded": 29,
+          "pointEstimateErrorTolerance": 1
+        },
+        {
+          "gate": "G4 unitTypeAccuracy",
+          "threshold": 0.85,
+          "denominator": 14,
+          "bestAttainableLowerBound": 0.8074,
+          "certifiable": false,
+          "trialsNeeded": 19,
+          "pointEstimateErrorTolerance": 2
+        },
+        {
+          "gate": "G5 hardNegativeRejection",
+          "threshold": 0.9,
+          "denominator": 21,
+          "bestAttainableLowerBound": 0.8671,
+          "certifiable": false,
+          "trialsNeeded": 29,
+          "pointEstimateErrorTolerance": 2
+        }
+      ],
+      "theSixth": {
+        "gate": "G6 needsReviewRate",
+        "ceiling": 0.15,
+        "denominator": 49,
+        "bestAttainableUpperBound": 0.0593,
+        "certifiable": true,
+        "note": "G6 is the ONE frozen gate that passes K1 at the historical denominator. It fails no feasibility test; it was simply absent from the original proposal's table."
+      },
+      "classification": "METHODOLOGICAL CONTEXT. These are properties of thresholds and denominators, computed without reference to any candidate's result."
+    }
+  },
+
+  "sectionL_replicationAndStochasticity": {
+    "addresses": ["revision instruction section 11", "revision instruction section 12"],
+    "theTwoQuantitiesSeparated": {
+      "datasetUncertainty": "how far the estimate could be from the truth because THESE organisations and pages were sampled rather than others. Governed by the denominator and by clustering. Replication does not reduce it at all.",
+      "modelStochasticity": "how far a single run could be from the candidate's own expected behaviour because the provider is not deterministic. Governed by the number of inferences per item."
+    },
+    "theDecisiveArithmetic": {
+      "varianceOfTheEstimator": "(betweenItemVariance + withinItemVariance / R) / n",
+      "atAFixedInferenceBudget": "with budget B = n * R, the variance becomes (R * betweenItemVariance + withinItemVariance) / B, which is STRICTLY INCREASING in R",
+      "consequence": "Spending a fixed inference budget on more ITEMS always beats spending it on more REPLICATES, for the quality question. This holds for every positive value of both variance components, so it needs no measurement of either.",
+      "verifiedBy": "src/test/unit/orgunitClassifyAcceptanceMethodologyV2R1.test.ts"
+    },
+    "isFullNFiveReplicationStillNecessary": {
+      "answer": "NO",
+      "notPreservedByInertia": "The frozen N = 5 was, on the record, a judgement anchored on an owner default for a TWO-ARM DIAGNOSTIC study and transferred unexamined to a ONE-ARM ACCEPTANCE study. R1 does not inherit it.",
+      "whatReplacesIt": {
+        "structure": "one inference per item over the whole split, plus a bounded replicate subset",
+        "R_mainPass": 1,
+        "stabilitySubset": {
+          "drawnFrom": "the confirmation split itself, by frozen deterministic rank",
+          "size": 40,
+          "replicatesOnTheSubset": 3,
+          "itemsNeverSurfaced": "the subset's items are never shown to a prompt author; only aggregates cross the seal"
+        },
+        "extraInferenceCost": "2 additional passes over 40 items = 80 inferences"
+      },
+      "costComparisonAtCorpusOptionB": {
+        "frozenDesign_NEqualsFive": {
+          "inferencesPerGatedSplit": 2800,
+          "itemsPerSplit": 560,
+          "replicates": 5
+        },
+        "R1Design": {
+          "inferencesPerGatedSplit": 640,
+          "itemsPerSplit": 560,
+          "replicates": "1 over all items, 3 over 40"
+        },
+        "ratio": "approximately 4.4x fewer provider calls, for MORE item evidence, because the saved budget is what pays for the larger denominator in the first place"
+      },
+      "alternativeStructuresCompared": [
+        {
+          "structure": "one inference per item plus a bounded replicate subset",
+          "cost": "lowest",
+          "informationValue": "full dataset uncertainty at the largest affordable n, plus a direct measurement of run-to-run agreement",
+          "verdict": "RECOMMENDED"
+        },
+        {
+          "structure": "multiple full replicates (the frozen N = 5)",
+          "cost": "R times the main pass",
+          "informationValue": "NO additional item evidence. It resamples model noise over a FIXED item set; item-level uncertainty is still governed by the item count, not by R times the item count.",
+          "verdict": "rejected - it is the strictly dominated point of the budget trade-off"
+        },
+        {
+          "structure": "repeated inference only on a pre-registered stability sample",
+          "cost": "lowest plus the subset",
+          "informationValue": "identical to the recommendation; this IS the recommendation, stated from the other side",
+          "verdict": "RECOMMENDED"
+        }
+      ],
+      "fiveRepeatedModelCallsAreNotFiveIndependentDatasets": true
+    },
+    "noCatastrophicReplicateRule": {
+      "status": "KEPT AS A CANDIDATE FOR REVIEW, NOT RECOMMENDED FOR FREEZE",
+      "whatConstitutesCatastrophic": "a replicate in which a gated metric, recomputed on that replicate's answers alone, falls below that gate's certification level (or above its certification ceiling)",
+      "operatesPer": "per replicate AND per metric. It does NOT operate per organisation: the organisation-level catastrophe is a separate condition with a separate denominator, stated below.",
+      "substantiveJustification": "A run that would have failed certification is a run production could have had. If a candidate's behaviour varies that much, a single accepted run is not representative of what would be deployed.",
+      "interactionWithTheAggregateStatisticalRule": "It is a STABILITY veto. It can only reject; it can never rescue a candidate whose clustered bound fails, and it is never averaged into a quality metric.",
+      "whyNotRecommendedForFreeze": "Under the recommended R = 1 main pass the rule has NO DENOMINATOR - there are no full-split replicates for it to range over. Applied instead to the 40-item stability subset it would re-create the original defect at small scale: at n = 40 the recall gate's critical count equals its denominator, so a 'catastrophic replicate' test there would be a zero-tolerance test wearing a percentage label. It is defined here in full so the owner can freeze it IF the owner chooses full replication, and is otherwise inapplicable by construction.",
+      "whatIsProposedInstead": {
+        "S1_reported": "the per-item all-replicate agreement rate on the stability subset, with its raw numerator and denominator",
+        "S2_reported": "the range (max - min) of every gated metric across the subset's replicates",
+        "S3_flag": "agreement below 0.90 or a metric range above 0.10 is labelled INSTABILITY_OBSERVED in the report",
+        "whyAFlagAndNotAGate": "no measurement in this repository calibrates a dispersion tolerance, and inventing one would repeat exactly the mistake migration 0008 corrected. Instability is already penalised once, honestly: an unstable candidate's single main-pass run is as likely to be its bad run as its good one, so instability shows up as a lower expected point estimate rather than as a separate penalty."
+      }
+    },
+    "organisationLevelCatastropheVeto": {
+      "id": "V_ORG",
+      "status": "RETAINED from the original proposal, unchanged in substance",
+      "rule": "the count of ORGANISATIONS that have at least one gold UNIT_PAGE item but from which the candidate recalls no UNIT_PAGE at all must be 0",
+      "rationale": "This is the downstream failure the product cannot absorb: an organisation with no recalled unit page is silently dropped from the pipeline and is unrecoverable later. A page-level miss whose sibling page is recalled is recoverable. No frozen metric expresses this, because no frozen metric has an organisation denominator.",
+      "classification": "STRUCTURAL VETO derived from the downstream failure mode, not from any candidate's behaviour",
+      "underRIsOne": "evaluated on the single main pass; the original proposal's 'in at least ceil(R/2) replicates' qualifier is dropped because it presupposed full replication"
+    }
+  },
+
+  "sectionM_acceptanceRuleShape": {
+    "id": "PHASE_2B_2D_ACCEPTANCE_RULE_V2_R1_PROPOSED",
+    "appliesTo": "one FROZEN candidate evaluated on one named split",
+    "outcomes": ["ACCEPT", "REJECT", "INADMISSIBLE"],
+    "stages": [
+      {
+        "stage": 0,
+        "name": "structural preconditions",
+        "failureOutcome": "INADMISSIBLE",
+        "conditions": "the seven preconditions S1-S7 of section A",
+        "note": "INADMISSIBLE is not REJECT. It says the study did not measure the candidate, so nothing may be concluded about it in either direction."
+      },
+      {
+        "stage": 1,
+        "name": "structural vetoes",
+        "failureOutcome": "REJECT",
+        "conditions": ["V_ORG (section L)"]
+      },
+      {
+        "stage": 2,
+        "name": "the six semantic gates",
+        "failureOutcome": "REJECT",
+        "conditions": "G1-G6 under the D2 method the owner approves, each at its own denominator with its own design effect"
+      },
+      {
+        "stage": 3,
+        "name": "stability",
+        "failureOutcome": "REPORTING ONLY under the recommended design",
+        "conditions": "S1-S3 of section L"
+      },
+      {
+        "stage": 4,
+        "name": "aggregation",
+        "rule": "ACCEPT iff stages 0, 1 and 2 all hold. Otherwise REJECT, or INADMISSIBLE per stage 0."
+      }
+    ],
+    "invariants": {
+      "noFallback": true,
+      "noPooling": "results from different splits, different methodology generations or different reliability-semantics versions are never pooled",
+      "noAveragingAwayAFailingResult": true,
+      "noThresholdTuningAfterOutcomes": true,
+      "noPromptTuningAfterOutcomes": true,
+      "unmeasuredGateIsNeverAPassedGate": true,
+      "vacuousGateIsInadmissibleNeverAPass": true,
+      "noRetryOfACompletedEvaluation": true,
+      "noReplacementOfAReplicate": true,
+      "adaptiveStoppingForbidden": true
+    },
+    "missingnessSemantics": {
+      "infrastructureInvalid": "a non-terminal provider timeout or transport failure is INFRASTRUCTURE, not a semantic property of the candidate. Its items are excluded from SEMANTIC denominators, reported separately with their exact count, and capped by S4.",
+      "changeFromFrozen": "the frozen semantics score an infrastructure-caused INVALID item as a strict semantic miss, which makes the gate partly a measurement of the host and the network",
+      "assumptionStated": "this exclusion is unbiased only if infrastructure failure is independent of item difficulty. That is plausible for a transport timeout but is UNMEASURED, and is recorded as a METHODOLOGICAL ASSUMPTION rather than a fact.",
+      "candidateInvalid": "a validator rejection surviving the one bounded ADR 0011 repair round is a genuine candidate output failure and fails gate G1",
+      "terminalFailure": "a replicate reaching a terminal failure makes the STUDY INADMISSIBLE; it is never scored as a partial result",
+      "realisedDenominatorBelowPlan": "INADMISSIBLE for that metric - never a pass and never a fail"
+    },
+    "modelSelection": {
+      "applicable": false,
+      "reason": "the production model is fixed by owner product decision. This rule accepts or rejects a CANDIDATE CONFIGURATION; it does not compare models.",
+      "neverSwitchModelsOnReject": true
+    }
+  },
+
+  "machineVerifiableSupport": {
+    "module": "src/orgunits/classify/evaluation/acceptanceStatistics.ts",
+    "purity": "PURE - no network, no database, no filesystem, no clock, no environment, no Math.random, no Date.now. Randomised procedures take an explicit integer seed.",
+    "r1Additions": [
+      "clopperPearsonUpperBound - the exact one-sided UPPER bound the sixth gate needs",
+      "minimumTrialsToCertifyCeiling / maxEventsUnderPointCeiling / ceilingGateFeasibility - the lower-is-better mirrors of the existing feasibility helpers",
+      "criticalSuccessesForLowerCertification / criticalEventsForUpperCertification - integer decision boundaries",
+      "designEffect / clusterDeflatedBound / intraclassCorrelation - the cluster-aware instrument that replaces the bootstrap as binding",
+      "certificationBoundary / certificationAcceptanceProbability / minimumDenominatorForPower - exact operating characteristics, the number no version of this methodology ever reported",
+      "clusteredCoverage - the seeded beta-binomial coverage simulation, algorithm and seed frozen",
+      "estimatorVarianceDecomposition - the replication trade-off in one expression"
+    ],
+    "demotedNotDeleted": "clusterBootstrapLowerBound remains exported and tested, and is REPORTED alongside the binding bound. It is no longer the binding instrument.",
+    "tests": [
+      "src/test/unit/orgunitClassifyAcceptanceStatistics.test.ts",
+      "src/test/unit/orgunitClassifyAcceptanceMethodologyV2Proposal.test.ts",
+      "src/test/unit/orgunitClassifyAcceptanceMethodologyV2R1.test.ts"
+    ],
+    "classifierRuntimeUntouched": "no prompt, runtime, scorer or execution code was modified by this revision"
+  },
+
+  "openUnknowns": [
+    "UNKNOWN: the true organisation-level intraclass correlation of any classifier metric. Never measured. RHO_FLOOR = 0.10 is a mechanical bound with an escalation rule, not an estimate.",
+    "UNKNOWN: the true label error rate of the existing 49 DEVELOPMENT labels. Never measured; no second annotator, no agreement statistic, no kappa anywhere in the repository.",
+    "UNKNOWN: whether infrastructure failure is independent of item difficulty. Assumed, stated, unmeasured.",
+    "UNKNOWN: the positive yield of deterministic Track A/B enrichment on a fresh cohort. The 0.5 planning assumption is an assumption.",
+    "UNKNOWN: the true gold UNIT_PAGE prevalence in a production-like sample. The 0.175 planning figure comes from one French 160-item pool and is not a measurement of the ECHE register.",
+    "UNKNOWN: the run-to-run variance of any gate metric for a candidate other than the ones already run. The F6 observation is one observation of one candidate, never a benchmark or a target.",
+    "UNKNOWN: whether the model-id string claude-sonnet-5 denotes an immutable backend snapshot. Nothing in this harness would detect a repoint, before, during or after.",
+    "UNKNOWN: how any conclusion from a French corpus generalises outside France. ADR 0004 section 17 records this as unresolved and it remains so.",
+    "UNKNOWN: the correct near-duplicate shingle threshold of SD6 and the correct value of MIN_ORGANISATIONS_PER_GATE. Both are mechanical bounds, not measurements."
+  ],
+
+  "ownerDecisionRequired": {
+    "pending": [
+      {
+        "id": "D2",
+        "question": "choose the certification design among D2_A, D2_B, D2_C (and at which delta) and D2_D, or amend the recommendation",
+        "R1Recommendation": "D2_D instantiated as the exact deflated bound with per-metric levels from NON_INFERIORITY_MARGINS, G1 frozen as a zero-tolerance gate, and the ICC escalation rule",
+        "consequenceOfChoosing": "the choice determines every denominator in section D; changing D2 after D3 would invalidate the corpus sizing"
+      },
+      {
+        "id": "D3",
+        "question": "choose CORPUS_OPTION_A, CORPUS_OPTION_B or CORPUS_OPTION_C",
+        "R1Recommendation": "CORPUS_OPTION_B",
+        "minimumViable": "CORPUS_OPTION_A",
+        "consequenceOfChoosing": "this is a cost-versus-confidence decision and is genuinely the owner's, not a technical one"
+      }
+    ],
+    "alreadyApproved": {
+      "D1": "three strictly organisation-disjoint splits; the historical 49 items become DEV_TRAIN_DIAGNOSTIC_ONLY",
+      "D4": "dual independent human review, required on DEV_CONFIRM and FINAL_HOLDOUT",
+      "D5": "at most three frozen candidates per methodology generation against DEV_CONFIRM; FINAL_HOLDOUT strictly one-shot and retired on failure",
+      "D6": "exactly six semantic quality gates; structural conditions are preconditions and vetoes, never additional gates"
+    },
+    "approvalMustBe": "a SEPARATE future record naming this R1 file's exact SHA-256. This task does not create it, and this file authorises nothing."
+  }
+}

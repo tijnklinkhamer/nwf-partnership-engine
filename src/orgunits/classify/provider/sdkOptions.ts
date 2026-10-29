@@ -55,6 +55,17 @@
  *                                 SDK's adaptive mode, the only documented
  *                                 on-mode for current models. `effort` only
  *                                 when explicitly configured.
+ *   - `pathToClaudeCodeExecutable` — the SDK's documented option ("Path to
+ *                                 the Claude Code executable. Uses the
+ *                                 built-in executable if not specified.")
+ *                                 set EXPLICITLY to the exact SDK-bundled
+ *                                 native binary the provider resolved and
+ *                                 verified (`claudeCodeExecutable.ts`) —
+ *                                 the SAME file the request-free auth
+ *                                 status preflight ran (ADR 0010
+ *                                 Amendment A). Absolute, or the builder
+ *                                 throws. A runtime location, never part
+ *                                 of any input identity.
  *
  * DELIBERATELY ABSENT, asserted by the firewall: `fallbackModel` (a silent
  * provider-side model swap would contaminate 2B-2D cohorts), `resume` /
@@ -145,6 +156,7 @@ export interface AgentSdkInvocationOptions {
   readonly cwd: string;
   readonly thinking: { readonly type: 'disabled' } | { readonly type: 'adaptive' };
   readonly effort?: 'low' | 'medium' | 'high';
+  readonly pathToClaudeCodeExecutable: string;
 }
 
 export interface AgentSdkInvocation {
@@ -157,10 +169,23 @@ export interface BuildInvocationInput {
   readonly request: ClassifierProviderRequest;
   readonly childEnv: Readonly<Record<string, string>>;
   readonly scratchCwd: string;
+  /** The ABSOLUTE path of the resolved SDK-bundled native Claude Code binary — the one the auth-status preflight ran. */
+  readonly claudeCodeExecutablePath: string;
+}
+
+/** A minimal, dependency-free absoluteness check: POSIX root or a Windows drive/UNC root. */
+function isAbsolutePath(path: string): boolean {
+  return /^(?:\/|[A-Za-z]:[\\/]|\\\\)/.test(path);
 }
 
 export function buildAgentSdkInvocation(input: BuildInvocationInput): AgentSdkInvocation {
   const { request } = input;
+  if (!isAbsolutePath(input.claudeCodeExecutablePath)) {
+    throw new Error(
+      `buildAgentSdkInvocation: the Claude Code executable path must be absolute; a bare ` +
+        `command name or relative path would let PATH choose the executable.`,
+    );
+  }
   const options: AgentSdkInvocationOptions = {
     model: request.modelId,
     systemPrompt: request.systemPrompt,
@@ -184,6 +209,7 @@ export function buildAgentSdkInvocation(input: BuildInvocationInput): AgentSdkIn
     thinking:
       request.runConfig.thinking === 'enabled' ? { type: 'adaptive' } : { type: 'disabled' },
     ...(request.runConfig.effort !== undefined ? { effort: request.runConfig.effort } : {}),
+    pathToClaudeCodeExecutable: input.claudeCodeExecutablePath,
   };
   return { prompt: request.serializedBatch, options };
 }

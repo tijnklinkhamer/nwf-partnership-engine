@@ -1,0 +1,47 @@
+{
+  "recordId": "WW_H_ACQ_ACQUISITION_HARDENING_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-28",
+  "branch": "ww/e-hacq",
+  "startingHead": "ac3fdf4",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_REL_F1_R2_AND_OWNER_DIRECTIVE_2026_10_27__WAVE_2_REVIEW_HARDENING",
+  "isOwnerRatification": false,
+  "recordedBy": "engineering lane WW H-ACQ (transcription of the scope it was given; not an OWNER signature)",
+  "authority": {
+    "source": "REL-F1-R2 (local engineering only) and the OWNER directive 2026-10-27 'NWF Partnership Engine - full end-to-end product completion'; the WW integration lead's hardening package H-ACQ for the independent Engine review of e5b7c07 (P1-1, P1-2, P1-9, P2-2, P2-3, P2-4, P2-5, P2-14, P2-16, P2-17) and the lead's country addendum",
+    "scope": [
+      "P1-1: a CAMPAIGN admission authorises requests only while its campaign is RUNNING in window, its work item is in flight, and for its first run; the standalone research CLI refuses it; in-flight research observes EMERGENCY_STOP between gateway attempts.",
+      "P1-2: gateway spend derived in SQL from the fetch observations of the campaign's CAMPAIGN admissions (never below observed); spend reported in every case.",
+      "P1-9: nominations advanced only from completed granted runs and from calls whose runtime the OWNER smoke-verified; an unverified smoke parks the item on OWNER_SMOKE_VERIFICATION.",
+      "P2-2: the campaign-subject binding names only the subject derived from (campaign, nomination).",
+      "P2-3: READ COMMITTED only for acquisition writes; statement-clock window and lease checks.",
+      "P2-4: review sign bound to the state digest the OWNER saw; release and manifest need a CONFIRMED review.",
+      "P2-5: signed link-out depth in nwf-pe.acquisition-campaign.v2 (v1 = one hop), enforced in SQL.",
+      "P2-14 / P2-16: durable, exclusive, locked outbox writes; campaign signer refuses an existing --out before the prompt and writes every byte.",
+      "P2-17: the acquisition importer firewall resolves relative imports.",
+      "Lead addendum: country mentions from a subject's own captured pages in review list, and an OWNER-confirmed --country statement recorded through the existing jurisdiction-claim writer."
+    ],
+    "authorised": [
+      "local source edits",
+      "one forward-only migration (0026) restating 0023/0024 trigger functions, widening two CHECKs by superset, adding one campaign column, one definer-rights view (SELECT to nwf_research and nwf_readonly) and one column grant (SELECT root_subject_admission_id to nwf_acquisition_worker)",
+      "local test runs against a disposable tmpfs PostgreSQL with a fake Agent SDK and scripted transports",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "applying migration 0026 to nwf_pe or any persistent, shared, staging or production database",
+      "any live web search, live fetch, live model call or live auth-status call",
+      "recording a real campaign, grant, smoke verification, review or jurisdiction claim",
+      "push, merge or deploy",
+      "editing a committed migration (0023, 0024 and 0025 are not edited)",
+      "weakening any security check or firewall"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0026_acquisition_hardening.sql",
+  "adr": "docs/adr/0030-campaign-research-admission-and-acquisition-wiring.md",
+  "amendsProposedAdr": "docs/adr/0030-campaign-research-admission-and-acquisition-wiring.md",
+  "loginInMigrations": false,
+  "newRole": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

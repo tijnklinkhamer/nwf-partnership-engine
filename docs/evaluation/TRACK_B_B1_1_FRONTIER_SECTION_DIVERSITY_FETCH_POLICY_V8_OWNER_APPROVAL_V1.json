@@ -1,0 +1,108 @@
+{
+  "recordId": "track-b-b1-1-frontier-section-diversity-fetch-policy-v8-owner-approval-v1",
+  "recordKind": "OFFLINE_ACQUISITION_ORDERING_POLICY_LOCAL_IMPLEMENTATION_APPROVAL",
+  "records": "TRACK_B_B1_1_FRONTIER_SECTION_DIVERSITY_FETCH_POLICY_V8_OWNER_APPROVAL_V1",
+  "recordedAtUtc": "2026-10-15T10:05:08Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/pe-discovery-f8",
+  "startingHead": "6bbb84af801af778615e4733ca499c6ec051aae7",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. No HTTP, no DNS, no institutional request. The offline replay drives synthetic sites through a pure simulator.",
+  "databaseWrittenByThisRecord": "none",
+  "inferenceUsed": "none. No classifier attempt, no model or provider call.",
+  "ownerDecisions": ["APPROVE_B1_1_FRONTIER_SECTION_DIVERSITY_LOCAL_IMPLEMENTATION_V1"],
+  "ownerDecisionScope": {
+    "authorised": [
+      "implement the B1.1 frontier selection correction in src/orgunits/orchestrator/frontier.ts",
+      "bump FETCH_POLICY_VERSION from orgunit-fetch-policy-v7 to orgunit-fetch-policy-v8 in src/orgunits/web/policy.ts",
+      "update directly affected tests and version assertions",
+      "add isolated, synthetic, offline replay tests with a test-only frozen v7 comparator",
+      "add a narrow ADR (0018) and this decision record",
+      "run focused local tests and, resources permitting, one full local validation (offline: any database-backed integration test skips without a configured test database)"
+    ],
+    "notAuthorised": [
+      "commit, push, merge or deploy - every change stays local and uncommitted for OWNER review",
+      "real web research, live HTTP, DNS, or any v8 live run",
+      "database connections or writes of any kind, except the single ephemeral PostgreSQL 16 instance separately authorised for the bounded B1.1 integration verification (see b11FinalVerification); the long-lived shared nwf_pe_postgres cluster, including its nwf_pe_test database, is NOT a disposable or authorised B1.1 test target",
+      "classifier attempts, model inference or provider calls",
+      "protected-cohort inspection or historical CP-1 database access",
+      "production migrations or production configuration changes",
+      "Operator repository / Track A, C or D modifications",
+      "signal vocabulary or signal rule-version changes (B1.2)",
+      "classifier handoff ranking changes in candidates.ts (F8b)",
+      "research budget, host cap, Track B floor, pacing, robots, gateway or scope changes",
+      "downstream ingestion or publication of v8 evidence before the Track A contract accepts v8",
+      "live research or live F8 validation before B3.0 research-cohort protection is addressed and reviewed"
+    ]
+  },
+  "approvedDelta": {
+    "only": "the ORDER among frontier candidates that the v7 strict priorities (Track B floor, best-track score, own-over-inherited evidence) leave tied: fewest earlier picks of the URL's section within the same priority class, then shallower path, then the v7 source and URL tie-breakers",
+    "productionFilesChanged": [
+      "src/orgunits/orchestrator/frontier.ts",
+      "src/orgunits/web/policy.ts"
+    ],
+    "strictPrioritiesChanged": false,
+    "scoringChanged": false,
+    "signalRuleVersionChanged": false,
+    "admissionChanged": false,
+    "budgetsChanged": false,
+    "trackBFloorContractChanged": false,
+    "rootRunnerChanged": false,
+    "candidatesChanged": false,
+    "migrationAdded": false,
+    "sectionCounterAdvancesOn": "SELECTION",
+    "adr": "docs/adr/0018-section-fair-frontier-ordering.md"
+  },
+  "crossTrackRequirement": {
+    "track": "A",
+    "repository": "nwf-partnership-engine-ui (Operator), read only",
+    "files": ["src/domain/provenance.ts", "src/api/schemas/common.ts"],
+    "requirement": "append orgunit-fetch-policy-v8 to the closed FETCH_POLICY_VERSIONS tuple, with its FETCH_POLICY_SHORT, FETCH_POLICY_DELTA and FETCH_POLICY_CAPABILITY entries, before any v8 run is ingested or published; z.enum(FETCH_POLICY_VERSIONS) otherwise rejects a v8 row",
+    "implementedHere": false
+  },
+  "b11FinalVerification": {
+    "recordedAtUtc": "2026-10-15T11:00:31Z",
+    "recordedAtUtcSource": "date -u, read from the shell at write time",
+    "authorisedBy": "the supervising technical lead, in the B1.1 final-verification assignment",
+    "scope": "ONE bounded local verification pass: one ephemeral PostgreSQL 16 instance, used only for the five integration files that assert the stamped fetch policy version; the permanent H1 offline fixture; corrections to ADR 0018, this record and the frozen v7 comparator comment",
+    "sharedClusterStatus": "nwf_pe_postgres (and its nwf_pe_test database) shares a long-lived cluster and superuser with protected working data; it is not an authorised B1.1 test target and was not connected to",
+    "ephemeralInstance": "created from the locally present postgres:16-alpine image (no pull), with a unique container name, database and superuser credential, a tmpfs data directory, a loopback-only dynamically assigned port, no mounts or volumes and no privileged mode; destroyed after the run",
+    "h1HostCapRegression": {
+      "decision": "PROVISIONALLY_ACCEPTED_FOR_LOCAL_DEVELOPMENT_EVALUATION_ONLY",
+      "isLiveRiskApproval": false,
+      "hostCapChanged": false,
+      "mitigationImplemented": false,
+      "requiredBeforeProductionRelease": "a separate review of whether host-cap mitigation is necessary",
+      "pinnedBy": "src/test/unit/orgunitFrontierReplay.test.ts, \"KNOWN LIMITATION H1\"",
+      "adr": "docs/adr/0018-section-fair-frontier-ordering.md section 8"
+    },
+    "f15CoverageTradeOff": "accepted for local development evaluation as a synthetic trade-off; the lost F15 pages are interchangeable synthetic leaves, and this is not evidence that losing distinct real student associations would be acceptable",
+    "productionReleaseAuthorised": false,
+    "notAuthorised": [
+      "live research or any new research run",
+      "classifier attempts or inference",
+      "production ingestion of v8 evidence",
+      "production deployment",
+      "commit, push or merge",
+      "protected evaluation or cohort access"
+    ],
+    "openReleaseDependencies": [
+      "Track A: Operator FETCH_POLICY_VERSIONS must accept orgunit-fetch-policy-v8",
+      "B3.0: research-side protected-cohort guard",
+      "H1 host-cap policy review",
+      "real-world validation of any improvement"
+    ]
+  },
+  "corrections": [
+    {
+      "correctedAtUtc": "2026-10-15T11:00:31Z",
+      "field": "ownerDecisionScope.notAuthorised",
+      "was": "database connections or writes outside the repository's own disposable test database",
+      "why": "it described the shared, persistent nwf_pe_test database as disposable; it is not, and it was never an authorised B1.1 test target"
+    }
+  ],
+  "nextDecision": "OWNER review of the local diff, the offline replay evidence and the Track A compatibility requirement"
+}

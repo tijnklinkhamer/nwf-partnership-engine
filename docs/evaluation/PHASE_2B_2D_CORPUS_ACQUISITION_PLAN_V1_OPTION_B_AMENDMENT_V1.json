@@ -1,0 +1,243 @@
+{
+  "recordId": "phase2b-2d-corpus-acquisition-plan-v1-option-b-amendment-v1",
+  "recordKind": "PLAN_AMENDMENT",
+  "amends": "PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "createdOn": "2026-09-19",
+  "ownerDecision": "AUTHORISE_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_POLICY_TRANSITION_AMENDMENT_V1",
+
+  "whyThisIsASeparateFile": {
+    "planV1IsHistoricalAndAlreadyApproved": true,
+    "planV1BytesAreNotEdited": true,
+    "statement": "Corpus Acquisition Plan V1 was approved over exact bytes. ADR 0012 legitimately changed acquisition behaviour after that approval, so the plan's `acquisitionPath.budgets.FETCH_POLICY_VERSION` statement is now stale. A stale statement inside an approved, hash-bound artifact is corrected by an amendment that references it, never by rewriting it - the same discipline every execution record in this generation follows.",
+    "theFutureCorpusFreezeMustBindBoth": "Plan V1 AND this amendment, together."
+  },
+
+  "amendmentScope": "ACQUISITION_POLICY_VERSION_TRANSITION_ONLY",
+  "methodologyChanged": false,
+  "frameChanged": false,
+  "drawChanged": false,
+  "splitAssignmentChanged": false,
+  "samplingChanged": false,
+  "labelsExistAtAmendmentTime": false,
+  "providerInferenceOccurredForGeneration": false,
+
+  "boundArtifacts": {
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200,
+      "commit": "6f2de0fd5a80f050857a14531e74b659f0ff30c1",
+      "bytesUnchangedByThisAmendment": true
+    },
+    "corpusAcquisitionPlanV1OwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949,
+      "commit": "ee7384087979ec74a45668bc9d770963444600cc"
+    },
+    "acceptanceMethodologyV2R3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "commit": "f5f2ded0e14be2310aec221428d51b06925e9c9d",
+      "bytesUnchangedByThisAmendment": true,
+      "noMethodologyV3IsCreated": true,
+      "noNewMethodologyOwnerFreezeIsCreated": true
+    },
+    "acceptanceMethodologyV2OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514,
+      "commit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0",
+      "bytesUnchangedByThisAmendment": true
+    },
+    "adr0012": {
+      "path": "docs/adr/0012-same-host-robots-redirect-continuation.md",
+      "sha256": "7b240eef21960940cdcc569ee4d85d4137fee1ee746884ecbd3d5095ee15a47a",
+      "bytes": 16804,
+      "commit": "b6a8490d695a40886c0619ba81411f31198e849e"
+    },
+    "optionBImplementationRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D_ROBOTS_OPTION_B_REPAIR_IMPLEMENTATION_V1.json",
+      "sha256": "5b7b7be6de272b56820149d85e59f3cb5253658752eb0f55ef90f037109d77fb",
+      "bytes": 8267,
+      "commit": "6b43663809f8b89cbfc2de48368b23f2a35e52a9"
+    },
+    "targetedRevalidationAuthority": {
+      "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+      "sha256": "0d6ea67b3a04c84a852e986801f6d0123c781c67a522e5f6e9aae37022e3be74",
+      "bytes": 8127,
+      "commit": "1036c39d0027e438d35dd2fa3b40f914d2bf1add"
+    },
+    "targetedRevalidationResult": {
+      "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_RESULT_V1.json",
+      "sha256": "5f232cf5ba0746c65b9bbbc69d0310614cd1162e0aa61fc3e0cbec5960ef187a",
+      "bytes": 11365,
+      "commit": "0662bcc938a9cf2b779c00355c6f7eb34df5279b",
+      "terminalClassification": "OPTION_B_LIVE_PATH_CONFIRMED"
+    }
+  },
+
+  "whatIsStaleInPlanV1": {
+    "staleStatementPath": "acquisitionPath.budgets.FETCH_POLICY_VERSION",
+    "staleValue": "orgunit-fetch-policy-v1",
+    "correctedValueForFutureAcquisition": "orgunit-fetch-policy-v2",
+    "alsoStale": "worstCaseNetworkExposure.allOneHundredFiftyOrganisationsOneRootEach.robotsRequests, which was derived from one robots request per host",
+    "notStale": [
+      "every frozen per-root ceiling",
+      "the frame",
+      "the draw",
+      "the split assignment",
+      "the sampling contract",
+      "the batching plan",
+      "the labelling workflow",
+      "the sealed-data design",
+      "the authority matrix"
+    ]
+  },
+
+  "policyTransitionRule": {
+    "A_futureLiveAcquisition": {
+      "everyNewAcquisitionRunAfterThisAmendmentMustUse": "orgunit-fetch-policy-v2",
+      "noNewV1AcquisitionRunIsPermitted": true,
+      "thisIsNotAChoiceTheOperatorMakes": "FETCH_POLICY_VERSION is a production constant in src/orgunits/web/policy.ts. The build implements exactly one version, and a run whose recorded policy version this build does not implement is REFUSED by the gateway. There is no flag, argument or environment variable that selects v1."
+    },
+    "B_preRepairV1Runs": {
+      "aHistoricalV1AcquisitionMayRemainAcquisitionOfRecordOnlyIf": "the Option-B code path could not have changed that run's robots outcome",
+      "predicateName": "OPTION_B_RELEVANT_V1_RUN",
+      "predicateDefinition": "true iff the persisted v1 evidence for that run contains a robots.txt redirect observation for which the LANDED `continuationTargetFor` returns a continuation target",
+      "predicateSource": "src/orgunits/web/robots.ts",
+      "predicateIsCalledNotReimplemented": true,
+      "whenFalse": {
+        "classification": "V1_COMPATIBLE_WITH_V2_TRANSITION",
+        "mayRemainAcquisitionOfRecord": true
+      },
+      "whenTrue": {
+        "classification": "POLICY_TRANSITION_AFFECTED",
+        "mustNotRemainTheGenerationsFinalAcquisitionResultIfAValidV2RevalidationExists": true
+      },
+      "thisIsPurelyMechanical": true,
+      "usesNoLabelNoModelOutputNoCandidateOutcome": true
+    },
+    "C_whyMixedV1AndV2CanBeConformant": {
+      "statement": "Where the v2 branch was mechanically unreachable, the behavioural acquisition path for that run is byte-for-byte what v2 would do. The policy version string differs; the behaviour does not.",
+      "whatThisAvoids": [
+        "unnecessary repeat institution contact",
+        "site-time drift between the original acquisition and a pointless re-acquisition",
+        "adaptive retries of unrelated external failures"
+      ],
+      "blindReAcquisitionOfEveryEarlierV1OrganisationIsNotRequired": true
+    },
+    "D_whatTheCorpusFreezeMustLaterRecord": {
+      "perAcquisitionOfRecord": [
+        "run policy version",
+        "transition classification",
+        "whether a v2 replacement-of-evidence was required"
+      ],
+      "thisIsProvenanceNotASamplingVariable": true
+    }
+  },
+
+  "frozenCeilingsUnchanged": {
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "MAX_SITEMAP_DOCUMENTS_PER_ROOT": 5,
+    "MAX_SITEMAP_DEPTH": 2,
+    "MAX_SITEMAP_URLS_PER_ROOT": 3000,
+    "noCeilingIsRaisedByThisAmendment": true
+  },
+
+  "newlyDeclaredBound": {
+    "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+    "source": "src/orgunits/web/policy.ts",
+    "meaning": "one host may consume at most TWO robots requests per run instead of one",
+    "thisIsABoundNotAnAllowance": "The continuation is only reachable for a same-host, same-path, no-port, no-query, no-fragment, non-self redirect whose scheme is unchanged or upgraded http -> https. For every other host this is byte-for-byte the v1 behaviour: one request."
+  },
+
+  "networkExposureAmendment": {
+    "planV1PracticalDecomposition": {
+      "ordinaryPages": 35,
+      "robotsRequests": 8,
+      "sitemapRequests": 5,
+      "total": 48,
+      "ceiling": 60
+    },
+    "v2ConservativeDecomposition": {
+      "ordinaryPages": 35,
+      "robotsRequests": 16,
+      "sitemapRequests": 5,
+      "total": 56,
+      "ceiling": 60,
+      "stillBelowTheCeiling": true,
+      "arithmetic": "35 + (MAX_HOSTS_PER_ROOT 8 * (1 + MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS 1)) + 5 = 56"
+    },
+    "noTotalRequestBudgetChangeIsRequired": true,
+    "oneHundredFiftyOneRootSelectionAndReserveUpperBound": {
+      "organisations": 150,
+      "totalGatewayCeiling": 9000,
+      "totalGatewayCeilingArithmetic": "150 * 60",
+      "totalGatewayCeilingUnchanged": true,
+      "ordinaryPageCeiling": 5250,
+      "ordinaryPageCeilingArithmetic": "150 * 35",
+      "ordinaryPageCeilingUnchanged": true,
+      "robotsRequestComponentBefore": 1200,
+      "robotsRequestComponentAfter": 2400,
+      "robotsRequestComponentArithmetic": "150 * 8 hosts * 2 robots requests",
+      "thisIsADecompositionChangeOnly": true,
+      "itDoesNotIncreaseThe9000GatewayRequestCeiling": true
+    }
+  },
+
+  "frameAndDrawRemainValid": {
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "frameHashRemainsUnchanged": true,
+    "framePath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+    "frameArtifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+    "frameCommit": "c64fad3474499d392d316e35c720310c76e9405b",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "drawHashRemainsUnchanged": true,
+    "drawPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+    "drawArtifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+    "drawCommit": "34537caf2308ade014f9f459ca9f97596dc48a17",
+    "neitherIsRegenerated": true,
+    "why": "Option B changes none of the draw's or frame's inputs: not the ECHE source, not website-claim validity, not root authority identifiers, not the eligible organisation set, not the SHA draw, not the split cycle, and not selection or reserve membership."
+  },
+
+  "whyThisIsNotAMethodologyAmendment": {
+    "r3Sd9Requires": [
+      "policy-authorised discovery",
+      "the frozen ordinary-page maximum",
+      "the bounded Phase 2B-1e orchestrator",
+      "every applicable robots and host gate"
+    ],
+    "r3DoesNotFreezeTheLiteralFetchPolicyVersionString": true,
+    "adr0012DoesNotRaiseThe60TotalRequestCeiling": true,
+    "adr0012DoesNotRaiseThe35PageCeiling": true,
+    "adr0012DoesNotRaiseThe8HostCeiling": true,
+    "adr0012DoesNotChangeSampling": true,
+    "adr0012UsesNoLabelAndNoModelResult": true,
+    "thereforeThisIsAnAcquisitionPlanAmendmentNotAMethodologyAmendment": true
+  },
+
+  "whatThisAmendmentDoesNotAuthorise": [
+    "any new institution network request",
+    "Batch 03",
+    "resuming Batch 02",
+    "selection indices 7, 8 and 9",
+    "reserve consumption",
+    "corpus replacement",
+    "labels",
+    "provider inference",
+    "Prompt V7",
+    "DEV_CONFIRM scoring",
+    "FINAL_HOLDOUT semantic access",
+    "Phase 2E"
+  ],
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}

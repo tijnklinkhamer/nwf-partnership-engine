@@ -37,6 +37,7 @@ import {
   truncateAll,
   type OrgunitRootFixture,
 } from './helpers.js';
+import { syntheticCohort } from '../helpers/syntheticCohortRegistry.js';
 
 // MUST run before ANYTHING else in this file touches `../../config/env.js`'s
 // `env()` - including the `researchDatabaseConfigured()` call two lines
@@ -107,7 +108,7 @@ describeIf('nwf-pe orgunits discover - CLI runtime safety gaps (2B-1E correction
     await truncateAll(admin);
   });
 
-  it('dry run (no --execute): zero rows in every research-run/evidence table, exit code 0', async () => {
+  it('dry run (no --execute): zero rows in every research-run/evidence table; the committed cohort authority refuses the synthetic fixture (B3.0), exit code 1', async () => {
     const before = await snapshotCounts(admin);
     // Sanity: the fixture leaves everything at zero before the CLI runs at all.
     for (const table of RESEARCH_WRITE_TABLES) expect(before[table], table).toBe(0);
@@ -119,7 +120,10 @@ describeIf('nwf-pe orgunits discover - CLI runtime safety gaps (2B-1E correction
       fixture.organisationId,
     ]);
 
-    expect(exitCode).toBe(0);
+    // B3.0: the synthetic fixture is, correctly, not a member of the
+    // committed evaluation frame, so the dry run is REFUSED rather than
+    // presented as executable - and still writes nothing.
+    expect(exitCode).toBe(1);
 
     const after = await snapshotCounts(admin);
     expect(after).toEqual(before);
@@ -128,7 +132,7 @@ describeIf('nwf-pe orgunits discover - CLI runtime safety gaps (2B-1E correction
     }
   });
 
-  it('dry run --json: the reported plan is DRY_RUN, names no fetch/DNS activity, and still writes nothing', async () => {
+  it('dry run --json: the reported result is DRY_RUN, a generic refusal, names no fetch/DNS activity, and still writes nothing', async () => {
     const originalWrite = process.stdout.write.bind(process.stdout);
     let captured = '';
     process.stdout.write = ((chunk: unknown, ...rest: unknown[]) => {
@@ -150,13 +154,58 @@ describeIf('nwf-pe orgunits discover - CLI runtime safety gaps (2B-1E correction
       process.stdout.write = originalWrite;
     }
 
-    expect(exitCode).toBe(0);
-    const plan = JSON.parse(captured) as { mode: string; note: string };
+    expect(exitCode).toBe(1);
+    const plan = JSON.parse(captured) as Record<string, unknown>;
     expect(plan.mode).toBe('DRY_RUN');
-    expect(plan.note).toContain('No DNS lookup and no HTTP request were made');
+    expect(plan.eligibility).toBe('REFUSED');
+    expect(plan.refusal).toEqual({
+      code: 'RESEARCH_COHORT_GUARD_REFUSED',
+      kind: 'IDENTITY_UNVERIFIED',
+      reason: 'RESEARCH_IDENTITY_AUTHORITY_ABSENT',
+    });
+    expect(plan).not.toHaveProperty('roots');
+    expect(plan).not.toHaveProperty('echeRowKey');
+    expect(String(plan.note)).toContain('No DNS lookup and no HTTP request were made');
 
     const after = await snapshotCounts(admin);
     for (const table of RESEARCH_WRITE_TABLES) expect(after[table], table).toBe(0);
+  });
+
+  it('dry run with an eligible (synthetic) cohort authority: the ordinary plan, exit 0, zero writes', async () => {
+    const { runOrgunitsDiscover } = await import('../../cli/commands/discover.js');
+    const cohort = syntheticCohort();
+    cohort.admit(fixture);
+    const originalWrite = process.stdout.write.bind(process.stdout);
+    let captured = '';
+    process.stdout.write = ((chunk: unknown) => {
+      captured += typeof chunk === 'string' ? chunk : String(chunk);
+      return true;
+    }) as typeof process.stdout.write;
+    let exitCode: number;
+    try {
+      exitCode = await runOrgunitsDiscover(
+        { organisationId: fixture.organisationId, execute: false, json: true },
+        { loadCohortRegistry: cohort.load },
+      );
+    } finally {
+      process.stdout.write = originalWrite;
+    }
+    expect(exitCode).toBe(0);
+    const plan = JSON.parse(captured) as {
+      mode: string;
+      eligibility: string;
+      roots: { kind: string; id: string; url: string | null }[];
+    };
+    expect(plan.mode).toBe('DRY_RUN');
+    expect(plan.eligibility).toBe('ELIGIBLE');
+    expect(plan.roots).toEqual([
+      expect.objectContaining({
+        kind: 'WEBSITE_CLAIM',
+        id: fixture.websiteClaimId,
+        url: 'https://www.example.ac.uk/',
+      }),
+    ]);
+    for (const table of RESEARCH_WRITE_TABLES) expect(await count(admin, table), table).toBe(0);
   });
 
   it('an unknown --all-shaped flag is rejected by the REAL argument parser before any command runs (no bulk crawl path)', async () => {

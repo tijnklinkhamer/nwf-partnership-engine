@@ -28,8 +28,39 @@ import { resolveCharset } from './charset.js';
 import { extractPage, truncateToCodePointLimit, unicodeCodePointLength } from './extract.js';
 import type { WebAttemptResult } from './gateway.js';
 
-/** Versioned so a future extraction-rule change appends new evidence rather than rewriting old evidence. */
-export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v1';
+/**
+ * Versioned so a future extraction-rule change appends new evidence rather
+ * than rewriting old evidence.
+ *
+ * `v2` (Phase 2B-2D2B-1) is the first bump: extraction now returns CANONICAL
+ * evidence text - the full 252-name HTML 4.01 entity table decoded once, then
+ * Unicode NFC (`web/evidenceCanonical.ts`). Rows already persisted under
+ * `orgunit-extraction-v1` carry undecoded entities and CANNOT be
+ * re-extracted, because no response body is stored anywhere in this
+ * repository by design; they are canonicalised at classifier assembly
+ * instead (`classify/constants.ts`'s
+ * `EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION`). Evidence written
+ * under v2 is already canonical and must never be decoded a second time.
+ *
+ * `v3` (REL Engine integration, 2026-10-26) is the second bump. The text is
+ * still canonical exactly as under v2 (same entity decoding, same NFC), but
+ * REDACTION changed (`redact.ts`, Japan/Mexico/Netherlands slice): full-width
+ * and bracketed-exchange phone numbers are now redacted, and a whole
+ * day-month-year date is now KEPT rather than destroyed as `[PHONE]`. One
+ * label must never name two transforms, so evidence extracted from here on
+ * is `orgunit-extraction-v3`; rows already persisted under v1 or v2 keep
+ * their label and are read exactly as before. The classifier treats v3
+ * exactly as v2 - already canonical, passed through untouched (see
+ * `classify/constants.ts`: only v1 is canonicalised at assembly).
+ *
+ * `v4` (WW H-EX, 2026-10-27, independent review P2-9) is the third bump, and
+ * again REDACTION only: a bare 10-15-digit run (or a 9-digit run with the
+ * trunk prefix `0`) is now `[PHONE]`, except a valid ISBN-13 (`redact.ts`).
+ * That change had first shipped under the unchanged v3 label; v3 now names
+ * the transform before it, frozen in `redact.ts` so stored v3 rows are
+ * judged by their own rules. Canonical exactly as v2 and v3.
+ */
+export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v4';
 
 /** The hard schema cap. Never increase this without a new migration. */
 export const MAIN_TEXT_CAP = 40_000;

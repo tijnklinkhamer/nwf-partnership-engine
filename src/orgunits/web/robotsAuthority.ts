@@ -78,6 +78,32 @@
  *   Neither accepts a bare decision string. There is still no
  *   `createRobotsAuthorisation('ALLOWED')`-shaped API anywhere in this file.
  *
+ * WHAT THE v7 TRAILING-SLASH REPAIR ADDED, AND WHY IT IS A THIRD FACTORY
+ * RATHER THAN A WIDER FIRST ONE (ADR 0016)
+ *
+ *   `forRobotsTxtRedirectContinuation` - authorises ONE robots-policy request
+ *   made BECAUSE a canonical robots.txt fetch answered 3xx. It accepts a bare
+ *   path of exactly `/robots.txt` OR exactly `/robots.txt/`, and nothing else.
+ *   Also always `NOT_APPLICABLE`, for the same reason the bootstrap is: this
+ *   is still the request that RETRIEVES the policy file.
+ *
+ *   THE OBVIOUS ONE-LINE FIX WAS REFUSED. Widening
+ *   `forRobotsTxtBootstrap` to admit `/robots.txt/` would have been three
+ *   characters of code, and it would have moved the trust boundary in the
+ *   wrong place: INITIAL site-policy discovery would then have TWO admissible
+ *   starting points, and a caller could decide, on its own authority, to
+ *   begin at `/robots.txt/` on a host that never redirected there. The two
+ *   acts are different - "where policy discovery may START" and "where a
+ *   host's own 3xx may send it" - so they get different factories, and the
+ *   distinction is mechanically provable from which factory a call site
+ *   names rather than from a comment about intent.
+ *
+ *   IT IS NOT AN ORDINARY-PAGE CAPABILITY EITHER. Its scope is one URL whose
+ *   path is one of exactly two literals, so it can authorise no page: there
+ *   is no institution page at `/robots.txt` or `/robots.txt/` that this
+ *   authority could wave through, and `scopedToUrl` refuses every other URL
+ *   byte-for-byte regardless.
+ *
  * PURE. No network, no database, no filesystem, no clock.
  */
 import { EvaluatedRobotsPolicy } from './robotsPolicy.js';
@@ -160,6 +186,74 @@ export class RobotsAuthorisation {
   }
 
   /**
+   * THE ONLY TWO REQUEST PATHS A ROBOTS REDIRECT CONTINUATION MAY TARGET.
+   *
+   * An explicit two-member list, not a pattern. A regular expression, a
+   * prefix test or a trailing-slash normaliser would each admit an OPEN SET
+   * whose members nobody enumerated - `/robots.txt//`, `/robots.txt/index`,
+   * `/robots.txt/anything` - and the whole value of this factory is that the
+   * set it admits can be read off the source in one line.
+   */
+  static readonly CONTINUATION_PATHS: readonly string[] = Object.freeze([
+    '/robots.txt',
+    '/robots.txt/',
+  ]);
+
+  /**
+   * Authorises ONE robots-policy request issued BECAUSE a canonical
+   * robots.txt fetch answered a redirect, and nothing else.
+   *
+   * WHAT THIS EXISTS FOR (ADR 0016). Generation-1 acquisition met an origin
+   * that answers `GET /robots.txt` with a same-origin `301` to
+   * `/robots.txt/`. Under `orgunit-fetch-policy-v6` that target was refused
+   * by the continuation predicate's exact-path test, the policy was
+   * therefore genuinely unread, and every page on that root was
+   * `ROBOTS_UNREADABLE` - a capability limit of this repository, not a
+   * transport failure of the institution.
+   *
+   * `url` must be a bare policy URL whose path is exactly `/robots.txt` or
+   * exactly `/robots.txt/`, with no query and no fragment. Every other
+   * pathname is refused, `/robots.txt//` and `/robots.txt/index` included:
+   * the admissible set is the two literals in `CONTINUATION_PATHS` and is not
+   * computed from the requested URL.
+   *
+   * ALWAYS `NOT_APPLICABLE`, exactly as the bootstrap is, and for exactly the
+   * same reason the schema's own column comment gives: the request that
+   * retrieves the policy file is not itself subject to that file's rules.
+   * Whatever the second response turns out to be - 200, 404, 5xx, another
+   * redirect this gateway still will not follow - is recorded on the fetch
+   * observation's own `http_status`/`error_kind` and is never folded into
+   * this decision.
+   *
+   * IT IS NOT A WIDER BOOTSTRAP. `forRobotsTxtBootstrap` still accepts only
+   * the canonical `/robots.txt`, so site-policy discovery can still START in
+   * exactly one place per origin. This factory is reachable only from the
+   * redirect-continuation path in `robots.ts`, whose target was produced by
+   * `continuationTargetFor` from a real `Location` the host itself sent.
+   */
+  static forRobotsTxtRedirectContinuation(url: string): RobotsAuthorisation {
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      throw new Error(`forRobotsTxtRedirectContinuation: "${url}" does not parse as a URL.`);
+    }
+    if (
+      !RobotsAuthorisation.CONTINUATION_PATHS.includes(parsed.pathname) ||
+      parsed.search !== '' ||
+      parsed.hash !== ''
+    ) {
+      throw new Error(
+        `forRobotsTxtRedirectContinuation: "${url}" is not a bare robots.txt policy URL. This ` +
+          `authority is path-scoped to exactly "/robots.txt" or exactly "/robots.txt/" with no ` +
+          `query or fragment. It authorises a REDIRECTED policy retrieval and nothing else - it ` +
+          `is not a wider bootstrap and cannot be minted for an ordinary page.`,
+      );
+    }
+    return new RobotsAuthorisation('NOT_APPLICABLE', null, parsed.toString());
+  }
+
+  /**
    * Authorises fetching ONE ordinary page, by actually evaluating a real
    * policy against its exact path.
    *
@@ -212,7 +306,8 @@ export class RobotsAuthorisation {
       throw new Error(
         'RobotsAuthorisation.forTestsOnly is a TEST SEAM and is unavailable outside vitest. ' +
           'Production code must derive a verdict from an actual robots.txt evaluation via ' +
-          'forEvaluatedPolicy, or the robots.txt bootstrap via forRobotsTxtBootstrap.',
+          'forEvaluatedPolicy, the robots.txt bootstrap via forRobotsTxtBootstrap, or a ' +
+          'host-issued policy redirect via forRobotsTxtRedirectContinuation.',
       );
     }
     return new RobotsAuthorisation(decision, rule, null);

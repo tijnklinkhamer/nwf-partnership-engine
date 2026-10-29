@@ -1,0 +1,2327 @@
+{
+  "concurrentStatus": null,
+  "f4aInterpretation": {
+    "axisGoldClassesPresent": ["UNKNOWN", "YES"],
+    "axisMovementTotals": {
+      "CORRECTION": 6,
+      "NEITHER_CORRECT": 2,
+      "NOT_COMPARABLE": 0,
+      "REGRESSION": 7
+    },
+    "axisMovements": [
+      {
+        "axis": "provides_language_learning_or_support",
+        "gold": "UNKNOWN",
+        "goldId": "g34bbf7536e99b410",
+        "movement": "CORRECTION",
+        "v1": "NO",
+        "v2": "UNKNOWN"
+      },
+      {
+        "axis": "serves_incoming_international_students",
+        "gold": "UNKNOWN",
+        "goldId": "g57607d4278d6dc23",
+        "movement": "REGRESSION",
+        "v1": "UNKNOWN",
+        "v2": "NULL"
+      },
+      {
+        "axis": "serves_outgoing_mobility_students",
+        "gold": "YES",
+        "goldId": "g57607d4278d6dc23",
+        "movement": "REGRESSION",
+        "v1": "YES",
+        "v2": "NULL"
+      },
+      {
+        "axis": "provides_language_learning_or_support",
+        "gold": "UNKNOWN",
+        "goldId": "g57607d4278d6dc23",
+        "movement": "NEITHER_CORRECT",
+        "v1": "NO",
+        "v2": "NULL"
+      },
+      {
+        "axis": "provides_language_learning_or_support",
+        "gold": "UNKNOWN",
+        "goldId": "g735298870fe173b8",
+        "movement": "CORRECTION",
+        "v1": "NO",
+        "v2": "UNKNOWN"
+      },
+      {
+        "axis": "serves_outgoing_mobility_students",
+        "gold": "UNKNOWN",
+        "goldId": "g99a9fe00e4856de2",
+        "movement": "CORRECTION",
+        "v1": "NO",
+        "v2": "UNKNOWN"
+      },
+      {
+        "axis": "provides_language_learning_or_support",
+        "gold": "UNKNOWN",
+        "goldId": "ga971a6fc52af6b5f",
+        "movement": "CORRECTION",
+        "v1": "NO",
+        "v2": "UNKNOWN"
+      },
+      {
+        "axis": "provides_language_learning_or_support",
+        "gold": "UNKNOWN",
+        "goldId": "gdb5b7246327094ef",
+        "movement": "CORRECTION",
+        "v1": "NO",
+        "v2": "UNKNOWN"
+      },
+      {
+        "axis": "provides_language_learning_or_support",
+        "gold": "UNKNOWN",
+        "goldId": "ge419f0b9902faee0",
+        "movement": "CORRECTION",
+        "v1": "NO",
+        "v2": "UNKNOWN"
+      },
+      {
+        "axis": "serves_incoming_international_students",
+        "gold": "UNKNOWN",
+        "goldId": "ge789b0f0aedc398c",
+        "movement": "REGRESSION",
+        "v1": "UNKNOWN",
+        "v2": "NULL"
+      },
+      {
+        "axis": "serves_outgoing_mobility_students",
+        "gold": "YES",
+        "goldId": "ge789b0f0aedc398c",
+        "movement": "REGRESSION",
+        "v1": "YES",
+        "v2": "NULL"
+      },
+      {
+        "axis": "provides_language_learning_or_support",
+        "gold": "UNKNOWN",
+        "goldId": "ge789b0f0aedc398c",
+        "movement": "REGRESSION",
+        "v1": "UNKNOWN",
+        "v2": "NULL"
+      },
+      {
+        "axis": "serves_incoming_international_students",
+        "gold": "UNKNOWN",
+        "goldId": "gf65026e32d9da8db",
+        "movement": "REGRESSION",
+        "v1": "UNKNOWN",
+        "v2": "NULL"
+      },
+      {
+        "axis": "serves_outgoing_mobility_students",
+        "gold": "YES",
+        "goldId": "gf65026e32d9da8db",
+        "movement": "REGRESSION",
+        "v1": "YES",
+        "v2": "NULL"
+      },
+      {
+        "axis": "provides_language_learning_or_support",
+        "gold": "UNKNOWN",
+        "goldId": "gf65026e32d9da8db",
+        "movement": "NEITHER_CORRECT",
+        "v1": "NO",
+        "v2": "NULL"
+      }
+    ],
+    "axisRegressionsCausedByVerdictMove": 7,
+    "axisRegressionsIndependentOfVerdict": 0,
+    "persistentRejections": [
+      {
+        "goldId": "g0ec0d43dad311a77",
+        "goldVerdict": "UNIT_PAGE",
+        "transition": "REJECTED_TO_REJECTED",
+        "v1RejectionCategory": "EVIDENCE",
+        "v1RejectionReason": "unit_name is not supported by any supplied field",
+        "v2RejectionCategory": "EVIDENCE",
+        "v2RejectionReason": "unit_name is not supported by any supplied field",
+        "v2Verdict": null,
+        "v2VerdictCorrect": null
+      },
+      {
+        "goldId": "g877a05e6f5bba835",
+        "goldVerdict": "UNIT_PAGE",
+        "transition": "REJECTED_TO_REJECTED",
+        "v1RejectionCategory": "EVIDENCE",
+        "v1RejectionReason": "evidence_spans[0] (source=HEADING) is not a literal substring of the supplied field",
+        "v2RejectionCategory": "EVIDENCE",
+        "v2RejectionReason": "evidence_spans[0] (source=HEADING) is not a literal substring of the supplied field",
+        "v2Verdict": null,
+        "v2VerdictCorrect": null
+      }
+    ],
+    "regressionsByField": [
+      {
+        "field": "page_kind",
+        "goldIds": ["g057656b07c6aa620", "g543b604f0f0f8380", "g5e9c0d460fee879b"]
+      },
+      { "field": "provides_language_learning_or_support", "goldIds": ["ge789b0f0aedc398c"] },
+      {
+        "field": "serves_incoming_international_students",
+        "goldIds": ["g57607d4278d6dc23", "ge789b0f0aedc398c", "gf65026e32d9da8db"]
+      },
+      {
+        "field": "serves_outgoing_mobility_students",
+        "goldIds": ["g57607d4278d6dc23", "ge789b0f0aedc398c", "gf65026e32d9da8db"]
+      },
+      {
+        "field": "unit_name_expectation",
+        "goldIds": [
+          "g1f85c7bcf67d324e",
+          "g4454e841c09dd8d0",
+          "ga435ea22d4b11cf4",
+          "ge789b0f0aedc398c"
+        ]
+      },
+      {
+        "field": "unit_type",
+        "goldIds": ["g57607d4278d6dc23", "ge789b0f0aedc398c", "gf65026e32d9da8db"]
+      },
+      {
+        "field": "verdict",
+        "goldIds": [
+          "g57607d4278d6dc23",
+          "g66010a25ac194274",
+          "ge789b0f0aedc398c",
+          "gf65026e32d9da8db"
+        ]
+      }
+    ],
+    "v1NoAnswers": 12,
+    "v1NoAnswersThatWereCorrect": 0,
+    "v2NoAnswers": 0,
+    "validatorRecoveries": [
+      {
+        "goldId": "g32779df2d7b56a34",
+        "goldVerdict": "NOT_A_UNIT",
+        "transition": "REJECTED_TO_ACCEPTED",
+        "v1RejectionCategory": "EVIDENCE",
+        "v1RejectionReason": "unit_name is not supported by any supplied field",
+        "v2RejectionCategory": null,
+        "v2RejectionReason": null,
+        "v2Verdict": "NOT_A_UNIT",
+        "v2VerdictCorrect": true
+      },
+      {
+        "goldId": "g956f99fae4ad4764",
+        "goldVerdict": "NOT_A_UNIT",
+        "transition": "REJECTED_TO_ACCEPTED",
+        "v1RejectionCategory": "EVIDENCE",
+        "v1RejectionReason": "unit_name is not supported by any supplied field",
+        "v2RejectionCategory": null,
+        "v2RejectionReason": null,
+        "v2Verdict": "NOT_A_UNIT",
+        "v2VerdictCorrect": true
+      }
+    ],
+    "validatorRegressions": [],
+    "verdictMovementTotals": {
+      "CORRECTION": 4,
+      "NEITHER_CORRECT": 0,
+      "NOT_COMPARABLE": 2,
+      "REGRESSION": 4
+    },
+    "verdictMovements": [
+      {
+        "goldId": "g04b64db14c03ce3a",
+        "goldVerdict": "NOT_A_UNIT",
+        "movement": "CORRECTION",
+        "v1Correct": false,
+        "v1Verdict": "UNIT_PAGE",
+        "v2Correct": true,
+        "v2Verdict": "NOT_A_UNIT"
+      },
+      {
+        "goldId": "g04d170f4d3fda759",
+        "goldVerdict": "NOT_A_UNIT",
+        "movement": "CORRECTION",
+        "v1Correct": false,
+        "v1Verdict": "UNIT_PAGE",
+        "v2Correct": true,
+        "v2Verdict": "NOT_A_UNIT"
+      },
+      {
+        "goldId": "g3130d41296ab8739",
+        "goldVerdict": "NOT_A_UNIT",
+        "movement": "CORRECTION",
+        "v1Correct": false,
+        "v1Verdict": "UNIT_PAGE",
+        "v2Correct": true,
+        "v2Verdict": "NOT_A_UNIT"
+      },
+      {
+        "goldId": "g32779df2d7b56a34",
+        "goldVerdict": "NOT_A_UNIT",
+        "movement": "NOT_COMPARABLE",
+        "v1Correct": null,
+        "v1Verdict": null,
+        "v2Correct": true,
+        "v2Verdict": "NOT_A_UNIT"
+      },
+      {
+        "goldId": "g536c8b148048fcbc",
+        "goldVerdict": "NOT_A_UNIT",
+        "movement": "CORRECTION",
+        "v1Correct": false,
+        "v1Verdict": "UNIT_PAGE",
+        "v2Correct": true,
+        "v2Verdict": "NOT_A_UNIT"
+      },
+      {
+        "goldId": "g57607d4278d6dc23",
+        "goldVerdict": "UNIT_PAGE",
+        "movement": "REGRESSION",
+        "v1Correct": true,
+        "v1Verdict": "UNIT_PAGE",
+        "v2Correct": false,
+        "v2Verdict": "NOT_A_UNIT"
+      },
+      {
+        "goldId": "g66010a25ac194274",
+        "goldVerdict": "NEEDS_REVIEW",
+        "movement": "REGRESSION",
+        "v1Correct": true,
+        "v1Verdict": "NEEDS_REVIEW",
+        "v2Correct": false,
+        "v2Verdict": "NOT_A_UNIT"
+      },
+      {
+        "goldId": "g956f99fae4ad4764",
+        "goldVerdict": "NOT_A_UNIT",
+        "movement": "NOT_COMPARABLE",
+        "v1Correct": null,
+        "v1Verdict": null,
+        "v2Correct": true,
+        "v2Verdict": "NOT_A_UNIT"
+      },
+      {
+        "goldId": "ge789b0f0aedc398c",
+        "goldVerdict": "UNIT_PAGE",
+        "movement": "REGRESSION",
+        "v1Correct": true,
+        "v1Verdict": "UNIT_PAGE",
+        "v2Correct": false,
+        "v2Verdict": "NOT_A_UNIT"
+      },
+      {
+        "goldId": "gf65026e32d9da8db",
+        "goldVerdict": "UNIT_PAGE",
+        "movement": "REGRESSION",
+        "v1Correct": true,
+        "v1Verdict": "UNIT_PAGE",
+        "v2Correct": false,
+        "v2Verdict": "NOT_A_UNIT"
+      }
+    ]
+  },
+  "goldAvailability": {
+    "anyCorpusWideFieldAvailable": true,
+    "devItemCount": 49,
+    "fields": [
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "hard_negative",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "page_kind",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "provides_language_learning_or_support",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "serves_incoming_international_students",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "serves_outgoing_mobility_students",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "unit_name_expectation",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "unit_type",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "verdict",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      }
+    ],
+    "holdoutItemCount": 23,
+    "labelFileNotOpened": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl",
+    "labelFileRecordCount": 72
+  },
+  "goldQuestionSensitivity": {
+    "changesAnyHeadline": false,
+    "committedLabel": "UNIT_PAGE",
+    "gateVerdictFlips": [
+      {
+        "gate": "minUnitTypeAccuracy",
+        "leaveOneOutDenominator": 13,
+        "leaveOneOutMet": false,
+        "leaveOneOutObserved": 0.8461538461538461,
+        "primaryDenominator": 14,
+        "primaryMet": true,
+        "primaryObserved": 0.8571428571428571,
+        "threshold": 0.85,
+        "variantName": "PROMPT_V1_CANONICAL"
+      }
+    ],
+    "goldId": "ge789b0f0aedc398c",
+    "headlineComparisonNote": "Validator validity is unchanged by the exclusion. 1 frozen gate verdict(s) DO change: PROMPT_V1_CANONICAL minUnitTypeAccuracy MET at 14 items but NOT MET at 13. F0B's unresolvedGold policy makes that BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION. Its label is NOT adjudicated, changed or reinterpreted here.",
+    "labelChangedByThisTask": false,
+    "leaveOneOut": {
+      "gates": [
+        {
+          "gates": [
+            {
+              "denominator": 48,
+              "gate": "minSchemaValidSpanVerifiedRate",
+              "met": false,
+              "note": "validator acceptance, which is schema validity plus span verification. NOT a semantic metric.",
+              "observed": 0.9166666666666666,
+              "threshold": 0.99
+            },
+            {
+              "denominator": 13,
+              "gate": "minUnitPageRecall",
+              "met": false,
+              "note": "STRICT: a validator-rejected UNIT_PAGE item counts as a miss.",
+              "observed": 0.8461538461538461,
+              "threshold": 0.95
+            },
+            {
+              "denominator": 16,
+              "gate": "minUnitPagePrecision",
+              "met": false,
+              "note": "over items answered UNIT_PAGE by a validator-accepted result.",
+              "observed": 0.6875,
+              "threshold": 0.9
+            },
+            {
+              "denominator": 13,
+              "gate": "minUnitTypeAccuracy",
+              "met": false,
+              "note": "STRICT, over items whose gold verdict is UNIT_PAGE.",
+              "observed": 0.8461538461538461,
+              "threshold": 0.85
+            },
+            {
+              "denominator": 21,
+              "gate": "minHardNegativeRejection",
+              "met": false,
+              "note": "STRICT: a validator-rejected hard negative is not a successful rejection.",
+              "observed": 0.7619047619047619,
+              "threshold": 0.9
+            },
+            {
+              "denominator": 48,
+              "gate": "maxNeedsReviewRate",
+              "met": true,
+              "note": "over every item, answered or not.",
+              "observed": 0.020833333333333332,
+              "threshold": 0.15
+            }
+          ],
+          "variantName": "PROMPT_V1_CANONICAL"
+        },
+        {
+          "gates": [
+            {
+              "denominator": 48,
+              "gate": "minSchemaValidSpanVerifiedRate",
+              "met": false,
+              "note": "validator acceptance, which is schema validity plus span verification. NOT a semantic metric.",
+              "observed": 0.9583333333333334,
+              "threshold": 0.99
+            },
+            {
+              "denominator": 13,
+              "gate": "minUnitPageRecall",
+              "met": false,
+              "note": "STRICT: a validator-rejected UNIT_PAGE item counts as a miss.",
+              "observed": 0.6923076923076923,
+              "threshold": 0.95
+            },
+            {
+              "denominator": 10,
+              "gate": "minUnitPagePrecision",
+              "met": true,
+              "note": "over items answered UNIT_PAGE by a validator-accepted result.",
+              "observed": 0.9,
+              "threshold": 0.9
+            },
+            {
+              "denominator": 13,
+              "gate": "minUnitTypeAccuracy",
+              "met": false,
+              "note": "STRICT, over items whose gold verdict is UNIT_PAGE.",
+              "observed": 0.6923076923076923,
+              "threshold": 0.85
+            },
+            {
+              "denominator": 21,
+              "gate": "minHardNegativeRejection",
+              "met": true,
+              "note": "STRICT: a validator-rejected hard negative is not a successful rejection.",
+              "observed": 1,
+              "threshold": 0.9
+            },
+            {
+              "denominator": 48,
+              "gate": "maxNeedsReviewRate",
+              "met": true,
+              "note": "over every item, answered or not.",
+              "observed": 0,
+              "threshold": 0.15
+            }
+          ],
+          "variantName": "PROMPT_V2_CANONICAL"
+        }
+      ],
+      "items": 48,
+      "validity": {
+        "ACCEPTED_TO_ACCEPTED": 44,
+        "ACCEPTED_TO_REJECTED": 0,
+        "REJECTED_TO_ACCEPTED": 2,
+        "REJECTED_TO_REJECTED": 2,
+        "bothRejected": 2,
+        "netValidityChange": 2,
+        "total": 48,
+        "v1OnlyRejection": 2,
+        "v2OnlyRejection": 0
+      },
+      "verdictCorrectness": {
+        "CORRECT_TO_CORRECT": 36,
+        "CORRECT_TO_INCORRECT": 3,
+        "GOLD_UNAVAILABLE": 0,
+        "INCORRECT_TO_CORRECT": 6,
+        "INCORRECT_TO_INCORRECT": 3,
+        "field": "verdict",
+        "netStrictCorrectnessChange": 3,
+        "recoveries": 6,
+        "regressions": 3,
+        "scorablePairs": 48
+      }
+    },
+    "presentInCorpus": true,
+    "primary": {
+      "items": 49,
+      "validity": {
+        "ACCEPTED_TO_ACCEPTED": 45,
+        "ACCEPTED_TO_REJECTED": 0,
+        "REJECTED_TO_ACCEPTED": 2,
+        "REJECTED_TO_REJECTED": 2,
+        "bothRejected": 2,
+        "netValidityChange": 2,
+        "total": 49,
+        "v1OnlyRejection": 2,
+        "v2OnlyRejection": 0
+      },
+      "verdictCorrectness": {
+        "CORRECT_TO_CORRECT": 36,
+        "CORRECT_TO_INCORRECT": 4,
+        "GOLD_UNAVAILABLE": 0,
+        "INCORRECT_TO_CORRECT": 6,
+        "INCORRECT_TO_INCORRECT": 3,
+        "field": "verdict",
+        "netStrictCorrectnessChange": 2,
+        "recoveries": 6,
+        "regressions": 4,
+        "scorablePairs": 49
+      }
+    },
+    "section9TriggerMet": false,
+    "semanticEvidenceRestsSolelyOnThisItem": false
+  },
+  "goldSupplement": {
+    "altersInferenceFreeze": false,
+    "createdAfterInference": true,
+    "fixtureManifestRawSha256": "53801e48498777727af719cd67cef09f3865617b15283b9e3d24daa4d884d519",
+    "fixturePath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl",
+    "fixtureRawSha256": "19d9cc3e9dcfe0b10930aa095075cd4828459377d9ea67c8dd296da6126fcd08",
+    "labelCount": 49,
+    "mixedSourceWholeFileSha256": "8a85222a832a076dd5658d9ccdb122a3bee364874b15164ed3c08873aeb8df6f",
+    "supplementPath": "docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json",
+    "supplementRawSha256": "ccb7efd599b5ba39866cc7bbfda940c9ae1d94e32dd0e0431fef3d48bcb51fe4",
+    "supplementVersion": "phase2b-2d2c-dev-scoring-supplement-v1",
+    "visibleToModelDuringInference": false
+  },
+  "interpretation": {
+    "didCanonicalisationEliminateKnownValidatorFailures": "PARTIALLY, AND THE REMAINDER IS NAMED. 2 item(s) moved from validator-rejected under v1 to accepted under v2, of which 2 carry a v2 verdict that matches gold. 2 item(s) are still rejected under both (g0ec0d43dad311a77, g877a05e6f5bba835); their rejection categories and reasons are listed in f4aInterpretation.persistentRejections. Validator acceptance is verifiability, never semantic correctness.",
+    "didPromptV2ImprovePageVersusUnit": "MIXED, AND MEASURABLE. The two variants give different verdicts on 10 item(s): 4 are corrections (v1 wrong, v2 right), 4 are regressions (v1 right, v2 wrong), 0 leave correctness unchanged and 2 involve a validator-rejected answer. Net verdict correctness is +2 over 49 paired items. Every row is in f4aInterpretation.verdictMovements with its gold.",
+    "didPromptV2ImproveUnknownVersusNoCalibration": "YES ON THE AXIS ITSELF; THE DAMAGE COMES FROM ELSEWHERE. v1 emitted NO on 12 axis answer(s), of which 0 matched gold; v2 emitted NO on 0. Dropping NO cost nothing, because no gold axis in this corpus is NO at all — the classes present are UNKNOWN/YES. Of the 7 axis regressions, 7 are a CONSEQUENCE of v2 moving the verdict to NOT_A_UNIT, which nulls all three axes by the output schema's own biconditional, and 0 are independent of the verdict. 6 axis answers are corrected. The UNKNOWN/NO calibration change is a gain; the verdict change is what loses axis accuracy.",
+    "didPromptV2IntroduceRegressionsElsewhere": "YES, AND THEY ARE NAMED. No validity regression: 0 item(s) moved from accepted to rejected. Semantically, page_kind 3, provides_language_learning_or_support 1, serves_incoming_international_students 3, serves_outgoing_mobility_students 3, unit_name_expectation 4, unit_type 3, verdict 4 regressed at least one previously-correct item; every gold id is listed in f4aInterpretation.regressionsByField. A net gain on one field does not cancel a regression on another, and neither is reported as an aggregate improvement."
+  },
+  "outputSchemaVersion": "phase2b-2d2c-f4a-scored-item-gold-v1",
+  "paired": {
+    "concordanceByField": [
+      { "agree": 37, "comparablePairs": 45, "disagree": 8, "field": "verdict", "notComparable": 4 },
+      {
+        "agree": 38,
+        "comparablePairs": 45,
+        "disagree": 7,
+        "field": "unit_type",
+        "notComparable": 4
+      },
+      {
+        "agree": 27,
+        "comparablePairs": 45,
+        "disagree": 18,
+        "field": "page_kind",
+        "notComparable": 4
+      },
+      {
+        "agree": 38,
+        "comparablePairs": 45,
+        "disagree": 7,
+        "field": "serves_incoming_international_students",
+        "notComparable": 4
+      },
+      {
+        "agree": 37,
+        "comparablePairs": 45,
+        "disagree": 8,
+        "field": "serves_outgoing_mobility_students",
+        "notComparable": 4
+      },
+      {
+        "agree": 33,
+        "comparablePairs": 45,
+        "disagree": 12,
+        "field": "provides_language_learning_or_support",
+        "notComparable": 4
+      },
+      {
+        "agree": 38,
+        "comparablePairs": 45,
+        "disagree": 7,
+        "field": "confidence",
+        "notComparable": 4
+      },
+      {
+        "agree": 33,
+        "comparablePairs": 45,
+        "disagree": 12,
+        "field": "unit_name_present",
+        "notComparable": 4
+      },
+      {
+        "agree": 31,
+        "comparablePairs": 45,
+        "disagree": 14,
+        "field": "unit_name_sha256",
+        "notComparable": 4
+      }
+    ],
+    "correctnessByField": [
+      {
+        "CORRECT_TO_CORRECT": 0,
+        "CORRECT_TO_INCORRECT": 0,
+        "GOLD_UNAVAILABLE": 49,
+        "INCORRECT_TO_CORRECT": 0,
+        "INCORRECT_TO_INCORRECT": 0,
+        "field": "hard_negative",
+        "netStrictCorrectnessChange": 0,
+        "recoveries": 0,
+        "regressions": 0,
+        "scorablePairs": 0
+      },
+      {
+        "CORRECT_TO_CORRECT": 14,
+        "CORRECT_TO_INCORRECT": 3,
+        "GOLD_UNAVAILABLE": 16,
+        "INCORRECT_TO_CORRECT": 8,
+        "INCORRECT_TO_INCORRECT": 8,
+        "field": "page_kind",
+        "netStrictCorrectnessChange": 5,
+        "recoveries": 8,
+        "regressions": 3,
+        "scorablePairs": 33
+      },
+      {
+        "CORRECT_TO_CORRECT": 4,
+        "CORRECT_TO_INCORRECT": 1,
+        "GOLD_UNAVAILABLE": 35,
+        "INCORRECT_TO_CORRECT": 5,
+        "INCORRECT_TO_INCORRECT": 4,
+        "field": "provides_language_learning_or_support",
+        "netStrictCorrectnessChange": 4,
+        "recoveries": 5,
+        "regressions": 1,
+        "scorablePairs": 14
+      },
+      {
+        "CORRECT_TO_CORRECT": 9,
+        "CORRECT_TO_INCORRECT": 3,
+        "GOLD_UNAVAILABLE": 35,
+        "INCORRECT_TO_CORRECT": 0,
+        "INCORRECT_TO_INCORRECT": 2,
+        "field": "serves_incoming_international_students",
+        "netStrictCorrectnessChange": -3,
+        "recoveries": 0,
+        "regressions": 3,
+        "scorablePairs": 14
+      },
+      {
+        "CORRECT_TO_CORRECT": 8,
+        "CORRECT_TO_INCORRECT": 3,
+        "GOLD_UNAVAILABLE": 35,
+        "INCORRECT_TO_CORRECT": 1,
+        "INCORRECT_TO_INCORRECT": 2,
+        "field": "serves_outgoing_mobility_students",
+        "netStrictCorrectnessChange": -2,
+        "recoveries": 1,
+        "regressions": 3,
+        "scorablePairs": 14
+      },
+      {
+        "CORRECT_TO_CORRECT": 25,
+        "CORRECT_TO_INCORRECT": 4,
+        "GOLD_UNAVAILABLE": 5,
+        "INCORRECT_TO_CORRECT": 8,
+        "INCORRECT_TO_INCORRECT": 7,
+        "field": "unit_name_expectation",
+        "netStrictCorrectnessChange": 4,
+        "recoveries": 8,
+        "regressions": 4,
+        "scorablePairs": 44
+      },
+      {
+        "CORRECT_TO_CORRECT": 9,
+        "CORRECT_TO_INCORRECT": 3,
+        "GOLD_UNAVAILABLE": 35,
+        "INCORRECT_TO_CORRECT": 0,
+        "INCORRECT_TO_INCORRECT": 2,
+        "field": "unit_type",
+        "netStrictCorrectnessChange": -3,
+        "recoveries": 0,
+        "regressions": 3,
+        "scorablePairs": 14
+      },
+      {
+        "CORRECT_TO_CORRECT": 36,
+        "CORRECT_TO_INCORRECT": 4,
+        "GOLD_UNAVAILABLE": 0,
+        "INCORRECT_TO_CORRECT": 6,
+        "INCORRECT_TO_INCORRECT": 3,
+        "field": "verdict",
+        "netStrictCorrectnessChange": 2,
+        "recoveries": 6,
+        "regressions": 4,
+        "scorablePairs": 49
+      }
+    ],
+    "mcNemarNote": "Exploratory only. 49 DEVELOPMENT items, one sample per variant, a stochastic model: this is never evidence of generalisation, and it is null while gold is unavailable.",
+    "mcNemarOnVerdictCorrectness": {
+      "b": 4,
+      "c": 6,
+      "chiSquare": 0.4,
+      "discordant": 10,
+      "exploratoryOnly": true
+    },
+    "pairs": 49,
+    "validity": {
+      "ACCEPTED_TO_ACCEPTED": 45,
+      "ACCEPTED_TO_REJECTED": 0,
+      "REJECTED_TO_ACCEPTED": 2,
+      "REJECTED_TO_REJECTED": 2,
+      "bothRejected": 2,
+      "netValidityChange": 2,
+      "total": 49,
+      "v1OnlyRejection": 2,
+      "v2OnlyRejection": 0
+    }
+  },
+  "recommendation": "BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION",
+  "recommendationBasis": [
+    "Gold is available for all 49 DEVELOPMENT items from the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json), projected under explicit owner authorisation from the mixed adjudication file. It was created AFTER inference, was never visible to the model, and leaves the F0B inference freeze byte-unchanged.",
+    "PAIRED, per item: v2 nets +7 correct answers across 7 scorable field(s). Improved: page_kind +5, provides_language_learning_or_support +4, unit_name_expectation +4, verdict +2. Regressed: serves_incoming_international_students -3, serves_outgoing_mobility_students -2, unit_type -3.",
+    "Frozen gates: v2 loses 1 gate(s) v1 met (minUnitTypeAccuracy) and gains 2 (minUnitPagePrecision, minHardNegativeRejection). These thresholds are F0B's; none was invented, relaxed or re-tuned here.",
+    "Validator acceptance is reported separately and is NOT presented as semantic correctness: an accepted answer is a verifiable answer, not a right one.",
+    "F0B's leave-one-out rule FIRES: removing the open owner gold question ge789b0f0aedc398c changes a gate verdict or the sign of a headline, so BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION is the binding status."
+  ],
+  "recommendationScope": "This recommendation concerns the DEVELOPMENT split only. It authorises no merge to main, no HOLDOUT run, no production configuration change and no deployment.",
+  "scorableGoldBackedFields": [
+    "hard_negative",
+    "page_kind",
+    "provides_language_learning_or_support",
+    "serves_incoming_international_students",
+    "serves_outgoing_mobility_students",
+    "unit_name_expectation",
+    "unit_type",
+    "verdict"
+  ],
+  "scorerVersion": "phase2b-2d2c-f4a-scorer-gold-v1",
+  "semanticMetrics": [
+    {
+      "fields": [
+        {
+          "conditionalAccuracy": 0.5483870967741935,
+          "conditionalCorrect": 17,
+          "conditionalDenominator": 31,
+          "confusion": {
+            "DEGREE_PROGRAMME_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 3,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "GENERIC_INSTITUTIONAL_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 1,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 3,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 2,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "NAVIGATION_OR_LANDING_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 1,
+              "NAVIGATION_OR_LANDING_PAGE": 2,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 1,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 1,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "NEWS_OR_EVENT_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 1,
+              "NEWS_OR_EVENT_PAGE": 8,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "NULL": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "OTHER_NON_UNIT": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 1,
+              "NAVIGATION_OR_LANDING_PAGE": 1,
+              "NEWS_OR_EVENT_PAGE": 1,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "RESEARCH_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 2,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "SERVICE_TOOL_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 1,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 3,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 1
+            }
+          },
+          "correct": 17,
+          "field": "page_kind",
+          "incorrect": 16,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.5151515151515151,
+          "strictDenominator": 33,
+          "support": 33
+        },
+        {
+          "conditionalAccuracy": 0.4166666666666667,
+          "conditionalCorrect": 5,
+          "conditionalDenominator": 12,
+          "confusion": {
+            "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "UNKNOWN": { "NO": 7, "NULL": 0, "REJECTED": 2, "UNKNOWN": 3, "YES": 0 },
+            "YES": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 2 }
+          },
+          "correct": 5,
+          "field": "provides_language_learning_or_support",
+          "incorrect": 9,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.35714285714285715,
+          "strictDenominator": 14,
+          "support": 14
+        },
+        {
+          "conditionalAccuracy": 1,
+          "conditionalCorrect": 12,
+          "conditionalDenominator": 12,
+          "confusion": {
+            "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "UNKNOWN": { "NO": 0, "NULL": 0, "REJECTED": 1, "UNKNOWN": 5, "YES": 0 },
+            "YES": { "NO": 0, "NULL": 0, "REJECTED": 1, "UNKNOWN": 0, "YES": 7 }
+          },
+          "correct": 12,
+          "field": "serves_incoming_international_students",
+          "incorrect": 2,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.8571428571428571,
+          "strictDenominator": 14,
+          "support": 14
+        },
+        {
+          "conditionalAccuracy": 0.9166666666666666,
+          "conditionalCorrect": 11,
+          "conditionalDenominator": 12,
+          "confusion": {
+            "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "UNKNOWN": { "NO": 1, "NULL": 0, "REJECTED": 0, "UNKNOWN": 7, "YES": 0 },
+            "YES": { "NO": 0, "NULL": 0, "REJECTED": 2, "UNKNOWN": 0, "YES": 4 }
+          },
+          "correct": 11,
+          "field": "serves_outgoing_mobility_students",
+          "incorrect": 3,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.7857142857142857,
+          "strictDenominator": 14,
+          "support": 14
+        },
+        {
+          "conditionalAccuracy": 0.725,
+          "conditionalCorrect": 29,
+          "conditionalDenominator": 40,
+          "confusion": {
+            "NAMED": { "NAMED": 7, "NULL": 0, "REJECTED": 2 },
+            "NULL": { "NAMED": 11, "NULL": 22, "REJECTED": 2 }
+          },
+          "correct": 29,
+          "field": "unit_name_expectation",
+          "incorrect": 15,
+          "rejectedOrUnscorable": 4,
+          "strictAccuracy": 0.6590909090909091,
+          "strictDenominator": 44,
+          "support": 44
+        },
+        {
+          "conditionalAccuracy": 1,
+          "conditionalCorrect": 12,
+          "conditionalDenominator": 12,
+          "confusion": {
+            "INTERNATIONAL_MOBILITY_OFFICE": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 9,
+              "LANGUAGE_CENTRE": 0,
+              "LANGUAGE_DEPARTMENT": 0,
+              "NULL": 0,
+              "OTHER_UNIT": 0,
+              "REJECTED": 2
+            },
+            "LANGUAGE_CENTRE": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 0,
+              "LANGUAGE_CENTRE": 1,
+              "LANGUAGE_DEPARTMENT": 0,
+              "NULL": 0,
+              "OTHER_UNIT": 0,
+              "REJECTED": 0
+            },
+            "LANGUAGE_DEPARTMENT": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 0,
+              "LANGUAGE_CENTRE": 0,
+              "LANGUAGE_DEPARTMENT": 1,
+              "NULL": 0,
+              "OTHER_UNIT": 0,
+              "REJECTED": 0
+            },
+            "NULL": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 0,
+              "LANGUAGE_CENTRE": 0,
+              "LANGUAGE_DEPARTMENT": 0,
+              "NULL": 0,
+              "OTHER_UNIT": 0,
+              "REJECTED": 0
+            },
+            "OTHER_UNIT": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 0,
+              "LANGUAGE_CENTRE": 0,
+              "LANGUAGE_DEPARTMENT": 0,
+              "NULL": 0,
+              "OTHER_UNIT": 1,
+              "REJECTED": 0
+            }
+          },
+          "correct": 12,
+          "field": "unit_type",
+          "incorrect": 2,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.8571428571428571,
+          "strictDenominator": 14,
+          "support": 14
+        },
+        {
+          "conditionalAccuracy": 0.8888888888888888,
+          "conditionalCorrect": 40,
+          "conditionalDenominator": 45,
+          "confusion": {
+            "NEEDS_REVIEW": { "NEEDS_REVIEW": 1, "NOT_A_UNIT": 0, "REJECTED": 0, "UNIT_PAGE": 1 },
+            "NOT_A_UNIT": { "NEEDS_REVIEW": 0, "NOT_A_UNIT": 27, "REJECTED": 2, "UNIT_PAGE": 4 },
+            "UNIT_PAGE": { "NEEDS_REVIEW": 0, "NOT_A_UNIT": 0, "REJECTED": 2, "UNIT_PAGE": 12 }
+          },
+          "correct": 40,
+          "field": "verdict",
+          "incorrect": 9,
+          "rejectedOrUnscorable": 4,
+          "strictAccuracy": 0.8163265306122449,
+          "strictDenominator": 49,
+          "support": 49
+        }
+      ],
+      "gates": [
+        {
+          "denominator": 49,
+          "gate": "minSchemaValidSpanVerifiedRate",
+          "met": false,
+          "note": "validator acceptance, which is schema validity plus span verification. NOT a semantic metric.",
+          "observed": 0.9183673469387755,
+          "threshold": 0.99
+        },
+        {
+          "denominator": 14,
+          "gate": "minUnitPageRecall",
+          "met": false,
+          "note": "STRICT: a validator-rejected UNIT_PAGE item counts as a miss.",
+          "observed": 0.8571428571428571,
+          "threshold": 0.95
+        },
+        {
+          "denominator": 17,
+          "gate": "minUnitPagePrecision",
+          "met": false,
+          "note": "over items answered UNIT_PAGE by a validator-accepted result.",
+          "observed": 0.7058823529411765,
+          "threshold": 0.9
+        },
+        {
+          "denominator": 14,
+          "gate": "minUnitTypeAccuracy",
+          "met": true,
+          "note": "STRICT, over items whose gold verdict is UNIT_PAGE.",
+          "observed": 0.8571428571428571,
+          "threshold": 0.85
+        },
+        {
+          "denominator": 21,
+          "gate": "minHardNegativeRejection",
+          "met": false,
+          "note": "STRICT: a validator-rejected hard negative is not a successful rejection.",
+          "observed": 0.7619047619047619,
+          "threshold": 0.9
+        },
+        {
+          "denominator": 49,
+          "gate": "maxNeedsReviewRate",
+          "met": true,
+          "note": "over every item, answered or not.",
+          "observed": 0.02040816326530612,
+          "threshold": 0.15
+        }
+      ],
+      "hardNegative": {
+        "acceptedAsUnitPage": 3,
+        "answeredNeedsReview": 0,
+        "conditionalDenominator": 19,
+        "conditionalRejectionRate": 0.8421052631578947,
+        "denominator": 21,
+        "rejectedAsNonUnit": 16,
+        "strictRejectionRate": 0.7619047619047619,
+        "validatorRejected": 2
+      },
+      "ternaryByAxis": [
+        {
+          "axis": "serves_incoming_international_students",
+          "metrics": {
+            "classes": [
+              {
+                "className": "YES",
+                "f1": 0.9333333333333333,
+                "falseNegatives": 1,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 0.875,
+                "truePositives": 7
+              },
+              {
+                "className": "NO",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": null,
+                "recall": null,
+                "truePositives": 0
+              },
+              {
+                "className": "UNKNOWN",
+                "f1": 0.9090909090909091,
+                "falseNegatives": 1,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 0.8333333333333334,
+                "truePositives": 5
+              },
+              {
+                "className": "NULL",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": null,
+                "recall": null,
+                "truePositives": 0
+              }
+            ],
+            "confusion": {
+              "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "UNKNOWN": { "NO": 0, "NULL": 0, "REJECTED": 1, "UNKNOWN": 5, "YES": 0 },
+              "YES": { "NO": 0, "NULL": 0, "REJECTED": 1, "UNKNOWN": 0, "YES": 7 }
+            },
+            "macroF1": 0.9212121212121211
+          }
+        },
+        {
+          "axis": "serves_outgoing_mobility_students",
+          "metrics": {
+            "classes": [
+              {
+                "className": "YES",
+                "f1": 0.8,
+                "falseNegatives": 2,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 0.6666666666666666,
+                "truePositives": 4
+              },
+              {
+                "className": "NO",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 1,
+                "precision": 0,
+                "recall": null,
+                "truePositives": 0
+              },
+              {
+                "className": "UNKNOWN",
+                "f1": 0.9333333333333333,
+                "falseNegatives": 1,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 0.875,
+                "truePositives": 7
+              },
+              {
+                "className": "NULL",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": null,
+                "recall": null,
+                "truePositives": 0
+              }
+            ],
+            "confusion": {
+              "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "UNKNOWN": { "NO": 1, "NULL": 0, "REJECTED": 0, "UNKNOWN": 7, "YES": 0 },
+              "YES": { "NO": 0, "NULL": 0, "REJECTED": 2, "UNKNOWN": 0, "YES": 4 }
+            },
+            "macroF1": 0.8666666666666667
+          }
+        },
+        {
+          "axis": "provides_language_learning_or_support",
+          "metrics": {
+            "classes": [
+              {
+                "className": "YES",
+                "f1": 1,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 1,
+                "truePositives": 2
+              },
+              {
+                "className": "NO",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 7,
+                "precision": 0,
+                "recall": null,
+                "truePositives": 0
+              },
+              {
+                "className": "UNKNOWN",
+                "f1": 0.4,
+                "falseNegatives": 9,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 0.25,
+                "truePositives": 3
+              },
+              {
+                "className": "NULL",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": null,
+                "recall": null,
+                "truePositives": 0
+              }
+            ],
+            "confusion": {
+              "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "UNKNOWN": { "NO": 7, "NULL": 0, "REJECTED": 2, "UNKNOWN": 3, "YES": 0 },
+              "YES": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 2 }
+            },
+            "macroF1": 0.7
+          }
+        }
+      ],
+      "variantName": "PROMPT_V1_CANONICAL"
+    },
+    {
+      "fields": [
+        {
+          "conditionalAccuracy": 0.6666666666666666,
+          "conditionalCorrect": 22,
+          "conditionalDenominator": 33,
+          "confusion": {
+            "DEGREE_PROGRAMME_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 3,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "GENERIC_INSTITUTIONAL_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 2,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 3,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 1
+            },
+            "NAVIGATION_OR_LANDING_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 5,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "NEWS_OR_EVENT_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 9,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "NULL": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "OTHER_NON_UNIT": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 3,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "RESEARCH_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 0,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 2,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 0,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 0
+            },
+            "SERVICE_TOOL_PAGE": {
+              "DEGREE_PROGRAMME_PAGE": 0,
+              "GENERIC_INSTITUTIONAL_PAGE": 1,
+              "NAVIGATION_OR_LANDING_PAGE": 0,
+              "NEWS_OR_EVENT_PAGE": 0,
+              "NULL": 0,
+              "OTHER_NON_UNIT": 1,
+              "REJECTED": 0,
+              "RESEARCH_PAGE": 0,
+              "SERVICE_TOOL_PAGE": 3
+            }
+          },
+          "correct": 22,
+          "field": "page_kind",
+          "incorrect": 11,
+          "rejectedOrUnscorable": 0,
+          "strictAccuracy": 0.6666666666666666,
+          "strictDenominator": 33,
+          "support": 33
+        },
+        {
+          "conditionalAccuracy": 0.75,
+          "conditionalCorrect": 9,
+          "conditionalDenominator": 12,
+          "confusion": {
+            "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "UNKNOWN": { "NO": 0, "NULL": 3, "REJECTED": 2, "UNKNOWN": 7, "YES": 0 },
+            "YES": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 2 }
+          },
+          "correct": 9,
+          "field": "provides_language_learning_or_support",
+          "incorrect": 5,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.6428571428571429,
+          "strictDenominator": 14,
+          "support": 14
+        },
+        {
+          "conditionalAccuracy": 0.75,
+          "conditionalCorrect": 9,
+          "conditionalDenominator": 12,
+          "confusion": {
+            "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "UNKNOWN": { "NO": 0, "NULL": 3, "REJECTED": 1, "UNKNOWN": 2, "YES": 0 },
+            "YES": { "NO": 0, "NULL": 0, "REJECTED": 1, "UNKNOWN": 0, "YES": 7 }
+          },
+          "correct": 9,
+          "field": "serves_incoming_international_students",
+          "incorrect": 5,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.6428571428571429,
+          "strictDenominator": 14,
+          "support": 14
+        },
+        {
+          "conditionalAccuracy": 0.75,
+          "conditionalCorrect": 9,
+          "conditionalDenominator": 12,
+          "confusion": {
+            "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "UNKNOWN": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 8, "YES": 0 },
+            "YES": { "NO": 0, "NULL": 3, "REJECTED": 2, "UNKNOWN": 0, "YES": 1 }
+          },
+          "correct": 9,
+          "field": "serves_outgoing_mobility_students",
+          "incorrect": 5,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.6428571428571429,
+          "strictDenominator": 14,
+          "support": 14
+        },
+        {
+          "conditionalAccuracy": 0.7857142857142857,
+          "conditionalCorrect": 33,
+          "conditionalDenominator": 42,
+          "confusion": {
+            "NAMED": { "NAMED": 7, "NULL": 0, "REJECTED": 2 },
+            "NULL": { "NAMED": 9, "NULL": 26, "REJECTED": 0 }
+          },
+          "correct": 33,
+          "field": "unit_name_expectation",
+          "incorrect": 11,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.75,
+          "strictDenominator": 44,
+          "support": 44
+        },
+        {
+          "conditionalAccuracy": 0.75,
+          "conditionalCorrect": 9,
+          "conditionalDenominator": 12,
+          "confusion": {
+            "INTERNATIONAL_MOBILITY_OFFICE": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 6,
+              "LANGUAGE_CENTRE": 0,
+              "LANGUAGE_DEPARTMENT": 0,
+              "NULL": 3,
+              "OTHER_UNIT": 0,
+              "REJECTED": 2
+            },
+            "LANGUAGE_CENTRE": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 0,
+              "LANGUAGE_CENTRE": 1,
+              "LANGUAGE_DEPARTMENT": 0,
+              "NULL": 0,
+              "OTHER_UNIT": 0,
+              "REJECTED": 0
+            },
+            "LANGUAGE_DEPARTMENT": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 0,
+              "LANGUAGE_CENTRE": 0,
+              "LANGUAGE_DEPARTMENT": 1,
+              "NULL": 0,
+              "OTHER_UNIT": 0,
+              "REJECTED": 0
+            },
+            "NULL": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 0,
+              "LANGUAGE_CENTRE": 0,
+              "LANGUAGE_DEPARTMENT": 0,
+              "NULL": 0,
+              "OTHER_UNIT": 0,
+              "REJECTED": 0
+            },
+            "OTHER_UNIT": {
+              "INTERNATIONAL_MOBILITY_OFFICE": 0,
+              "LANGUAGE_CENTRE": 0,
+              "LANGUAGE_DEPARTMENT": 0,
+              "NULL": 0,
+              "OTHER_UNIT": 1,
+              "REJECTED": 0
+            }
+          },
+          "correct": 9,
+          "field": "unit_type",
+          "incorrect": 5,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.6428571428571429,
+          "strictDenominator": 14,
+          "support": 14
+        },
+        {
+          "conditionalAccuracy": 0.8936170212765957,
+          "conditionalCorrect": 42,
+          "conditionalDenominator": 47,
+          "confusion": {
+            "NEEDS_REVIEW": { "NEEDS_REVIEW": 0, "NOT_A_UNIT": 1, "REJECTED": 0, "UNIT_PAGE": 1 },
+            "NOT_A_UNIT": { "NEEDS_REVIEW": 0, "NOT_A_UNIT": 33, "REJECTED": 0, "UNIT_PAGE": 0 },
+            "UNIT_PAGE": { "NEEDS_REVIEW": 0, "NOT_A_UNIT": 3, "REJECTED": 2, "UNIT_PAGE": 9 }
+          },
+          "correct": 42,
+          "field": "verdict",
+          "incorrect": 7,
+          "rejectedOrUnscorable": 2,
+          "strictAccuracy": 0.8571428571428571,
+          "strictDenominator": 49,
+          "support": 49
+        }
+      ],
+      "gates": [
+        {
+          "denominator": 49,
+          "gate": "minSchemaValidSpanVerifiedRate",
+          "met": false,
+          "note": "validator acceptance, which is schema validity plus span verification. NOT a semantic metric.",
+          "observed": 0.9591836734693877,
+          "threshold": 0.99
+        },
+        {
+          "denominator": 14,
+          "gate": "minUnitPageRecall",
+          "met": false,
+          "note": "STRICT: a validator-rejected UNIT_PAGE item counts as a miss.",
+          "observed": 0.6428571428571429,
+          "threshold": 0.95
+        },
+        {
+          "denominator": 10,
+          "gate": "minUnitPagePrecision",
+          "met": true,
+          "note": "over items answered UNIT_PAGE by a validator-accepted result.",
+          "observed": 0.9,
+          "threshold": 0.9
+        },
+        {
+          "denominator": 14,
+          "gate": "minUnitTypeAccuracy",
+          "met": false,
+          "note": "STRICT, over items whose gold verdict is UNIT_PAGE.",
+          "observed": 0.6428571428571429,
+          "threshold": 0.85
+        },
+        {
+          "denominator": 21,
+          "gate": "minHardNegativeRejection",
+          "met": true,
+          "note": "STRICT: a validator-rejected hard negative is not a successful rejection.",
+          "observed": 1,
+          "threshold": 0.9
+        },
+        {
+          "denominator": 49,
+          "gate": "maxNeedsReviewRate",
+          "met": true,
+          "note": "over every item, answered or not.",
+          "observed": 0,
+          "threshold": 0.15
+        }
+      ],
+      "hardNegative": {
+        "acceptedAsUnitPage": 0,
+        "answeredNeedsReview": 0,
+        "conditionalDenominator": 21,
+        "conditionalRejectionRate": 1,
+        "denominator": 21,
+        "rejectedAsNonUnit": 21,
+        "strictRejectionRate": 1,
+        "validatorRejected": 0
+      },
+      "ternaryByAxis": [
+        {
+          "axis": "serves_incoming_international_students",
+          "metrics": {
+            "classes": [
+              {
+                "className": "YES",
+                "f1": 0.9333333333333333,
+                "falseNegatives": 1,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 0.875,
+                "truePositives": 7
+              },
+              {
+                "className": "NO",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": null,
+                "recall": null,
+                "truePositives": 0
+              },
+              {
+                "className": "UNKNOWN",
+                "f1": 0.5,
+                "falseNegatives": 4,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 0.3333333333333333,
+                "truePositives": 2
+              },
+              {
+                "className": "NULL",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 3,
+                "precision": 0,
+                "recall": null,
+                "truePositives": 0
+              }
+            ],
+            "confusion": {
+              "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "UNKNOWN": { "NO": 0, "NULL": 3, "REJECTED": 1, "UNKNOWN": 2, "YES": 0 },
+              "YES": { "NO": 0, "NULL": 0, "REJECTED": 1, "UNKNOWN": 0, "YES": 7 }
+            },
+            "macroF1": 0.7166666666666667
+          }
+        },
+        {
+          "axis": "serves_outgoing_mobility_students",
+          "metrics": {
+            "classes": [
+              {
+                "className": "YES",
+                "f1": 0.2857142857142857,
+                "falseNegatives": 5,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 0.16666666666666666,
+                "truePositives": 1
+              },
+              {
+                "className": "NO",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": null,
+                "recall": null,
+                "truePositives": 0
+              },
+              {
+                "className": "UNKNOWN",
+                "f1": 1,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 1,
+                "truePositives": 8
+              },
+              {
+                "className": "NULL",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 3,
+                "precision": 0,
+                "recall": null,
+                "truePositives": 0
+              }
+            ],
+            "confusion": {
+              "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "UNKNOWN": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 8, "YES": 0 },
+              "YES": { "NO": 0, "NULL": 3, "REJECTED": 2, "UNKNOWN": 0, "YES": 1 }
+            },
+            "macroF1": 0.6428571428571428
+          }
+        },
+        {
+          "axis": "provides_language_learning_or_support",
+          "metrics": {
+            "classes": [
+              {
+                "className": "YES",
+                "f1": 1,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 1,
+                "truePositives": 2
+              },
+              {
+                "className": "NO",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 0,
+                "precision": null,
+                "recall": null,
+                "truePositives": 0
+              },
+              {
+                "className": "UNKNOWN",
+                "f1": 0.7368421052631579,
+                "falseNegatives": 5,
+                "falsePositives": 0,
+                "precision": 1,
+                "recall": 0.5833333333333334,
+                "truePositives": 7
+              },
+              {
+                "className": "NULL",
+                "f1": null,
+                "falseNegatives": 0,
+                "falsePositives": 3,
+                "precision": 0,
+                "recall": null,
+                "truePositives": 0
+              }
+            ],
+            "confusion": {
+              "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+              "UNKNOWN": { "NO": 0, "NULL": 3, "REJECTED": 2, "UNKNOWN": 7, "YES": 0 },
+              "YES": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 2 }
+            },
+            "macroF1": 0.868421052631579
+          }
+        }
+      ],
+      "variantName": "PROMPT_V2_CANONICAL"
+    }
+  ],
+  "slices": [
+    {
+      "docIndex": 6,
+      "echeRowKey": "F MAYOTTE01|912525949",
+      "goldId": "ga435ea22d4b11cf4",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "NOT_A_UNIT",
+      "slice": "PREVIOUSLY_REJECTED",
+      "v1Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v1PageKind": "OTHER_NON_UNIT",
+      "v1RejectionReason": null,
+      "v1UnitType": null,
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "NOT_A_UNIT",
+      "v2Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v2PageKind": "SERVICE_TOOL_PAGE",
+      "v2RejectionReason": null,
+      "v2UnitType": null,
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "NOT_A_UNIT",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 13,
+      "echeRowKey": "F MAYOTTE01|912525949",
+      "goldId": "gdb5b7246327094ef",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "PREVIOUSLY_REJECTED",
+      "v1Axes": {
+        "provides_language_learning_or_support": "NO",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": "UNKNOWN",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v2PageKind": null,
+      "v2RejectionReason": null,
+      "v2UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "UNIT_PAGE",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 1,
+      "echeRowKey": "F PARIS003|999885119",
+      "goldId": "g0ec0d43dad311a77",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "PREVIOUSLY_REJECTED",
+      "v1Axes": null,
+      "v1PageKind": null,
+      "v1RejectionReason": "unit_name is not supported by any supplied field",
+      "v1UnitType": null,
+      "v1ValidatorState": "REJECTED",
+      "v1Verdict": null,
+      "v2Axes": null,
+      "v2PageKind": null,
+      "v2RejectionReason": "unit_name is not supported by any supplied field",
+      "v2UnitType": null,
+      "v2ValidatorState": "REJECTED",
+      "v2Verdict": null,
+      "validityTransition": "REJECTED_TO_REJECTED",
+      "verdictCorrectnessTransition": "INCORRECT_TO_INCORRECT"
+    },
+    {
+      "docIndex": 2,
+      "echeRowKey": "F PARIS003|999885119",
+      "goldId": "g877a05e6f5bba835",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "PREVIOUSLY_REJECTED",
+      "v1Axes": null,
+      "v1PageKind": null,
+      "v1RejectionReason": "evidence_spans[0] (source=HEADING) is not a literal substring of the supplied field",
+      "v1UnitType": null,
+      "v1ValidatorState": "REJECTED",
+      "v1Verdict": null,
+      "v2Axes": null,
+      "v2PageKind": null,
+      "v2RejectionReason": "evidence_spans[0] (source=HEADING) is not a literal substring of the supplied field",
+      "v2UnitType": null,
+      "v2ValidatorState": "REJECTED",
+      "v2Verdict": null,
+      "validityTransition": "REJECTED_TO_REJECTED",
+      "verdictCorrectnessTransition": "INCORRECT_TO_INCORRECT"
+    },
+    {
+      "docIndex": 4,
+      "echeRowKey": "F PARIS003|999885119",
+      "goldId": "gcce4e2a5f608de5d",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "PREVIOUSLY_REJECTED",
+      "v1Axes": {
+        "provides_language_learning_or_support": "YES",
+        "serves_incoming_international_students": "UNKNOWN",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "LANGUAGE_DEPARTMENT",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": "YES",
+        "serves_incoming_international_students": "UNKNOWN",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v2PageKind": null,
+      "v2RejectionReason": null,
+      "v2UnitType": "LANGUAGE_DEPARTMENT",
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "UNIT_PAGE",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 6,
+      "echeRowKey": "F PARIS003|999885119",
+      "goldId": "gf65026e32d9da8db",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "PREVIOUSLY_REJECTED",
+      "v1Axes": {
+        "provides_language_learning_or_support": "NO",
+        "serves_incoming_international_students": "UNKNOWN",
+        "serves_outgoing_mobility_students": "YES"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v2PageKind": "OTHER_NON_UNIT",
+      "v2RejectionReason": null,
+      "v2UnitType": null,
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "NOT_A_UNIT",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_INCORRECT"
+    },
+    {
+      "docIndex": 13,
+      "echeRowKey": "F PARIS105|949302432",
+      "goldId": "g32779df2d7b56a34",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "NOT_A_UNIT",
+      "slice": "PAGE_VERSUS_UNIT",
+      "v1Axes": null,
+      "v1PageKind": null,
+      "v1RejectionReason": "unit_name is not supported by any supplied field",
+      "v1UnitType": null,
+      "v1ValidatorState": "REJECTED",
+      "v1Verdict": null,
+      "v2Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v2PageKind": "GENERIC_INSTITUTIONAL_PAGE",
+      "v2RejectionReason": null,
+      "v2UnitType": null,
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "NOT_A_UNIT",
+      "validityTransition": "REJECTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 14,
+      "echeRowKey": "F PARIS105|949302432",
+      "goldId": "g956f99fae4ad4764",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "NOT_A_UNIT",
+      "slice": "PAGE_VERSUS_UNIT",
+      "v1Axes": null,
+      "v1PageKind": null,
+      "v1RejectionReason": "unit_name is not supported by any supplied field",
+      "v1UnitType": null,
+      "v1ValidatorState": "REJECTED",
+      "v1Verdict": null,
+      "v2Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v2PageKind": "GENERIC_INSTITUTIONAL_PAGE",
+      "v2RejectionReason": null,
+      "v2UnitType": null,
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "NOT_A_UNIT",
+      "validityTransition": "REJECTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 5,
+      "echeRowKey": "F PARIS482|897691060",
+      "goldId": "g04d170f4d3fda759",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "NOT_A_UNIT",
+      "slice": "PAGE_VERSUS_UNIT",
+      "v1Axes": {
+        "provides_language_learning_or_support": "UNKNOWN",
+        "serves_incoming_international_students": "UNKNOWN",
+        "serves_outgoing_mobility_students": "YES"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v2PageKind": "OTHER_NON_UNIT",
+      "v2RejectionReason": null,
+      "v2UnitType": null,
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "NOT_A_UNIT",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 0,
+      "echeRowKey": "F NANTES79|924638533",
+      "goldId": "g04b64db14c03ce3a",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "NOT_A_UNIT",
+      "slice": "PAGE_VERSUS_UNIT",
+      "v1Axes": {
+        "provides_language_learning_or_support": "UNKNOWN",
+        "serves_incoming_international_students": "UNKNOWN",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "OTHER_UNIT",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v2PageKind": "NAVIGATION_OR_LANDING_PAGE",
+      "v2RejectionReason": null,
+      "v2UnitType": null,
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "NOT_A_UNIT",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 7,
+      "echeRowKey": "F MAYOTTE01|912525949",
+      "goldId": "g4454e841c09dd8d0",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "NOT_A_UNIT",
+      "slice": "PAGE_VERSUS_UNIT",
+      "v1Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v1PageKind": "OTHER_NON_UNIT",
+      "v1RejectionReason": null,
+      "v1UnitType": null,
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "NOT_A_UNIT",
+      "v2Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v2PageKind": "SERVICE_TOOL_PAGE",
+      "v2RejectionReason": null,
+      "v2UnitType": null,
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "NOT_A_UNIT",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 10,
+      "echeRowKey": "F GRENOBL21|915102366",
+      "goldId": "ge419f0b9902faee0",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "UNKNOWN_NO_CALIBRATION",
+      "v1Axes": {
+        "provides_language_learning_or_support": "NO",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": "UNKNOWN",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v2PageKind": null,
+      "v2RejectionReason": null,
+      "v2UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "UNIT_PAGE",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 14,
+      "echeRowKey": "F PARIS525|879184333",
+      "goldId": "g34bbf7536e99b410",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "UNKNOWN_NO_CALIBRATION",
+      "v1Axes": {
+        "provides_language_learning_or_support": "NO",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": "UNKNOWN",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v2PageKind": null,
+      "v2RejectionReason": null,
+      "v2UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "UNIT_PAGE",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 15,
+      "echeRowKey": "F PARIS525|879184333",
+      "goldId": "ga971a6fc52af6b5f",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "UNKNOWN_NO_CALIBRATION",
+      "v1Axes": {
+        "provides_language_learning_or_support": "NO",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": "UNKNOWN",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v2PageKind": null,
+      "v2RejectionReason": null,
+      "v2UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "UNIT_PAGE",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 0,
+      "echeRowKey": "F EVRY04|999850296",
+      "goldId": "g735298870fe173b8",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "UNKNOWN_NO_CALIBRATION",
+      "v1Axes": {
+        "provides_language_learning_or_support": "NO",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": "UNKNOWN",
+        "serves_incoming_international_students": "YES",
+        "serves_outgoing_mobility_students": "UNKNOWN"
+      },
+      "v2PageKind": null,
+      "v2RejectionReason": null,
+      "v2UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "UNIT_PAGE",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_CORRECT"
+    },
+    {
+      "docIndex": 14,
+      "echeRowKey": "F NANTES79|924638533",
+      "goldId": "ge789b0f0aedc398c",
+      "goldSource": "F4A_SCORING_SUPPLEMENT",
+      "goldVerdict": "UNIT_PAGE",
+      "slice": "OPEN_OWNER_QUESTION",
+      "v1Axes": {
+        "provides_language_learning_or_support": "UNKNOWN",
+        "serves_incoming_international_students": "UNKNOWN",
+        "serves_outgoing_mobility_students": "YES"
+      },
+      "v1PageKind": null,
+      "v1RejectionReason": null,
+      "v1UnitType": "INTERNATIONAL_MOBILITY_OFFICE",
+      "v1ValidatorState": "ACCEPTED",
+      "v1Verdict": "UNIT_PAGE",
+      "v2Axes": {
+        "provides_language_learning_or_support": null,
+        "serves_incoming_international_students": null,
+        "serves_outgoing_mobility_students": null
+      },
+      "v2PageKind": "GENERIC_INSTITUTIONAL_PAGE",
+      "v2RejectionReason": null,
+      "v2UnitType": null,
+      "v2ValidatorState": "ACCEPTED",
+      "v2Verdict": "NOT_A_UNIT",
+      "validityTransition": "ACCEPTED_TO_ACCEPTED",
+      "verdictCorrectnessTransition": "CORRECT_TO_INCORRECT"
+    }
+  ],
+  "sources": {
+    "artifactInventorySha256": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+    "artifactsVerified": 243,
+    "consumedAtUtc": "2026-09-13T20:20:07.472Z",
+    "consumptionMarkerSha256": "cf27a3a9d15191022c13d649579ebab9f3bfeaa275bf0e62ee7b77c87b1d65bf",
+    "corpusContentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2",
+    "corpusItems": 49,
+    "corpusManifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+    "corpusRawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+    "corpusSplit": "DEVELOPMENT",
+    "experimentCompletedAtUtc": "2026-09-13T20:28:39.194Z",
+    "experimentStatus": "COMPLETED_ALL_PLANNED",
+    "freezeRawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+    "freezeVersion": "phase2b-2d2c-dev-configuration-freeze-v1",
+    "planSha256": "05cb6984a57a871ac6b0a0720ab2fefceb5b5843f440dbf7831abdf9bfc82f6c"
+  },
+  "unscorableGoldBackedFields": [],
+  "variants": [
+    {
+      "acceptanceRate": 0.9183673469387755,
+      "accepted": 45,
+      "expectedAccepted": 45,
+      "expectedRejected": 4,
+      "items": 49,
+      "matchesF3Totals": true,
+      "outputTokens": 25709,
+      "predictionDistribution": {
+        "page_kind": {
+          "DEGREE_PROGRAMME_PAGE": 3,
+          "GENERIC_INSTITUTIONAL_PAGE": 4,
+          "NAVIGATION_OR_LANDING_PAGE": 4,
+          "NEWS_OR_EVENT_PAGE": 9,
+          "NULL": 18,
+          "OTHER_NON_UNIT": 3,
+          "REJECTED": 4,
+          "RESEARCH_PAGE": 3,
+          "SERVICE_TOOL_PAGE": 1
+        },
+        "provides_language_learning_or_support": {
+          "NO": 9,
+          "NULL": 28,
+          "REJECTED": 4,
+          "UNKNOWN": 6,
+          "YES": 2
+        },
+        "serves_incoming_international_students": {
+          "NO": 1,
+          "NULL": 28,
+          "REJECTED": 4,
+          "UNKNOWN": 8,
+          "YES": 8
+        },
+        "serves_outgoing_mobility_students": {
+          "NO": 2,
+          "NULL": 28,
+          "REJECTED": 4,
+          "UNKNOWN": 10,
+          "YES": 5
+        },
+        "unit_type": {
+          "INTERNATIONAL_MOBILITY_OFFICE": 13,
+          "LANGUAGE_CENTRE": 1,
+          "LANGUAGE_DEPARTMENT": 1,
+          "NULL": 28,
+          "OTHER_UNIT": 2,
+          "REJECTED": 4
+        },
+        "verdict": {
+          "NEEDS_REVIEW": 1,
+          "NOT_A_UNIT": 27,
+          "NULL": 0,
+          "REJECTED": 4,
+          "UNIT_PAGE": 17
+        }
+      },
+      "promptSha256": "65f7f327ad14e78aaf3024cb7253e979b1e360fdcd1a58081fccc08fdb0facd0",
+      "promptVersion": "orgunit-classifier-prompt-v1",
+      "rejected": 4,
+      "rejectionsByCategory": { "EVIDENCE": 4 },
+      "rejectionsByReason": {
+        "evidence_spans[0] (source=HEADING) is not a literal substring of the supplied field": 1,
+        "unit_name is not supported by any supplied field": 3
+      },
+      "variantGitCommit": "0d2928a474796b89fad0644e99b5b934ecad10d0",
+      "variantName": "PROMPT_V1_CANONICAL",
+      "wallTimeMs": 294160
+    },
+    {
+      "acceptanceRate": 0.9591836734693877,
+      "accepted": 47,
+      "expectedAccepted": 47,
+      "expectedRejected": 2,
+      "items": 49,
+      "matchesF3Totals": true,
+      "outputTokens": 17541,
+      "predictionDistribution": {
+        "page_kind": {
+          "DEGREE_PROGRAMME_PAGE": 3,
+          "GENERIC_INSTITUTIONAL_PAGE": 4,
+          "NAVIGATION_OR_LANDING_PAGE": 9,
+          "NEWS_OR_EVENT_PAGE": 12,
+          "NULL": 10,
+          "OTHER_NON_UNIT": 5,
+          "REJECTED": 2,
+          "RESEARCH_PAGE": 0,
+          "SERVICE_TOOL_PAGE": 4
+        },
+        "provides_language_learning_or_support": {
+          "NO": 0,
+          "NULL": 37,
+          "REJECTED": 2,
+          "UNKNOWN": 8,
+          "YES": 2
+        },
+        "serves_incoming_international_students": {
+          "NO": 0,
+          "NULL": 37,
+          "REJECTED": 2,
+          "UNKNOWN": 3,
+          "YES": 7
+        },
+        "serves_outgoing_mobility_students": {
+          "NO": 0,
+          "NULL": 37,
+          "REJECTED": 2,
+          "UNKNOWN": 9,
+          "YES": 1
+        },
+        "unit_type": {
+          "INTERNATIONAL_MOBILITY_OFFICE": 7,
+          "LANGUAGE_CENTRE": 1,
+          "LANGUAGE_DEPARTMENT": 1,
+          "NULL": 37,
+          "OTHER_UNIT": 1,
+          "REJECTED": 2
+        },
+        "verdict": {
+          "NEEDS_REVIEW": 0,
+          "NOT_A_UNIT": 37,
+          "NULL": 0,
+          "REJECTED": 2,
+          "UNIT_PAGE": 10
+        }
+      },
+      "promptSha256": "181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2ea3e05dd680e4c7635",
+      "promptVersion": "orgunit-classifier-prompt-v2",
+      "rejected": 2,
+      "rejectionsByCategory": { "EVIDENCE": 2 },
+      "rejectionsByReason": {
+        "evidence_spans[0] (source=HEADING) is not a literal substring of the supplied field": 1,
+        "unit_name is not supported by any supplied field": 1
+      },
+      "variantGitCommit": "c37dd5a73d0f285b97a0a9a43bf0e42be8fc99c7",
+      "variantName": "PROMPT_V2_CANONICAL",
+      "wallTimeMs": 202586
+    }
+  ]
+}

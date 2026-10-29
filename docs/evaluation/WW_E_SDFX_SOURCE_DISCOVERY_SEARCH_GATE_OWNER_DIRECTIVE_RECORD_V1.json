@@ -1,0 +1,44 @@
+{
+  "recordId": "WW_E_SDFX_SOURCE_DISCOVERY_SEARCH_GATE_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-27",
+  "branch": "ww/e-sdfx",
+  "startingHead": "14f04a2",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_REL_F1_R2_AND_OWNER_DIRECTIVE_2026_10_27__SECURITY_REVIEW_REPAIR",
+  "isOwnerRatification": false,
+  "recordedBy": "engineering lane WW E-SDFX (transcription of the scope it was given; not an OWNER signature)",
+  "authority": {
+    "source": "REL-F1-R2 (local engineering only) and the OWNER directive 2026-10-27 'NWF Partnership Engine - full end-to-end product completion'; the WW integration lead's work package repairing the independent security review of WW E-SD (P1-3, P2-4, P2-5, P2-2 and two firewall gaps)",
+    "scope": [
+      "P1-3: enforce the WebSearch query binding (exact planned text, no domain override, at most one search per provider call) through a PreToolUse hook and canUseTool under a permission mode that invokes them, plus a stream count that fails closed (SEARCH_BINDING_REFUSED).",
+      "P2-4: the database gates each search: a query-call start row, committed before the provider call, refused outside the grant's validity window by the database clock; the existing query-call row becomes the call's terminal row.",
+      "P2-5: the D8 smoke gates: no call other than the smoke without an OWNER-path smoke verification for the same SDK version and model.",
+      "P2-2: pin search_path on every migration 0022 trigger function (CREATE OR REPLACE in migration 0025).",
+      "Firewall: the OWNER-only INSERT rule proven over every migration's GRANT statements; a full external-import allowlist for the eleven WW E-SD files.",
+      "Record the migration 0022 header correction and the live-D8 hook UNKNOWN in ADR 0028."
+    ],
+    "authorised": [
+      "local source edits",
+      "one forward-only migration (0025) creating two append-only tables (SELECT/INSERT on the call-start table and SELECT on the verification table to the EXISTING NOLOGIN capability nwf_source_discovery, SELECT to nwf_readonly), widening two migration 0022 CHECKs by superset, and replacing the migration 0022 trigger functions with a pinned search_path",
+      "local test runs against a disposable tmpfs PostgreSQL with a fake Agent SDK",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "inserting any source_discovery_grants or source_discovery_smoke_verifications row anywhere but a disposable *_test database",
+      "applying migration 0025 to nwf_pe or any persistent, shared, staging or production database",
+      "any live web search, live fetch, live model call or live auth-status call",
+      "reading or writing the classifier profile or any credential",
+      "push, merge or deploy",
+      "editing a committed migration (0022 is not edited)",
+      "weakening any security check or firewall"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0025_source_discovery_search_gate.sql",
+  "adr": "docs/adr/0028-campaign-bounded-live-source-discovery.md",
+  "amendsProposedAdr": "docs/adr/0028-campaign-bounded-live-source-discovery.md",
+  "loginInMigrations": false,
+  "newRole": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

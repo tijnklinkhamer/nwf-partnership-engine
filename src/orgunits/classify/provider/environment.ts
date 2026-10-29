@@ -23,7 +23,18 @@
  *     USERPROFILE/HOME), looked up case-insensitively because Windows
  *     environment names are case-insensitive and `PATH` arrives as `Path`
  *     there. Config reads are already redirected by CLAUDE_CONFIG_DIR, so
- *     forwarding HOME/USERPROFILE forwards no Claude state.
+ *     forwarding HOME/USERPROFILE forwards no Claude state;
+ *   - the POSIX account NAME, `USER` (ADR 0010 Amendment A, 2026-09-13).
+ *     MEASURED on macOS with Claude Code 2.1.270 (external) and 2.1.251
+ *     (SDK-bundled): the stored subscription login lives in the macOS
+ *     Keychain, and the CLI's Keychain lookup selects the entry by `USER`.
+ *     Without it `auth status` reports `loggedIn: false` under an
+ *     otherwise correct profile; a present-but-wrong `USER` fails the same
+ *     way; `LOGNAME` does NOT substitute (measured; deliberately not
+ *     admitted). `USER` is an account name, not a secret and not Claude
+ *     state; its VALUE is never logged or persisted by this engine — tests
+ *     and reports record presence only. The root cause inside Claude Code
+ *     is not known to this repository and is not claimed here.
  *
  * The child NEVER receives: the prohibited `CLAUDE_CODE_OAUTH_TOKEN`
  * (whose mere presence already failed the pre-flight), any
@@ -64,6 +75,7 @@ export const CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH: readonly string[] = [
   'COMSPEC',
   'USERPROFILE',
   'HOME',
+  'USER',
 ];
 
 export interface ChildEnvironmentInput {

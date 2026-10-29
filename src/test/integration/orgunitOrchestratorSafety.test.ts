@@ -66,6 +66,9 @@ import {
   truncateAll,
   type OrgunitRootFixture,
 } from './helpers.js';
+import type { RegistryLoadResult } from '../../orgunits/classify/evaluationCohortGuard.js';
+import { syntheticCohort, type SyntheticIdentity } from '../helpers/syntheticCohortRegistry.js';
+import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 
 const configured = researchDatabaseConfigured();
 const describeIf = configured ? describe : describe.skip;
@@ -85,6 +88,7 @@ class RoutedTransport implements WebTransport {
     kind: 'FAILURE',
     failure: 'CONNECTION_REFUSED',
     detail: 'unscripted URL',
+    subtype: null,
   };
 
   route(url: string, outcome: TransportOutcome | (() => TransportOutcome)): this {
@@ -175,6 +179,16 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
   let admin: pg.Pool;
   let research: pg.Pool;
   let fixture: OrgunitRootFixture;
+  // B3.0: the research cohort guard runs on every root. These tests admit
+  // exactly their own synthetic fixture organisation(s) through a FULLY
+  // SYNTHETIC registry - nothing from the committed cohort artifacts.
+  const admittedOrganisations: SyntheticIdentity[] = [];
+  const loadCohortRegistry = (): RegistryLoadResult => {
+    const cohort = syntheticCohort();
+    cohort.admit(fixture);
+    for (const identity of admittedOrganisations) cohort.admit(identity);
+    return cohort.load();
+  };
 
   beforeAll(async () => {
     admin = adminPool();
@@ -195,7 +209,7 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
     const { rows } = await research.query<{ id: string }>(
       `INSERT INTO orgunit_research_runs
          (started_at, network_vantage, fetch_policy_version, rule_version, dry_run)
-       VALUES (now(), 'test-vantage', 'orgunit-fetch-policy-v1', 'orgunit-signal-rules-v1', false)
+       VALUES (now(), 'test-vantage', '${FETCH_POLICY_VERSION}', 'orgunit-signal-rules-v1', false)
        RETURNING id`,
     );
     return rows[0]!.id;
@@ -232,6 +246,7 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
 
       const runId = await newRun();
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });
@@ -289,6 +304,7 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
 
       const runId = await newRun();
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });
@@ -318,6 +334,7 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
       // default timeout would fail it - deterministic termination is what
       // makes that unnecessary.
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });
@@ -360,6 +377,7 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
 
       const runId = await newRun();
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });
@@ -372,8 +390,13 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
       // is an entirely ordinary COMPLETED outcome, never FAILED.
       const orgResult = await runOrganisationDiscovery(
         research,
-        { echeRowKey: fixture.echeRowKey, networkVantage: 'test' },
         {
+          organisationId: fixture.organisationId,
+          echeRowKey: fixture.echeRowKey,
+          networkVantage: 'test',
+        },
+        {
+          loadCohortRegistry,
           transport: new RoutedTransport()
             .route('https://www.example.ac.uk/robots.txt', textResponse(200, ALLOW_ALL_ROBOTS))
             .route(ROOT, htmlResponse(page('Home', [ROOT]))),
@@ -400,8 +423,12 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
 
       const result = await runOrganisationDiscovery(
         poisoned,
-        { echeRowKey: fixture.echeRowKey, networkVantage: 'test' },
-        { transport, clock: instantClock() },
+        {
+          organisationId: fixture.organisationId,
+          echeRowKey: fixture.echeRowKey,
+          networkVantage: 'test',
+        },
+        { loadCohortRegistry, transport, clock: instantClock() },
       );
 
       // 5. Exactly one honest FAILED completion event, naming the real error.
@@ -483,8 +510,12 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
 
       const result = await runOrganisationDiscovery(
         research,
-        { echeRowKey: fixture.echeRowKey, networkVantage: 'test' },
-        { transport, clock: instantClock() },
+        {
+          organisationId: fixture.organisationId,
+          echeRowKey: fixture.echeRowKey,
+          networkVantage: 'test',
+        },
+        { loadCohortRegistry, transport, clock: instantClock() },
       );
 
       expect(result.runTerminalState).toBe('COMPLETED');
@@ -553,8 +584,12 @@ describeIf('bounded discovery orchestration - safety-gap correction pass (2B-1E)
 
       const result = await runOrganisationDiscovery(
         research,
-        { echeRowKey: fixture.echeRowKey, networkVantage: 'test' },
-        { transport, clock: instantClock() },
+        {
+          organisationId: fixture.organisationId,
+          echeRowKey: fixture.echeRowKey,
+          networkVantage: 'test',
+        },
+        { loadCohortRegistry, transport, clock: instantClock() },
       );
 
       expect(result.runTerminalState).toBe('COMPLETED');

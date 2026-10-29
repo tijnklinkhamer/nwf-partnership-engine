@@ -1,0 +1,213 @@
+{
+  "recordId": "phase2b-2d-methodology-v2-corpus-acquisition-plan-v1-owner-approval",
+  "recordKind": "OWNER_APPROVAL",
+  "approves": "PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_EXACT_BYTES",
+  "recordedAtUtc": "2026-09-18T15:10:00Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner's",
+
+  "ownerDecisions": [
+    "APPROVE_PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1",
+    "AUTHORISE_PHASE_2B_2D_A1_FRAME_MATERIALISATION_V1"
+  ],
+  "statementMarkersAsReceived": [
+    "APPROVE_PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1",
+    "AUTHORISE_PHASE_2B_2D_A1_FRAME_MATERIALISATION_V1"
+  ],
+
+  "approvedPlan": {
+    "planPath": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+    "planSha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+    "planBytes": 45200,
+    "planSourceCommit": "6f2de0fd5a80f050857a14531e74b659f0ff30c1",
+    "planBranch": "plan/phase2b-2d-methodology-v2-corpus-acquisition",
+    "companionDocument": "docs/audits/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.md",
+    "statusInsideTheBytes": "PROPOSED",
+    "bytesNeverChangeOnApproval": true,
+    "bytesNeverChangeOnApprovalStatement": "The bytes of the approved plan do NOT change on approval. This record is additive and immutable; PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json is not edited, not reformatted, not re-hashed, not re-timestamped and not re-statused by it. Its status field stays PROPOSED and its thisFileAuthorises stays empty inside the bytes, exactly as the methodology freeze approval did for R3, and for the same reason: the approved bytes must stay byte-identical to the bytes that were reviewed.",
+    "rehashedImmediatelyBeforeThisRecordWasWritten": true,
+    "rehashMatchedExactly": true
+  },
+
+  "boundMethodology": {
+    "proposalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+    "proposalSha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "proposalBytes": 142306,
+    "ownerFreezeApprovalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+    "ownerFreezeApprovalSha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+    "ownerFreezeApprovalCommit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0",
+    "methodologyIsFrozenAndNotReopenedHere": true,
+    "noR4Created": true,
+    "noR3ByteAltered": true,
+    "noD1ThroughD7DecisionReopened": true
+  },
+
+  "boundOwnerClarifications": {
+    "DUAL_REVIEW": {
+      "decision": "APPROVE_OPERATIONAL_OPTION_C2_EXACTLY_AS_PROPOSED_BY_PLAN_V1",
+      "optionId": "C2",
+      "optionName": "SYMMETRIC_UNION_TRIGGER_WITH_FROZEN_PROBE",
+      "notRedesignedHere": true,
+      "approvedAsProposed": "The C2 rules, proof, residual limitation and reporting discipline are approved exactly as they stand in the approved plan bytes. This record adds no rule and changes none.",
+      "DR1": "C2",
+      "DR2": "YES - a first-pass NEEDS_REVIEW triggers the second label, as recommended by the plan",
+      "DR3": "YES - the headline kappa is the PROBE-stratum kappa, with trigger-stratum agreement reported beside it under its own name, as recommended by the plan",
+      "whereTheseLive": "dualReviewResolution.IMPLEMENTATION_DETAIL_REQUIRING_OWNER_CONFIRMATION inside the approved plan bytes",
+      "recordedBeforeLabellingBegins": true,
+      "noR3MethodologyChangedByThisResolution": true
+    },
+    "SET_R": {
+      "decision": "A realised SET_R <= 180 is NOT by itself a conformance failure.",
+      "classification": "INTERPRETATION_OF_THE_ALREADY_FROZEN_R3_CONTRACT",
+      "basis": "R3 already distinguishes expected denominators from binding Section-E rules. A corpus meeting every minimum and violating no maximum is conformant whatever its document count.",
+      "bindings": {
+        "setRTargetIsAPlanningExpectationOnly": 200,
+        "maxSetRContributionPerOrganisation": 4,
+        "gatedSplitOrganisations": 45,
+        "impliedStructuralMaximumSetR": 180,
+        "perOrganisationCapMayNotBeRelaxed": true,
+        "goldUnitPageMinimumRemainsBinding": 100,
+        "allFrozenFeasibilityAndMinimumRulesRemainBinding": true
+      },
+      "whatThisDoesNotDo": [
+        "it does not lower the >=100 gold UNIT_PAGE minimum",
+        "it does not relax the 4-pages-per-organisation SET_R cap",
+        "it does not change any Section-E rule",
+        "it does not alter a single R3 byte",
+        "it does not create an R4"
+      ],
+      "residualRiskAcknowledgedNotResolved": "Plan finding2 (GOLD_UNIT_PAGE_MINIMUM_DEMANDS_UNMEASURED_ENRICHMENT) stands unchanged: with SET_R at most 180 and at least 100 gold UNIT_PAGE required, SET_R must realise a gold UNIT_PAGE share of at least 55.6%, an enrichment factor of at least 3.17x over R3's carried 0.175 planning assumption, and the Track A/B ruleset's realised enrichment factor has never been measured. This interpretation does not make that risk smaller; it only establishes that a realised SET_R of at most 180 is not itself the failure."
+    }
+  },
+
+  "boundCorpusOption": {
+    "selectedOption": "CORPUS_OPTION_B",
+    "selectedOptionName": "BALANCED",
+    "totalNewOrganisations": 110,
+    "reserveOrganisations": 40,
+    "DEV_TRAIN": 20,
+    "DEV_CONFIRM": 45,
+    "FINAL_HOLDOUT": 45,
+    "allThreeStrictlyOrganisationDisjoint": true,
+    "allOrganisationsAreNEW": true
+  },
+
+  "boundActionState": {
+    "A0": {
+      "name": "OFFICIAL_SOURCE_BOOTSTRAP",
+      "status": "COMPLETED",
+      "authorisation": "AUTHORISE_PHASE_2B_2D_METHODOLOGY_V2_A0_ECHE_BOOTSTRAP_V1",
+      "echeArtifactSha256": "32e1de188c7a9395c80b8d4cb80f5746a3306f2d45638de241734045932fdee9",
+      "echeArtifactBytes": 873111,
+      "sourceManifestSha256": "6f152a0cfb18831fe925a11a206debdffe195e99c4a8cc4d921237e35821a3cf",
+      "sourceManifestBytes": 2116,
+      "A0_3_frenchRegisterIngest": "NOT RUN - the plan recommends skipping it for this generation, and skipping it is what happened",
+      "ewpCatalogueIngest": "NOT RUN"
+    },
+    "A1": { "name": "FRAME_MATERIALISATION", "status": "AUTHORISED_BY_THIS_RECORD" },
+    "A1b": { "name": "DETERMINISTIC_DRAW", "status": "NOT_AUTHORISED" },
+    "A2": { "name": "LIVE_INSTITUTION_ACQUISITION", "status": "NOT_AUTHORISED" },
+    "A3": { "name": "PAGE_SELECTION_AND_CORPUS_FREEZE_PREP", "status": "NOT_AUTHORISED" },
+    "A4": { "name": "HUMAN_LABELLING", "status": "NOT_AUTHORISED" },
+    "A5": { "name": "GOLD_CORPUS_FREEZE_APPROVAL", "status": "NOT_AUTHORISED" },
+    "A6": { "name": "CANDIDATE_DEVELOPMENT", "status": "NOT_AUTHORISED" },
+    "everyRemainingActionStillRequiresItsOwnSeparateOwnerAuthorisation": true
+  },
+
+  "expectedStartingDatabaseStateForA1": {
+    "statement": "A1 is bound to the post-A0 state. Any deviation is a STOP, not a silent materialisation from a different snapshot.",
+    "workingDatabase": "nwf_pe",
+    "organisations": 6139,
+    "organisation_sources": 6139,
+    "ingest_runs": 2,
+    "website_claims": 6139,
+    "website_claims_STRUCTURALLY_VALID": 5832,
+    "website_source_snapshots": 0,
+    "allEwpTables": 0,
+    "allPhase2BResearchTables": 0,
+    "allClassifierTables": 0,
+    "noFrIngestOccurred": true,
+    "noEwpIngestOccurred": true,
+    "schemaMigrationRange": "0001..0011"
+  },
+
+  "authorityFlags": {
+    "planApproved": true,
+    "A1FrameMaterialisationAuthorised": true,
+
+    "A1bDrawAuthorised": false,
+    "A2LiveAcquisitionAuthorised": false,
+    "A3SelectionAuthorised": false,
+    "A4LabellingAuthorised": false,
+    "A5CorpusFreezeAuthorised": false,
+    "A6CandidateDevelopmentAuthorised": false,
+    "networkAuthorised": false,
+    "dbMutationAuthorised": false,
+    "providerInferenceAuthorised": false,
+    "holdoutAccessAuthorised": false
+  },
+
+  "whatA1MayDo": [
+    "read the working database through the least-privilege read-only role, and only read it",
+    "read the permitted historical 49-item DEVELOPMENT fixture solely to derive the excluded historical organisation identities",
+    "enumerate every examined organisation under the exact SD1 eligibility rule",
+    "materialise and commit exactly one FRAME_V2_GEN1 artifact, with its frameHash"
+  ],
+
+  "whatA1MayNotDo": [
+    "issue any network request of any kind, to any institution or any official source",
+    "write, update, delete or create any database object",
+    "compute or expose a sha256(eche_row_key) rank, a first-110 list, a next-40 reserve, a selection index or a split assignment",
+    "materialise a DRAW_V2_GEN1.json or execute SPLIT_ASSIGNMENT_CYCLE",
+    "open any historical HOLDOUT or adjudication file",
+    "create a label, call a provider, or select a runtime model",
+    "add any file under src/orgunits/",
+    "weaken any firewall assertion"
+  ],
+
+  "sd2IsExplicitlyOutOfScopeForA1": {
+    "statement": "A1 ends when the eligible frame is frozen. SD2 is A1b and remains unauthorised.",
+    "itIsFineForTheA1CodebaseToHaveNoDrawFunctionAtAll": true
+  },
+
+  "exclusionsReaffirmed": {
+    "noLiveWebAcquisition": true,
+    "noInstitutionRequest": true,
+    "noOfficialSourceFetch": true,
+    "noDatabaseWrite": true,
+    "noDatabaseMutation": true,
+    "noLabelsCreated": true,
+    "noGoldChanged": true,
+    "noAdjudication": true,
+    "noProviderInference": true,
+    "noCandidateInference": true,
+    "noPromptCandidateCreated": true,
+    "noPromptV7Created": true,
+    "noR4Created": true,
+    "noMethodologyReopened": true,
+    "noHoldoutAccess": true,
+    "noHoldoutItemInspection": true,
+    "noHistoricalHoldoutFileOpened": true,
+    "noDrawExecuted": true,
+    "noSplitAssignmentExecuted": true,
+    "noProductionOrgunitsFileTouched": true,
+    "noFirewallAssertionWeakened": true,
+    "noRepositoryFixtureUsedAsSourceSubstitute": true,
+    "noPhase2EExecution": true,
+    "noRuntimeModelSelected": true,
+    "noProductionDefaultChanged": true,
+    "noNewNetworkAuthority": true
+  },
+
+  "nextOwnerDecisionAfterA1": {
+    "ifEligibleOrganisationCountAtLeast150": "A1B_DETERMINISTIC_DRAW_AUTHORISATION",
+    "ifEligibleOrganisationCountBelow150": "FRAME_EXPANSION_OWNER_DECISION",
+    "a1DoesNotPreApproveEither": true,
+    "noAutomaticFrCompensation": "A shortfall is reported as A1_FRAME_INSUFFICIENT_FOR_110_PLUS_40 and awaits an owner decision. Running the French register automatically to compensate is forbidden."
+  },
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused.",
+    "theApprovedBytesArePlanBytes": "This record approves the Corpus Acquisition Plan V1 exactly as committed at 6f2de0fd5a80f050857a14531e74b659f0ff30c1. It contains no copy of the plan and no restatement that could drift from it; every value quoted above is quoted from those bytes, from the frozen R3 bytes, or from the owner instruction that produced this record."
+  }
+}

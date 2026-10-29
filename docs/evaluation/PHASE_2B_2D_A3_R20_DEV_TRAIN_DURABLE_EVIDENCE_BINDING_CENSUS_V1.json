@@ -1,0 +1,85 @@
+{
+  "record": "PHASE_2B_2D_A3_R20_DEV_TRAIN_DURABLE_EVIDENCE_BINDING_CENSUS_V1",
+  "recordKind": "PUBLIC_AGGREGATE_ONLY_EVIDENCE_BINDING_CENSUS",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "split": "DEV_TRAIN",
+  "registryVersion": "CANONICAL_A2_GOVERNANCE_REGISTRY_V1",
+  "governanceSnapshotCommit": "907d726268ad07fe94fec93f4c6f3ff5ce5f93f9",
+  "r19Tip": "6369b28408dd99b0edca86c7fb0e5376bdccf68a",
+  "implementationCommit": "ce005e6f36bc10749c1f410a16c7669eb7dad125",
+  "thisFileAuthorises": [],
+  "binding": {
+    "readyAuthoritiesForSplit": 5,
+    "matchedRuns": 5,
+    "validCompletions": 5,
+    "fetchObservationRows": 203,
+    "pageEvidenceSourceRows": 160,
+    "distinctResponseSha256Documents": 156,
+    "candidateRows": 320,
+    "duplicateDocumentSourceRows": 7,
+    "multipleExtractionVersionDocuments": 0
+  },
+  "versionBreakdown": {
+    "acquisitionPolicyVersionCounts": {
+      "orgunit-fetch-policy-v1": 1,
+      "orgunit-fetch-policy-v2": 1,
+      "orgunit-fetch-policy-v6": 3
+    },
+    "pageExtractionRuleVersionCounts": {
+      "orgunit-extraction-v2": 160
+    },
+    "candidateSignalRuleVersionCounts": {
+      "orgunit-signal-rules-v1": 320
+    },
+    "candidateTrackCounts": {
+      "INTERNATIONAL_OFFICE": 160,
+      "LANGUAGE_CENTRE": 160
+    }
+  },
+  "integrity": {
+    "identityContaminationCount": 0,
+    "fetchPolicyMismatchCount": 0,
+    "relationalOrphanCount": 0,
+    "sameDocumentSameExtractionConflictCount": 0,
+    "candidateTrackPairViolationCount": 0,
+    "everyPageMapsToAFetchInItsRun": true,
+    "everyCandidateMapsToAPageInItsRun": true,
+    "everyRunCompletedCleanly": true,
+    "everyObservationSharesTheAuthorityIdentity": true
+  },
+  "databaseAccess": {
+    "role": "nwf_readonly",
+    "databaseName": "nwf_pe",
+    "transactionReadOnly": true,
+    "transactionIsolationLevel": "repeatable read",
+    "writes": 0,
+    "institutionNetworkRequests": 0,
+    "sealedRootReads": 0,
+    "nonDevTrainEvidenceQueries": 0
+  },
+  "whatThisIsNot": [
+    "NOT_A2_ACQUISITION_AUTHORITY",
+    "NOT_CORPUS_SAMPLING_AUTHORITY",
+    "NOT_SET_P_AUTHORITY",
+    "NOT_SET_R_AUTHORITY",
+    "NOT_AN_SD7_CORPUS_GRAPH",
+    "NOT_HOLDOUT_SCORING_AUTHORITY",
+    "NOT_AN_A5_CORPUS_FREEZE",
+    "NOT_A_DOCUMENT_ASSEMBLY_DECISION"
+  ],
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "reservePositions": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runIdentifiers": false,
+    "runReferenceDigests": false,
+    "rowIdentifiers": false,
+    "urlsOrHosts": false,
+    "documentDigests": false,
+    "titlesHeadingsOrText": false,
+    "candidateSignals": false,
+    "sealedFilenames": false,
+    "gatedSplitData": false
+  }
+}

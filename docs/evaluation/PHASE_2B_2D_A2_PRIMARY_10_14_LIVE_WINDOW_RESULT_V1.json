@@ -1,0 +1,647 @@
+{
+  "recordId": "phase2b-2d-a2-primary-10-14-live-window-result-v1",
+  "recordKind": "LIVE_WINDOW_RESULT_EVIDENCE_PENDING_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_RESULT_V1",
+  "recordedAtUtc": "2026-09-21T16:40:29Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "startingHead": "744fe29b0a348fdc99a479f43f4c7affb3c80926",
+  "bound": {
+    "repairScopeClosure": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_CONTINUATION_PREFLIGHT_GENERALISATION_REPAIR_SCOPE_CLOSURE_V1.json",
+      "sha256": "6e67b3622c51118656d4947154a1b7f2b1a6b09decccd6a1a2969342e2d93e59",
+      "bytes": 2690,
+      "commit": "798ddd88155704de53d63d4b5b1c07ab693cebf3",
+      "pushedBeforeInstitutionNetwork": true
+    },
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_AUTHORITY_V1.json",
+      "sha256": "4cbebe89d0e4bc9921458547c1bee71210094cf0f75b3b53b2c0cb5ad078af27",
+      "bytes": 5754,
+      "commit": "8af5ad187f6632b22997f128ebb81063b3061cf3",
+      "pushedBeforeInstitutionNetwork": true
+    },
+    "preflightGeneralisationImplementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_CONTINUATION_WINDOW_PREFLIGHT_GENERALISATION_IMPLEMENTATION_V1.json",
+      "sha256": "a8ad7dbc0e0995a86b40a7f49d4a5720d95c49b03d0823782f05c6afd2639cfa",
+      "bytes": 15184,
+      "implementationCommit": "18b34c9a24c6a38184c3b643187cb22baa145e04"
+    },
+    "windowPlanV2": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_WINDOW_PLAN_V1.json",
+      "sha256": "f3c3e31c49dfff17c53289d32274e1240330a476ae046544bf8c3516e7c25ef5",
+      "bytes": 6275,
+      "windowPlanHash": "5db74eed5aa7bd427d824ae066b47817a92f8b806e99aaf12fdec824494feb67"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "bytes": 7254,
+      "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+      "entries": 4,
+      "byteIdenticalThroughoutWindow": true
+    }
+  },
+  "chronology": {
+    "closureCommitPushed": "before 2026-09-21T16:32:06Z",
+    "authorityCommitPushedAndRefetchedUtc": "2026-09-21T16:32:06Z",
+    "firstInstitutionRequestNotBeforeUtc": "2026-09-21T16:36:04Z",
+    "lastItemFinishedUtc": "2026-09-21T16:38:41Z"
+  },
+  "preflight": {
+    "databaseBaselineMatchedExpected": true,
+    "databaseBaseline": {
+      "orgunit_research_runs": 20,
+      "orgunit_research_run_completions": 20,
+      "orgunit_fetch_observations": 407,
+      "orgunit_redirect_observations": 31,
+      "orgunit_page_evidence": 319,
+      "orgunit_page_candidates": 638,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "orgunit_page_classifications": 0
+    },
+    "windowPlanShaHashVerified": true,
+    "exactOrderSplitsAndDrawDigestsVerified": true,
+    "workItemsResolvedPrivately": true,
+    "everyFrozenRootEqualsCurrentValidClaim": true,
+    "priorRunsForAnyWindowOrganisation": 0,
+    "dryRuns": {
+      "count": 5,
+      "allDRY_RUN": true,
+      "allBoundToTheirWorkItem": true,
+      "allRootsEqualFrozen": true,
+      "rootsPerItem": 1,
+      "promotionRoots": 0,
+      "databaseWrites": 0,
+      "institutionDnsOrHttp": 0
+    },
+    "gatePreStart": {
+      "preflight": "computePrecommittedWindowPreflight (committed, 18b34c9) against windowSpecFromNextWindowStrategy",
+      "invariantCount": 13,
+      "allInvariantsTrue": true,
+      "successfulOrganisationCount": 10,
+      "reserveConsumedCount": 4,
+      "completed": [],
+      "plannedWindowSize": 5,
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "nextWorkItemId": "P:10",
+      "mayStartNextWorkItem": true
+    },
+    "preflightRerunBeforeEveryItem": true
+  },
+  "hostSafety": {
+    "policy": "AUTHORISE_WINDOW_V2_BATTERY_HOST_SAFETY_POLICY_V1",
+    "power": "AC throughout (not required by the policy)",
+    "batteryPercentBeforeFirstItem": 33,
+    "batteryPercentAfterLastItem": 36,
+    "doNotStartThresholdPercent": 20,
+    "thresholdReached": false,
+    "lidOpenBeforeAndAfterEveryItem": true,
+    "caffeinateDimsuRunningForEveryItem": true,
+    "caffeinateAssertionVerifiedBeforeEachInvocation": true,
+    "sleepWakeDuringAnyItem": 0,
+    "sleepWakeBetweenItems": 0,
+    "hostStateAnomaly": false,
+    "priorWakeBeforeWindow": "a user-activity wake at 2026-09-21T16:24:32Z preceded all Stage A work and every item; it affects no evidence"
+  },
+  "execution": {
+    "order": ["P:10", "P:11", "P:12", "P:13", "P:14"],
+    "concurrency": 1,
+    "startedWorkItems": ["P:10", "P:11", "P:12"],
+    "unstartedWorkItems": ["P:13", "P:14"],
+    "index10Started": true,
+    "index14Started": false,
+    "command": "npm run cli -- orgunits discover --organisation-id <private> --execute --json, exactly once per started item",
+    "curlWgetBrowserOrSecondInvocation": 0,
+    "manualRetries": 0
+  },
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "P:10",
+      "kind": "PRIMARY",
+      "selectionIndex": 10,
+      "reservePosition": null,
+      "split": "DEV_CONFIRM",
+      "startedUtc": "2026-09-21T16:36:04Z",
+      "finishedUtc": "2026-09-21T16:36:05Z",
+      "cliExecuteInvocations": 1,
+      "manualRetries": 0,
+      "runRefSha256": "713978aeff367ded58bda4d38b5c4fe8b85897de9ac45adf7c4bd8a6f8409dd0",
+      "newRuns": 1,
+      "completions": 1,
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "runFetchPolicyVersion": "orgunit-fetch-policy-v4",
+      "everyObservationV4": true,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "gatewayRequests": 1,
+      "pageAttempts": 0,
+      "distinctHostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "observationErrorKinds": {
+        "TLS_FAILURE": 1
+      },
+      "robots": {
+        "requests": 1,
+        "outcomes": [
+          {
+            "attemptNo": 1,
+            "httpStatusClass": null,
+            "errorKind": "TLS_FAILURE",
+            "errorSubtype": "TLS_CERT_INVALID"
+          }
+        ],
+        "redirectContinuations": 0,
+        "maxAttemptNoPerPolicyUrl": 1,
+        "transportRetryPairs": 0,
+        "shape": "SINGLE_REQUEST_TLS_CERT_INVALID_NOT_RETRY_ELIGIBLE",
+        "note": "TLS_CERT_INVALID is in NON_RETRYABLE_SUBTYPES (src/orgunits/web/retryPolicy.ts), so the landed v4 retry correctly did not fire"
+      },
+      "redirectObservations": 0,
+      "rawPages": 0,
+      "candidateRows": 0,
+      "persistenceAnomaly": false,
+      "inputOrRootMismatch": false,
+      "sleepWakeDuringItem": 0,
+      "formalSd7": {
+        "method": "analyseOrganisation (src/test/harness/phase2b2d/sd7/), exact-duplicate pass first",
+        "postSd7Min": 0,
+        "postSd7Max": 0,
+        "countIsExact": true,
+        "formalCountOfRecord": 0,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 0,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "wholeRangeAtOrAbove4": false,
+        "wholeRangeBelow4": true,
+        "decidedByCase": "A",
+        "sealedDetail": {
+          "root": "~/Developer/phase2b-2d-methodology-v2-sealed/gen1-dev-confirm",
+          "file": "PRIMARY_10_14_WINDOW_V2_SD7_DETAIL_P_10.json",
+          "sha256": "de02e6e1ea6094330330ed59a4e91f63f8066515bc9bba3d86496bc7f41ee4dd",
+          "bytes": 1061,
+          "committedToGit": false,
+          "overwroteExistingFile": false
+        }
+      },
+      "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "batteryPercentBefore": 33,
+      "batteryPercentAfter": 34,
+      "powerSource": "AC",
+      "lidOpenAfter": true,
+      "gateObservation": {
+        "workItemId": "P:10",
+        "kind": "PRIMARY",
+        "selectionIndex": 10,
+        "reserveRankPosition": null,
+        "rawPageEvidenceCount": 0,
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "orchestrationError": false,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "inputOrRootMismatch": false
+      },
+      "gateAfterItem": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "mayStartNextWorkItem": true,
+        "nextWorkItemId": "P:11",
+        "completedCount": 1,
+        "remainingWorkItemIds": ["P:11", "P:12", "P:13", "P:14"],
+        "lowYieldCount": 1,
+        "robotsRefusalCount": 1,
+        "trailingP1": 0,
+        "trailingP2": 1,
+        "trailingP3": 0,
+        "generationSuccessfulCount": 10,
+        "generationReserveConsumedCount": 4,
+        "allPreflightInvariantsTrue": true,
+        "ledgerUnchanged": true
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "P:11",
+      "kind": "PRIMARY",
+      "selectionIndex": 11,
+      "reservePosition": null,
+      "split": "FINAL_HOLDOUT",
+      "startedUtc": "2026-09-21T16:36:26Z",
+      "finishedUtc": "2026-09-21T16:37:20Z",
+      "cliExecuteInvocations": 1,
+      "manualRetries": 0,
+      "runRefSha256": "550d7a413130b34d3dc0c44a47a4e0db7fbd647507ea0cc6f1b77b2feb66c299",
+      "newRuns": 1,
+      "completions": 1,
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "runFetchPolicyVersion": "orgunit-fetch-policy-v4",
+      "everyObservationV4": true,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "gatewayRequests": 38,
+      "pageAttempts": 35,
+      "distinctHostsUsed": 2,
+      "circuitOpenHosts": 0,
+      "observationErrorKinds": {},
+      "robots": {
+        "requests": 2,
+        "outcomes": [
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "2xx",
+            "errorKind": null,
+            "errorSubtype": null
+          },
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "2xx",
+            "errorKind": null,
+            "errorSubtype": null
+          }
+        ],
+        "redirectContinuations": 0,
+        "maxAttemptNoPerPolicyUrl": 1,
+        "transportRetryPairs": 0,
+        "shape": "TWO_HOSTS_EACH_READ_DIRECTLY"
+      },
+      "redirectObservations": 1,
+      "rawPages": 34,
+      "candidateRows": 68,
+      "persistenceAnomaly": false,
+      "inputOrRootMismatch": false,
+      "sleepWakeDuringItem": 0,
+      "formalSd7": {
+        "method": "analyseOrganisation (src/test/harness/phase2b2d/sd7/), exact-duplicate pass first",
+        "postSd7Min": 33,
+        "postSd7Max": 34,
+        "countIsExact": false,
+        "formalCountOfRecord": 33,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 0,
+        "shortTextUnresolved": 1,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "decidedByCase": "B",
+        "sealedDetail": {
+          "root": "~/Developer/phase2b-2d-methodology-v2-sealed-holdout/gen1-final-holdout",
+          "file": "PRIMARY_10_14_WINDOW_V2_SD7_DETAIL_P_11.json",
+          "sha256": "2e56b15f79a3adb10d197c0f75247cbdff0289a7efb737235734057c74fbd8ad",
+          "bytes": 15101,
+          "committedToGit": false,
+          "overwroteExistingFile": false
+        }
+      },
+      "diagnosticSd9": "ACQUISITION_SUCCESSFUL",
+      "batteryPercentBefore": 34,
+      "batteryPercentAfter": 35,
+      "powerSource": "AC",
+      "lidOpenAfter": true,
+      "gateObservation": {
+        "workItemId": "P:11",
+        "kind": "PRIMARY",
+        "selectionIndex": 11,
+        "reserveRankPosition": null,
+        "rawPageEvidenceCount": 34,
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "orchestrationError": false,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "inputOrRootMismatch": false
+      },
+      "gateAfterItem": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "mayStartNextWorkItem": true,
+        "nextWorkItemId": "P:12",
+        "completedCount": 2,
+        "remainingWorkItemIds": ["P:12", "P:13", "P:14"],
+        "lowYieldCount": 1,
+        "robotsRefusalCount": 1,
+        "trailingP1": 0,
+        "trailingP2": 0,
+        "trailingP3": 0,
+        "generationSuccessfulCount": 10,
+        "generationReserveConsumedCount": 4,
+        "allPreflightInvariantsTrue": true,
+        "ledgerUnchanged": true
+      },
+      "holdoutPageDetailExposed": false
+    },
+    {
+      "order": 3,
+      "workItemId": "P:12",
+      "kind": "PRIMARY",
+      "selectionIndex": 12,
+      "reservePosition": null,
+      "split": "DEV_TRAIN",
+      "startedUtc": "2026-09-21T16:37:54Z",
+      "finishedUtc": "2026-09-21T16:38:41Z",
+      "cliExecuteInvocations": 1,
+      "manualRetries": 0,
+      "runRefSha256": "fdc6f64fbdd9b66a93007e28b001675063a59b67f5eb02d38dda7c181d1b10aa",
+      "newRuns": 1,
+      "completions": 1,
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "runFetchPolicyVersion": "orgunit-fetch-policy-v4",
+      "everyObservationV4": true,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "gatewayRequests": 37,
+      "pageAttempts": 35,
+      "distinctHostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "observationErrorKinds": {},
+      "robots": {
+        "requests": 1,
+        "outcomes": [
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "4xx",
+            "errorKind": null,
+            "errorSubtype": null
+          }
+        ],
+        "redirectContinuations": 0,
+        "maxAttemptNoPerPolicyUrl": 1,
+        "transportRetryPairs": 0,
+        "shape": "NO_ROBOTS_FILE_404_POLICY_ALLOWS"
+      },
+      "redirectObservations": 0,
+      "rawPages": 1,
+      "candidateRows": 2,
+      "persistenceAnomaly": false,
+      "inputOrRootMismatch": false,
+      "sleepWakeDuringItem": 0,
+      "formalSd7": {
+        "method": "analyseOrganisation (src/test/harness/phase2b2d/sd7/), exact-duplicate pass first",
+        "postSd7Min": 1,
+        "postSd7Max": 1,
+        "countIsExact": true,
+        "formalCountOfRecord": 1,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 0,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "wholeRangeAtOrAbove4": false,
+        "wholeRangeBelow4": true,
+        "decidedByCase": "B",
+        "sealedDetail": {
+          "root": "~/Developer/phase2b-2d-methodology-v2/gen1-dev-train",
+          "file": "PRIMARY_10_14_WINDOW_V2_SD7_DETAIL_P_12.json",
+          "sha256": "fb63977638cc4d388d935ce019776183a70a25decf16da59001d5898baed112d",
+          "bytes": 1653,
+          "committedToGit": false,
+          "overwroteExistingFile": false
+        }
+      },
+      "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "batteryPercentBefore": 36,
+      "batteryPercentAfter": 36,
+      "powerSource": "AC",
+      "lidOpenAfter": true,
+      "gateObservation": {
+        "workItemId": "P:12",
+        "kind": "PRIMARY",
+        "selectionIndex": 12,
+        "reserveRankPosition": null,
+        "rawPageEvidenceCount": 1,
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "orchestrationError": false,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "inputOrRootMismatch": false
+      },
+      "gateAfterItem": {
+        "decision": "PAUSE_P5_LOW_RAW_YIELD",
+        "triggeredConditions": [
+          {
+            "condition": "P5",
+            "decision": "PAUSE_P5_LOW_RAW_YIELD",
+            "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+          }
+        ],
+        "mayStartNextWorkItem": false,
+        "nextWorkItemId": null,
+        "completedCount": 3,
+        "remainingWorkItemIds": ["P:13", "P:14"],
+        "lowYieldCount": 2,
+        "robotsRefusalCount": 1,
+        "trailingP1": 0,
+        "trailingP2": 0,
+        "trailingP3": 0,
+        "generationSuccessfulCount": 10,
+        "generationReserveConsumedCount": 4,
+        "allPreflightInvariantsTrue": true,
+        "ledgerUnchanged": true
+      },
+      "pageRequestStatusBreakdown": {
+        "ROOT": {
+          "200": 1
+        },
+        "LINK": {
+          "404": 34
+        },
+        "SITEMAP": {
+          "404": 1
+        },
+        "ROBOTS": {
+          "404": 1
+        }
+      },
+      "lowYieldObservation": "35 page attempts, no transport error; the root page read 200 and every one of the 34 link-discovered URLs on the single host returned 404",
+      "unverifiedHypothesis": {
+        "status": "UNVERIFIED",
+        "hypothesis": "anchor resolution ignores <base href>: src/orgunits/orchestrator/anchors.ts resolves each href against the page URL only; an alternative is server-side 404s for this client",
+        "whyUnverified": "no response body is stored and no new institution request is authorised",
+        "forAdjudication": true
+      }
+    }
+  ],
+  "triggeredConditionsAcrossWindow": [
+    {
+      "condition": "P5",
+      "decision": "PAUSE_P5_LOW_RAW_YIELD",
+      "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+    }
+  ],
+  "terminalGateDecision": "PAUSE_P5_LOW_RAW_YIELD",
+  "terminalGateState": {
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "mayStartNextWorkItem": false,
+    "nextWorkItemId": null,
+    "completedCount": 3,
+    "remainingWorkItemIds": ["P:13", "P:14"],
+    "lowYieldCount": 2,
+    "robotsRefusalCount": 1,
+    "trailingP1": 0,
+    "trailingP2": 0,
+    "trailingP3": 0,
+    "generationSuccessfulCount": 10,
+    "generationReserveConsumedCount": 4
+  },
+  "thresholdsConfirmed": {
+    "P1Consecutive": 3,
+    "P2Consecutive": 3,
+    "P2PercentageCountOf5": 3,
+    "P3ConsecutiveFailed": 2,
+    "P3OrchestrationError": "any",
+    "P5LowRawYieldCountOf5": 2,
+    "P6": "reserveConsumed > 10 while successful < 50; inputs 4 / 10, false",
+    "gateModified": false,
+    "thresholdsAlteredByOutcome": false
+  },
+  "boundaryProofs": {
+    "everyNewRunV4": true,
+    "everyNewObservationV4": true,
+    "newV1V2V3RunsOrObservations": 0,
+    "transportRetryPairs": 0,
+    "httpRetries": 0,
+    "robotsRedirectContinuations": 0,
+    "rootPromotionsCreated": 0,
+    "persistenceAnomalies": 0,
+    "inputOrRootMismatches": 0,
+    "orchestrationErrors": 0,
+    "productionCodeChanged": false,
+    "migrationCreated": false,
+    "fetchPolicyChanged": false
+  },
+  "databaseDeltas": {
+    "orgunit_research_runs": {
+      "before": 20,
+      "after": 23,
+      "delta": 3
+    },
+    "orgunit_research_run_completions": {
+      "before": 20,
+      "after": 23,
+      "delta": 3
+    },
+    "orgunit_fetch_observations": {
+      "before": 407,
+      "after": 483,
+      "delta": 76
+    },
+    "orgunit_redirect_observations": {
+      "before": 31,
+      "after": 32,
+      "delta": 1
+    },
+    "orgunit_page_evidence": {
+      "before": 319,
+      "after": 354,
+      "delta": 35
+    },
+    "orgunit_page_candidates": {
+      "before": 638,
+      "after": 708,
+      "delta": 70
+    },
+    "orgunit_root_promotions": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_root_promotion_revocations": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_classification_subjects": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_classifier_calls": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_classifier_call_completions": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_page_classifications": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "newV4Runs": 3,
+    "newV4Observations": 76,
+    "newObservationsWithNonNullErrorSubtype": 1,
+    "runsWithoutCompletion": 0,
+    "reconcilesWithPerItemSums": true
+  },
+  "ledger": {
+    "entriesBeforeWindow": 4,
+    "entriesAfterWindow": 4,
+    "fileSha256Unchanged": true,
+    "reserveConsumed": 4,
+    "reservePosition4Assigned": false,
+    "dynamicReserveAssignment": false,
+    "postNetworkAppend": false,
+    "index15OrHigherTouched": false
+  },
+  "diagnosticSummary": {
+    "startedItems": 3,
+    "diagnosticSd9Successful": 1,
+    "diagnosticSd9Unsuccessful": 2,
+    "pendingSd7OwnerDetail": 0,
+    "note": "diagnostic only. Which started primaries succeed or fail, pending replacement obligations and the Generation-1 counts are for the evidence adjudication."
+  },
+  "evidenceStatus": {
+    "status": "LIVE_WINDOW_EVIDENCE_PENDING_ADJUDICATION",
+    "acquisitionOfRecordAdjudicated": false,
+    "generationSuccessFailureSetRewritten": false,
+    "pendingReplacementObligationsCreated": false,
+    "acquisitionPolicyTransitionLedgersUpdated": false,
+    "currentAcquisitionOfRecordMappingChanged": false,
+    "corpusFreezeStatusChanged": false
+  },
+  "scopeProofs": {
+    "classifierExecutions": 0,
+    "providerInference": 0,
+    "labelsCreated": 0,
+    "setP": 0,
+    "setR": 0,
+    "semanticHoldoutAccess": 0,
+    "phase2E": 0,
+    "classifierTablesAllZero": true,
+    "holdoutItemsStarted": ["P:11"],
+    "holdoutDetailRoutedOnlyToSealedHoldoutRoot": true,
+    "holdoutPageTextTitlesUrlsDocumentHashesLabelsOrClassDistributionExposed": false
+  },
+  "operatorNotes": [
+    "Operator scripts lived in the session scratchpad, outside git. The postflight was smoke-tested read-only against a historical run before the first live item, with no sealed or state write.",
+    "Sealed SD7 detail was written with the landed analyseOrganisation + toSealedRecord under new window-specific filenames with an exclusive-create flag, because the landed writeSealedSplitFile hardcodes the A3a filename."
+  ],
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "organisationUuids": 0,
+    "echeRowKeys": 0,
+    "hostnames": 0,
+    "urls": 0,
+    "pageTitlesOrText": 0,
+    "publicLinkageIsOnly": ["workItemId", "selectionIndex", "SHA-256(run UUID)"],
+    "rawRunJsonLocation": "outside the repository, in the session scratchpad only"
+  },
+  "implementationOrProvenanceIncident": false,
+  "nextOwnerDecision": "A2_PRIMARY_10_14_LIVE_WINDOW_EVIDENCE_ADJUDICATION",
+  "terminalState": "PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_PAUSED_P5_AWAITING_EVIDENCE_ADJUDICATION"
+}

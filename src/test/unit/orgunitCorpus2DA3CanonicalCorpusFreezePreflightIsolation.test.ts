@@ -1,0 +1,480 @@
+/**
+ * PHASE 2B-2D A3 R9 ISOLATION — `corpusFreezePreflight.ts` IS A PURE PARTIAL
+ * PREFLIGHT OVER LANDED PREPARATION CONTRACTS, AND NOTHING ELSE.
+ *
+ * By reading the real source of `a3prep/corpusFreezePreflight.ts` and the git
+ * history, this file proves:
+ *
+ *   - it imports exactly `./contracts.js`, `./sd9.js`, `./setPSd7.js`,
+ *     `./setRSd7Readiness.js` (R13) and (types only) `./types.js` - never
+ *     `manifestTypes.ts`, the SD7
+ *     measurement modules, a rank primitive, node:crypto or anything that
+ *     touches IO;
+ *   - it performs no IO, clock, randomness, environment or console use;
+ *   - it carries none of the historical preflight's stale shapes: no caller
+ *     approval boolean, no free-form reason list, no organisation key, no
+ *     naked READY status, no manifest check;
+ *   - it emits no semantic short-text verdict token;
+ *   - it builds no SET_R rank or cap and no organisation cap, and adds no K5 -
+ *     R13 lets it READ SET_R's sanitised readiness, nothing more;
+ *   - R9's changed surface, from the short-text policy binding tip to R9's OWN
+ *     code commit, is this module, R9's two tests and the R1 namespace
+ *     widening; no other a3prep runtime file changes at all.
+ *
+ * R13 WIDENED THIS FILE, BY EXACT NAME: the import graph gained
+ * `./setRSd7Readiness.js` (readiness tokens, the per-entry structural check
+ * and the summary type only); the export list replaced the SET_P-only gate and
+ * the R9-named status/not-checked constants with explicitly sample-named
+ * gates and current-prep names. R9's own lineage assertions below are
+ * unchanged: they read R9's OWN commits, not the working tree.
+ *
+ * R15 WIDENED IT AGAIN, BY EXACT NAME: the import graph gained
+ * `./organisationCaps.js` for the K4 readiness TYPE, the two readiness status
+ * tokens and the non-G3 gate list (whose length is the checked-gate count) -
+ * never the fixed-point solver, prefix retention, the planned identity check
+ * or the readiness derivation, so this module validates K4 readiness and never
+ * becomes a second K4 implementation. Contracts gained the gated splits, the
+ * G3 freeze policy and the K4 decision binding (for the policy-binding check);
+ * the input gained `k4`; the exports gained the K4 blocker shape; and the
+ * organisation-cap guard below now forbids solving rather than naming.
+ *
+ * THE GENERATION-1 SHORT-TEXT SCOPE CLARIFICATION WIDENED IT, BY EXACT NAME:
+ * the append-only owner record
+ * `SHORT_TEXT_REQUIRED_SAMPLE_MEMBERSHIP_LIMITED_TO_REACHABLE_CAPPED_MEMBERSHIP_V1`
+ * moved both short-text gates' trigger from the complete rank to the
+ * REQUIRED selected (capped) membership. So the SET_R import is now its
+ * BLOCKED initial-cap token instead of its blocked full-rank token, the gates
+ * must read `initialCapReadiness` and must no longer read a blocked
+ * `fullRankReadiness`, and contracts gained the SET_P cap (for the summary
+ * consistency check) and the scope-policy binding.
+ *
+ * The historical `corpusFreezePreflight.ts` on the non-canonical
+ * `feat/phase2b-2d-a3-corpus-prep-sol` branch was INSPECTED AS A NEGATIVE
+ * REFERENCE ONLY; nothing was copied or cherry-picked from it.
+ *
+ * It lives in src/test/unit/ for the reason R1's isolation test gives: no file
+ * under src/test/firewall/ may change after the methodology branch point.
+ */
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import * as preflight from '../harness/phase2b2d/a3prep/corpusFreezePreflight.js';
+
+const REPO_ROOT = resolve(__dirname, '..', '..', '..');
+const A3PREP_REL = 'src/test/harness/phase2b2d/a3prep';
+
+/** R9's exact parent: the short-text membership policy binding's terminal commit. */
+const POLICY_TERMINAL_COMMIT = 'fcecc93e69f4108abff34c0c1b6cbe4f21f81501';
+
+const THIS_FILE = 'src/test/unit/orgunitCorpus2DA3CanonicalCorpusFreezePreflightIsolation.test.ts';
+const R9_AUDIT_NOTE = 'docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R9_CORPUS_FREEZE_PREFLIGHT_V1.md';
+
+const R9_ALLOWED_PATHS = [
+  `${A3PREP_REL}/corpusFreezePreflight.ts`,
+  'src/test/unit/orgunitCorpus2DA3CanonicalContractsIsolation.test.ts',
+  'src/test/unit/orgunitCorpus2DA3CanonicalCorpusFreezePreflight.test.ts',
+  THIS_FILE,
+].sort();
+
+function git(...args: readonly string[]): string {
+  return execFileSync('git', ['-C', REPO_ROOT, ...args], { encoding: 'utf8' });
+}
+
+function commitExists(commit: string): boolean {
+  try {
+    execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
+      stdio: 'ignore',
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function lines(text: string): string[] {
+  return text.split('\n').filter((line) => line.length > 0);
+}
+
+function stripComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+}
+
+function raw(): string {
+  return readFileSync(join(REPO_ROOT, A3PREP_REL, 'corpusFreezePreflight.ts'), 'utf8');
+}
+
+function code(): string {
+  return stripComments(raw());
+}
+
+function specifiersOf(source: string): string[] {
+  const found: string[] = [];
+  for (const m of source.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)) found.push(m[1] ?? '');
+  for (const m of source.matchAll(/\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g)) found.push(m[1] ?? '');
+  for (const m of source.matchAll(/\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g))
+    found.push(m[1] ?? '');
+  for (const m of source.matchAll(/^\s*import\s+['"]([^'"]+)['"]/gm)) found.push(m[1] ?? '');
+  return found.sort();
+}
+
+function namedImportsFrom(source: string, specifier: string): string[] {
+  const escaped = specifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const found = new RegExp(`import\\s*(?:type\\s*)?\\{([^}]*)\\}\\s*from\\s*'${escaped}'`).exec(
+    source,
+  );
+  return (
+    found?.[1]
+      ?.split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .sort() ?? []
+  );
+}
+
+/** R9's own code commit: the commit that ADDED this file, or null before it exists. */
+function r9CodeCommit(): string | null {
+  const found = lines(git('log', '--diff-filter=A', '--format=%H', '--', THIS_FILE));
+  return found.length === 1 ? found[0]! : null;
+}
+
+function changedByR9(): { readonly paths: readonly string[]; readonly committed: boolean } {
+  const commit = r9CodeCommit();
+  if (commit !== null) {
+    return {
+      paths: lines(git('diff', '--name-only', POLICY_TERMINAL_COMMIT, commit)).sort(),
+      committed: true,
+    };
+  }
+  const tracked = lines(git('diff', '--name-only', POLICY_TERMINAL_COMMIT));
+  const untracked = lines(git('ls-files', '--others', '--exclude-standard'));
+  return { paths: [...new Set([...tracked, ...untracked])].sort(), committed: false };
+}
+
+const baseAvailable = commitExists(POLICY_TERMINAL_COMMIT);
+
+// ---------------------------------------------------------------------------
+
+describe('2D-A3 R9: exact import graph', () => {
+  it('imports exactly contracts, organisationCaps (R15), sd9, setPSd7, setRSd7Readiness (R13) and types', () => {
+    expect(specifiersOf(code())).toEqual([
+      './contracts.js',
+      './organisationCaps.js',
+      './sd9.js',
+      './setPSd7.js',
+      './setRSd7Readiness.js',
+      './types.js',
+    ]);
+  });
+
+  it('R13 + scope clarification: takes only SET_R’s blocked initial-cap token, its entry check and its summary type from setRSd7Readiness', () => {
+    expect(namedImportsFrom(code(), './setRSd7Readiness.js')).toEqual([
+      'SET_R_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP',
+      'structuralIssueOfSetRFreezeSlotReadiness',
+      'type A3SetRFreezeSlotReadiness',
+    ]);
+    expect(code()).not.toMatch(
+      /deriveSetRFreezeSlotReadiness|determineSetRDocumentCap|checkSetRExtensionCursor/,
+    );
+  });
+
+  it('scope clarification: both gates trigger on the REQUIRED selected membership, never on a blocked full rank', () => {
+    const source = code();
+    expect(source).toMatch(
+      /requiredMembershipBlocked:[^;]*initialCapReadiness\s*===\s*SET_P_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP/,
+    );
+    expect(source).toMatch(
+      /requiredMembershipBlocked:[^;]*initialCapReadiness\s*===\s*SET_R_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP/,
+    );
+    expect(source).not.toMatch(/fullRankBlocked/);
+    expect(source).not.toMatch(
+      /fullRankReadiness\s*===\s*SET_[PR]_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED/,
+    );
+  });
+
+  it('R15: takes only the K4 readiness type, its two status tokens and the non-G3 gate list from organisationCaps', () => {
+    expect(namedImportsFrom(code(), './organisationCaps.js')).toEqual([
+      'A3_SD4_NON_G3_GATES',
+      'K4_PLANNED_SD4_FREEZE_CLEAR',
+      'K4_PLANNED_SD4_FREEZE_REFUSED',
+      'type A3K4FreezeReadiness',
+    ]);
+    expect(code()).not.toMatch(
+      /solveOrganisationShareGreatestFixedPoint|applyOrganisationSharePrefixRetention|checkPlannedNonG3OrganisationShareIdentity|deriveK4FreezeReadiness|A3_G3_FREEZE_ORGANISATION_SHARE_COMMITMENT|PLANNED_SD4_(IDENTITY|WOULD_TRUNCATE)/,
+    );
+  });
+
+  it('reads only owner-decision, Generation-1 coverage, split, short-text and K4 binding facts from contracts', () => {
+    expect(namedImportsFrom(code(), './contracts.js')).toEqual([
+      'A3_GATED_SPLITS',
+      'A3_PREP_OWNER_DECISIONS_REQUIRED',
+      'A3_PREP_RESOLVED_OWNER_DECISION_MARKERS',
+      'G3_FREEZE_ORGANISATION_SHARE_POLICY',
+      'GENERATION_1_SELECTED_ORGANISATIONS',
+      'GENERATION_1_SPLIT_ORGANISATION_COUNTS',
+      'K4_OWNER_DECISION',
+      'SET_P_MAX_PAGES_PER_ORGANISATION',
+      'SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE',
+      'SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT',
+      'SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL',
+      'SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT',
+      'SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY',
+      'SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY',
+      'SPLITS',
+      'type A3PrepUnresolvedOwnerDecisionMarker',
+      'type Split',
+    ]);
+  });
+
+  it('takes only R3’s bounds classifier from sd9 - never the exact-count path, never a threshold', () => {
+    expect(namedImportsFrom(code(), './sd9.js')).toEqual([
+      'evaluateSd9FromAdmissiblePostSd7Bounds',
+      'type A3Sd9MechanicalStatus',
+    ]);
+    expect(code()).not.toMatch(/MIN_PAGES_PER_ORGANISATION|evaluateSd9FromExactPostSd7Count/);
+    expect(code()).not.toMatch(/>=\s*4\b|<\s*4\b/);
+  });
+
+  it('takes only R8’s two cap tokens and its preparation type from setPSd7 - never prepareSetPSd7', () => {
+    expect(namedImportsFrom(code(), './setPSd7.js')).toEqual([
+      'SET_P_DOCUMENT_CAP_BLOCKED_SHORT_TEXT_SAMPLE_MEMBERSHIP',
+      'SET_P_DOCUMENT_CAP_EXACT',
+      'type A3SetPSd7Preparation',
+    ]);
+    expect(code()).not.toMatch(/prepareSetPSd7|prepareSd7SampleSurvivors|rankSetPFull/);
+  });
+
+  it('reaches types by TYPE import only', () => {
+    expect(code()).toMatch(/^import type \{[^}]*\} from '\.\/types\.js';$/m);
+  });
+
+  it('never reaches manifestTypes, rank, setP, sd7, splitScope, the SD7 measurement modules or node:crypto', () => {
+    const source = code();
+    expect(source).not.toMatch(/manifestTypes|\.\/rank\.js|\.\/setP\.js|\.\/sd7\.js|splitScope/);
+    expect(source).not.toMatch(/\.\.\/sd7\/|nearDuplicatePairs|normaliseText|tokenShingles/);
+    expect(source).not.toMatch(/jaccard|shingle|tokeni[sz]|normalis(e|ation)Text/i);
+    expect(source).not.toMatch(/node:crypto|createHash|digest\(/);
+  });
+});
+
+describe('2D-A3 R9: pure', () => {
+  const FORBIDDEN: readonly RegExp[] = [
+    /\bfetch\s*\(/,
+    /node:/,
+    /\bfs\b|\bpath\b|\bos\b/,
+    /process\./,
+    /Date\.now\s*\(|new Date\s*\(|performance\.now/,
+    /Math\.random\s*\(|randomUUID|randomBytes|getRandomValues|crypto/,
+    /readFile|writeFile|readdir|createReadStream|createWriteStream|mkdir/,
+    /\bPool\b|\bClient\b|\bquery\s*\(/,
+    /console\./,
+    /anthropic|openai|apollo|classif|provider/i,
+    /src\/orgunits|\/cli\/|\/db\/|migrations/,
+    /acquisitionGate|continuationWindow|transition|ledger\.json|reserveLedger/i,
+  ];
+  it('holds none of the forbidden capabilities', () => {
+    const source = code();
+    for (const pattern of FORBIDDEN) expect(source, String(pattern)).not.toMatch(pattern);
+  });
+
+  it('names no sealed root and no real corpus location', () => {
+    expect(raw()).not.toMatch(/SEALED_ROOT_BY_SPLIT|gen1-dev-confirm|gen1-final-holdout|-sealed/);
+    expect(raw()).not.toMatch(/homedir|Developer\//);
+  });
+});
+
+describe('2D-A3 R9: no stale historical preflight shape survives', () => {
+  it('names none of the historical caller approval booleans', () => {
+    for (const stale of [
+      'setRScoreReductionApproved',
+      'organisationShareTruncationApproved',
+      'sd7SampleRankSemanticsApproved',
+      'setPDeterminismVerified',
+      'setRDeterminismVerified',
+      'capsVerified',
+      'hashInputsComplete',
+    ]) {
+      expect(raw(), stale).not.toContain(stale);
+    }
+    expect(code()).not.toMatch(/Approved\b|Verified\b|:\s*boolean/);
+  });
+
+  it('carries no free-form reason list, organisation key or naked READY status', () => {
+    expect(code()).not.toMatch(/\breasons?\b|organisationKey|organisationId|echeRowKey/);
+    expect(code()).not.toMatch(/'READY'|'NOT_READY'|\bREADY\b|READY_TO_FREEZE/);
+    expect(code()).not.toMatch(/A3PreflightStatus|checkCorpusFreezePreflight\b/);
+  });
+
+  it('checks no manifest - that belongs to a later, final preflight', () => {
+    // The one permitted mention is the NOT-checked token that says so.
+    const source = code();
+    expect(source.match(/'FINAL_MANIFEST_HASHES'/g)).toHaveLength(1);
+    expect(source.replace("'FINAL_MANIFEST_HASHES'", '')).not.toMatch(
+      /manifest|publicManifest|A3GatedSplitPublicAggregate/i,
+    );
+  });
+});
+
+describe('2D-A3 R9: no semantic short-text verdict, no K5, no SET_R, no organisation cap', () => {
+  it('names no verdict token anywhere in the file', () => {
+    expect(raw()).not.toMatch(
+      /UNIQUE|NEAR_DUPLICATE|ALWAYS_INCLUDE|ALWAYS_EXCLUDE|KEEP_SHORT_TEXT|DROP_SHORT_TEXT/,
+    );
+    expect(code()).not.toMatch(/'PRESENT'|'ABSENT'|\bPRESENT\b|\bABSENT\b/);
+  });
+
+  it('adds no K5 and redefines no K marker', () => {
+    expect(raw()).not.toMatch(/\bK5\b|K5_/);
+    expect(code()).not.toMatch(/A3_PREP_OWNER_DECISION_REQUIRED:/);
+    expect(code()).not.toMatch(/'K1'\s*,|'K2'\s*,|'K4'\s*\]/);
+  });
+
+  it('builds no SET_R rank or cap and computes no organisation cap (R13: SET_R readiness only; R15: K4 readiness only)', () => {
+    expect(code()).not.toMatch(
+      /rankSetR|prepareSetRSd7|\.\/setR\.js|\.\/setRSd7\.js|SET_R_(MAX|TIE|PRIMARY)|SET_R_DOCUMENT_CAP|ORGANISATION_GATE_SHARE_CAP/,
+    );
+    // No fixed-point arithmetic: no quota, no share ratio, no bigint, no contribution vector.
+    expect(code()).not.toMatch(
+      /\bquota|fixedPoint|\bbigint\b|BigInt|\d+n\b|contribution|retainedCounts/i,
+    );
+    expect(code()).not.toMatch(/resolvedScore|candidateScore|trackReduction/i);
+  });
+
+  it('works on counts and positions only: no page-evidence row, URL, text or document digest', () => {
+    expect(code()).not.toMatch(
+      /documentSha256|saltedRankSha256|pageEvidence|sourcePageEvidenceIds|\burl\b|mainText|\btitle\b/i,
+    );
+  });
+
+  it('implements no extension selection and mutates no cursor', () => {
+    expect(code()).not.toMatch(
+      /\.push\(\s*survivor|cursor\s*\+=|cursor\+\+|advanceCursor|selectExtension/,
+    );
+  });
+});
+
+describe('2D-A3 R9: scope', () => {
+  it('exports exactly the two layers, the SD9 helper, the extension check, the ledger, the refusal and their tokens/shapes', () => {
+    const exported = [
+      ...code().matchAll(/export\s+(?:type|class|function|const|interface)\s+(\w+)/g),
+    ]
+      .map((m) => m[1])
+      .sort();
+    expect(exported).toEqual(
+      [
+        'A3CorpusFreezePreflightRefusal',
+        'A3CorpusFreezePreflightRefusalCode',
+        'A3CorpusFreezePreflightResult',
+        'A3CurrentCorpusFreezePreflightInput',
+        'A3FreezePreflightBlocker',
+        'A3FreezePreflightK4Blocker',
+        'A3FreezePreflightOwnerDecisionBlocker',
+        'A3FreezePreflightSample',
+        'A3FreezePreflightShortTextBlocker',
+        'A3FreezePreflightStructuralBlocker',
+        'A3FreezePreflightStructuralCode',
+        'A3Sd9ShortTextPolicyBounds',
+        'A3Sd9ShortTextPolicyInput',
+        'A3SetPExtensionPositionReadiness',
+        'A3SetPFreezeSlotReadiness',
+        'A3SetPFreezeSlotReadinessInput',
+        'A3SetPFullRankReadiness',
+        'A3SetPInitialCapReadiness',
+        'A3ShortTextCorpusFreezeGateResult',
+        'A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY',
+        'A3_CORPUS_FREEZE_PREFLIGHT_KIND',
+        'A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP',
+        'A3_CORPUS_FREEZE_PREFLIGHT_REFUSED',
+        'SET_P_EXTENSION_BLOCKED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED',
+        'SET_P_EXTENSION_POSITION_EXACT',
+        'SET_P_EXTENSION_RANK_EXHAUSTED_EXACT',
+        'SET_P_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT',
+        'SET_P_FULL_SAMPLE_RANK_MEMBERSHIP_EXACT',
+        'SET_P_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP',
+        'SET_P_INITIAL_CAP_EXACT',
+        'SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR',
+        'SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED',
+        'SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL',
+        'checkCurrentA3CorpusFreezePreflight',
+        'checkSetPExtensionCursorAgainstShortTextBoundary',
+        'checkSetPShortTextCorpusFreezeGate',
+        'checkSetRShortTextCorpusFreezeGate',
+        'deriveCurrentOwnerDecisionBlockers',
+        'deriveSd9BoundsUnderShortTextPolicy',
+        'deriveSetPFreezeSlotReadiness',
+      ].sort(),
+    );
+    const runtime = Object.entries(preflight)
+      .filter(([, v]) => typeof v === 'function')
+      .map(([k]) => k)
+      .sort();
+    expect(runtime).toEqual([
+      'A3CorpusFreezePreflightRefusal',
+      'checkCurrentA3CorpusFreezePreflight',
+      'checkSetPExtensionCursorAgainstShortTextBoundary',
+      'checkSetPShortTextCorpusFreezeGate',
+      'checkSetRShortTextCorpusFreezeGate',
+      'deriveCurrentOwnerDecisionBlockers',
+      'deriveSd9BoundsUnderShortTextPolicy',
+      'deriveSetPFreezeSlotReadiness',
+    ]);
+  });
+
+  it('every overall result is typed NOT execution authority, and no status says READY', () => {
+    expect(preflight.A3_CORPUS_FREEZE_PREFLIGHT_KIND).toBe(
+      'A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY',
+    );
+    expect(
+      preflight.A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY,
+    ).toMatch(/NOT_FREEZE_AUTHORITY$/);
+  });
+
+  it('R13: no R9-only canonical name survives, and no SET_P-only overall entry point exists', () => {
+    expect(code()).not.toMatch(
+      /R9_BLOCKERS_CLEAR|NOT_CHECKED_BY_R9|notCheckedByR9|checkShortTextCorpusFreezeGate\b|'SET_R_RANKING'/,
+    );
+    expect(code()).toMatch(
+      /export function checkCurrentA3CorpusFreezePreflight\(\s*input: A3CurrentCorpusFreezePreflightInput,\s*\)/,
+    );
+    // R15: the input is exactly { setP, setR, k4 } - no `{ setP, setR }` form survives.
+    expect(code()).toMatch(
+      /export interface A3CurrentCorpusFreezePreflightInput \{\s*readonly setP: readonly A3SetPFreezeSlotReadiness\[\];\s*readonly setR: readonly A3SetRFreezeSlotReadiness\[\];\s*readonly k4: readonly A3K4FreezeReadiness\[\];\s*\}/,
+    );
+    expect(code()).not.toMatch(/'K4_ENFORCEMENT'/);
+    expect(code()).toMatch(/'REALISED_SCORING_TIME_SD4_ENFORCEMENT'/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe.skipIf(!baseAvailable)('2D-A3 R9: lineage and changed surface', () => {
+  it('descends from the short-text policy binding’s terminal commit', () => {
+    expect(() => git('merge-base', '--is-ancestor', POLICY_TERMINAL_COMMIT, 'HEAD')).not.toThrow();
+  });
+
+  it('is corpusFreezePreflight.ts, R9’s two tests and the namespace widening (and, uncommitted, its note)', () => {
+    const { paths, committed } = changedByR9();
+    const allowed = new Set(R9_ALLOWED_PATHS);
+    if (!committed) allowed.add(R9_AUDIT_NOTE);
+    for (const path of paths) expect(allowed, path).toContain(path);
+    if (committed) expect(paths).toEqual(R9_ALLOWED_PATHS);
+  });
+
+  it('changes no other a3prep file, SD7 measurement, firewall, production file, migration or record', () => {
+    const { paths } = changedByR9();
+    const forbidden = paths.filter(
+      (path) =>
+        (path.startsWith(`${A3PREP_REL}/`) && path !== `${A3PREP_REL}/corpusFreezePreflight.ts`) ||
+        path.startsWith('src/test/harness/phase2b2d/sd7/') ||
+        path.startsWith('src/test/firewall/') ||
+        path.startsWith('src/orgunits/') ||
+        path.startsWith('src/cli/') ||
+        path.startsWith('src/db/') ||
+        path.startsWith('migrations/') ||
+        path.startsWith('docs/evaluation/') ||
+        path === 'package.json' ||
+        path === 'package-lock.json',
+    );
+    expect(forbidden).toEqual([]);
+  });
+});

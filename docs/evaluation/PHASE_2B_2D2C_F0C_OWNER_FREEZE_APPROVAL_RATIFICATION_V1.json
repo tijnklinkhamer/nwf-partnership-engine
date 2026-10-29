@@ -1,0 +1,58 @@
+{
+  "recordId": "phase2b-2d2c-f0c-owner-freeze-approval-ratification-v1",
+  "recordKind": "OWNER_FREEZE_APPROVAL_RATIFICATION",
+  "ratifies": "DEVELOPMENT_CONFIGURATION_FREEZE_APPROVAL_ONLY",
+  "recordedAtUtc": "2026-09-14T15:21:50Z",
+  "recordedBy": "claude-code-session under explicit owner instruction (session_01HyBuqsQUmfqx9LmeJoNJud); the ratification itself is the owner’s",
+  "ratifiedApprovalRecord": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_V1.json",
+    "rawSha256": "61eb52f3193636ff496d403140538cfd370964b82e7b660fbe6d9944a831dd22",
+    "committedAt": "1f2789df88f2a22ff1818b31328c6011b9bbe2e6",
+    "branch": "feat/phase2b-2d2c-f0c-v3-r1-configuration-freeze",
+    "preservedVerbatim": true,
+    "neverRewrittenAmendedReplacedOrMutated": true
+  },
+  "markerCorrection": {
+    "markerAsReceivedInTheApprovalStatement": "PPROVE_F0C_FREEZE",
+    "canonicalMarker": "APPROVE_F0C_FREEZE",
+    "nature": "TRANSCRIPTION_TYPO_IN_THE_MARKER_ONLY",
+    "ownerConfirmation": "The owner explicitly confirms the dropped leading letter was a transcription/entry typo in the marker only; it did not alter the approval intent, which was explicit in the body of the statement, and it did not alter any approved identity."
+  },
+  "approvedFreeze": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0C_V1.json",
+    "rawSha256": "d3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9",
+    "rawBytes": 82304,
+    "derivedAttempt2PlanSha256": "133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143",
+    "approvedFreezeCommit": "5ddb558ff5404b1e5f1633e6def634a2a57fd7e3",
+    "bytesUnchangedByThisRatification": true
+  },
+  "approvedIdentitiesRestated": {
+    "runtimeCommit": "0c0d73803ed1155d568afe50a6657b7be7276dbb",
+    "r1Commit": "9c509107fd66afdc979364a135bf94eb64379972",
+    "promptVersion": "orgunit-classifier-prompt-v3",
+    "promptSha256": "d05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1",
+    "predecessorF0BRawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+    "attempt1ComparatorInventorySha256": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+    "repairMinimumRemainingBudgetMs": 120000
+  },
+  "semanticsUnchanged": {
+    "statement": "No freeze, configuration, runtime, plan, scoring, threshold, gold, schema, validator or acquisition-input semantics changed. This record adds a marker correction to the historical record and nothing else.",
+    "freezeBytesChanged": false,
+    "planChanged": false,
+    "runtimeIdentityChanged": false,
+    "repairPolicyChanged": false,
+    "approvalRecordChanged": false
+  },
+  "thisRecordAuthorises": [],
+  "thisRecordDoesNotAuthorise": [
+    "attempt-2 execution (this ratification is NOT an attempt-2 execution authorisation)",
+    "inference of any kind (no Agent SDK query(), no Claude execution or auth call)",
+    "an execution authorisation or a consumption marker",
+    "an attempt-2 artifact namespace",
+    "HOLDOUT or mixed-label access",
+    "a gold, threshold, schema, validator or acquisition-input change",
+    "a migration application or any database write",
+    "a merge, a pull request, a force-push, or a push to main"
+  ],
+  "ownerStatementAsReceived": "APPROVE_F0C_FREEZE — RATIFICATION AND ATTEMPT-2 PREPARATION AUTHORISATION\n\nFor avoidance of doubt, I explicitly ratify and confirm the already-recorded Phase 2B-2D2C-F0C freeze approval.\n\nThe first token of my prior approval arrived as:\n\nPPROVE_F0C_FREEZE\n\ninstead of:\n\nAPPROVE_F0C_FREEZE\n\nThis was a transcription/entry typo in the marker only. It did not alter my approval intent, which was explicit in the body of the statement, and it did not alter any approved identity.\n\nThe approved F0C remains exactly:\n\nraw SHA-256:\n\nd3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9\n\nderived attempt-2 plan SHA-256:\n\n133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143\n\napproved freeze commit:\n\n5ddb558ff5404b1e5f1633e6def634a2a57fd7e3\n\napproval-record commit currently reported as:\n\n1f2789df88f2a22ff1818b31328c6011b9bbe2e6\n\nruntime:\n\n0c0d73803ed1155d568afe50a6657b7be7276dbb\n\nR1:\n\n9c509107fd66afdc979364a135bf94eb64379972\n\nprompt SHA-256:\n\nd05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1\n\npredecessor F0B:\n\nc3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157\n\nattempt-1 comparator inventory:\n\nee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137\n\nDo not rewrite, amend, replace, or mutate the existing owner approval record. Preserve it verbatim as historical evidence.\n\nFirst create a small additive owner-ratification record that:\n\nreferences the existing approval record and its commit;\nrecords that PPROVE_F0C_FREEZE was a marker typo only;\nrecords the corrected canonical marker APPROVE_F0C_FREEZE;\nrepeats the complete approved F0C raw hash and plan hash;\nstates explicitly that no freeze/configuration/runtime/plan semantics changed;\nstates explicitly that this ratification is not an attempt-2 execution authorisation.\n\nCommit and push that ratification additively on the F0C branch, fetch again, and prove local/remote equality. Do not alter the F0C freeze bytes. Recompute them and prove the approved raw hash and derived plan hash remain exact.\n\nTHEN CONTINUE WITH THE ATTEMPT-2 PREPARATION SLICE — ZERO INFERENCE\n\nI authorise preparation and verification for Phase 2B-2D2C attempt 2 only.\n\nThis authorisation permits no classifier inference and no execution of the frozen 12-evaluation plan.\n"
+}

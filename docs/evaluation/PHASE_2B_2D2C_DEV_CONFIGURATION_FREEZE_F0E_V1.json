@@ -1,0 +1,1459 @@
+{
+  "freezeId": "PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0E_V1",
+  "version": "phase2b-2d2c-dev-configuration-freeze-f0e-v1",
+  "status": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL",
+  "freezeRevision": "F0E_V3B_R1_ATTEMPT_2",
+  "preparedOn": "2026-09-14",
+  "approvalModel": {
+    "rule": "This file is PROPOSED. It becomes the frozen attempt-2 configuration only when a separate owner freeze-approval record names this file’s exact raw SHA-256. The bytes of this file never change on approval; the approval is a separate record, so the hash presented for approval is the hash that is approved.",
+    "approvalRecord": "docs/evaluation/PHASE_2B_2D2C_F0E_OWNER_FREEZE_APPROVAL_V1.json (does not exist until the owner approves)",
+    "thisFileAuthorises": [],
+    "executionAuthorisationIsSeparate": "A freeze approval is NOT an execution authorisation. Attempt 2 additionally requires a new owner execution authorisation, presented separately, after plan-only verification."
+  },
+  "supersedes": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0C_V1.json",
+    "rawSha256": "d3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9",
+    "rawBytes": 82304,
+    "derivedAttempt2PlanSha256": "133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143",
+    "approvalRecord": "docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_V1.json",
+    "approvalRecordRawSha256": "61eb52f3193636ff496d403140538cfd370964b82e7b660fbe6d9944a831dd22",
+    "ratificationRecord": "docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_RATIFICATION_V1.json",
+    "ratificationRecordRawSha256": "bad4b359b319039a4341c66ad04efd7a92285725cd526b934d7883cb40162cba",
+    "role": "HISTORICAL_ATTEMPT_2_CONFIGURATION_SUPERSEDED_BEFORE_ANY_EXECUTION",
+    "reason": "Finding F1 (F0D audit, 2026-09-14): F0C states that REPAIR_MINIMUM_REMAINING_BUDGET_MS in src/orgunits/classify/repair.ts is 120000, but the runtime commit it names (0c0d73803ed1155d568afe50a6657b7be7276dbb) still exports 60000. The owner selected Option B: re-pin the runtime to a corrected commit whose only production-runtime behavioural delta from 0c0d73803ed1155d568afe50a6657b7be7276dbb is that floor (60000 -> 120000), and issue this replacement freeze. F0C, its approval record and its ratification remain immutable historical evidence and authorise nothing; once this freeze is owner-approved, F0C must not be used to authorise attempt 2.",
+    "whatChanged": [
+      "git.v3Runtime.commit and classifier.variants[0].gitCommit (the runtime re-pin)",
+      "classifier.variants[0].runtimeBaseCommit (now the superseded runtime commit the correction was cut from)",
+      "git.freezeBranch / git.freezeBranchBasedOn",
+      "freezeId, version, freezeRevision, preparedOn, approvalModel.approvalRecord, nextStep, ownerApprovalRequired (one added entry)",
+      "this supersedes block"
+    ],
+    "whatIsByteIdentical": [
+      "every batching.plan entry (12 batches, 49 documents, every assembly, canonical, V3 and attempt-1 comparator identity)",
+      "corpus, inputConstruction, classifier model/SDK/schema/assembly/runConfig/executable/childEnvironment",
+      "repairPolicy and repairContract",
+      "callCeiling, liveness, stopConditions, outputCapture",
+      "scoring (gates, comparator policy, post-repair treatment, scoringInputs)",
+      "unresolvedGold, holdout, exclusions, predecessor (F0B)"
+    ]
+  },
+  "predecessor": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1.json",
+    "freezeId": "PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1",
+    "freezeRevision": "F0B_AUTH_RUNTIME_PARITY",
+    "rawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+    "utf8Bytes": 55531,
+    "role": "HISTORICAL_ATTEMPT_1_CONFIGURATION_BYTE_UNCHANGED",
+    "rule": "F0B is never rewritten. It remains the exact configuration attempt 1 ran under and the freeze every attempt-1 artifact, the scoring supplement and the owner adjudication record name. This file does not supersede it; it configures a DIFFERENT attempt."
+  },
+  "experiment": "PHASE_2B_2D2C_DEV_V3_REPAIR_ATTEMPT_2",
+  "attemptNo": 2,
+  "purpose": "The complete, machine-readable DEVELOPMENT-only configuration for a future attempt 2: Prompt V3 (the owner-approved Candidate B carrying A, plus C) with the ADR 0011 bounded item-level repair round enabled, on the identical canonical inputs attempt 1 read, scored against the preserved attempt-1 V1 and V2 evidence as read-only comparators. Every choice that could affect the result is pinned here BEFORE any attempt-2 inference exists. This file authorises nothing.",
+  "evidenceClasses": {
+    "OWNER_PRESERVED_REQUIREMENT": "A requirement the owner supplied for this freeze (the F0 brief) or preserved from the lost 2D2B work. Authoritative; not derived from lost bytes; not reverified by this task unless also listed below as RECONSTRUCTED_AND_VERIFIED_NOW.",
+    "RECONSTRUCTED_AND_VERIFIED_NOW": "Recomputed in this task from committed bytes at the pinned Git commits, or read from production exports at R3, and pinned by the freeze unit test.",
+    "NOT_REVERIFIED": "Known only from an artifact, run or file that no longer exists, or deliberately not re-measured here."
+  },
+  "git": {
+    "repository": "https://github.com/tijnklinkhamer/nwf-partnership-engine.git",
+    "baselineMain": "7adf895fa20e9b25758e0748d1a02e26c387d19b",
+    "v3d1FailureAnalysis": {
+      "branch": "diag/phase2b-2d2c-v3d1-prompt-v3-failure-analysis",
+      "commit": "158c3200d7f7608de222a119e5bb17dccfd7be60"
+    },
+    "r1RepairReliability": {
+      "branch": "feat/phase2b-2d2c-r1-evidence-repair-reliability",
+      "commit": "9c509107fd66afdc979364a135bf94eb64379972",
+      "basedOn": "158c3200d7f7608de222a119e5bb17dccfd7be60",
+      "content": "ADR 0011 bounded repair round; prompt untouched (v2)"
+    },
+    "v3Runtime": {
+      "branch": "fix/phase2b-2d2c-f1-runtime-repair-floor-120000",
+      "commit": "8224e630b9310f1eeada608a34627e854b30f5aa",
+      "basedOn": "0c0d73803ed1155d568afe50a6657b7be7276dbb",
+      "content": "Prompt V3 runtime 0c0d73803ed1155d568afe50a6657b7be7276dbb plus exactly one production change: REPAIR_MINIMUM_REMAINING_BUDGET_MS 60000 -> 120000 in src/orgunits/classify/repair.ts (with its doc comment), ADR 0011 §8, and two unit tests plus the harness default that pinned the old literal. Prompt bytes untouched (v3, sha256 d05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1); dist differs from the 0c0d73803ed1155d568afe50a6657b7be7276dbb build in repair.js (and its map) only."
+    },
+    "freezeBranch": "feat/phase2b-2d2c-f0e-runtime-repin-replacement-freeze",
+    "freezeBranchBasedOn": "e9bdef27385e8614986c616520b406c68871497a",
+    "attempt1Provenance": {
+      "correctedRuntimeV1": {
+        "branch": "fix/phase2b-2d2c-runtime-v1-auth-parity-recovery",
+        "commit": "0d2928a474796b89fad0644e99b5b934ecad10d0",
+        "basedOn": "952f80e124bc681ee15c35386d30ba52a6d80c98",
+        "correction": "F1A auth/runtime parity; prompt v1 untouched"
+      },
+      "correctedRuntimeV2": {
+        "branch": "fix/phase2b-2d2c-runtime-v2-auth-parity-recovery",
+        "commit": "c37dd5a73d0f285b97a0a9a43bf0e42be8fc99c7",
+        "basedOn": "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a",
+        "correction": "F1A auth/runtime parity; prompt v2 untouched"
+      },
+      "role": "READ_ONLY_COMPARATOR_PROVENANCE; neither root is scheduled again"
+    },
+    "requiredAncestry": [
+      "v3Runtime (8224e630b9310f1eeada608a34627e854b30f5aa) descends from the superseded v3 runtime 0c0d73803ed1155d568afe50a6657b7be7276dbb by exactly one commit",
+      "the superseded v3 runtime descends from r1RepairReliability",
+      "r1RepairReliability descends from v3d1FailureAnalysis",
+      "v3d1FailureAnalysis descends from the G2 closure commit 21c75707bb4a405c996b0b981894f5d9599cebc4",
+      "the freeze branch descends from the F0D preparation head e9bdef27385e8614986c616520b406c68871497a, which descends from the approved F0C freeze commit 5ddb558ff5404b1e5f1633e6def634a2a57fd7e3",
+      "the attempt-1 corrected runtime commits remain exactly the F0B values"
+    ],
+    "ancestryEvidence": "Verified in the F0E audit record with git merge-base --is-ancestor; the F0E unit test never invokes Git and never depends on the current branch name.",
+    "v3RuntimeSuperseded": {
+      "branch": "feat/phase2b-2d2c-v3-prompt-b-plus-c",
+      "commit": "0c0d73803ed1155d568afe50a6657b7be7276dbb",
+      "basedOn": "9c509107fd66afdc979364a135bf94eb64379972",
+      "content": "Prompt V3 = V2 + Candidate B (carrying A) + Candidate C; production code otherwise identical to R1",
+      "supersededBecause": "F1: exports REPAIR_MINIMUM_REMAINING_BUDGET_MS = 60000 while this contract requires 120000; never executed"
+    }
+  },
+  "corpus": {
+    "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
+    "scope": "DEVELOPMENT",
+    "itemCount": 49,
+    "canonicalCorpusPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.jsonl",
+    "canonicalManifestPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.manifest.jsonl",
+    "sourceCorpusVersion": "orgunit-classifier-sonnet-acceptance-v1",
+    "derivationVersion": "orgunit-classifier-sonnet-acceptance-canonical-v2",
+    "canonicalisationRule": "NFC(decodeHtmlEntities_HTML4_once(text))",
+    "sourceCorpusRawSha256": "dec0a5992afa4fd7b64009202d461edc91ddc29218f35e35f6bb7edd40d63ede",
+    "sourceManifestCorpusSha256": "42f041ee5704408788ff301811983c123c200f4c1d6f4fa89696d6b4abaea44b",
+    "derivedCorpusRawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+    "derivedManifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+    "derivedCorpusContentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2",
+    "changedDocumentCount": 12,
+    "unchangedDocumentCount": 37,
+    "extractionRuleVersionOfEveryItem": "orgunit-extraction-v1",
+    "inputsAreCanonicalAlready": "Every document in the canonical corpus is already NFC(decodeHtmlEntities_HTML4_once(text)); the runner passes these bytes through and must never canonicalise them a second time.",
+    "oraclePolicy": "The raw SHA-256 values above are recomputed from the committed files by the freeze unit test on every run. A disagreement fails the test; an oracle is never updated to match an unexpected result.",
+    "holdoutFilesNeverRead": [
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl"
+    ]
+  },
+  "batching": {
+    "evidenceClass": "RECONSTRUCTED_FROM_RECORDED_RUN_EVIDENCE",
+    "reconstructionBasis": "The lost DEV runner is not recovered. The historical report (OWNER_PRESERVED, NOT_REVERIFIED) records 11 successfully completed evaluation batches plus one failed INSA Rouen batch over 12 organisations whose canonical corpus rows carry 13 distinct historical assemblyInputSha256 values. That is consistent only with one logical batch per organisation, with the two historical Paris Cite assembly groups combined into one batch. The policy below is reconstructed from that evidence, not from recovered runner bytes.",
+    "groupBy": "organisationId",
+    "logicalBatchesPerVariant": 12,
+    "distinctOrganisations": 12,
+    "distinctHistoricalAssemblyInputSha256": 13,
+    "organisationWithTwoHistoricalAssemblyGroups": {
+      "organisationId": "e1e18eda-ceb1-42d6-8f70-6bd6110cb3b1",
+      "echeRowKey": "F PARIS482|897691060",
+      "historicalAssemblyGroupCount": 2,
+      "treatment": "combined into one logical batch; original docIndex values preserved (verified unique within the organisation)"
+    },
+    "organisationOrder": "first appearance in the canonical corpus",
+    "documentOrder": "canonical corpus line order",
+    "docIndexPolicy": "each document keeps its original docIndex from the canonical corpus; verified unique within every logical batch",
+    "forbiddenRegrouping": [
+      "label",
+      "failure class",
+      "language",
+      "observed model result",
+      "historical assemblyInputSha256"
+    ],
+    "concurrency": 1,
+    "execution": "sequential",
+    "processIsolation": "one Tier-2 child process per logical organisation batch",
+    "variantOrdering": "exactly one variant (PROMPT_V3_CANONICAL); the 12 logical batches run in frozen ordinal order 1..12, sequentially, one Tier-2 child process each",
+    "plannedLogicalEvaluations": {
+      "total": 12,
+      "perVariant": 12
+    },
+    "historicalAssemblyHashRole": "The assemblyInputSha256 values carried by the corpus rows are historical provenance from the lost run under assembly v1 bytes. The 2D2C runner must compute and record the canonical serialized input SHA-256 of the batch it actually sends; it must not present a historical value as the identity of a 2D2C input. The 2D2C identities are now frozen per batch below (F0A) and are the only values a runner may present.",
+    "plan": [
+      {
+        "ordinal": 1,
+        "organisationId": "e115cbf8-25b4-4ccd-aa26-0b7b67af3f59",
+        "echeRowKey": "F DIJON35|949637858",
+        "organisationName": "INSTITUT RÉGIONAL SUPÉRIEUR DU TRAVAIL EDUCATIF ET SOCIAL",
+        "documentCount": 3,
+        "goldIds": ["g7e9744e811f58e20", "g057656b07c6aa620", "g66010a25ac194274"],
+        "docIndices": [3, 5, 8],
+        "corpusLineNumbers": [1, 2, 3],
+        "historicalAssemblyInputSha256": [
+          "8dbd20fa1b759b8cc0050e3a4c7f19d8b8b31ff796969c76076482feaabc28bb"
+        ],
+        "context": {
+          "organisationName": "INSTITUT RÉGIONAL SUPÉRIEUR DU TRAVAIL EDUCATIF ET SOCIAL",
+          "echeRowKey": "F DIJON35|949637858",
+          "countryCode": "FR",
+          "runId": "2cba125c-695b-475d-bd16-a30fcf9fbd54",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:f3d0fbc2-487e-4874-bb61-76297ebff2f5",
+              "authorityKind": "claim",
+              "url": "https://www.irtess.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 2886,
+        "assemblyInputSha256": "7179ad30e8292a024a0eba04233a787bc88293c5b11b94e744046a348da07644",
+        "canonicalSerializedInputSha256": "7179ad30e8292a024a0eba04233a787bc88293c5b11b94e744046a348da07644",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "62853982f4dbdb44d20005628e231e3375cdbfe09e531da52f239e722d8a8d99"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "c208a683f656290a83fdc408f06e2f50a26e2d273a4cb6d738f7ea20b0e983ed",
+          "PROMPT_V2_CANONICAL": "65bb07834ea233e237f71af971fcb3c2e3ced9a86d212321d1ac7bf12e1c8df9"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 3,
+          "maxRepairRequests": 3,
+          "maxProviderRequests": 4,
+          "maxAdapterAttempts": 12
+        }
+      },
+      {
+        "ordinal": 2,
+        "organisationId": "4001270a-08ce-4018-b91e-abda06c52aa9",
+        "echeRowKey": "F EVRY04|999850296",
+        "organisationName": "UNIVERSITE D'EVRY-VAL D'ESSONE",
+        "documentCount": 5,
+        "goldIds": [
+          "g735298870fe173b8",
+          "g6458a352bc79ca01",
+          "g52788fd323659c9c",
+          "g57607d4278d6dc23",
+          "g3130d41296ab8739"
+        ],
+        "docIndices": [0, 4, 5, 8, 10],
+        "corpusLineNumbers": [4, 5, 6, 7, 8],
+        "historicalAssemblyInputSha256": [
+          "34dbf346d61b5e04c5ff160204f8c26e7560bec07385849db57850f123901568"
+        ],
+        "context": {
+          "organisationName": "UNIVERSITE D'EVRY-VAL D'ESSONE",
+          "echeRowKey": "F EVRY04|999850296",
+          "countryCode": "FR",
+          "runId": "269c420c-eb8a-440a-b25a-bacd2c50c464",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:50d284fd-f827-4bc0-8608-9cfc31a5d47c",
+              "authorityKind": "claim",
+              "url": "https://www.univ-evry.fr/accueil.html"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 14145,
+        "assemblyInputSha256": "ab75d12af9ac4c455b60bed11c0d6dad1b5f48de10ef96eb42c14aba411b1a91",
+        "canonicalSerializedInputSha256": "ab75d12af9ac4c455b60bed11c0d6dad1b5f48de10ef96eb42c14aba411b1a91",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "51b86f714a6cd78598da262364fdfd46c35738f240b53a1f9fcddc7261d67517"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "2339f4fad8eff19d6251edc7c53a6c2c46640ca012ef6aa8f4e087bcf48a31d1",
+          "PROMPT_V2_CANONICAL": "f5bd11844e43a839799359e36215eb8f3f268951cf8ffdb142dab32332ea7c46"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 5,
+          "maxRepairRequests": 5,
+          "maxProviderRequests": 6,
+          "maxAdapterAttempts": 18
+        }
+      },
+      {
+        "ordinal": 3,
+        "organisationId": "8b77946d-fe7d-4bb6-839d-5b9d116df3a0",
+        "echeRowKey": "F GRENOBL21|915102366",
+        "organisationName": "ETABLISSEMENT D'ENSEIGNEMENT SUPERIEUR CONSULAIRE GRENOBLE ECOLE DE MANAGEMENT",
+        "documentCount": 4,
+        "goldIds": [
+          "g1f85c7bcf67d324e",
+          "g3ef86bc145abfab0",
+          "ge419f0b9902faee0",
+          "g7c122ea506478abd"
+        ],
+        "docIndices": [1, 7, 10, 11],
+        "corpusLineNumbers": [9, 10, 11, 12],
+        "historicalAssemblyInputSha256": [
+          "6b09983883c2d26575c29a584c7f74bc42208f9f37fff4b93d3057bec9329a09"
+        ],
+        "context": {
+          "organisationName": "ETABLISSEMENT D'ENSEIGNEMENT SUPERIEUR CONSULAIRE GRENOBLE ECOLE DE MANAGEMENT",
+          "echeRowKey": "F GRENOBL21|915102366",
+          "countryCode": "FR",
+          "runId": "f786d455-5021-4c9a-9183-5255f9ef876b",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:1c50a2cf-b1a5-4df2-9d13-5a80349a98ce",
+              "authorityKind": "claim",
+              "url": "https://www.grenoble-em.com/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 13857,
+        "assemblyInputSha256": "d7d98440e5bc091862e9d42c6b03eb36b387be9ef197322d2220ac2622a683dd",
+        "canonicalSerializedInputSha256": "d7d98440e5bc091862e9d42c6b03eb36b387be9ef197322d2220ac2622a683dd",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "95e70f1dc850a255d6f6b2f4df943e5fe4b8ca3d2dc68e4c8591e433b92136fa"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "fb20bcae94361589bd884c016bc2888607ae888eb7e79d1434d7223a69600415",
+          "PROMPT_V2_CANONICAL": "8cec01c93119499e6f5c5b8137f753d439a06f25576bb12c88b81097b40a3000"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 4,
+          "maxRepairRequests": 4,
+          "maxProviderRequests": 5,
+          "maxAdapterAttempts": 15
+        }
+      },
+      {
+        "ordinal": 4,
+        "organisationId": "fc062f6b-d5b6-4026-b02c-0f94f787e2e8",
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "organisationName": "Centre Universitaire de Formation et de Recherche de Mayotte",
+        "documentCount": 5,
+        "goldIds": [
+          "g05d5854d451532bb",
+          "ga435ea22d4b11cf4",
+          "g4454e841c09dd8d0",
+          "g5f96e37ff602795a",
+          "gdb5b7246327094ef"
+        ],
+        "docIndices": [1, 6, 7, 8, 13],
+        "corpusLineNumbers": [13, 14, 15, 16, 17],
+        "historicalAssemblyInputSha256": [
+          "7adde05d20c67d04a3839af022d35d11a0ea40ebbb9e8c7e96efd2918e9fe374"
+        ],
+        "context": {
+          "organisationName": "Centre Universitaire de Formation et de Recherche de Mayotte",
+          "echeRowKey": "F MAYOTTE01|912525949",
+          "countryCode": "FR",
+          "runId": "404f54cb-2911-45b7-84cc-e94bdc1bd560",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:bbf27c39-6aaf-41f5-932a-47acd5b19ff8",
+              "authorityKind": "claim",
+              "url": "https://www.univ-mayotte.fr/fr/index.html"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 8596,
+        "assemblyInputSha256": "e154b407c7f8d4d34ce093819a7aafef0c992a478c11583cf326dad88e8b6a12",
+        "canonicalSerializedInputSha256": "e154b407c7f8d4d34ce093819a7aafef0c992a478c11583cf326dad88e8b6a12",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "b0b12433f3e11299a44293f8bc2fc1988ecac305b03be36bacbedbca0a433f7e"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "4b58a69ba08d17984c6c05449a294e2187c7963acf78d9b9e24eb0a64f1236d2",
+          "PROMPT_V2_CANONICAL": "be7da3efa2932b2a647f97692c73eece22e7e614e50eee3d72090487948dac93"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 5,
+          "maxRepairRequests": 5,
+          "maxProviderRequests": 6,
+          "maxAdapterAttempts": 18
+        }
+      },
+      {
+        "ordinal": 5,
+        "organisationId": "eba8e841-8dae-4423-8d47-4e26ede49c13",
+        "echeRowKey": "F MONTPEL58|932096087",
+        "organisationName": "BTP CFA OCCITANIE",
+        "documentCount": 3,
+        "goldIds": ["g581e2c0586577331", "g4aa8728f64f4525d", "g04c5e4d705a2e184"],
+        "docIndices": [0, 1, 3],
+        "corpusLineNumbers": [18, 19, 20],
+        "historicalAssemblyInputSha256": [
+          "8cbfbd8f64c054e16c4fb6ac569a57b2992f5f5baff3d9e20d7e4ae862cd5c7b"
+        ],
+        "context": {
+          "organisationName": "BTP CFA OCCITANIE",
+          "echeRowKey": "F MONTPEL58|932096087",
+          "countryCode": "FR",
+          "runId": "7c5a26ba-f29d-4da6-bef2-b90bffba3509",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:3c135617-9f00-4825-b3c6-a86c2f9f1d57",
+              "authorityKind": "claim",
+              "url": "https://www.btpcfalr.com/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 8579,
+        "assemblyInputSha256": "70d9caf445a693280d1639209d08a7838e35e24be92c4987edffec1a179b1c3b",
+        "canonicalSerializedInputSha256": "70d9caf445a693280d1639209d08a7838e35e24be92c4987edffec1a179b1c3b",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "fe15c57ba818c21f4834c988ac9ce874b83eaad9464e53d618dbbaf1cc0a7609"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "aac0f47c352b4e7e8a2ad5a1d645ad63e2c3130a6a2060ce10dc55d27e407f4f",
+          "PROMPT_V2_CANONICAL": "4fd5d1159ca56dea5dc033a082d1244642000237a3d3117d8564d91b01858af3"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 3,
+          "maxRepairRequests": 3,
+          "maxProviderRequests": 4,
+          "maxAdapterAttempts": 12
+        }
+      },
+      {
+        "ordinal": 6,
+        "organisationId": "885cea79-9d11-4c36-934d-976ff3e23e6f",
+        "echeRowKey": "F NANTES79|924638533",
+        "organisationName": "Institut des Métiers de l'Enseignement Supérieur",
+        "documentCount": 5,
+        "goldIds": [
+          "g04b64db14c03ce3a",
+          "g2dba4106c328f4b8",
+          "g12732ff0388c49e8",
+          "g7d88b2fecb73fdb4",
+          "ge789b0f0aedc398c"
+        ],
+        "docIndices": [0, 4, 10, 11, 14],
+        "corpusLineNumbers": [21, 22, 23, 24, 25],
+        "historicalAssemblyInputSha256": [
+          "1c42266ae8af43d2d2d0927c6880322b120f9d115952a0af93eb6d5fb06829ac"
+        ],
+        "context": {
+          "organisationName": "Institut des Métiers de l'Enseignement Supérieur",
+          "echeRowKey": "F NANTES79|924638533",
+          "countryCode": "FR",
+          "runId": "51f520b5-382d-4eba-b0e4-05f7ff9d0493",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:1233cf2a-5aec-4d90-8f16-97f8d942a564",
+              "authorityKind": "claim",
+              "url": "https://www.ims-nantes.com/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 6190,
+        "assemblyInputSha256": "d75c5d26c7a44019a734c0b0d625962fe6c700487efb934ebe44dd67c0c8cbda",
+        "canonicalSerializedInputSha256": "d75c5d26c7a44019a734c0b0d625962fe6c700487efb934ebe44dd67c0c8cbda",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "53867e043d1dd45dd05c406bf503a99363f8aa47eabc59ed8d26b264a845995d"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "fee447327d266aee90022de21690872a23f7f8515d0d279401ff2f260d00cd4e",
+          "PROMPT_V2_CANONICAL": "d97621f48923580b3f4d0e7fc32d44887163059e6ed9947dcbf755a65a6490ac"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 5,
+          "maxRepairRequests": 5,
+          "maxProviderRequests": 6,
+          "maxAdapterAttempts": 18
+        }
+      },
+      {
+        "ordinal": 7,
+        "organisationId": "cf4ac61c-09de-4901-84e6-a7fe0f3366ff",
+        "echeRowKey": "F PARIS003|999885119",
+        "organisationName": "UNIVERSITE PARIS III SORBONNE NOUVELLE",
+        "documentCount": 5,
+        "goldIds": [
+          "g0ec0d43dad311a77",
+          "g877a05e6f5bba835",
+          "gcce4e2a5f608de5d",
+          "gf65026e32d9da8db",
+          "g2e0dc1ff57327033"
+        ],
+        "docIndices": [1, 2, 4, 6, 8],
+        "corpusLineNumbers": [26, 27, 28, 29, 30],
+        "historicalAssemblyInputSha256": [
+          "1bfc305fd94ee3b0463dc1a0f536fc6f415a5120aa26d4d7e469abdd435886f1"
+        ],
+        "context": {
+          "organisationName": "UNIVERSITE PARIS III SORBONNE NOUVELLE",
+          "echeRowKey": "F PARIS003|999885119",
+          "countryCode": "FR",
+          "runId": "a17554dd-93e0-4da9-9e8e-e5483633cc4b",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:133c8e03-60a4-4690-ac92-3190e9fcb7c2",
+              "authorityKind": "claim",
+              "url": "https://www.sorbonne-nouvelle.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 14463,
+        "assemblyInputSha256": "4fbc2317770371ae7c60ae2a7fbbb4d02aab5120f0767cf7dac36c4c8b5c9df4",
+        "canonicalSerializedInputSha256": "4fbc2317770371ae7c60ae2a7fbbb4d02aab5120f0767cf7dac36c4c8b5c9df4",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "b2ae2891cbcd7c3474d36c3b2d2025cad59c51f75c7dd35cf94a6683be0ad2c5"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "03470f63873e0699a189823f0ddf6f2244b90e8801de94dd4420b9e763cddd08",
+          "PROMPT_V2_CANONICAL": "e6053074ba64155f20efbedbf102c059b98425c2ad09d580bae47243ae6fe517"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 5,
+          "maxRepairRequests": 5,
+          "maxProviderRequests": 6,
+          "maxAdapterAttempts": 18
+        }
+      },
+      {
+        "ordinal": 8,
+        "organisationId": "ca7f8271-a111-466e-86f4-06913eb80a8d",
+        "echeRowKey": "F PARIS105|949302432",
+        "organisationName": "INSTITUT DE PREPARATION A L'ADMINISTRATION ET A LA GESTION",
+        "documentCount": 4,
+        "goldIds": [
+          "g5e9c0d460fee879b",
+          "g543b604f0f0f8380",
+          "g32779df2d7b56a34",
+          "g956f99fae4ad4764"
+        ],
+        "docIndices": [1, 3, 13, 14],
+        "corpusLineNumbers": [31, 32, 33, 34],
+        "historicalAssemblyInputSha256": [
+          "8d015038fd90e54a8220a9f822f3bc1f08626532de9f369fb1260e9aa8a90148"
+        ],
+        "context": {
+          "organisationName": "INSTITUT DE PREPARATION A L'ADMINISTRATION ET A LA GESTION",
+          "echeRowKey": "F PARIS105|949302432",
+          "countryCode": "FR",
+          "runId": "6f50a126-9324-4601-be79-44981ca5e387",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:b87efea8-4f6c-444b-b6d1-48fbb8b3bb60",
+              "authorityKind": "claim",
+              "url": "https://www.ipag.edu/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 12302,
+        "assemblyInputSha256": "397be36ecdea24e98a8d9ab69a87038066a996cd78e06ed2e4e46fdb28c5a9c8",
+        "canonicalSerializedInputSha256": "397be36ecdea24e98a8d9ab69a87038066a996cd78e06ed2e4e46fdb28c5a9c8",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "b48171802db9adbae0db88a0200d0e228855aca1ac3f2fa5e33416438341f0a0"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "708f7b840c8eaafb4d11bac82f747feea2cafda85e83e31c402bd4af9587e369",
+          "PROMPT_V2_CANONICAL": "5e1c29b149d91a401e448c5db4d6d28dd0ec837a8d27161c52c566ad51191955"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 4,
+          "maxRepairRequests": 4,
+          "maxProviderRequests": 5,
+          "maxAdapterAttempts": 15
+        }
+      },
+      {
+        "ordinal": 9,
+        "organisationId": "e1e18eda-ceb1-42d6-8f70-6bd6110cb3b1",
+        "echeRowKey": "F PARIS482|897691060",
+        "organisationName": "UNIVERSITE PARIS CITE",
+        "documentCount": 4,
+        "goldIds": [
+          "g1a0315d94121cfcf",
+          "g27504b2635a39531",
+          "g04d170f4d3fda759",
+          "g82fe2243c52f4d73"
+        ],
+        "docIndices": [2, 8, 5, 10],
+        "corpusLineNumbers": [35, 36, 37, 38],
+        "historicalAssemblyInputSha256": [
+          "6c1bdcf74cedd27ba861ad9fbf56f91323d198d0aa3213840eb3168567bb24df",
+          "6a9b4d9d25478d13a28feebd92afc7458186b51ac480cbcf6e1e3267f8810519"
+        ],
+        "context": {
+          "organisationName": "UNIVERSITE PARIS CITE",
+          "echeRowKey": "F PARIS482|897691060",
+          "countryCode": "FR",
+          "runId": "65377823-9966-458e-8019-0c9c327c8525",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:0b2dc04f-d188-4860-a8be-caeb6b35d9dc",
+              "authorityKind": "claim",
+              "url": "https://u-pariscite.fr/"
+            },
+            {
+              "rootKey": "claim:46699d7e-d058-497f-b6e0-11ae4a435136",
+              "authorityKind": "claim",
+              "url": "https://u-paris.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 11504,
+        "assemblyInputSha256": "6ce838c6e2b243bf4dec5dcdf8df0e04d69220b44f7020e4b602fa6f0867a890",
+        "canonicalSerializedInputSha256": "6ce838c6e2b243bf4dec5dcdf8df0e04d69220b44f7020e4b602fa6f0867a890",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "7daf26ce9f36266eff1296524f57cdbe090d553ebb1973b90884601413268cb9"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "d17be7622466359484ebdbc4263006755dcab81ce1031788c99032eacaea245f",
+          "PROMPT_V2_CANONICAL": "43381ff1e33c76b007c7ff9a747853b0ee9dde14aeee8bd78ecde3588e0855cd"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 4,
+          "maxRepairRequests": 4,
+          "maxProviderRequests": 5,
+          "maxAdapterAttempts": 15
+        }
+      },
+      {
+        "ordinal": 10,
+        "organisationId": "65af386d-22ca-4d28-bd8e-10438c1e1cc7",
+        "echeRowKey": "F PARIS525|879184333",
+        "organisationName": "Ecole Supérieure Libre des Sciences Commerciales Appliquées",
+        "documentCount": 3,
+        "goldIds": ["g0b760d6f3dfafad5", "g34bbf7536e99b410", "ga971a6fc52af6b5f"],
+        "docIndices": [12, 14, 15],
+        "corpusLineNumbers": [39, 40, 41],
+        "historicalAssemblyInputSha256": [
+          "9d0eb20f628e4a5b86e3ce90303a3f20a283aa556805ffa46e9ba98803bad210"
+        ],
+        "context": {
+          "organisationName": "Ecole Supérieure Libre des Sciences Commerciales Appliquées",
+          "echeRowKey": "F PARIS525|879184333",
+          "countryCode": "FR",
+          "runId": "27c05395-c430-49c4-9be6-dee42e44fbfa",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:f1778215-3c41-47b5-972a-013fd8e2b592",
+              "authorityKind": "claim",
+              "url": "https://www.eslsca.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 9698,
+        "assemblyInputSha256": "1320329b0ec4c20a8426c2e54e83048489bc9be21f0b957fb3d7711bec54ae3c",
+        "canonicalSerializedInputSha256": "1320329b0ec4c20a8426c2e54e83048489bc9be21f0b957fb3d7711bec54ae3c",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "987f1e265931b6bb90a07dd05ad8ddb65cb9b01f5d83f96738d3506f2ae8e12f"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "58aa6a2dd37617b3d05a57a58f458473d09da4d23d765a56f3ca534ee64cba32",
+          "PROMPT_V2_CANONICAL": "dfb9da31fb825885bd0b735f4e54198565bd8984c0f4d97dea4fa3988298f3a1"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 3,
+          "maxRepairRequests": 3,
+          "maxProviderRequests": 4,
+          "maxAdapterAttempts": 12
+        }
+      },
+      {
+        "ordinal": 11,
+        "organisationId": "99f0eea2-8c96-4ef9-a263-ac571cba5279",
+        "echeRowKey": "F RENNES52|949270228",
+        "organisationName": "INSTITUT DE FORMATION EN PEDICURIE-PODOLOGIE, ERGOTHERAPIE, MASSO-KINESITHERAPIE",
+        "documentCount": 3,
+        "goldIds": ["g7a394e6b1670f7ab", "g0615c0e6bcd45942", "g9c1b65eda41afda2"],
+        "docIndices": [1, 2, 8],
+        "corpusLineNumbers": [42, 43, 44],
+        "historicalAssemblyInputSha256": [
+          "c5cf26ac5017b3365e133dfdc812bc833b286a3d745ce40067b50658b77c8ed7"
+        ],
+        "context": {
+          "organisationName": "INSTITUT DE FORMATION EN PEDICURIE-PODOLOGIE, ERGOTHERAPIE, MASSO-KINESITHERAPIE",
+          "echeRowKey": "F RENNES52|949270228",
+          "countryCode": "FR",
+          "runId": "10898daa-308e-4562-b420-6942d8eb2128",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:3c26eb9c-8a93-43a0-8048-098cd439b843",
+              "authorityKind": "claim",
+              "url": "https://www.ifpek.org/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 8358,
+        "assemblyInputSha256": "03d3cdb0523ca9daaf055e1a5b5d0f878bbc27cf31454501da4927ca1ea8ec2f",
+        "canonicalSerializedInputSha256": "03d3cdb0523ca9daaf055e1a5b5d0f878bbc27cf31454501da4927ca1ea8ec2f",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "217f387c45e82bbd34e73af17d699f08a42e442c6b335f3d68dfc19782a46773"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "6784b06c3c99ef7216dfb7d476d6fe87462a54e5b2c3e56bc378f28b83bda3b9",
+          "PROMPT_V2_CANONICAL": "719f25367d8c9ffd0cd70be8c2ab6b65e85008af21868a12e2c3972cec1db2aa"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 3,
+          "maxRepairRequests": 3,
+          "maxProviderRequests": 4,
+          "maxAdapterAttempts": 12
+        }
+      },
+      {
+        "ordinal": 12,
+        "organisationId": "c95125b8-7783-48de-bc89-ad652f38f0dd",
+        "echeRowKey": "F ROUEN06|999465788",
+        "organisationName": "INSTITUT NATIONAL DES SCIENCES APPLIQUEES DE ROUEN",
+        "documentCount": 5,
+        "goldIds": [
+          "g1b50947deb11a6d5",
+          "g536c8b148048fcbc",
+          "g99a9fe00e4856de2",
+          "g39e7132da4064000",
+          "g9978fec48fa77fbb"
+        ],
+        "docIndices": [0, 7, 9, 12, 13],
+        "corpusLineNumbers": [45, 46, 47, 48, 49],
+        "historicalAssemblyInputSha256": [
+          "0283d1531e58f15c6c5ea1b4c5306f59578c2071e6b60486d29d0ce542dc8764"
+        ],
+        "context": {
+          "organisationName": "INSTITUT NATIONAL DES SCIENCES APPLIQUEES DE ROUEN",
+          "echeRowKey": "F ROUEN06|999465788",
+          "countryCode": "FR",
+          "runId": "eb694783-5900-4d08-ad23-3af3448fb4f5",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:65a2d762-93c3-4394-bc5e-423b049ed148",
+              "authorityKind": "claim",
+              "url": "https://www.insa-rouen.fr/"
+            },
+            {
+              "rootKey": "claim:bddf85c1-2c0e-44d6-9628-e9fcf908b0e0",
+              "authorityKind": "claim",
+              "url": "https://www.insa-rouen.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 15921,
+        "assemblyInputSha256": "21f433c92635027ea6f451a2c528edc20b6521cdcc5dc4b0e84de3a16549973b",
+        "canonicalSerializedInputSha256": "21f433c92635027ea6f451a2c528edc20b6521cdcc5dc4b0e84de3a16549973b",
+        "finalInputSha256": {
+          "PROMPT_V3_CANONICAL": "e0f21e32205ba605298410a7fdbc663778bc61a73a1191022c7560781ac1f8b8"
+        },
+        "attempt1ComparatorFinalInputSha256": {
+          "PROMPT_V1_CANONICAL": "f2b052cec43e65732a5ba4ccf4115fb2cedfee2a19141cd54a8216fa535e9ef3",
+          "PROMPT_V2_CANONICAL": "0ccaa717538982f58cc6addc16442accaa98f20c0b23ff3e7cb1745b0df0e16d"
+        },
+        "callCeiling": {
+          "originalRequests": 1,
+          "maxEligibleRejectedDocuments": 5,
+          "maxRepairRequests": 5,
+          "maxProviderRequests": 6,
+          "maxAdapterAttempts": 18
+        }
+      }
+    ],
+    "attempt1VariantsNotScheduled": ["PROMPT_V1_CANONICAL", "PROMPT_V2_CANONICAL"]
+  },
+  "inputConstruction": {
+    "evidenceClass": "RECONSTRUCTED_FROM_COMMITTED_DEVELOPMENT_CORPUS_AND_PRODUCTION_CONSTANTS",
+    "claim": "The complete ClassifierBatch each logical batch sends is constructed deterministically from the committed DEVELOPMENT canonical corpus rows plus three production version constants. This is a reconstruction defined by this freeze; it does not claim to reproduce the lost 2D2B runner’s unknown batch bytes.",
+    "batchShape": "{ context, documents }",
+    "documents": {
+      "source": "the exact canonical `document` object of every corpus row belonging to the organisation",
+      "order": "existing canonical corpus line order",
+      "docIndex": "each document keeps its original docIndex; nothing is renumbered"
+    },
+    "context": {
+      "organisationName": "the exact common organisationName of the organisation’s corpus rows",
+      "echeRowKey": "the exact common echeRowKey of the organisation’s corpus rows",
+      "countryCode": "the exact common countryCode of the organisation’s corpus rows",
+      "runId": "the exact common runId of the organisation’s corpus rows",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "assemblyVersion": "orgunit-classifier-assembly-v2",
+      "rootKey": null,
+      "roots": "the union of every document.roots entry in the organisation batch, deduplicated by exact rootKey, sorted by rootKey using ordinal string comparison (a < b ? -1 : a > b ? 1 : 0)"
+    },
+    "constantSources": {
+      "ruleVersion": "ORGUNIT_SIGNAL_RULE_VERSION (src/orgunits/signals/score.ts)",
+      "fetchPolicyVersion": "FETCH_POLICY_VERSION (src/orgunits/web/policy.ts)",
+      "assemblyVersion": "ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION (src/orgunits/classify/constants.ts)",
+      "outputSchemaVersion": "ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION (src/orgunits/classify/outputSchema.ts)",
+      "verifiedIdenticalAt": [
+        "0c0d73803ed1155d568afe50a6657b7be7276dbb",
+        "8224e630b9310f1eeada608a34627e854b30f5aa"
+      ]
+    },
+    "preconditions": [
+      "every corpus row of an organisation agrees exactly on organisationName, echeRowKey, countryCode and runId; on any disagreement construction stops",
+      "a rootKey that appears on more than one document carries byte-identical authorityKind and url on every occurrence; on any disagreement construction stops and no version is chosen",
+      "the batch-level roots union includes only roots represented by the selected canonical DEVELOPMENT documents; no database, mixed corpus or HOLDOUT file is read to recover further run roots"
+    ],
+    "serialization": "canonicalStringify({ context, documents }) as implemented in src/orgunits/classify/canonical.ts (sorted object keys, arrays in given order), encoded as UTF-8",
+    "assemblyInputSha256": "lowercase hex SHA-256 of exactly those UTF-8 bytes",
+    "canonicalSerializedInputSha256": "equal to assemblyInputSha256 by definition; both names are retained only because the output-capture contract already used the former",
+    "finalInputSha256": "computeFinalInputSha256({ assemblyInputSha256, promptVersion, outputSchemaVersion: \"orgunit-classifier-output-schema-v2\" }) as implemented in src/orgunits/classify/finalIdentity.ts",
+    "promptVersionByVariant": {
+      "PROMPT_V3_CANONICAL": "orgunit-classifier-prompt-v3"
+    },
+    "invariants": [
+      "exactly 12 assembly identities, one per logical batch, byte-identical to F0B’s (the inputs are the same bytes attempt 1 read)",
+      "exactly 12 final identities, one per logical batch, each computeFinalInputSha256({ assemblyInputSha256, promptVersion: orgunit-classifier-prompt-v3, outputSchemaVersion })",
+      "the V3 final identity of every batch differs from both attempt-1 final identities of that batch, which are carried as attempt1ComparatorFinalInputSha256 for pairing provenance only",
+      "no two batches share an assembly identity; no two batches share a V3 final identity",
+      "recomputation from the committed corpus produces the same values on every run",
+      "the repair policy enters NO identity: a repair call’s own input_sha256 is derived by computeRepairInputSha256 over the original identity plus the repair request bytes (ADR 0011), and the final input identity of an evaluation is unchanged whether the policy is enabled or disabled",
+      "the 13 historical assemblyInputSha256 values on the corpus rows are never reused as an identity"
+    ],
+    "runnerRule": "The F1 runner reconstructs every batch by this contract, recomputes all three identities, and compares them against batching.plan BEFORE any auth status check or provider invocation; any mismatch is CORPUS_CONFIG_OR_HASH_DRIFT and stops the experiment.",
+    "identityFieldsChangedFromF0B": [
+      "batching.plan[].finalInputSha256 now carries exactly one key, PROMPT_V3_CANONICAL (new value per batch)",
+      "batching.plan[].attempt1ComparatorFinalInputSha256 (new; the two F0B final identities, provenance only, never an attempt-2 identity)",
+      "batching.plan[].callCeiling (new; mechanically derived from documentCount)",
+      "inputConstruction.promptVersionByVariant now names only PROMPT_V3_CANONICAL"
+    ],
+    "identityFieldsUnchangedFromF0B": [
+      "batching.plan[].assemblyInputSha256 and canonicalSerializedInputSha256 (all 12)",
+      "batching.plan[].serializedBatchUtf8Bytes, context, goldIds, docIndices, corpusLineNumbers (all 12)",
+      "the output-schema version orgunit-classifier-output-schema-v2",
+      "the assembly, rule and fetch-policy versions"
+    ]
+  },
+  "classifier": {
+    "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
+    "requestedModelId": "claude-sonnet-5",
+    "modelIdSource": "PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md section 0 (owner product decision 2026-09-02); must be a member of ORGUNIT_CLASSIFIER_ALLOWED_MODELS at both variant commits; verified a member of ORGUNIT_CLASSIFIER_ALLOWED_MODELS at 8224e630b9310f1eeada608a34627e854b30f5aa (the allowlist is byte-identical to 0c0d73803ed1155d568afe50a6657b7be7276dbb)",
+    "agentSdk": {
+      "package": "@anthropic-ai/claude-agent-sdk",
+      "version": "0.3.251",
+      "pinnedIn": ["package.json", "package-lock.json"]
+    },
+    "assemblyVersion": "orgunit-classifier-assembly-v2",
+    "outputSchemaVersion": "orgunit-classifier-output-schema-v2",
+    "runConfig": {
+      "maxTurns": 3,
+      "thinking": "disabled"
+    },
+    "runConfigRules": [
+      "maxTurns and thinking are passed explicitly, never left to a default",
+      "effort is ABSENT from runConfig: not null, not undefined-with-key, not inferred",
+      "no temperature, top_p or top_k setting exists in the request surface and none may be introduced",
+      "no fallbackModel",
+      "no prompt selector: the prompt is whatever the checked-out commit exports"
+    ],
+    "invocationSurfaceFrozenByReference": {
+      "module": "src/orgunits/classify/provider/sdkOptions.ts",
+      "builder": "buildAgentSdkInvocation",
+      "settingSources": [],
+      "persistSession": false,
+      "tools": [],
+      "allowedTools": [],
+      "disallowedTools": "CLASSIFIER_DISALLOWED_TOOLS (every built-in tool by bare name)",
+      "canUseTool": "unconditional deny with interrupt",
+      "mcpServers": {},
+      "strictMcpConfig": true,
+      "skills": [],
+      "plugins": [],
+      "pathToClaudeCodeExecutable": "the resolved SDK-bundled native Claude Code binary (src/orgunits/classify/provider/claudeCodeExecutable.ts), set explicitly; never left to the SDK default, never a PATH lookup",
+      "absent": [
+        "fallbackModel",
+        "resume",
+        "forkSession",
+        "hooks",
+        "agents",
+        "additionalDirectories",
+        "debug",
+        "debugFile",
+        "effort"
+      ]
+    },
+    "variants": [
+      {
+        "name": "PROMPT_V3_CANONICAL",
+        "label": "PROMPT_V3_CANDIDATE",
+        "role": "candidate",
+        "order": 1,
+        "gitCommit": "8224e630b9310f1eeada608a34627e854b30f5aa",
+        "runtimeBaseCommit": "0c0d73803ed1155d568afe50a6657b7be7276dbb",
+        "promptVersion": "orgunit-classifier-prompt-v3",
+        "runtimePromptCharacters": 14012,
+        "runtimePromptUtf8Bytes": 14088,
+        "runtimePromptSha256": "d05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1"
+      }
+    ],
+    "variantIsolation": "The single variant runs from its own clean worktree checked out at exactly its gitCommit, with dependencies restored by npm ci from that commit’s lockfile. The runner must verify the prompt version and runtime prompt SHA-256 at startup and stop on mismatch. Prompts are never switched by a runtime flag.",
+    "variantRuntimeCorrection": "F0E (F1, Option B): the V3 variant runs from a worktree at 8224e630b9310f1eeada608a34627e854b30f5aa (0c0d73803ed1155d568afe50a6657b7be7276dbb plus the repair-admission floor correction 60000 -> 120000). The root must ship the built repair module (dist/orgunits/classify/repair.js) exporting REPAIR_MINIMUM_REMAINING_BUDGET_MS = 120000; the attempt-2 root verifier refuses a root whose exported default differs from repairPolicy.minimumRemainingBudgetMs, and probes the root's own decideRepairBudget at the floor.",
+    "claudeCodeExecutable": {
+      "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
+      "source": "SDK_BUNDLED_NATIVE_BINARY",
+      "sdkPackage": "@anthropic-ai/claude-agent-sdk",
+      "sdkVersion": "0.3.251",
+      "claudeCodeVersion": "2.1.251",
+      "nativePackagePrefix": "@anthropic-ai/claude-agent-sdk-",
+      "sameExecutableForAuthStatusAndInference": true,
+      "externalPathCliAcceptedAsPreflightOracle": false,
+      "runPlatform": {
+        "platform": "darwin",
+        "arch": "arm64",
+        "platformKey": "darwin-arm64",
+        "nativePackage": "@anthropic-ai/claude-agent-sdk-darwin-arm64",
+        "nativePackageVersion": "0.3.251",
+        "binaryFileName": "claude",
+        "binaryBytes": 197171680,
+        "binarySha256": "625869b01e0050f260b2980fac248fd9cef9e462612bded4ec9d3d49ff8969a5"
+      },
+      "contract": "The provider resolves the exact native binary bundled by the exact installed SDK from the variant root’s own node_modules ONCE per classify(), fails closed on a missing optional native package, a path outside node_modules, a symlink or non-regular file, any version disagreement, a non-executable binary, a byte-length or SHA-256 mismatch against the SDK’s own manifest, an unsupported platform or an ambiguous resolution, and hands that one path to BOTH the request-free auth-status preflight and the Agent SDK invocation (pathToClaudeCodeExecutable). The runner verifies the same resolution independently and, on the run platform above, pins the binary identity by hash. Execution is refused on any other platform."
+    },
+    "childEnvironment": {
+      "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
+      "posixOsPassthroughAddition": "USER",
+      "valueRecorded": false,
+      "lognameIsSubstitute": false,
+      "windowsAllowlistChanged": false,
+      "measurement": "On macOS with Claude Code 2.1.270 (external) and 2.1.251 (SDK-bundled), the stored subscription login lives in the macOS Keychain and auth status --json reports loggedIn: false under the sanitized child environment unless USER is present; a wrong USER fails identically; LOGNAME does not substitute. The production builder and the F1 POSIX child allowlist forward USER by name; no artifact, test or report records its value. The root cause inside Claude Code is not known and is not claimed."
+    },
+    "inputIdentity": "input_sha256 = computeFinalInputSha256(assemblyInputSha256, promptVersion, outputSchemaVersion) as implemented at the variant commit. The V3 identity of every batch differs from both attempt-1 identities of that batch by construction (the prompt version differs), so no attempt-1 result can be reused for a V3 question and no V3 result can shadow one. The exact values are frozen per batch in batching.plan.finalInputSha256.PROMPT_V3_CANONICAL and are recomputed by the F0E unit test (exactly as the F0C unit test recomputed them; the prompt version, and therefore every identity, is unchanged by the runtime re-pin). A repair call carries its own derived input_sha256 (computeRepairInputSha256) and is never a plan identity."
+  },
+  "repairPolicy": {
+    "enabled": true,
+    "maxRoundsPerLogicalEvaluation": 1,
+    "minimumRemainingBudgetMs": 120000
+  },
+  "repairContract": {
+    "adr": "docs/adr/0011-bounded-item-level-repair-round.md",
+    "adrRawSha256": "98b5d8ad5b49d61e0aa5b6ff1475a044f3cfc79f33cb42f6d08d9d2936fdb452",
+    "minimumRemainingBudgetMsStatus": "OWNER_SELECTED_2026_09_14_PENDING_FREEZE_APPROVAL",
+    "repairDeadlineFormula": {
+      "statement": "repairWindowMs = max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision - CLASSIFIER_CALL_HARD_KILL_GRACE_MS); for EVERY adapter/runner attempt of the repair: repairAttemptDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs - elapsedSinceRepairClassifyEntryMs)), where elapsedSinceRepairClassifyEntryMs includes all time already spent inside that repair call (pre-flight and auth-status, prior transient attempts, retry backoff). A non-positive remainder is the existing terminal TIMEOUT with no new runner attempt. The minimum-remaining-budget gate (repairWindowMs < REPAIR_MINIMUM_REMAINING_BUDGET_MS -> skip, fail closed) is applied BEFORE any repair request is opened.",
+      "softDeadlineMs": 300000,
+      "hardKillGraceMs": 10000,
+      "totalBudgetMs": 600000,
+      "implementation": [
+        "orchestrator / child: elapsedMs = clock.now() - originalEnteredAt, measured immediately before each repair decision; remainingMs = max(0, 600000 - elapsedMs); usableMs = max(0, remainingMs - 10000)",
+        "gate: if usableMs < minimumRemainingBudgetMs -> REPAIR_SKIPPED_INSUFFICIENT_BUDGET, persisted, zero provider calls (strict less-than; applied before the repair call row and before classify())",
+        "window: the provider receives totalBudgetMs = usableMs and opens it at classify() ENTRY, so pre-flight and the auth-status check spend it; it is never widened beyond 600000",
+        "per attempt: deadlineMs = min(300000, totalBudgetMs - elapsedSinceEntry); a non-positive remainder is a terminal TIMEOUT with zero runner calls; transient retries and their backoff stay inside the same window",
+        "grace: the 10000 ms hard-kill grace is reserved by subtracting it from remainingMs before the window is handed over; the runner spends it only after a deadline expires, so a repair ends no later than originalEnteredAt + 600000 ms",
+        "consequence: the FIRST attempt receives min(300000, repairWindowMs - preflightAndAuthStatusMs); every LATER attempt additionally loses the earlier attempts and their backoff; no attempt ever receives more than the frozen 300000 ms soft deadline nor more than remaining - 10000"
+      ],
+      "provedBy": [
+        "src/test/unit/orgunitClassifyRepair.test.ts (decideRepairBudget: window and first-attempt deadline arithmetic, boundaries, non-positive guard)",
+        "src/test/unit/orgunitClassifyClaudeMaxProvider.test.ts (the caller window through the real adapter: never wider than the frozen total, opened at entry, spent by auth status; a repair attempt never exceeds 300000 ms; the general rule for a LATER attempt - auth status, an earlier attempt and its backoff all reduce the next deadline - and the exhausted case with no further runner attempt)",
+        "src/test/integration/orgunitClassifyRepairOrchestrate.test.ts (the orchestrator hands the provider exactly remaining - grace)"
+      ]
+    },
+    "minimumRemainingBudgetMsOptions": {
+      "note": "The floor compares usableMs = remainingMs - 10000 (the grace is already outside it) with a strict less-than. Two options were presented; the owner SELECTED 120000 ms on the usable window on 2026-09-14 and REJECTED 60000 ms. The implementation constant and this file now carry 120000. The selection is a readiness threshold, not a proof that a repair succeeds, and it is NOT a freeze approval.",
+      "measuredOnAttempt1": {
+        "slowestFullEvaluationWallMs": 50179,
+        "slowestFullEvaluationRef": "PROMPT_V1_CANONICAL batch-10 provider-outcome.json monotonicWallTimeMs (includes its own auth-status check; one adapter attempt)",
+        "meanFullEvaluationWallMs": 20698,
+        "authStatusInvocationsPerEvaluation": 1,
+        "adapterAttemptsPerEvaluation": 1
+      },
+      "authStatusUpperBoundMs": 60000,
+      "options": [
+        {
+          "usableFloorMs": 60000,
+          "status": "REJECTED_BY_OWNER_2026_09_14",
+          "remainingFloorMs": 70000,
+          "worstCaseInferenceWindowAfterMaxAuthStatusMs": 0,
+          "semantics": "Guarantees only that a repair request is OPENED. If the auth-status check takes its full 60000 ms upper bound, the repair times out before any runner attempt (a persisted FAILED / TIMEOUT repair row, zero inference); if it exceeds it, AUTH_STATUS_UNAVAILABLE. Typical auth-status time is far below the bound (attempt-1 whole evaluations took 10-50 s including it), but that is an observation, not a guarantee."
+        },
+        {
+          "usableFloorMs": 120000,
+          "status": "SELECTED_BY_OWNER_2026_09_14",
+          "remainingFloorMs": 130000,
+          "worstCaseInferenceWindowAfterMaxAuthStatusMs": 60000,
+          "semantics": "After a worst-case 60000 ms auth-status check, at least 60000 ms of inference window remains, which exceeds the slowest observed attempt-1 FULL evaluation (50179 ms, itself including auth status) by 9821 ms; a single-document repair is smaller than any full batch. The hard-kill grace is reserved separately by the orchestrator, so the owner-suggested decomposition 60000 + 50000 + 10000 double-counts the grace when read against usableMs; read against remainingMs it is 130000, which this option provides.",
+          "mechanicalDerivation": "usableFloorMs >= AUTH_STATUS_TIMEOUT_MS (60000) + slowestObservedFullEvaluationWallMs (50179) = 110179 ms; 120000 is the smallest round figure at or above it, leaving 9821 ms headroom."
+        }
+      ],
+      "recommendation": "usableFloorMs = 120000 (remainingFloorMs = 130000), SELECTED by the owner; REPAIR_MINIMUM_REMAINING_BUDGET_MS in src/orgunits/classify/repair.ts is 120000 and this file freezes it."
+    },
+    "minimumRemainingBudgetMsBasis": "The owner selected 120000 ms on the usable repair window (2026-09-14). At exactly the floor a worst-case 60000 ms auth-status check still leaves 60000 ms of runner window, with the 10000 ms hard-kill grace already reserved outside the usable window; 60000 exceeds the slowest observed attempt-1 full evaluation (50179 ms) by 9821 ms. The earlier 60000 ms value was rejected because at that floor a worst-case auth-status check consumed the whole window (TIMEOUT, zero inference). minimumRemainingBudgetMsOptions below records both options and their exact residual-time semantics.",
+    "productionConstantSources": {
+      "maxRoundsPerLogicalEvaluation": "REPAIR_MAX_ROUNDS_PER_LOGICAL_EVALUATION (src/orgunits/classify/repair.ts)",
+      "minimumRemainingBudgetMs": "REPAIR_MINIMUM_REMAINING_BUDGET_MS (src/orgunits/classify/repair.ts)",
+      "totalBudgetMs": "REPAIR_TOTAL_BUDGET_MS == CLASSIFIER_CALL_TOTAL_BUDGET_MS",
+      "hardKillGraceMs": "REPAIR_HARD_KILL_GRACE_MS == CLASSIFIER_CALL_HARD_KILL_GRACE_MS",
+      "attemptSoftDeadlineMs": "REPAIR_ATTEMPT_SOFT_DEADLINE_MS == CLASSIFIER_CALL_SOFT_DEADLINE_MS",
+      "repairableCategories": "REPAIRABLE_CATEGORIES == [EVIDENCE, LENGTH]",
+      "requestVersion": "orgunit-classifier-repair-request-v1"
+    },
+    "rules": [
+      "disabled behaviour is byte-compatible with the pre-R1 fail-closed path: no repair is planned, no second provider call is made, no repair row or artifact is written, and every attempt-1 artifact is file-for-file unchanged",
+      "exactly one repair round per logical evaluation",
+      "at most one isolated repair request per initially rejected document; a document is never repaired twice; a repair is never repaired",
+      "a repair is triggered only for an item-level EVIDENCE or LENGTH rejection, and only after the original raw output and validation result have been durably persisted",
+      "a repair is never triggered by a whole-call SCHEMA_INVALID, a DOC_INDEX rejection, a TIMEOUT, a provider transient exhaustion, an auth failure, a usage-limit outcome, a refusal, any comparison with gold, or an existing repair",
+      "each repair request contains only the frozen system prompt and schema, the frozen batch context, the single rejected document, the emitted invalid fields and machine-readable validation reason codes",
+      "no sibling document, sibling output, full prior output, gold label, expected answer or programmatic value correction enters a repair request; no unit_name, quote or source is ever corrected, substituted or rewritten by code",
+      "repairs are validated by the unchanged validator (src/orgunits/classify/validate.ts) against the single-document batch",
+      "repair artifacts are persisted write-once under their derived repair identity (repair-1/doc-<k>/ under the attempt directory; repair call rows linked by repair_of_call_id and repair_doc_index in production)",
+      "a failed or timed-out repair leaves the document rejected and never rewrites the original completion or any original artifact",
+      "a repair-round TIMEOUT is recorded as the repair’s outcome and the round continues to the next document; it is not by itself an experiment stop; a usage-limit outcome during a repair IS a stop (USAGE_LIMIT_INTERRUPTION)",
+      "first-pass validity and post-repair validity are reported separately, always"
+    ],
+    "reasonCodes": [
+      "UNIT_NAME_UNSUPPORTED",
+      "EVIDENCE_SPAN_NOT_LITERAL",
+      "EVIDENCE_SPAN_VERIFIES_UNDER_OTHER_SOURCE",
+      "LENGTH_EXCEEDED"
+    ],
+    "skipRecord": "REPAIR_SKIPPED_INSUFFICIENT_BUDGET is persisted, with zero provider calls, when the usable window (remaining minus the hard-kill grace) is below minimumRemainingBudgetMs"
+  },
+  "callCeiling": {
+    "rule": "Mechanically derived from the frozen batch structure: one original provider request per logical evaluation plus at most one repair request for each of that batch’s documents (the maximum number of initially rejected, item-level-eligible documents is the document count). Each provider request may internally make at most 1 + MAX_TRANSIENT_RETRIES adapter attempts (class A), so the adapter-attempt ceiling is (1 + documentCount) x (1 + 2). No other bound is claimed; the budget below is the binding limit in practice.",
+    "maxTransientRetriesPerRequest": 2,
+    "perLogicalEvaluation": [
+      {
+        "ordinal": 1,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 3,
+        "maxRepairRequests": 3,
+        "maxProviderRequests": 4,
+        "maxAdapterAttempts": 12
+      },
+      {
+        "ordinal": 2,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 5,
+        "maxRepairRequests": 5,
+        "maxProviderRequests": 6,
+        "maxAdapterAttempts": 18
+      },
+      {
+        "ordinal": 3,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 4,
+        "maxRepairRequests": 4,
+        "maxProviderRequests": 5,
+        "maxAdapterAttempts": 15
+      },
+      {
+        "ordinal": 4,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 5,
+        "maxRepairRequests": 5,
+        "maxProviderRequests": 6,
+        "maxAdapterAttempts": 18
+      },
+      {
+        "ordinal": 5,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 3,
+        "maxRepairRequests": 3,
+        "maxProviderRequests": 4,
+        "maxAdapterAttempts": 12
+      },
+      {
+        "ordinal": 6,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 5,
+        "maxRepairRequests": 5,
+        "maxProviderRequests": 6,
+        "maxAdapterAttempts": 18
+      },
+      {
+        "ordinal": 7,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 5,
+        "maxRepairRequests": 5,
+        "maxProviderRequests": 6,
+        "maxAdapterAttempts": 18
+      },
+      {
+        "ordinal": 8,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 4,
+        "maxRepairRequests": 4,
+        "maxProviderRequests": 5,
+        "maxAdapterAttempts": 15
+      },
+      {
+        "ordinal": 9,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 4,
+        "maxRepairRequests": 4,
+        "maxProviderRequests": 5,
+        "maxAdapterAttempts": 15
+      },
+      {
+        "ordinal": 10,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 3,
+        "maxRepairRequests": 3,
+        "maxProviderRequests": 4,
+        "maxAdapterAttempts": 12
+      },
+      {
+        "ordinal": 11,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 3,
+        "maxRepairRequests": 3,
+        "maxProviderRequests": 4,
+        "maxAdapterAttempts": 12
+      },
+      {
+        "ordinal": 12,
+        "originalRequests": 1,
+        "maxEligibleRejectedDocuments": 5,
+        "maxRepairRequests": 5,
+        "maxProviderRequests": 6,
+        "maxAdapterAttempts": 18
+      }
+    ],
+    "totals": {
+      "logicalEvaluations": 12,
+      "originalRequests": 12,
+      "documents": 49,
+      "maxRepairRequests": 49,
+      "maxProviderRequests": 61,
+      "maxAdapterAttempts": 183
+    },
+    "observedNeedOnAttempt1": {
+      "note": "attempt-1 evidence only, not a bound",
+      "v2RejectedDocuments": 2,
+      "v1RejectedDocuments": 4
+    }
+  },
+  "liveness": {
+    "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
+    "tier1": {
+      "where": "src/orgunits/classify/provider/agentSdkRunner.ts + claudeMaxAgentProvider.ts (production)",
+      "attemptSoftDeadlineMs": 300000,
+      "abortCloseSettlementGraceMs": 10000,
+      "totalProviderCallBudgetMs": 600000,
+      "timeoutNeverRetriedInsideAdapter": true,
+      "transientRetries": {
+        "maxAfterFirstAttempt": 2,
+        "backoffMs": [500, 1000],
+        "backoffConsumesTotalBudget": true
+      },
+      "operatorReattempt": "an operator-authorised reattempt increments attemptNo; it is never an adapter retry",
+      "worstCaseAttemptSequenceMs": 610000
+    },
+    "tier2": {
+      "where": "src/test/harness/processIsolatedBatch.ts (test harness only; never a production fallback)",
+      "parentWatchdogMs": 700000,
+      "gracefulTerminationWindowMs": 10000,
+      "stderrTailMaxChars": 2048,
+      "role": "evidence and containment, not production isolation",
+      "watchdogDerivationMs": {
+        "authStatusRunnerTimeout": 60000,
+        "providerAttemptWindow": 600000,
+        "finalInnerCloseGrace": 10000,
+        "childStartupArtifactFlushAndSchedulingVariance": 30000,
+        "total": 700000
+      },
+      "watchdogRationale": "The auth-status runner (AUTH_STATUS_TIMEOUT_MS) can consume up to 60 s before the provider window opens; the provider window (CLASSIFIER_CALL_TOTAL_BUDGET_MS) is 600 s; the last attempt may add up to the 10 s inner close grace (CLASSIFIER_CALL_HARD_KILL_GRACE_MS); 30 s remain for child startup, artifact flushing and scheduling variance. A Tier-2 kill therefore cannot pre-empt a correctly firing Tier 1."
+    },
+    "decisionRule": {
+      "tier1FiresFirstOnOriginal": "If Tier 1 returns TIMEOUT before Tier 2 fires: record the evidence (progress trace, stderr tail) and stop; continuation is an operator-authorised attemptNo + 1.",
+      "tier1FiresOnRepair": "Record the repair outcome as FAILED / TIMEOUT, leave the document rejected, continue with the next document and the next evaluation; not a stop.",
+      "tier2KillsBecauseTier1DidNotFire": "If Tier 2 kills the batch process because Tier 1 did not fire: process-isolated production inference becomes mandatory follow-up 2D2B-2b, and the experiment stops."
+    },
+    "sharedBudgetRule": {
+      "statement": "The original request, its transient backoff sleeps, every repair request’s own pre-flight and auth-status work, and every repair request’s attempts and backoff all consume ONE injectable-clock window of totalProviderCallBudgetMs, opened in the orchestrator or child immediately before the original provider call is entered. A repair’s window is (remaining - abortCloseSettlementGraceMs); the adapter opens a caller-supplied window at classify() entry and never widens it beyond the frozen total; each attempt inside is bounded by min(attemptSoftDeadlineMs, remaining).",
+      "perEvaluationWorstCaseMs": {
+        "providerWindow": 600000,
+        "lastAttemptHardKillGrace": 10000,
+        "total": 610000,
+        "proof": "Every repair is opened only while usableMs = remaining - grace >= minimumRemainingBudgetMs; its WINDOW (the bound on all of its attempts, backoff and its own pre-flight and auth-status check) is usableMs; each ATTEMPT inside it is bounded by min(300000, window remaining), so no repair attempt ever receives more than the frozen soft deadline. Sequential repairs each re-measure remaining, so the sum of all windows never exceeds the original 600000 ms; at most one hard-kill grace can be outstanding at the end. The child reads the clock before the original classify(), so the original call’s own pre-flight and auth-status time is inside the measured window (conservative). Artifact writes between calls (the original outcome records, each repair’s decision and request records, each repair’s post-call records) are inside the measured window for the NEXT repair; only the round summary and CHILD_RESULT, written after the last repair, fall outside it and inside the Tier-2 variance reserve."
+      },
+      "tier2Sufficiency": {
+        "watchdogMs": 700000,
+        "derivationUnchanged": {
+          "authStatusRunnerTimeout": 60000,
+          "providerAttemptWindow": 600000,
+          "finalInnerCloseGrace": 10000,
+          "childStartupArtifactFlushAndSchedulingVariance": 30000,
+          "total": 700000
+        },
+        "claim": "SUFFICIENT for every provider-facing millisecond: the derivation reserves 60000 ms for the ORIGINAL call’s auth-status runner, 600000 ms for the provider window and 10000 ms for one final inner close grace; under the shared-budget rule the original call, every repair and every repair’s own auth-status check together total at most 600000 ms plus one grace, so this part is proved by the formula, not assumed. The 30000 ms variance reserve must absorb child startup, scheduling, and the write-once repair artifacts written after the last repair (the round summary and CHILD_RESULT) plus any write not already inside the measured window; that residual is a BOUNDED READINESS RISK, not a proved fact: a request-free synthetic persistence benchmark (src/test/unit/orgunitClassify2D2CF0CPersistenceBenchmark.test.ts) writes the maximum per-evaluation repair artifact set with the real fsync-backed writer and must finish inside the reserve on the run machine. No Tier-2 value changes.",
+        "boundedReadinessRisk": "Persistence latency cannot be proved by plan-only verification. The synthetic benchmark measures the maximum per-evaluation repair artifact set (1 round summary + 6 x 5 document artifacts = 31 write-once, fsync-backed files at attempt-1-like sizes) on the run machine without any provider or SDK call; the measured value is recorded in the F0C audit. If it approaches the reserve, the watchdog derivation is revisited BEFORE authorisation, never during a run."
+      },
+      "repairTimeoutContinuation": "A Tier-1 TIMEOUT of a REPAIR request is recorded on that repair (FAILED / TIMEOUT), the document stays rejected, the original PARTIAL stands, and the experiment continues; the F0B decision rule tier1FiresFirst applies to the ORIGINAL request only. TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT is unchanged and remains a stop."
+    }
+  },
+  "stopConditions": {
+    "policy": "On any stop condition: persist the available diagnostic record atomically (write-once), then stop the ENTIRE experiment. Never continue into a later batch and never start prompt v2. Resumption requires a separate operator authorisation.",
+    "conditions": [
+      {
+        "id": "CHILD_EXITED_UNCONFIRMED",
+        "meaning": "Tier-2 grace-phase verdict: the child exited without a shutdown acknowledgement. An unconfirmed harness termination, never a clean batch end."
+      },
+      {
+        "id": "SUPPRESSED_EXPIRED_TARGET_IDENTITY",
+        "meaning": "Tier-2 hard-kill disposition: the tree kill was suppressed because the direct child had already exited. An unconfirmed harness termination."
+      },
+      {
+        "id": "TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT",
+        "meaning": "The parent watchdog expired while no Tier-1 TIMEOUT had been observed. Triggers the 2D2B-2b decision."
+      },
+      {
+        "id": "RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION",
+        "meaning": "The provider returned rawOutput but its canonical serialization and SHA-256 were not durably written before layer-2 validation ran."
+      },
+      {
+        "id": "BATCH_ARTIFACT_MISSING_OR_CORRUPT",
+        "meaning": "A per-batch artifact is absent, unparsable or fails its own recorded hash."
+      },
+      {
+        "id": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "meaning": "Any recomputed corpus, manifest, prompt, freeze-config or lockfile hash differs from this freeze."
+      },
+      {
+        "id": "UNEXPECTED_RESPONSE_MODEL_ID",
+        "meaning": "The provider-reported model id is not the requested model id."
+      },
+      {
+        "id": "ISOLATION_VIOLATION",
+        "meaning": "Any tool, MCP, browser, settings-source, session-persistence or environment-leak violation observed in any attempt."
+      },
+      {
+        "id": "USAGE_LIMIT_INTERRUPTION",
+        "meaning": "A USAGE_LIMIT_EXHAUSTED outcome. Stops the experiment; a later separately authorised continuation is idempotent by input identity and never counts against quality (protocol section 8 treatment retained)."
+      },
+      {
+        "id": "UNRECONCILED_PROVIDER_FAILURE",
+        "meaning": "Any non-OK provider outcome, or a thrown failure, that cannot be reconciled to exactly one recorded batch attempt with a persisted diagnostic record."
+      }
+    ],
+    "repairNotes": [
+      "RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION applies to a repair raw checkpoint exactly as to the original",
+      "USAGE_LIMIT_INTERRUPTION and ISOLATION_VIOLATION apply to repair requests identically",
+      "a repair TIMEOUT is NOT a stop condition and NOT the tier1FiresFirst decision rule"
+    ]
+  },
+  "outputCapture": {
+    "rawOutputRule": "The provider’s returned rawOutput value is captured, canonically serialized and hashed BEFORE layer-2 validation, and is retained even when validation later rejects it. Absence of this record is itself a stop condition.",
+    "writeOnce": "Artifacts are write-once per (variant, batch ordinal, attemptNo). Attempt 2 writes ONLY under evaluations/PROMPT_V3_CANONICAL/batch-NN/attempt-2, experiments/attempt-2 and authorisations/; it never writes into, moves or reads for identity any attempt-1 directory.",
+    "requiredPerLogicalBatch": [
+      "freezeVersion",
+      "freezeConfigRawSha256",
+      "variantName",
+      "variantGitCommit",
+      "logicalBatchOrdinal",
+      "organisationId",
+      "echeRowKey",
+      "orderedGoldIds",
+      "orderedDocIndices",
+      "canonicalSerializedInputSha256",
+      "assemblyInputSha256",
+      "finalInputSha256",
+      "serializedBatchUtf8Bytes",
+      "batchContext",
+      "promptVersion",
+      "promptSha256",
+      "requestedModelId",
+      "providerReportedModelId",
+      "startedAtUtc",
+      "endedAtUtc",
+      "monotonicWallTimeMs",
+      "attemptNo",
+      "internalAdapterAttemptCountWhereObservable",
+      "inputTokens",
+      "outputTokens",
+      "cacheUsageWhereExposed",
+      "providerOutcome",
+      "rawOutputCanonicalSerialization",
+      "rawOutputSha256",
+      "validatorAcceptedRecords",
+      "validatorRejectedRecords",
+      "validatorRejectionReasons",
+      "tier1StderrTailOnTimeout",
+      "tier1ProgressTraceOnTimeout",
+      "tier2Outcome",
+      "tier2GracePhaseVerdict",
+      "tier2HardKillDisposition",
+      "tier2CleanupResult"
+    ],
+    "neverCaptured": [
+      "credentials or tokens of any kind",
+      "Claude profile or config-directory contents",
+      "a Claude transcript or session",
+      "chain of thought",
+      "SDK debug files (debug / debugFile / DEBUG_CLAUDE_AGENT_SDK are never enabled)",
+      "semantic settings from the user’s normal Claude profile"
+    ],
+    "identityRules": [
+      "canonicalSerializedInputSha256 and assemblyInputSha256 are the same value (the SHA-256 of the canonical serialized { context, documents } bytes) and must be recorded equal",
+      "finalInputSha256 is computeFinalInputSha256 over assemblyInputSha256, the variant’s promptVersion and the outputSchemaVersion; it is the persisted input identity and differs between the two variants for every batch",
+      "all three identities must be recomputed by the runner and checked against batching.plan BEFORE any provider invocation",
+      "an identity mismatch is CORPUS_CONFIG_OR_HASH_DRIFT and must stop before any auth status check and before any inference",
+      "batchContext is the complete reconstructed ClassifierBatchContext actually sent, and serializedBatchUtf8Bytes is the byte length of the exact canonical serialization actually sent"
+    ],
+    "repairArtifacts": {
+      "location": "<attempt directory>/repair-1/repair-round.json and <attempt directory>/repair-1/doc-<k>/{repair-decision,repair-request,repair-raw-output-checkpoint,repair-validation-result,repair-provider-outcome,repair-outcome}.json",
+      "neverBesideThePerAttemptKinds": true,
+      "rawBeforeValidation": "a repair raw-output checkpoint is persisted before the repair is validated, exactly as the original",
+      "finalRecordAddition": "FINAL_RECORD.repairRound (null when no round was recorded); the 38 requiredPerLogicalBatch fields are unchanged"
+    }
+  },
+  "scoring": {
+    "protocol": "orgunit-classifier-sonnet-acceptance-protocol-v1",
+    "protocolDocument": "docs/evaluation/PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md",
+    "denominatorsUnchanged": true,
+    "gates": {
+      "minSchemaValidSpanVerifiedRate": 0.99,
+      "minUnitPageRecall": 0.95,
+      "minUnitPagePrecision": 0.9,
+      "minUnitTypeAccuracy": 0.85,
+      "minHardNegativeRejection": 0.9,
+      "maxNeedsReviewRate": 0.15,
+      "maxIsolationViolations": 0,
+      "evidenceSpanVerification": 1,
+      "nonNullUnitNameVerification": 1,
+      "minGateableLanguageSubgroupSize": 20,
+      "maxCatastrophicSubgroupShortfall": 0.1
+    },
+    "providerFailureTreatment": "Provider failures and usage-limit outcomes keep the existing protocol treatment (INVALID is never a missing observation; usage-limit interruptions never count against quality).",
+    "acceptanceRule": "No final acceptance decision may be issued while attempt-2 coverage is incomplete (fewer than 12 completed PROMPT_V3_CANONICAL logical evaluations) or while any stop condition is unresolved. HOLDOUT stays forbidden until a DEV candidate passes every frozen gate.",
+    "requiredComparison": [
+      "absolute metrics for v1 and v2, each with raw numerator and denominator",
+      "paired per-item transition matrix (v1 verdict x v2 verdict, by gold id)",
+      "recovered invalid-output count (items rejected by the validator under v1 that validate under v2, and the reverse)",
+      "page-versus-unit failures (gold UNIT_PAGE answered NOT_A_UNIT, and hard negatives answered UNIT_PAGE), by gold id",
+      "UNKNOWN/NO axis transitions between variants",
+      "latency and token comparison per batch and in aggregate",
+      "infrastructure and liveness outcomes per batch (Tier 1 and Tier 2)",
+      "no claim of improvement based only on aggregate accuracy"
+    ],
+    "comparatorPolicy": {
+      "statement": "Attempt 2 runs PROMPT_V3_CANONICAL only. PROMPT_V1_CANONICAL and PROMPT_V2_CANONICAL are NOT rerun; their preserved attempt-1 artifacts are the read-only comparators, paired by gold id on the identical canonical inputs (identical assemblyInputSha256 per batch).",
+      "attempt1": {
+        "freezeRawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+        "artifactInventorySha256": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+        "artifactCount": 243,
+        "authorisationSha256": "46d1bd9ebed544f7ebf463f26ff6ec7cca89d8a9d849fdfd04a42412dc2d5705",
+        "planSha256": "05cb6984a57a871ac6b0a0720ab2fefceb5b5843f440dbf7831abdf9bfc82f6c",
+        "adjudicatedResults": "docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-1-gold-v1-adjudicated",
+        "readOnly": true,
+        "neverInsideAttempt2Namespace": true
+      },
+      "pairing": "by goldId; cross-attempt pairing is valid because every attempt-2 batch reads the byte-identical canonical input (assemblyInputSha256) its attempt-1 counterparts read; only the prompt identity differs",
+      "stochasticCaveat": "one sample per variant per attempt; a comparison proves nothing about future model performance"
+    },
+    "postRepairTreatment": {
+      "gatesAppliedTo": "POST_REPAIR_VALIDITY",
+      "firstPassAlwaysReported": true,
+      "rule": "Every frozen gate is applied to post-repair validity (a document whose repair was ACCEPTED counts as validator-accepted with the repair’s result). The first-pass acceptance rate, the repair counts, tokens and wall time are reported beside every gate. An ACCEPTED repair is re-validated by the scorer against the frozen document; a repair artifact is never trusted alone."
+    },
+    "scoringInputs": {
+      "devLabelsFixture": {
+        "path": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl",
+        "rawSha256": "19d9cc3e9dcfe0b10930aa095075cd4828459377d9ea67c8dd296da6126fcd08"
+      },
+      "scoringSupplement": {
+        "path": "docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json",
+        "rawSha256": "dd00e1653deac617eb6ba82e537f090b34de37de5c939a0e52c0466fdc874db5",
+        "revision": 2
+      },
+      "ownerAdjudicationRecord": {
+        "path": "docs/evaluation/PHASE_2B_2D2C_DEV_OWNER_ADJUDICATION_G1_V1.json",
+        "rawSha256": "e6e87f7edfe58f4e0bf84504699445be183be88d6ec04f812da7c3ef017994f7"
+      },
+      "promptV3DesignRecord": {
+        "path": "docs/evaluation/PHASE_2B_2D2C_PROMPT_V3_DESIGN_CANDIDATES_V1.json",
+        "rawSha256": "e99d88c6af1c215aaff7fe522e4910111b5dcab7e5f1fc301f446649a0bdbeac"
+      },
+      "scorerRePinRequired": "the F4 scorer is pinned to attempt 1 (attempt number, artifact count, plan hash, authorisation, expected totals, variant set); an attempt-2 scorer configuration must be pinned against THIS freeze after approval and before any run"
+    }
+  },
+  "unresolvedGold": {
+    "goldId": "ge789b0f0aedc398c",
+    "committedLabel": "UNIT_PAGE",
+    "committedLabelEvidenceClass": "OWNER_PRESERVED_REQUIREMENT (the adjudication fixture is not opened by this task)",
+    "membership": "DEVELOPMENT (present in the canonical corpus; verified now)",
+    "labelChangedByThisTask": false,
+    "policy": [
+      "include the item normally in inference and in primary metrics using the committed label",
+      "additionally compute a leave-one-out sensitivity report that removes only this item from every metric denominator",
+      "do not invent an alternative gold label or page kind",
+      "if any pass/fail gate differs between the primary metrics and the leave-one-out report, the final status is BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION",
+      "never silently select whichever interpretation makes prompt v2 look better"
+    ],
+    "blockedStatus": "DISCHARGED_BY_OWNER_ADJUDICATION_G1 (the leave-one-out report stays reported in full)",
+    "ownerAdjudicated": true,
+    "ownerAdjudicationRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D2C_DEV_OWNER_ADJUDICATION_G1_V1.json",
+      "rawSha256": "e6e87f7edfe58f4e0bf84504699445be183be88d6ec04f812da7c3ef017994f7",
+      "decision": "KEEP_UNIT_PAGE",
+      "labelChanged": false
+    }
+  },
+  "holdout": {
+    "inferenceDuring2D2C": "FORBIDDEN",
+    "rules": [
+      "no HOLDOUT inference during 2D2C",
+      "no new HOLDOUT inspection, transformation or tuning",
+      "no HOLDOUT batching or prevalence analysis",
+      "no HOLDOUT-derived value anywhere in this DEV configuration",
+      "HOLDOUT remains a later one-shot evaluation, only after a DEV candidate is accepted and separately authorised"
+    ],
+    "historicalExposureDisclosure": "During the R3 (2D2B-3) pre-implementation read, a repository-wide search for SERVICE_TOOL_PAGE printed eight gold-label records from orgunit-classifier-adjudication-v1.jsonl before fixture-search exclusions were introduced; their split membership was deliberately not looked up, so they may include HOLDOUT gold-label text. HOLDOUT therefore does NOT have zero historical exposure. No HOLDOUT inference and no result-driven tuning has occurred at any point."
+  },
+  "exclusions": {
+    "thisFreezeAuthorises": [],
+    "forbiddenUntilSeparateAuthorisation": [
+      "any live Claude/provider inference",
+      "auth login or profile modification",
+      "database access or writes",
+      "institutional network requests",
+      "HOLDOUT inference or semantic inspection",
+      "gold-label changes",
+      "prompt or production-code changes",
+      "dependency, lockfile, migration or environment changes"
+    ]
+  },
+  "ownerApprovalRequired": [
+    "this file’s exact raw SHA-256 and the derived attempt-2 plan SHA-256",
+    "attempt-2 variant name PROMPT_V3_CANONICAL and label PROMPT_V3_CANDIDATE",
+    "the 12-evaluation ordering (frozen ordinals 1..12, one variant)",
+    "the comparator policy: preserved attempt-1 V1/V2 evidence, read-only, no rerun",
+    "the post-repair scoring treatment",
+    "the repair-timeout continuation rule",
+    "REPAIR_MINIMUM_REMAINING_BUDGET_MS = 120000 ms on the usable repair window (owner-selected 2026-09-14; 60000 rejected)",
+    "the general repair deadline contract stated in repairContract.repairDeadlineFormula",
+    "the per-evaluation and total call ceilings as derived",
+    "the identity fields changed from F0B",
+    "that the 700000 ms Tier-2 watchdog remains sufficient under the shared-budget rule",
+    "the runtime re-pin from 0c0d73803ed1155d568afe50a6657b7be7276dbb to 8224e630b9310f1eeada608a34627e854b30f5aa (Finding F1, Option B) — the only production-runtime behavioural delta is the repair-admission floor constant 60000 -> 120000 in src/orgunits/classify/repair.ts; Prompt V3 bytes are byte-identical"
+  ],
+  "nextStep": "Owner freeze approval of THIS file by its exact raw SHA-256 (a separate record, PHASE_2B_2D2C_F0E_OWNER_FREEZE_APPROVAL_V1.json). Then refreshed plan-only verification of the 12-evaluation plan against the V3B root; then attempt 2 requires a SEPARATE, NEW owner execution authorisation naming this freeze. Neither this freeze nor F0C authorises attempt 2 before both steps."
+}

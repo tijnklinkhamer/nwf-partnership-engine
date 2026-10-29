@@ -1,0 +1,851 @@
+{
+  "recordId": "phase2b-2d-a2-acquisition-resilience-reassessment-result-v1",
+  "recordKind": "DIAGNOSTIC_AND_DESIGN_RESULT",
+  "recordedAtUtc": "2026-09-20T16:20:00Z",
+  "recordedOn": "2026-09-20",
+
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_ACQUISITION_YIELD_REASSESSMENT_AFTER_V3_BATCH02_V1",
+  "terminalState": "PHASE_2B_2D_A2_ACQUISITION_RESILIENCE_REASSESSMENT_COMPLETE_AWAITING_OWNER_DECISION",
+  "thisFileAuthorises": [],
+
+  "startingHead": {
+    "commit": "8c46865b4b5dc40fa97a63cd58790733b61168e7",
+    "branch": "feat/phase2b-2d-a2-batch-02",
+    "worktreeCleanAtStart": true
+  },
+
+  "boundAuditArtifact": {
+    "path": "docs/audits/PHASE_2B_2D_A2_ACQUISITION_RESILIENCE_REASSESSMENT_V1.md",
+    "sha256": "0aebe3b40d21b8c736db96852fbd257129dbe3bf63b2c99e08d5e860fe0e4bd0",
+    "bytes": 56542
+  },
+
+  "network": {
+    "institutionHttpRequests": 0,
+    "institutionDnsLookups": 0,
+    "institutionTlsHandshakes": 0,
+    "executeAcquisitionsPerformed": 0,
+    "curlWgetOrBrowserUsed": false,
+    "everyDatabaseStatementWasASelect": true,
+    "databaseMutations": 0,
+    "databaseRoleUsed": "readonly"
+  },
+
+  "generation1PrimaryState": {
+    "finalisedPrimarySlots": 9,
+    "successCount": 5,
+    "successSelectionIndices": [0, 1, 2, 5, 7],
+    "failureCount": 4,
+    "failureSelectionIndices": [3, 4, 6, 8],
+    "pendingCount": 0,
+    "neverStartedPrimarySlots": 101,
+    "index9NeverStarted": true,
+    "reserveConsumed": 0,
+    "noPopulationConclusionAuthorisedFromTheseNineOutcomes": true
+  },
+
+  "databaseReconciliation": {
+    "orgunit_research_runs": 12,
+    "orgunit_fetch_observations": 204,
+    "acquisitionOfRecordRuns": 9,
+    "retainedSupersededRuns": 3,
+    "observationsCarryingATransportErrorKind": 4,
+    "observationsCarryingAnHttp5xx": 2,
+    "attemptNoDistribution": { "1": 202, "2": 2 },
+    "robotsDecisionDistribution": { "ALLOWED": 182, "NOT_APPLICABLE": 19, "NO_ROBOTS_FILE": 3 },
+    "observationPolicyVersionDistribution": { "v1": 78, "v2": 39, "v3": 87 },
+    "agreesWithCommittedExecutionRecords": true
+  },
+
+  "failureCensus": [
+    {
+      "selectionIndex": 3,
+      "class": "ROOT_AND_SITEMAP_HTTP_5XX",
+      "runRefSha256": "2ada6fe0272c409ded4ae198c801f492cede477ee1ec33eac1e0e51d24ca9551",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 3,
+      "robotsReadable": true,
+      "robotsDecisionOnContentRequests": "ALLOWED",
+      "rootHttpStatus": 500,
+      "conventionalSitemapHttpStatus": 500,
+      "transportErrorKind": null,
+      "resolvedIpIsPublic": true,
+      "pageAttempts": 1,
+      "rawPageEvidence": 0,
+      "rootTerminalReason": "NO_ELIGIBLE_HTML",
+      "retried": false
+    },
+    {
+      "selectionIndex": 4,
+      "class": "ROBOTS_DNS_FAILURE",
+      "runRefSha256": "210ec71c8b3907fc94024a772e046dfb31028d20f9597004af8b1a9d6a0cca53",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 1,
+      "robotsReadable": false,
+      "transportErrorKind": "DNS_FAILURE",
+      "httpStatus": null,
+      "resolvedIpFamily": null,
+      "resolvedIpIsPublic": null,
+      "whyTheNullsAreEvidence": "the gateway writes both columns only after an address was selected, so their absence proves the failure occurred at resolution",
+      "pageAttempts": 0,
+      "rawPageEvidence": 0,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "retried": false
+    },
+    {
+      "selectionIndex": 6,
+      "class": "ROBOTS_TLS_FAILURE",
+      "runRefSha256": "a5550818fe15b4a058d5daddc55ce283834c7d619730e217919157f88e18046c",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 1,
+      "robotsReadable": false,
+      "transportErrorKind": "TLS_FAILURE",
+      "httpStatus": null,
+      "resolvedIpFamily": "IPV4",
+      "resolvedIpIsPublic": true,
+      "failureIsAtOrAfterTheTlsHandshake": true,
+      "pageAttempts": 0,
+      "rawPageEvidence": 0,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "retried": false
+    },
+    {
+      "selectionIndex": 8,
+      "class": "ROBOTS_TLS_FAILURE",
+      "runRefSha256": "5145934ca138277794e2e426e07e24d34bcf90ad1ec126cf80d1da6c24d05ecc",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v3",
+      "observations": 1,
+      "robotsReadable": false,
+      "transportErrorKind": "TLS_FAILURE",
+      "httpStatus": null,
+      "resolvedIpFamily": "IPV4",
+      "resolvedIpIsPublic": true,
+      "failureIsAtOrAfterTheTlsHandshake": true,
+      "redirectObservationsCreated": 0,
+      "optionCLiteContinuationPathReached": false,
+      "pageAttempts": 0,
+      "rawPageEvidence": 0,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "retried": false
+    }
+  ],
+  "noTransportSubtypeWasInferredForAnyIndex": true,
+
+  "acquisitionStageCensus": {
+    "failedBeforeThePolicyCouldBeRead": { "count": 3, "selectionIndices": [4, 6, 8] },
+    "failedAfterPolicyAllowedBeforeUsefulPageEvidence": { "count": 1, "selectionIndices": [3] },
+    "failedAfterOrdinaryPageAcquisitionProducedEvidence": { "count": 0, "selectionIndices": [] },
+    "structuralObservation": "ALL_FOUR_FAILURES_OCCURRED_UPSTREAM_OF_SUBSTANTIVE_PAGE_ACQUISITION",
+    "thisIsAnOperationalFindingOnly": true,
+    "notAClaimTheInstitutionsAreBad": true,
+    "notAClaimTheCrawlerIsBroken": true
+  },
+
+  "robotsRedirectRepairLoopClosed": {
+    "currentFailuresAttributableToOldNoRedirectBehaviour": 0,
+    "currentFailuresAttributableToOptionBSameHostLimitation": 0,
+    "currentFailuresAttributableToOptionCLiteSameRegistrableDomainLimitation": 0,
+    "redirectObservationsAcrossTheFourFailingRuns": 0,
+    "robotsPath3xxObservationsInTheDatabase": 6,
+    "allSixBelongToEitherASupersededRunOrASuccessfulContinuation": true,
+    "supersededRobots3xxRuns": 3,
+    "successfulContinuationRuns": 3,
+    "adr0012Reopened": false,
+    "adr0013Reopened": false,
+    "incidentalFinding": "ROBOTS_UNREADABLE never appears as a persisted robots_decision, because an unreadable policy blocks the page request inside robots.ts before the gateway is called"
+  },
+
+  "transportTaxonomyAudit": {
+    "entryPoints": 3,
+    "dnsFailureSources": [
+      "dns.lookup threw (code discarded)",
+      "dns.lookup returned an empty address array"
+    ],
+    "nodeCodeToErrorKind": {
+      "EPROTO": "TLS_FAILURE",
+      "ERR_TLS_CERT_ALTNAME_INVALID": "TLS_FAILURE",
+      "ERR_TLS_HANDSHAKE_TIMEOUT": "TLS_FAILURE",
+      "CERT_HAS_EXPIRED": "TLS_FAILURE",
+      "DEPTH_ZERO_SELF_SIGNED_CERT": "TLS_FAILURE",
+      "SELF_SIGNED_CERT_IN_CHAIN": "TLS_FAILURE",
+      "UNABLE_TO_VERIFY_LEAF_SIGNATURE": "TLS_FAILURE",
+      "UNABLE_TO_GET_ISSUER_CERT_LOCALLY": "TLS_FAILURE",
+      "ERR_SSL_WRONG_VERSION_NUMBER": "TLS_FAILURE",
+      "ERR_TLS_* prefix": "TLS_FAILURE",
+      "ERR_SSL_* prefix": "TLS_FAILURE",
+      "ECONNREFUSED": "CONNECTION_REFUSED",
+      "ECONNRESET": "CONNECTION_RESET",
+      "EPIPE": "CONNECTION_RESET",
+      "ETIMEDOUT": "CONNECT_TIMEOUT",
+      "anything else": "OTHER"
+    },
+    "nonCodeDerivedKinds": {
+      "connectTimerExpiry_30000ms": "CONNECT_TIMEOUT",
+      "totalTimerExpiry_45000ms": "READ_TIMEOUT",
+      "contentLengthOverCap": "RESPONSE_TOO_LARGE",
+      "unsupportedContentEncoding": "OTHER"
+    },
+    "nuances": [
+      "for HTTPS the connect timer is disarmed on secureConnect, so a stalled handshake usually surfaces as CONNECT_TIMEOUT while ERR_TLS_HANDSHAKE_TIMEOUT surfaces as TLS_FAILURE",
+      "ETIMEDOUT is mapped to CONNECT_TIMEOUT unconditionally although the kernel can also raise it on a stalled read",
+      "INVALID_CONTENT_ENCODING is stored as OTHER because migration 0007's taxonomy has no coding-failure member",
+      "UNSUPPORTED_CONTENT_TYPE and TOO_MANY_REDIRECTS exist in the schema taxonomy and are written by nothing"
+    ]
+  },
+
+  "orchestratorFailureClassification": {
+    "terminal": ["DNS_FAILURE", "BLOCKED_BY_POLICY_on_an_attempted_fetch"],
+    "transient": [
+      "CONNECT_TIMEOUT",
+      "READ_TIMEOUT",
+      "CONNECTION_REFUSED",
+      "CONNECTION_RESET",
+      "TLS_FAILURE"
+    ],
+    "pageLevelNoBreakerEffect": ["RESPONSE_TOO_LARGE", "OTHER"],
+    "anyHttpStatusResetsTheTransientStreak": true,
+    "circuitBreakerTransientFailureThreshold": 3,
+    "onceOpenNeverRecloses": true,
+    "policyIsExplicitlyNotStatisticallyCalibrated": true
+  },
+
+  "retryCountToday": {
+    "value": 0,
+    "provenThreeWays": [
+      "SOURCE: the single orchestrator call site passes a hardcoded attemptNo: 1 (rootRunner.ts:374); no retry, backoff or re-attempt loop exists anywhere under src/orgunits/web/ or src/orgunits/orchestrator/",
+      "TESTS: phase2b.firewall.test.ts asserts the gateway source matches no /\\b(retry|retries|backoff|pRetry)\\b/i, and orgunitGateway.test.ts 'does not retry a timeout, a 429 or a 500' asserts exactly one transport plan for each of READ_TIMEOUT, CONNECT_TIMEOUT, a 429 carrying Retry-After, and a 500",
+      "DURABLE EVIDENCE: a join of every error-bearing observation to any same-(run, root, url) row with a higher attempt_no returns 0"
+    ],
+    "attemptNoTwoRowsExist": 2,
+    "attemptNoTwoRowsAreNotRetries": "both are HTTP 200 robots-path reads inside the two Option-C-lite v3 runs, produced by RobotsCache.nextPolicyAttemptNo; two attempts at one URL made for two different reasons, never a repetition of a failure",
+    "retryLogicExistsOnlyUnder": "src/orgunits/classify/ (a separately approved layer)"
+  },
+
+  "circuitBreakerAndRobotsBootstrap": {
+    "question": "does the root terminate before a 3-failure transient threshold could matter?",
+    "answer": "YES, and the finding is stronger than the question",
+    "strongerFinding": "a policy-bootstrap failure exits attemptUrl on the BLOCKED path at rootRunner.ts:421-428, which returns BEFORE updateCircuitBreaker is reached at rootRunner.ts:433. The breaker is never told about the failure at all; its state for that host stays CLOSED / streak 0 for the whole run.",
+    "controlFlowTraced": true,
+    "supportingEvidence": "index 8's record reports circuitOpenHosts = 0 on a run whose only request failed at TLS",
+    "failedPolicyIsMemoisedForTheRun": "cache.set(runId, scheme, hostname, pending) at robots.ts:541 is unconditional, so a FETCH_FAILED policy is cached with the same permanence as a parsed one",
+    "index8TotalGatewayRequests": 1,
+    "index8WallClockSeconds": 3
+  },
+
+  "tlsHeterogeneityFinding": {
+    "verdict": "TREATING_THE_WHOLE_TLS_FAILURE_BUCKET_AS_ONE_GENERIC_TRANSIENT_CLASS_IS_NOT_TECHNICALLY_COHERENT",
+    "plausiblyRetryableMembers": ["ERR_TLS_HANDSHAKE_TIMEOUT"],
+    "notMeaningfullyRetryableMembers": [
+      "ERR_TLS_CERT_ALTNAME_INVALID",
+      "CERT_HAS_EXPIRED",
+      "DEPTH_ZERO_SELF_SIGNED_CERT",
+      "SELF_SIGNED_CERT_IN_CHAIN",
+      "UNABLE_TO_VERIFY_LEAF_SIGNATURE",
+      "UNABLE_TO_GET_ISSUER_CERT_LOCALLY",
+      "ERR_SSL_WRONG_VERSION_NUMBER"
+    ],
+    "catchAllMembersWhoseContentsCannotBeEnumerated": [
+      "EPROTO",
+      "any ERR_TLS_ prefix",
+      "any ERR_SSL_ prefix"
+    ],
+    "harmlessTodayOnlyBecauseNoRetryActsOnTheClassification": true,
+    "tlsValidationDisabled": false,
+    "certificateErrorsIgnored": false,
+    "anyProposalToRelaxTls": "NONE - rejectUnauthorized stays true, firewall-asserted",
+    "additionalAsymmetry": "the one genuinely retryable TLS condition is already split across CONNECT_TIMEOUT and TLS_FAILURE depending on which of two timers fires first"
+  },
+
+  "observabilityAudit": {
+    "previousAuditFindingReverified": true,
+    "previousAuditFindingUnchanged": true,
+    "fetchObservationColumnCount": 29,
+    "errorDetailColumnExists": false,
+    "errorSubtypeColumnExists": false,
+    "errorCodeColumnExists": false,
+    "anyFreeTextErrorColumnExists": false,
+    "migrations0008Through0011AddedAnySuchColumn": false,
+    "perClass": {
+      "DNS_FAILURE": {
+        "errorKindPersisted": true,
+        "httpStatusPersisted": false,
+        "nodeCodePersisted": false,
+        "subtypePersisted": false,
+        "freeTextPersisted": false,
+        "retryableVsTerminalDeterminable": false
+      },
+      "TLS_FAILURE": {
+        "errorKindPersisted": true,
+        "httpStatusPersisted": false,
+        "nodeCodePersisted": false,
+        "subtypePersisted": false,
+        "freeTextPersisted": false,
+        "retryableVsTerminalDeterminable": false
+      },
+      "CONNECT_TIMEOUT": {
+        "errorKindPersisted": true,
+        "httpStatusPersisted": false,
+        "nodeCodePersisted": "not applicable",
+        "subtypePersisted": false,
+        "freeTextPersisted": false,
+        "retryableVsTerminalDeterminable": true
+      },
+      "READ_TIMEOUT": {
+        "errorKindPersisted": true,
+        "httpStatusPersisted": false,
+        "nodeCodePersisted": "not applicable",
+        "subtypePersisted": false,
+        "freeTextPersisted": false,
+        "retryableVsTerminalDeterminable": true
+      },
+      "CONNECTION_REFUSED": {
+        "errorKindPersisted": true,
+        "httpStatusPersisted": false,
+        "nodeCodePersisted": false,
+        "subtypePersisted": false,
+        "freeTextPersisted": false,
+        "retryableVsTerminalDeterminable": true
+      },
+      "CONNECTION_RESET": {
+        "errorKindPersisted": true,
+        "httpStatusPersisted": false,
+        "nodeCodePersisted": false,
+        "subtypePersisted": false,
+        "freeTextPersisted": false,
+        "retryableVsTerminalDeterminable": true
+      },
+      "HTTP_5XX": {
+        "errorKindPersisted": "null by design",
+        "httpStatusPersisted": true,
+        "nodeCodePersisted": "not applicable",
+        "subtypePersisted": false,
+        "freeTextPersisted": false,
+        "retryableVsTerminalDeterminable": true
+      },
+      "OTHER": {
+        "errorKindPersisted": true,
+        "httpStatusPersisted": false,
+        "nodeCodePersisted": false,
+        "subtypePersisted": false,
+        "freeTextPersisted": false,
+        "retryableVsTerminalDeterminable": false
+      }
+    },
+    "responseHeadersPersisted": false,
+    "responseHeadersEverRead": ["content-length", "content-encoding", "content-type", "location"],
+    "errorDetailNeverLeavesTheGateway": true,
+    "errorDetailReadByOrchestratorOrCli": false,
+    "cliPrintsOnly": "terminalReason",
+    "runCompletionsCanHoldIt": false,
+    "runCompletionsAllCompletedWithNullErrorFields": 12,
+    "durableTransportEvidenceThatDoesSurvive": [
+      "error_kind",
+      "http_status",
+      "resolved_ip_family",
+      "resolved_ip_is_public",
+      "attempt_no",
+      "fetch_policy_version"
+    ]
+  },
+
+  "localArtifactSearch": {
+    "networkUsed": false,
+    "locationsSearched": [
+      "data/ (empty)",
+      "docs/evaluation/ and docs/audits/ (committed)",
+      "the gen1-dev-train split root",
+      "the gen1-dev-confirm sealed root",
+      "the gen1-final-holdout sealed root",
+      "the methodology-v2 source-artifacts root"
+    ],
+    "tokensSearched": [
+      "ERR_TLS_",
+      "ERR_SSL_",
+      "EPROTO",
+      "CERT_HAS_EXPIRED",
+      "DEPTH_ZERO_SELF_SIGNED_CERT",
+      "SELF_SIGNED_CERT_IN_CHAIN",
+      "ENOTFOUND",
+      "EAI_AGAIN"
+    ],
+    "matches": 0,
+    "acquisitionRunLogsFound": 0,
+    "consistentWithTheCodeFinding": "errorDetail never reached stdout, so no terminal capture could have contained it",
+    "subtypeResults": {
+      "selectionIndex4": "SUBTYPE_UNAVAILABLE",
+      "selectionIndex6": "SUBTYPE_UNAVAILABLE",
+      "selectionIndex8": "SUBTYPE_UNAVAILABLE"
+    },
+    "recreatedByReconnecting": false
+  },
+
+  "dnsAudit": {
+    "collapsesOperationallyDistinctCases": true,
+    "cases": [
+      {
+        "case": "authoritative nonexistent hostname",
+        "nodeCode": "ENOTFOUND / EAI_NONAME",
+        "distinguishableToday": false
+      },
+      {
+        "case": "temporary resolver failure",
+        "nodeCode": "EAI_AGAIN",
+        "distinguishableToday": false
+      },
+      {
+        "case": "lookup succeeded but returned no address of either family",
+        "nodeCode": "none - a separate code path in the gateway",
+        "distinguishableToday": false
+      }
+    ],
+    "canASafeRetryPolicyDistinguishATransientDnsFailureToday": false,
+    "statedClearly": "NO. A safe retry policy cannot distinguish a transient DNS failure from a permanent one using today's durable evidence.",
+    "index4IsPermanentlyUnclassifiable": true,
+    "whyPermanent": "the row is append-only and nwf_research holds no UPDATE grant, so a future subtype column can never be back-filled onto it",
+    "freshDnsLookupPerformed": false
+  },
+
+  "http5xxAudit": {
+    "receivedResponsesResetTheTransientCircuitStreak": true,
+    "retryExists": false,
+    "index3HadNoUsableFrontierAfterwards": true,
+    "shouldAFutureRetryPolicyDistinguish500From502_503_504": true,
+    "reasoning": {
+      "502_503_504": "RFC 9110 defines all three as intermediary or capacity conditions - bad upstream response, temporary overload or maintenance, upstream timeout - so all three are semantically transient; 503 is additionally the status for which Retry-After is specifically defined",
+      "500": "a generic unqualified server error carrying no claim about duration; index 3 returning 500 on two different paths is at least as consistent with a site-wide deterministic fault as with a transient one"
+    },
+    "retryAfterParsedToday": false,
+    "retryAfterIgnoredToday": true,
+    "retryAfterAppearsInTheRepositoryOnlyAs": "an input in a test fixture asserting that a 429 carrying it is NOT retried",
+    "honouringRetryAfterWouldRequire": "reading a fifth response header and letting a third party influence this process's timing - a real widening of the request boundary",
+    "claimThatIndex3WouldHaveRecoveredWithARetry": "NOT MADE"
+  },
+
+  "robotsBootstrapSinglePointOfFailure": {
+    "isIt": true,
+    "precisely": "one transport failure on the robots bootstrap currently makes that host/root a single-attempt single point of failure; the entire origin becomes unfetchable for the run after exactly one request",
+    "contrastWithOrdinaryPageDiscovery": {
+      "ordinaryPageFailureScope": "one URL out of up to 35 page attempts, 3000 sitemap URLs and 8 hosts",
+      "bootstrapFailureScope": "the entire origin",
+      "breakerInformedOnOrdinaryFailure": true,
+      "breakerInformedOnBootstrapFailure": false,
+      "durableControlCase": "index 5's SUCCESSFUL v2 run contains a READ_TIMEOUT on a LINK request and still produced 33 raw pages"
+    },
+    "wasThisAnExplicitDesignChoice": "PARTLY - the two halves must be separated",
+    "explicitlyChosen": {
+      "what": "fail-closed on an unreadable policy",
+      "where": "ADR 0006, 'The redirect posture' section",
+      "verdict": "deliberate, reasoned, and NOT questioned by this audit"
+    },
+    "notChosen": {
+      "what": "that the policy is attempted exactly once",
+      "why": "a consequence of (a) RobotsCache memoising the in-flight promise, whose ADR 0006 rationale is given entirely in terms of politeness and concurrency de-duplication and which nowhere discusses what memoising a FAILED policy fetch implies, and (b) the absence of any retry policy above the gateway",
+      "consequenceForDesign": "a bounded bootstrap retry would NOT weaken ADR 0006's fail-closed posture - an unread policy would still block every page - it would revisit a caching decision made for concurrency reasons with an unexamined resilience side effect"
+    }
+  },
+
+  "retrySecurityModelAssessment": {
+    "verdict": "THE_EXISTING_GATEWAY_ALREADY_SUPPORTS_A_COMPLIANT_RETRY_CLEANLY",
+    "implemented": false,
+    "properties": {
+      "sameLogicalUrl": "supported",
+      "newGatewayInvocation": "supported",
+      "attemptNoPlusOne": "supported and already exercised in production (two attempt_no = 2 rows exist)",
+      "separatelyPersisted": "supported - attempt_no is part of the unique identity",
+      "independentlyDnsResolved": "supported - the pinned-lookup guard throws if resolution is attempted more than once within one attempt",
+      "independentlyIpSsrfValidated": "supported - every returned address re-classified, any forbidden one refuses the whole host",
+      "tlsValidationFullyEnabled": "supported - rejectUnauthorized: true hardcoded, firewall-asserted",
+      "separatelyChargedToRequestBudget": "supported mechanically, with one caveat: predictedCost is a prediction and RequestBudget.consume THROWS rather than clamping, so a retrying caller must predict its own extra request",
+      "subjectToPacing": "supported if routed through attemptUrl; a retry issued on any other path would bypass pacer.waitForSlot",
+      "subjectToHostBudget": "supported",
+      "noAlternateHostname": "supported - scope is re-derived from the root authority, never from the caller",
+      "noAlternateProtocol": "supported - HTTPS to HTTP downgrade refused",
+      "noWeakerTls": "supported - no TLS option is caller-controllable",
+      "noDifferentUserAgent": "supported - REQUEST_HEADERS is a frozen module constant",
+      "noProxy": "supported - node:http/node:https read no proxy variables",
+      "noCookiesOrSession": "supported - set-cookie is dropped, not joined; no jar exists"
+    },
+    "theRetryPrimitiveIsNotTheGap": true,
+    "whatIsMissing": [
+      "a caller that decides to retry",
+      "for a BOOTSTRAP retry specifically: RobotsCache memoises a FETCH_FAILED policy unconditionally, so a second bootstrap attempt would read the cached failure rather than making a request; a design must choose deliberate non-memoisation or explicit invalidation, and restate ADR 0006's request-count invariants",
+      "for a BOOTSTRAP retry specifically: the circuit breaker is never informed of a bootstrap failure, so a retried bootstrap would consume attempts without the breaker counting them"
+    ]
+  },
+
+  "optionAssessments": {
+    "A_KEEP_CURRENT_ONE_SHOT_POLICY": {
+      "methodologicalCleanliness": "HIGHEST - one request, one row, one outcome",
+      "networkSafety": "HIGHEST - strictly fewer third-party requests than any alternative",
+      "reservePressure": "HIGHEST - every transient blip is paid for with a non-renewable reserve slot",
+      "vulnerabilityToTransientNoise": "HIGHEST and structurally asymmetric - a single packet-timing accident on the robots bootstrap costs an entire organisation while the same accident on an ordinary page costs one frontier entry",
+      "governanceCost": "ZERO",
+      "honestSummary": "the cleanest and safest option, which buys those properties by letting acquisition outcomes depend on single-sample network luck at exactly the point where a single sample is most expensive"
+    },
+    "B_BOUNDED_RETRY_FOR_UNAMBIGUOUS_TRANSIENT_TRANSPORT_FAILURES": {
+      "classes": ["CONNECT_TIMEOUT", "READ_TIMEOUT", "CONNECTION_RESET", "CONNECTION_REFUSED"],
+      "tlsAndDnsExcluded": true,
+      "whyExcluded": "neither can be safely subdivided with today's durable evidence",
+      "connectionRefusedCaveat": "ECONNREFUSED means a reachable host actively answered with a RST - a deterministic answer, not a timing accident - so it is the weakest member of the set and could defensibly be dropped",
+      "definableFromDurableEvidence": "COMPLETE - all four categories are the persisted error_kind itself",
+      "methodologicalCleanliness": "GOOD - preregisterable, category-based, mechanically checkable; costs one clear statement that an acquisition failure means two failed attempts rather than one",
+      "networkSafety": "adds at most one request per failing URL, inside the frozen 60-request ceiling, under existing pacing",
+      "coverageOfWhatHasActuallyBeenObserved": "ZERO",
+      "reservePressure": "unchanged on the current evidence",
+      "summary": "correct, cheap, and on everything measured so far inert"
+    },
+    "C_SPLIT_TRANSPORT_FAILURE_TAXONOMY_FIRST": {
+      "authorisesRetryByItself": false,
+      "minimalTaxonomyMembers": 8,
+      "migrationCost": "one additive nullable column plus one CHECK; no table rewrite, no grant change, no data movement",
+      "provenanceCost": "REAL AND PERMANENT - append-only plus no UPDATE grant means every existing row stays NULL forever; the taxonomy is strictly prospective",
+      "doesItHelpIndices3_4_6_8": "NO - not now and not ever",
+      "whatItUnlocks": "the only two classes that cover anything actually observed"
+    },
+    "D_BOUNDED_HTTP_SERVICE_RETRY": {
+      "D1_502_503_504_only": {
+        "definableFromDurableEvidence": "COMPLETE - http_status is persisted exactly",
+        "semanticFooting": "STRONG - RFC 9110 defines all three as intermediary or capacity conditions",
+        "methodologicalCaution": "low"
+      },
+      "D2_blanket_500_as_well": {
+        "definableFromDurableEvidence": "COMPLETE",
+        "semanticFooting": "WEAKER - 500 carries no duration claim",
+        "methodologicalCaution": "risks re-requesting a deterministic application fault"
+      },
+      "safety": "a 5xx means the host is alive and answering; a second request is cheap for the site relative to a timeout",
+      "retryAfterShapeWorthConsidering": "honour it only as a LOWER bound on the existing pacing delay, up to a frozen ceiling; never let it shorten a wait, never let it exceed the run's own budget",
+      "migrationRequired": false
+    },
+    "E_COMBINED_OBSERVABILITY_PLUS_NARROW_RETRY": {
+      "composition": "Option C's taxonomy, plus one exact-request retry for B's four error_kind classes, C's TLS_HANDSHAKE_TIMEOUT and DNS_TEMPORARY_FAILURE subtypes, and D1's 502/503/504",
+      "isItTheMostCoherentLongTermDesign": true,
+      "whyCoherent": "the evidence records the CONDITION and the policy DERIVES retryability from it, so a future change to what counts as retryable does not require new acquisition - the same separation website_claims enforces between an immutable claim and a derived verdict, applied to transport evidence",
+      "cost": "the largest change - migration, ADR, policy bump, plan amendment - and its retry half cannot be correctly scoped until its observability half has run long enough to show what the subtypes actually contain",
+      "bestUnderstoodAs": "THE DESTINATION, REACHED THROUGH C",
+      "recommendedForAdoptionNow": false
+    }
+  },
+
+  "proposedMinimalDurableSubtypeSchema": {
+    "onlyProvidedBecauseTheRecommendationIsC": true,
+    "column": "error_subtype",
+    "table": "orgunit_fetch_observations",
+    "type": "text",
+    "nullable": true,
+    "additive": true,
+    "constrainedBy": "one CHECK over a closed 8-member vocabulary, in the same shape as the landed error_kind CHECK",
+    "populatedBy": "a pure deterministic mapping function from the Node condition",
+    "retryabilityStored": false,
+    "retryabilityDerived": true,
+    "whyNotStored": "storing a retry verdict in evidence would repeat the website_claims mistake of freezing a conclusion into an immutable claim",
+    "members": [
+      {
+        "subtype": "TLS_HANDSHAKE_TIMEOUT",
+        "nodeConditions": ["ERR_TLS_HANDSHAKE_TIMEOUT"],
+        "derivedRetryability": "plausibly retryable"
+      },
+      {
+        "subtype": "TLS_CERT_INVALID",
+        "nodeConditions": [
+          "ERR_TLS_CERT_ALTNAME_INVALID",
+          "CERT_HAS_EXPIRED",
+          "DEPTH_ZERO_SELF_SIGNED_CERT",
+          "SELF_SIGNED_CERT_IN_CHAIN",
+          "UNABLE_TO_VERIFY_LEAF_SIGNATURE",
+          "UNABLE_TO_GET_ISSUER_CERT_LOCALLY"
+        ],
+        "derivedRetryability": "not retryable"
+      },
+      {
+        "subtype": "TLS_PROTOCOL_INCOMPATIBLE",
+        "nodeConditions": ["ERR_SSL_WRONG_VERSION_NUMBER", "EPROTO"],
+        "derivedRetryability": "not retryable"
+      },
+      {
+        "subtype": "TLS_OTHER",
+        "nodeConditions": ["any other ERR_TLS_ or ERR_SSL_ prefix"],
+        "derivedRetryability": "unknown - not retryable"
+      },
+      {
+        "subtype": "DNS_NAME_NOT_FOUND",
+        "nodeConditions": ["ENOTFOUND", "EAI_NONAME"],
+        "derivedRetryability": "not retryable"
+      },
+      {
+        "subtype": "DNS_TEMPORARY_FAILURE",
+        "nodeConditions": ["EAI_AGAIN"],
+        "derivedRetryability": "retryable"
+      },
+      {
+        "subtype": "DNS_NO_ADDRESS_RETURNED",
+        "nodeConditions": ["the gateway's empty-answer branch"],
+        "derivedRetryability": "unknown - not retryable"
+      },
+      {
+        "subtype": "DNS_OTHER",
+        "nodeConditions": ["any other resolver code"],
+        "derivedRetryability": "unknown - not retryable"
+      }
+    ],
+    "nullSemanticsObligation": {
+      "problem": "a NULL would otherwise mean two different things - written before the column existed, or the writing build could not classify the condition",
+      "whyFetchPolicyVersionIsNotTheDiscriminator": "coupling an observability column to a request-boundary version would be a category error",
+      "proposedRule": "after the migration, error_subtype is NOT NULL for every row whose error_kind is a transport kind, with the *_OTHER members carrying 'observed but not in the taxonomy', so a NULL can only mean 'written before the change' - which created_at against the migration's applied timestamp already establishes",
+      "noNewVersionMarkerNeeded": true
+    },
+    "backFillPossible": false,
+    "whyNotBackFillable": "orgunit_fetch_observations is append-only and nwf_research holds no UPDATE grant (rule 15, enforced by the database); the 204 existing rows keep error_subtype NULL permanently",
+    "deliberatelyDeferredExpansion": {
+      "what": "splitting TLS_CERT_INVALID three ways into TLS_CERT_NAME_MISMATCH / TLS_CERT_EXPIRED / TLS_CERT_UNTRUSTED_CHAIN",
+      "cost": "nothing extra",
+      "value": "diagnostic only",
+      "whyDeferred": "not required by any retry decision, since all three are equally non-retryable; left out of the minimal proposal on purpose rather than by omission"
+    },
+    "futureRetryDecisionsItUnlocks": [
+      "whether a DNS_FAILURE may be retried at all - answerable only once DNS_TEMPORARY_FAILURE is separable from DNS_NAME_NOT_FOUND",
+      "whether a TLS_FAILURE may be retried at all - answerable only once TLS_HANDSHAKE_TIMEOUT is separable from TLS_CERT_INVALID; today retrying the class would mean re-requesting expired-certificate hosts five times out of six",
+      "whether the robots-bootstrap single point of failure is worth repairing - answerable only once it is known what share of bootstrap failures are timing-dependent rather than deterministic, which is currently UNKNOWN in both directions"
+    ]
+  },
+
+  "ruleDefinitionDiscipline": {
+    "everyRuleDefinedFromTransportAndHttpSemanticsFirst": true,
+    "sourcesOfJustification": ["RFC 9110", "Node's own error vocabulary", "the landed code"],
+    "counterfactualAppliedOnlyAfterwards": true,
+    "goldUsed": false,
+    "labelsUsed": false,
+    "semanticModelUsed": false,
+    "observedPageYieldUsedToDetermineRetryEligibility": false,
+    "clearestEvidenceTheConstraintHeld": "the recommended direction classifies three of the four current failures as unclassifiable and helps none of them, which is not an outcome a rule reverse-engineered from those four cases would produce"
+  },
+
+  "counterfactualEligibility": [
+    {
+      "selectionIndex": 3,
+      "failure": "HTTP 500 on root and conventional sitemap",
+      "A": "NOT_RETRY_ELIGIBLE",
+      "B": "NOT_RETRY_ELIGIBLE",
+      "C": "NOT_RETRY_ELIGIBLE",
+      "D1": "NOT_RETRY_ELIGIBLE",
+      "D2": "RETRY_ELIGIBLE_FROM_PERSISTED_EVIDENCE",
+      "E": "NOT_RETRY_ELIGIBLE"
+    },
+    {
+      "selectionIndex": 4,
+      "failure": "DNS_FAILURE on robots bootstrap",
+      "A": "NOT_RETRY_ELIGIBLE",
+      "B": "NOT_RETRY_ELIGIBLE",
+      "C": "INSUFFICIENT_PERSISTED_DETAIL_TO_CLASSIFY",
+      "D1": "NOT_RETRY_ELIGIBLE",
+      "D2": "NOT_RETRY_ELIGIBLE",
+      "E": "INSUFFICIENT_PERSISTED_DETAIL_TO_CLASSIFY"
+    },
+    {
+      "selectionIndex": 6,
+      "failure": "TLS_FAILURE on robots bootstrap",
+      "A": "NOT_RETRY_ELIGIBLE",
+      "B": "NOT_RETRY_ELIGIBLE",
+      "C": "INSUFFICIENT_PERSISTED_DETAIL_TO_CLASSIFY",
+      "D1": "NOT_RETRY_ELIGIBLE",
+      "D2": "NOT_RETRY_ELIGIBLE",
+      "E": "INSUFFICIENT_PERSISTED_DETAIL_TO_CLASSIFY"
+    },
+    {
+      "selectionIndex": 8,
+      "failure": "TLS_FAILURE on robots bootstrap",
+      "A": "NOT_RETRY_ELIGIBLE",
+      "B": "NOT_RETRY_ELIGIBLE",
+      "C": "INSUFFICIENT_PERSISTED_DETAIL_TO_CLASSIFY",
+      "D1": "NOT_RETRY_ELIGIBLE",
+      "D2": "NOT_RETRY_ELIGIBLE",
+      "E": "INSUFFICIENT_PERSISTED_DETAIL_TO_CLASSIFY"
+    }
+  ],
+  "wouldHaveSucceededAssertedAnywhere": false,
+  "counterfactualReading": [
+    "Option B is inert on everything observed",
+    "Option C converts three NOT_RETRY_ELIGIBLE into three honest INSUFFICIENT_PERSISTED_DETAIL_TO_CLASSIFY - a gain in truthfulness, not in recovery, and only for future rows",
+    "only D2 produces a single eligible case, on the sub-rule with the weakest semantic footing"
+  ],
+
+  "reserveCapacityStressCheck": {
+    "generationTargetSuccessfulOrganisations": 110,
+    "primaryPlusReserveMaximumDrawn": 150,
+    "maximumAbsorbableAcquisitionFailures": 40,
+    "maximumRealisedFailureShareAtExhaustionPercent": 26.67,
+    "arithmetic": "40 / 150 = 26.67%",
+    "reserveConsumedToDate": 0,
+    "rawObservation": "4 failures among 9 finalised primaries",
+    "nIsNotAPopulationEstimate": true,
+    "forecastForThe110Computed": false,
+    "isItRationalToInvestigateBeforeConsumingReserves": true,
+    "reasonsIndependentOfAnyExtrapolation": [
+      "the reserve is finite, non-renewable and shared across the whole generation; the four failures already on the books would consume 4 of the 40 - a tenth of the entire buffer - against 9 of 110 primary slots examined",
+      "three of those four are in categories the current evidence cannot even classify, so consuming a reserve slot for them converts an unexplained failure into a spent slot and learns nothing",
+      "investigation consumes no reserve; it is the only move available with zero cost against the 40",
+      "the robots-bootstrap asymmetry means an unknown share of failures is attributable to single-sample network conditions on a one-shot request, and whether that share is large or negligible is exactly what the current evidence cannot say"
+    ],
+    "thisIsNotAnArgumentThatTheFailureRateWillContinue": true
+  },
+
+  "p5Assessment": {
+    "didItCorrectlyProtectTheRemainingDraw": true,
+    "how": "pure, incremental and monotonic - evaluated after every completed organisation, lowRawYieldCount counts over a list that only grows, so a PAUSE can never be un-triggered by a later high-yield run",
+    "firedAtTheFrozenThreshold": 2,
+    "lowYieldSelectionIndices": [6, 8],
+    "minRawPageEvidencePerOrganisation": 4,
+    "index9NeverStarted": true,
+    "reasonedAroundManually": false,
+    "areTheFailuresHeterogeneousEnoughThatP5CannotTellUsWhatToRepair": true,
+    "whyNot": "P5's input is rawPageEvidenceCount - one integer per organisation - and carries no cause; a robots-redirect policy limit, a DNS failure, a TLS failure and an HTTP 500 all present to the gate as the same number, 0",
+    "p5IsATripwireNotADiagnostic": true,
+    "shouldP5RemainFrozenWhileTransportPolicyIsReviewed": true,
+    "argumentForKeepingIt": "it has fired three times and been right three times - twice exposing a genuine repairable capability limit (Option B, Option C-lite) and once, now, stopping a draw whose failure causes are not yet classifiable; a gate that keeps stopping a process that keeps having real problems is a gate that is working",
+    "weakenedInThisTask": false,
+    "modifiedInThisTask": false
+  },
+
+  "governanceImpact": {
+    "precedentNote": "prior acquisition-policy changes v1->v2->v3 did NOT require methodology re-freeze because sampling and budgets stayed frozen, but DID require policy versioning and acquisition-plan amendments. This was analysed per option rather than assumed to transfer.",
+    "perOption": {
+      "A": {
+        "methodologyR3Amendment": false,
+        "acquisitionPlanAmendment": false,
+        "adr": false,
+        "fetchPolicyVersionBump": false,
+        "dbMigration": false,
+        "frameRegeneration": false,
+        "drawRegeneration": false,
+        "reAcquisitionOfAffectedHistoricalSlots": "none",
+        "transitionLedgerUpdate": false
+      },
+      "B": {
+        "methodologyR3Amendment": false,
+        "acquisitionPlanAmendment": true,
+        "adr": true,
+        "fetchPolicyVersionBump": "v4",
+        "dbMigration": false,
+        "frameRegeneration": false,
+        "drawRegeneration": false,
+        "reAcquisitionOfAffectedHistoricalSlots": "none affected",
+        "transitionLedgerUpdate": "census only"
+      },
+      "C": {
+        "methodologyR3Amendment": false,
+        "acquisitionPlanAmendment": true,
+        "adr": true,
+        "fetchPolicyVersionBump": false,
+        "dbMigration": true,
+        "frameRegeneration": false,
+        "drawRegeneration": false,
+        "reAcquisitionOfAffectedHistoricalSlots": "none - cannot back-fill",
+        "transitionLedgerUpdate": false
+      },
+      "D": {
+        "methodologyR3Amendment": false,
+        "acquisitionPlanAmendment": true,
+        "adr": true,
+        "fetchPolicyVersionBump": "v4",
+        "dbMigration": false,
+        "frameRegeneration": false,
+        "drawRegeneration": false,
+        "reAcquisitionOfAffectedHistoricalSlots": "D1 none; D2 index 3 only",
+        "transitionLedgerUpdate": "D1 census only; D2 entry for index 3"
+      },
+      "E": {
+        "methodologyR3Amendment": false,
+        "acquisitionPlanAmendment": true,
+        "adr": true,
+        "fetchPolicyVersionBump": "v4",
+        "dbMigration": true,
+        "frameRegeneration": false,
+        "drawRegeneration": false,
+        "reAcquisitionOfAffectedHistoricalSlots": "D1 none",
+        "transitionLedgerUpdate": "census only"
+      }
+    },
+    "whyMethodologyR3IsUntouchedInEveryOption": "no option changes the frame, the draw, the split assignment, the 110/40 sizes, MIN_RAW_PAGE_EVIDENCE_PER_ORGANISATION, the P5 threshold, or any of the twelve frozen budget constants; a retry consumes the EXISTING MAX_TOTAL_REQUESTS_PER_ROOT = 60 rather than raising it",
+    "mustBeReverifiedAgainstExactR3BytesAtDesignTime": true,
+    "whyBDAndEBumpThePolicyVersionButCDoesNot": "the v1->v2->v3 precedent bumped because the REQUEST BOUNDARY moved - new requests became possible. B, D and E each make a request possible that was not possible before. C adds a column and changes no request whatsoever, so a bump would be a version number with no behavioural referent.",
+    "firewallScopeNote": "per the resolved phase-isolation decision, a change under src/orgunits/ is pinned by BASE..PHASE_TERMINAL ranges and the correct move is a NEW repair-scope test, never widening an existing firewall assertion. C must additionally be written so that phase2b.firewall.test.ts's existing no-raw-body assertions hold unchanged - error_subtype is a bounded enum, not a free-text or body column.",
+    "censusStillRequiredEvenWhenTheAffectedSetIsEmpty": "a census concluding 'zero affected' is itself the evidence that no slot needs revalidating; skipping it would leave that conclusion unrecorded"
+  },
+
+  "recommendedDecisionClass": {
+    "class": "C",
+    "name": "TRANSPORT_OBSERVABILITY_MUST_BE_FIXED_BEFORE_RETRY_POLICY",
+    "implemented": false,
+    "reasoning": [
+      "a bounded retry CAN technically be defined today for CONNECT_TIMEOUT, READ_TIMEOUT, CONNECTION_RESET and CONNECTION_REFUSED, because those categories are the persisted error_kind itself - so the literal claim in class B is true",
+      "but not one of the four current failures falls in those classes, and the classes that DO cover them (TLS_FAILURE, DNS_FAILURE) are exactly the two that cannot be safely subdivided with today's durable evidence",
+      "adopting B now would be adopting a rule that is correct and inert, and would make the pipeline APPEAR to have addressed transport resilience while leaving every observed failure unclassifiable",
+      "classes D1 and D2 are definable from http_status alone and are genuinely unblocked, but they address one index and D2's semantic footing is the weakest of anything considered - not a sufficient basis for the next decision",
+      "the binding constraint is therefore observability, and it should be fixed first"
+    ],
+    "whatCIsNot": "not a claim that retrying is the right answer; it is the claim that the repository currently cannot TELL whether retrying is the right answer, that this is cheap to fix prospectively and impossible to fix retrospectively, and that every further acquisition run performed before the subtype column exists produces evidence with the same blind spot"
+  },
+
+  "validation": {
+    "command": "npm run validate",
+    "exitCode": 0,
+    "testFilesPassed": 177,
+    "testFilesSkipped": 5,
+    "testFilesTotal": 182,
+    "testsPassed": 4458,
+    "testsSkipped": 75,
+    "testsTotal": 4533,
+    "durationSeconds": 214.74,
+    "codeChangesMade": false,
+    "diagnosticHelperAdded": false
+  },
+
+  "scopeDiscipline": {
+    "index9Touched": false,
+    "anyIndexTenOrHigherTouched": false,
+    "reserveOrganisationTouched": false,
+    "replacementPerformed": false,
+    "indices3_4_6_8Retried": false,
+    "institutionHttp": false,
+    "institutionDns": false,
+    "institutionTls": false,
+    "executeAcquisition": false,
+    "productionRetryImplemented": false,
+    "fetchPolicyV4Created": false,
+    "labelsCreated": 0,
+    "providerInferencePerformed": false,
+    "classifierExecuted": false,
+    "holdoutSemanticClassifierAccessed": false,
+    "phase2EEntered": false,
+    "srcOrgunitsModified": false,
+    "migrationsModified": false,
+    "cliModified": false,
+    "firewallsModified": false,
+    "policyVersionModified": false,
+    "adrHistoryModified": false,
+    "p5GateModified": false,
+    "transitionLedgersModified": false,
+    "acquisitionOfRecordStatusesModified": false,
+    "databaseMutations": 0
+  },
+
+  "disclosureDiscipline": {
+    "institutionIdentityDisclosed": false,
+    "institutionNameDisclosed": false,
+    "hostnameDisclosed": false,
+    "urlDisclosed": false,
+    "organisationUuidDisclosed": false,
+    "echeRowKeyDisclosed": false,
+    "certificateSubjectDisclosed": false,
+    "certificateSanDisclosed": false,
+    "pageTitleDisclosed": false,
+    "pageTextDisclosed": false,
+    "runLinkageIsAnOpaqueSha256Only": true
+  },
+
+  "nextOwnerDecision": "A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_AUTHORISATION",
+
+  "ownDurability": {
+    "ownCommitShaDeliberatelyAbsent": "a record cannot truthfully contain the SHA of the commit that introduces it; this record's own commit is reported in the task's final report instead"
+  }
+}

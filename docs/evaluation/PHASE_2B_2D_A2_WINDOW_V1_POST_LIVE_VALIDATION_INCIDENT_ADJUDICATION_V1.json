@@ -1,0 +1,143 @@
+{
+  "recordId": "phase2b-2d-a2-window-v1-post-live-validation-incident-adjudication-v1",
+  "recordKind": "VALIDATION_INCIDENT_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_WINDOW_V1_POST_LIVE_VALIDATION_INCIDENT_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-21T14:41:46Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "3056635d31ccd7407b327f2ae0ba306f7de73955",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecisions": [
+    "ACCEPT_WINDOW_V1_LIVE_EVIDENCE_PENDING_VALIDATION_CLOSURE_V1",
+    "AUTHORISE_TIER2_SHARED_TMP_CLEANUP_RACE_CORRECTION_V1",
+    "AUTHORISE_ONE_POST_FIX_FULL_VALIDATE_RERUN_V1"
+  ],
+  "boundLiveResult": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_RESULT_V1.json",
+    "sha256": "b8b2ad20905a3e36585aa157d819a3929f732a3fadd76f6143619214f8f5f4d8",
+    "bytes": 29878,
+    "commit": "3056635d31ccd7407b327f2ae0ba306f7de73955",
+    "edited": false,
+    "honestNote": "the live result record itself carries no validate outcome; the first validate's failure was reported in that session's final report and survives in its scratchpad log (below). This record is the durable in-repository statement of it."
+  },
+  "firstValidate": {
+    "command": "npm run validate",
+    "exitCode": 1,
+    "startedLocal": "2026-09-21T16:18:46+02:00",
+    "startedUtc": "2026-09-21T14:18:46Z",
+    "afterAllInstitutionExecution": true,
+    "lastInstitutionItemFinishedUtc": "2026-09-21T14:15:15Z",
+    "testFiles": { "failed": 1, "passed": 185, "skipped": 5, "total": 191 },
+    "tests": { "passed": 4751, "failed": 0, "skipped": 75, "total": 4826 },
+    "failureShape": "SUITE_LEVEL_afterAll_HOOK_FAILURE (no individual test failed)",
+    "failingFile": "src/test/unit/orgunitClassifyTier2ProcessHarness.test.ts",
+    "failingLine": 139,
+    "failingAssertion": "expect(harnessScratchEntries().sort()).toEqual(scratchBefore.sort())",
+    "observed": "expected [ 'nwf-pe-tier2-batch-yCdQ9i' ] to deeply equal []",
+    "log": {
+      "location": "outside the repository, in the prior session scratchpad only",
+      "file": "validate.log",
+      "sha256": "f3d5f0e7301bc1f782cee03d03328f02e8db54f41d98d1a00615b04086ef4404",
+      "bytes": 45924,
+      "committedToGit": false
+    },
+    "subsequentBuildStep": "not reached (validate stops at the first failing step)"
+  },
+  "classification": "POST_LIVE_VALIDATION_TEST_HARNESS_RACE",
+  "rootCause": {
+    "mechanism": "the afterAll check enumerated EVERY entry of the per-user OS tmpdir() starting with HARNESS_SCRATCH_PREFIX ('nwf-pe-tier2-batch-') and required that set to equal the file's own beforeAll snapshot. It therefore asserted on directories this file did not own.",
+    "correctionToTheStatedDiagnosis": "the diagnosis handed to this step named another PARALLEL VITEST FILE as the concurrent writer. That is not possible inside one run of this repository: vitest.config.ts sets fileParallelism: false, so test files run serially. The concurrent writer is another PROCESS sharing the same per-user tmpdir. The ownership defect, and the fix, are the same either way.",
+    "evidenceOfCrossProcessSharing": [
+      "sibling worktrees of this repository check out the same test file with the same prefix (e.g. wt-phase2b-2d-a3-canonical-prep-r2, branched from A2 e9093aa)",
+      "during this step, that sibling's vitest fork workers were observed running, and a foreign 'nwf-pe-tier2-batch-9uXQ33' (mtime 16:37 local) appeared in tmpdir that this session did not create; it was gone again by 14:41Z, i.e. created and removed by its owner",
+      "that sibling committed 33c0bab at 2026-09-21T16:26:20+02:00, 32 s after the failed validate ended (~16:25:48 local)"
+    ],
+    "strayDirectory": {
+      "name": "nwf-pe-tier2-batch-yCdQ9i",
+      "existsNow": false,
+      "interpretation": "transient: created and removed by its owning process, not a leak",
+      "owningProcessIdentified": "UNKNOWN (not recoverable after the fact; cross-process sharing is demonstrated, the specific producer is not)"
+    },
+    "reproducedMechanically": {
+      "method": "the UNMODIFIED file run alone with TMPDIR pointed at a private scratch directory, and a synthetic 'nwf-pe-tier2-batch-FOREIGN1' created there 4 s into the run",
+      "result": "EXIT 1, identical failure shape: expected [ 'nwf-pe-tier2-batch-FOREIGN1' ] to deeply equal []; 46 passed | 3 skipped",
+      "sharedTmpdirTouched": false,
+      "whyPrivateTmpdir": "injecting a prefixed directory into the shared tmpdir would have raced the very same unfixed check in concurrently running sibling worktrees"
+    }
+  },
+  "liveEvidenceAffected": false,
+  "liveRerunRequired": false,
+  "reasons": [
+    "the failure occurred after all institution execution had completed (validate started 14:18:46Z; last item finished 14:15:15Z)",
+    "the failing file tests the Tier-2 classifier process harness and is unrelated to A2 acquisition",
+    "no live evidence was mutated: the failing hook reads a directory listing and holds no database connection",
+    "the file passed when run alone, before and after the fix",
+    "the failing assertion observed process-global temp state owned by other concurrently running test processes",
+    "the race is reproduced mechanically above and is evident from the test design",
+    "the corrected full validate result is recorded in the evidence adjudication, which is conditional on it"
+  ],
+  "testFix": {
+    "path": "src/test/unit/orgunitClassifyTier2ProcessHarness.test.ts",
+    "sha256Before": "d3a259fae36c88b122e8c9a22aeeca2e1afb8911582b028dd7153a680b1901e0",
+    "sha256After": "d5876e0fa31dabc3e723defb0f2f0de6851cb4c8b100d78830777614a3b4eaba",
+    "numstat": "+85 -28",
+    "kind": "TEST_ONLY_OWNERSHIP_CORRECTION",
+    "changes": [
+      "harnessScratchEntries() and the beforeAll tmpdir snapshot are removed",
+      "runOwnedBatch() is now the only way the file starts the harness; it records each invocation's scratchDir from onChildSpawned (so throwing paths are covered) and again from result.scratchDir",
+      "all 10 invocations (8 previously direct, plus the 2 refusal calls) are routed through it; a new static test pins exactly one direct runProcessIsolatedBatch({ call in the file (the wrapper's own)",
+      "afterAll asserts every OWNED path is gone, that each carries the harness prefix, and (vacuity guard) that at least one was recorded",
+      "the 'refuses ... BEFORE creating any scratch directory' test now observes a temp root it owns (TMPDIR/TMP/TEMP redirected to a fresh private directory for that test only, then restored) instead of counting prefixed entries in the shared tmpdir"
+    ],
+    "retained": [
+      "the Timeout/ProcessWrap active-resource leak check",
+      "emergency PID cleanup (afterEach)",
+      "every termination-semantics assertion",
+      "every per-test existsSync(result.scratchDir) === false assertion"
+    ],
+    "notDone": [
+      "no sleeps or retries",
+      "suite not serialised further",
+      "harness (src/test/harness/processIsolatedBatch.ts) unchanged",
+      "no production code changed"
+    ]
+  },
+  "focusedProof": {
+    "aloneSharedTmpdir": {
+      "exitCode": 0,
+      "tests": "47 passed | 3 skipped (50)",
+      "skippedAre": "the Windows-only real-process suite"
+    },
+    "foreignDirectoryInjection": {
+      "tmpdir": "private scratch directory",
+      "injected": [
+        "a pre-existing 'nwf-pe-tier2-batch-PREEXISTING' removed 6 s into the run",
+        "a 'nwf-pe-tier2-batch-FOREIGN1' created 3 s into the run and left in place"
+      ],
+      "exitCode": 0,
+      "tests": "47 passed | 3 skipped (50)"
+    },
+    "coverageNotWeakened": {
+      "method": "mutation: the harness's final rm(scratchDir) temporarily disabled, file run in a private tmpdir, harness then restored byte-identical",
+      "result": "EXIT 1; 10 failed | 37 passed; afterAll reported 'owned harness scratch directory survived: .../nwf-pe-tier2-batch-SyG9tT'",
+      "harnessRestored": true
+    },
+    "institutionNetwork": 0
+  },
+  "fullValidateRerun": {
+    "authorised": "exactly one",
+    "status": "PENDING_AT_RECORD_CONSTRUCTION",
+    "resultRecordedIn": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1.json"
+  },
+  "finalClassificationOnGreenRerun": "ACCEPTED_POST_LIVE_TEST_HARNESS_RACE_NO_LIVE_EVIDENCE_IMPACT",
+  "scopeProofs": {
+    "institutionDnsHttpTls": 0,
+    "orgunitsDiscoverInvocations": 0,
+    "databaseWrites": 0,
+    "replacementLedgerChanged": false,
+    "liveResultEdited": false,
+    "productionCodeChanged": false,
+    "migrationCreated": false
+  }
+}

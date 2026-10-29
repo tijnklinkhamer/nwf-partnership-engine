@@ -1,0 +1,272 @@
+{
+  "recordId": "phase2b-robots-option-b-targeted-revalidation-result-v1",
+  "recordKind": "EXECUTION_RESULT",
+  "records": "PHASE_2B_ROBOTS_OPTION_B_TARGETED_LIVE_REVALIDATION_V1",
+  "recordedAtUtc": "2026-09-19T17:52:48Z",
+  "terminalClassification": "OPTION_B_LIVE_PATH_CONFIRMED",
+
+  "boundAuthority": {
+    "authorityRecordPath": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+    "authorityRecordSha256": "0d6ea67b3a04c84a852e986801f6d0123c781c67a522e5f6e9aae37022e3be74",
+    "authorityRecordBytes": 8127,
+    "authorityRecordCommit": "1036c39d0027e438d35dd2fa3b40f914d2bf1add",
+    "committedBeforeAnyLiveRequest": true,
+    "ownerDecision": "AUTHORISE_PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_V1"
+  },
+
+  "boundImplementation": {
+    "implementationHead": "6b43663809f8b89cbfc2de48368b23f2a35e52a9",
+    "implementationRecordPath": "docs/evaluation/PHASE_2B_2D_ROBOTS_OPTION_B_REPAIR_IMPLEMENTATION_V1.json",
+    "implementationRecordSha256": "5b7b7be6de272b56820149d85e59f3cb5253658752eb0f55ef90f037109d77fb",
+    "implementationRecordBytes": 8267,
+    "adrPath": "docs/adr/0012-same-host-robots-redirect-continuation.md",
+    "adrSha256": "7b240eef21960940cdcc569ee4d85d4137fee1ee746884ecbd3d5095ee15a47a",
+    "adrBytes": 16804,
+    "adrCommit": "b6a8490d695a40886c0619ba81411f31198e849e",
+    "worktreeCleanAtExecution": true,
+    "noProductionFileChangedByThisRevalidation": true
+  },
+
+  "targetSelection": {
+    "method": "DERIVED_FROM_PERSISTED_EVIDENCE_ONLY",
+    "noManualInstitutionChoice": true,
+    "predicateApplied": "the landed `continuationTargetFor` in src/orgunits/web/robots.ts, called directly on each persisted redirect observation - not a reimplementation of it",
+    "redirectObservationsExaminedBeforeTheRun": 4,
+    "robotsRedirectObservationsAmongThem": 2,
+    "robotsRedirectsQualifyingUnderOptionB": 1,
+    "robotsRedirectsRefusedBecauseHostChanged": 1,
+    "matchCount": 1,
+    "matchCountWasExactlyOneSoNoInferenceWasNeeded": true,
+    "historicalSelectionIndex": 5,
+    "split": "DEV_TRAIN",
+    "splitIsReportedBecauseItIsNotHoldoutAndNoSemanticAccessOccurred": true,
+    "identityWithheld": "institution name, hostname, domain, URL, echeRowKey, organisation UUID and raw redirect target are all deliberately absent from this record"
+  },
+
+  "historicalV1Run": {
+    "opaqueRef": "eecae5bc8b23e005a1daaf99a73f927b06ab7471bf1cc32c814861c98b096eba",
+    "opaqueRefDerivation": "SHA-256 of the run UUID, so the owner can verify the linkage without this record disclosing the identifier",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+    "robotsBootstrapRequests": 1,
+    "httpStatus": 301,
+    "redirectObservationExists": true,
+    "redirectSatisfiesOptionBPredicate": true,
+    "continuationRequestOccurred": false,
+    "institutionContentRequestAfterUnreadableRobots": 0,
+    "rawPageEvidence": 0,
+    "totalFetchObservations": 1,
+    "terminalState": "COMPLETED",
+    "mutatedByThisRevalidation": false,
+    "markedSuperseded": false,
+    "newEvidenceAttachedToIt": false
+  },
+
+  "newV2Run": {
+    "opaqueRef": "1caccd6c616c6ddaccc5ebc7a23f951b08e6819fc3bc6b6d8e91e14f965a71fe",
+    "opaqueRefDerivation": "SHA-256 of the run UUID. The run UUID itself is withheld, following the Batch-01 and Batch-02 execution records, which disclose a selection index and never a run or organisation identifier.",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v2",
+    "everyFetchObservationCarriesV2": true,
+    "terminalState": "COMPLETED",
+    "completionRows": 1,
+    "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+    "executionWindowUtc": {
+      "start": "2026-09-19T17:51:20Z",
+      "end": "2026-09-19T17:52:48Z",
+      "elapsedSeconds": 88
+    },
+    "noWallClockStallObserved": true
+  },
+
+  "optionBLiveTrace": {
+    "robotsRequestCount": 2,
+    "thirdRobotsRequestIssued": false,
+    "singleHopBoundHeld": true,
+    "request1": {
+      "ordinal": 1,
+      "scheme": "http",
+      "path": "/robots.txt",
+      "httpStatus": 301,
+      "robotsDecision": "NOT_APPLICABLE",
+      "errorKind": null,
+      "attemptNo": 1,
+      "discoveryMethod": "ROBOTS",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v2",
+      "redirectFactsPersistedSeparately": true,
+      "redirectHostChanged": false,
+      "redirectSchemeDowngraded": false,
+      "redirectTargetMalformed": false,
+      "firstRedirectQualifiedUnderOptionB": true
+    },
+    "request2": {
+      "ordinal": 2,
+      "scheme": "https",
+      "path": "/robots.txt",
+      "httpStatus": 200,
+      "robotsDecision": "NOT_APPLICABLE",
+      "errorKind": null,
+      "attemptNo": 1,
+      "discoveryMethod": "ROBOTS",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v2",
+      "issued": true,
+      "isADistinctPersistedObservation": true,
+      "carriesItsOwnDnsIpAndResultFields": true,
+      "resolvedIpFamily": "IPV4",
+      "resolvedIpIsPublic": true,
+      "bodyBytes": 1767,
+      "ownBodyHashDistinctFromRequest1": true
+    },
+    "continuationWasHttpToHttpsUpgradeOnTheSameHost": true,
+    "noAutomaticGatewayRedirectFollowOccurred": "the second request is a separate invocation that passed every check again, including a newly minted URL-scoped robots authority",
+    "finalRobotsPolicyOutcome": "POLICY_READ_SUCCESSFULLY_AT_THE_CONTINUATION_URL",
+    "theCapabilityGapIsRepaired": true
+  },
+
+  "acquisitionOutcomeAfterThePolicyBecameReadable": {
+    "note": "Section 13 of the authorisation permits the same single organisation run to proceed normally once robots becomes readable. It did, through the landed bounded engine, under unchanged ceilings.",
+    "totalGatewayRequests": 38,
+    "ordinaryPageAttempts": 35,
+    "robotsRequests": 2,
+    "sitemapRequests": 1,
+    "sitemapUrlsAccepted": 0,
+    "hostsUsed": 1,
+    "frontierUrlsObserved": 158,
+    "rawPageEvidence": 33,
+    "candidates": 66,
+    "candidateEvaluationsPerTrack": { "trackA": 33, "trackB": 33 },
+    "circuitOpenHosts": 0,
+    "budgetCeilings": {
+      "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+      "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+      "MAX_HOSTS_PER_ROOT": 8,
+      "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1
+    },
+    "noCeilingWasWidened": true,
+    "pageBudgetReachedItsFrozenLimitAndStopped": true
+  },
+
+  "optionalReadOnlySd7Diagnostic": {
+    "performed": true,
+    "permittedBecause": "zero new network, zero database mutation (readonly role), zero labels, zero sample materialisation, and no new SD7 tooling - the landed `exactDuplicatePass` and `nearDuplicatePass` were called directly",
+    "scope": "WITHIN_ONE_ORGANISATION_ONLY",
+    "scopeIsSatisfiedNaturally": "the target organisation's only page evidence in the database is this one run, because its historical v1 run produced zero pages",
+    "rawPages": 33,
+    "distinctDocumentsAfterExactPass": 31,
+    "measurableDocuments": 31,
+    "shortTextUnresolved": 0,
+    "comparedPairs": 465,
+    "nearDuplicateEdges": 3,
+    "survivorsMin": 28,
+    "survivorsMax": 28,
+    "survivorCountIsOrderInvariant": true,
+    "postSd7PageCount": 28,
+    "mechanicalReading": ">=4 post-SD7 pages",
+    "thisIsDiagnosticOnly": true,
+    "thisIsNotAnSd7MeasurementOfRecord": true,
+    "thisIsNotAnSd9Decision": true,
+    "noA3aArtifactWasWrittenOrAmended": true
+  },
+
+  "durabilityAudit": {
+    "tableDeltas": {
+      "orgunit_research_runs": { "before": 7, "after": 8, "delta": 1 },
+      "orgunit_research_run_completions": { "before": 7, "after": 8, "delta": 1 },
+      "orgunit_fetch_observations": { "before": 78, "after": 116, "delta": 38 },
+      "orgunit_redirect_observations": { "before": 4, "after": 6, "delta": 2 },
+      "orgunit_root_promotions": { "before": 0, "after": 0, "delta": 0 },
+      "orgunit_root_promotion_revocations": { "before": 0, "after": 0, "delta": 0 },
+      "orgunit_page_evidence": { "before": 59, "after": 92, "delta": 33 },
+      "orgunit_page_candidates": { "before": 118, "after": 184, "delta": 66 }
+    },
+    "exactlyOneNewResearchRun": true,
+    "exactlyOneDurableCompletionRow": true,
+    "priorRunsRemainSeven": true,
+    "priorRunsAllStillV1": true,
+    "priorFetchObservationsRemainSeventyEight": true,
+    "priorFetchObservationsAllStillV1": true,
+    "v2RunsInDatabase": 1,
+    "noPromotionCreated": true,
+    "noRevocationCreated": true,
+    "allFourClassifierTablesStillZero": true,
+    "classifierTables": [
+      "orgunit_classification_subjects",
+      "orgunit_classifier_calls",
+      "orgunit_classifier_call_completions",
+      "orgunit_page_classifications"
+    ],
+    "noReserveStateChanged": true,
+    "theTwoNewRedirectObservationsAre": "one robots.txt 301 (the Option-B case) and one ordinary root-page 301 http->https, which is the pre-existing ADR 0008 ordinary-page continuation and not a robots event"
+  },
+
+  "validation": {
+    "command": "npm run validate",
+    "exitCode": 0,
+    "testFiles": "172 passed | 5 skipped (177)",
+    "tests": "4293 passed | 75 skipped (4368)",
+    "failed": 0,
+    "runAfterTheLiveExecution": true,
+    "noTestWasWeakenedOrWidenedForThisRevalidation": true,
+    "noFirewallFileChanged": true
+  },
+
+  "deviations": [
+    {
+      "id": "HOST_SAFETY_AC_POWER",
+      "section": "7",
+      "requirement": "AC power before live execution",
+      "observedState": "battery power, 97%, discharging, 7h43m remaining",
+      "everyOtherHostPreconditionWasGreen": [
+        "no unresolved sleep/wake transition (26 minutes uptime, no Sleep/Wake transition logged)",
+        "database reachable",
+        "708 GiB free",
+        "clean worktree",
+        "authority record committed and pushed"
+      ],
+      "resolution": "The operator surfaced the failed precondition BEFORE any live request and the owner explicitly waived it for this single bounded run.",
+      "waivedByOwner": true,
+      "ranUnder": "caffeinate -dimsu",
+      "observedImpact": "none - the run completed in 88 seconds with no wall-clock stall, no timeout and no pacing discontinuity",
+      "recordedForAdjudicationRatherThanTreatedAsCompliance": true
+    }
+  ],
+
+  "authorityComplianceAttestation": {
+    "liveOrganisations": 1,
+    "liveRuns": 1,
+    "cliInvocationsWithExecute": 1,
+    "retries": 0,
+    "changedArguments": 0,
+    "manualCurlWgetOrBrowserRequests": 0,
+    "directRequestsToTheRedirectedRobotsUrl": 0,
+    "allTrafficPassedThroughTheLandedAcquisitionPath": true,
+    "secondOrganisationTouched": false,
+    "hostChangingRobotsRedirectCaseTouched": false,
+    "reserveConsumption": 0,
+    "corpusReplacementPerformed": false,
+    "corpusReplacementAuthorised": false,
+    "batch03Started": false,
+    "batch03Authorised": false,
+    "historicalRecordsMutated": false,
+    "batch01A3aResultChanged": false,
+    "historicalSd9ClosureChanged": false,
+    "originalRunMarkedInvalid": false,
+    "setPOrSetRSelection": false,
+    "labelsCreated": 0,
+    "providerInferenceCalls": 0,
+    "holdoutSemanticAccess": false,
+    "phase2EWork": false
+  },
+
+  "evidenceStatus": {
+    "status": "TARGETED_REVALIDATION_EVIDENCE_ONLY",
+    "untilASeparateOwnerDecision": true,
+    "theNewRunIsNotPartOfTheCorpus": true,
+    "theNewRunDoesNotSupersedeTheHistoricalV1Acquisition": true
+  },
+
+  "nextOwnerDecision": "A2_ROBOTS_OPTION_B_REVALIDATION_EVIDENCE_ADJUDICATION",
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}

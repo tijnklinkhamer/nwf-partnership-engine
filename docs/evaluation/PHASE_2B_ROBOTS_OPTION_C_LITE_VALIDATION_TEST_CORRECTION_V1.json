@@ -1,0 +1,141 @@
+{
+  "recordId": "phase2b-robots-option-c-lite-validation-test-correction-v1",
+  "recordKind": "VALIDATION_TEST_CORRECTION",
+  "records": "PHASE_2B_ROBOTS_OPTION_C_LITE_REPAIR_SCOPE_TEST_CORRECTION_V1",
+  "recordedAtUtc": "2026-09-20T10:55:00Z",
+  "ownerDecision": "AUTHORISE_OPTION_C_LITE_REPAIR_SCOPE_TEST_CORRECTION_V1",
+  "startingHead": "9493073aededf0ba2bec68820ebfcc15787efd05",
+
+  "failingTest": "orgunitRobotsOptionCLiteRepairScope.test.ts",
+  "failingTestPath": "src/test/unit/orgunitRobotsOptionCLiteRepairScope.test.ts",
+  "failingTestName": "ADR 0013 repair scope: exactly three production files, by exact path > edited no ADR that already existed",
+
+  "rootCause": "NAME_ONLY_DIFF_INCLUDES_NEWLY_ADDED_ADR",
+  "rootCauseInFull": {
+    "oldAssertion": "expect(changedInRepair('docs/adr')).toEqual([])",
+    "whatChangedInRepairDid": "git diff --name-only <REPAIR_BASE_COMMIT> -- docs/adr, from the base commit to the WORKING TREE",
+    "theDefect": "A name-only diff lists an ADDED path exactly as it lists a MODIFIED one, so the assertion could not express its own title. ADR 0013 was added deliberately by the repair, therefore the assertion necessarily reported it and necessarily failed.",
+    "thePremiseThatWasWrong": "The comment beside the assertion claimed a new ADR 'does not appear in a diff of tracked files at all'. A newly tracked path DOES appear in git diff --name-only.",
+    "receivedValue": ["docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md"],
+    "expectedValue": [],
+    "wasThisEverGreen": false,
+    "introducedByCommit": "c2e07b87ab2394287154977580240a5723bf6cbd",
+    "sameCommitThatAddedAdr0013": true,
+    "predictedByTheRevalidationResultRecord": true,
+    "predictedRepairShapePath": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_RESULT_V1.json"
+  },
+
+  "isThisAnOptionCLiteImplementationFailure": false,
+  "whyNot": "The defect is in repair-scope bookkeeping in a test file. It touches no runtime behaviour, no persisted evidence, no policy boundary and no fetch outcome. Both revalidation targets issued and persisted their continuation request correctly.",
+
+  "oldIncorrectSemantics": "EXPECT_NO_DOCS_ADR_PATH_CHANGED_BASE_TO_WORKING_TREE",
+  "newSemantics": "EXACT_REPAIR_BASE_TO_TERMINAL_ADR_CHANGESET",
+  "expectedAdrChange": "ADD_ONLY_ADR_0013",
+
+  "correctionApplied": {
+    "filesChanged": ["src/test/unit/orgunitRobotsOptionCLiteRepairScope.test.ts"],
+    "filesChangedCount": 1,
+    "changeOne": {
+      "what": "TEMPORAL_RANGE_PINNED",
+      "oldRange": "REPAIR_BASE_COMMIT -> WORKING TREE",
+      "newRange": "REPAIR_BASE_COMMIT..REPAIR_TERMINAL_COMMIT",
+      "repairBaseCommit": "e860b29853cff308f4a27ac8cd089745d1dd12a3",
+      "repairBaseCommitSubject": "docs(2b): the Batch-02 v2 continuation execution record",
+      "repairTerminalCommit": "c2e07b87ab2394287154977580240a5723bf6cbd",
+      "repairTerminalCommitSubject": "feat(2b): Option C-lite - one same-registrable-domain robots redirect",
+      "terminalIsTheChildOfBase": true,
+      "bothCommitsVerifiedFromGitBeforeEditing": true,
+      "why": "The Option-C-lite repair is history. Its own header already said that its terminal commit must be pinned once that happened. An unpinned range would make a landed phase's isolation test police every later phase forever, which is exactly the failure mode the A1, A1b, A3a, F7 and Option-B ranges were pinned to avoid.",
+      "precedent": [
+        "orgunitCorpus2DA1FrameIsolation.test.ts",
+        "orgunitCorpus2DA1bDrawIsolation.test.ts",
+        "orgunitCorpus2DA3aSd7PilotIsolation.test.ts",
+        "orgunitRobotsOptionBRepairScope.test.ts",
+        "orgunitCorpus2DOptionBTransitionIsolation.test.ts"
+      ]
+    },
+    "changeTwo": {
+      "what": "ADR_ASSERTION_MADE_EXACT_IN_BOTH_DIRECTIONS",
+      "newHelper": "nameStatusInRepair(...paths) = git diff --name-status --find-renames <base> <terminal> -- <paths>",
+      "newAssertion": "expect(nameStatusInRepair('docs/adr')).toEqual(['A\\tdocs/adr/0013-same-registrable-domain-robots-redirect-continuation.md'])",
+      "provesA": "No pre-existing ADR was modified, deleted or renamed: an M, D or R line under docs/adr would make the exact-equality assertion fail.",
+      "provesB": "Exactly ADR 0013 was newly added: a missing A line, a different A line, or a second A line all fail the same assertion.",
+      "whyExactEqualityRatherThanTwoDiffFilters": "One exact name-status assertion states the WHOLE changeset under docs/adr rather than two partial views of it, so there is no third change class either filter could miss.",
+      "renameDetectionEnabled": true,
+      "whyRenameDetectionMatters": "Without --find-renames a renamed predecessor ADR could present as an unrelated delete plus add; with it, the R line is visible and fails the assertion.",
+      "invariantDirection": "STRICTER"
+    },
+    "changeThree": {
+      "what": "AVAILABILITY_GATE_WIDENED_TO_THE_WHOLE_RANGE",
+      "detail": "The skip gate was renamed baseAvailable -> rangeAvailable and now requires BOTH the base and the terminal commit to exist, so a shallow clone skips the range assertions rather than reading half a range."
+    },
+    "formattingOnlyFollowUp": "npx prettier --write on the same single file, to satisfy the repository's own format:check gate."
+  },
+
+  "scopeDiscipline": {
+    "productionCodeChanged": false,
+    "historicalAdrEdited": false,
+    "adr0013Changed": false,
+    "adr0012Changed": false,
+    "adr0006Changed": false,
+    "optionCLitePredicateChanged": false,
+    "fetchPolicyVersionChanged": false,
+    "budgetsChanged": false,
+    "gatewayChanged": false,
+    "redirectModuleChanged": false,
+    "migrationsChanged": false,
+    "historicalFreezesChanged": false,
+    "ownerFreezeApprovalsChanged": false,
+    "liveResultRecordChanged": false,
+    "firewallWeakened": false,
+    "firewallFileTouched": false,
+    "repairScopeWidened": false,
+    "anyOtherTestWeakenedOrSkipped": false,
+    "anyOtherHistoricalTestChanged": false,
+    "howProven": "git diff --name-only HEAD -- src/orgunits src/cli src/db src/ingest src/website src/compare src/config migrations docs/adr docs/evaluation src/test/firewall returned EMPTY. The only tracked modification against HEAD 9493073 was the single test file."
+  },
+
+  "validation": {
+    "focusedTestFirst": {
+      "command": "npx vitest run src/test/unit/orgunitRobotsOptionCLiteRepairScope.test.ts",
+      "testsPassed": 24,
+      "testsFailed": 0,
+      "testsSkipped": 0
+    },
+    "relatedIsolationTests": {
+      "files": [
+        "src/test/unit/orgunitRobotsOptionBRepairScope.test.ts",
+        "src/test/unit/orgunitRobotsOptionCLiteCensus.test.ts",
+        "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+        "src/test/unit/orgunitCorpus2DOptionBTransitionIsolation.test.ts",
+        "src/test/unit/orgunitRobotsRedirectContinuation.test.ts",
+        "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts"
+      ],
+      "testsPassed": 166,
+      "testsFailed": 0
+    },
+    "fullValidate": {
+      "command": "npm run validate",
+      "concurrentProcesses": 1,
+      "exitCode": 0,
+      "testFiles": { "passed": 177, "failed": 0, "skipped": 5, "total": 182 },
+      "tests": { "passed": 4458, "failed": 0, "skipped": 75, "total": 4533 },
+      "stagesPassed": ["migrations:check", "typecheck", "lint", "format:check", "test", "build"]
+    }
+  },
+
+  "network": {
+    "institutionHttpRequests": 0,
+    "dnsResolutions": 0,
+    "tlsHandshakes": 0,
+    "executeRuns": 0,
+    "retries": 0
+  },
+
+  "thisFileAuthorises": [],
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}

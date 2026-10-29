@@ -19,7 +19,272 @@
  * executing a v2 run under v1 timeouts and stamping "v2" on the row - would
  * make `fetch_policy_version` a label rather than a fact.
  */
-export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v1';
+export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v8';
+
+/**
+ * WHY v7 BECAME v8 (Track B, B1.1 - deterministic research frontier
+ * diversity, ADR 0018; owner decision
+ * APPROVE_B1_1_FRONTIER_SECTION_DIVERSITY_LOCAL_IMPLEMENTATION_V1, local and
+ * offline only).
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING: the ORDER in which the
+ * frontier (`src/orgunits/orchestrator/frontier.ts`) picks among discovered
+ * URLs that its strict priorities leave TIED. v7 broke every such tie by
+ * discovery source and then by URL text, so a large, alphabetically early
+ * section of zero-score sitemap URLs consumed the whole page budget. v8
+ * breaks the same ties by fewest earlier picks of the URL's SECTION (host +
+ * first non-locale path segment) within the same priority class, then by
+ * path depth, and only then by the v7 keys. The strict priorities - Track B
+ * floor, frontier score, own-over-inherited evidence - are byte-for-byte
+ * v7's.
+ *
+ * NOTHING ELSE MOVED, and every number below is the one v7 had: the
+ * timeouts, the caps, the headers, the user agent, the redirect status set,
+ * the site-policy continuation hop and the retry token. No score, signal
+ * term, eligibility rule, budget, host cap, pacing rule, robots rule or
+ * gateway check changed.
+ *
+ * WHY IT MUST BE A NEW VERSION. A v8 run and a v7 run of the same root, with
+ * byte-identical network answers, can request DIFFERENT pages within the
+ * same budget. `fetch_policy_version` is how a reader knows which selection
+ * behaviour produced a set of observations - "this root yielded no
+ * international page" means something different under each - so the order
+ * is part of the policy, and only the version string can tell the two apart.
+ *
+ * NO HISTORICAL ROW IS REWRITTEN OR REINTERPRETED. Every v1-v7 run keeps its
+ * own version on its run row and on all of its observations, forever, and
+ * `assertRunIsExecutable` (authority.ts) refuses to resume a v7 run under v8
+ * - it can only be read. No migration: migration 0007 puts no enumeration on
+ * `fetch_policy_version`.
+ */
+
+/**
+ * WHY v6 BECAME v7 (Phase 2B-2D A2 - the bare trailing-slash robots redirect
+ * continuation, ADR 0016; owner decision
+ * APPROVE_FETCH_POLICY_V7_FOR_BARE_ROBOTS_TRAILING_SLASH_REDIRECT_CONTINUATION_V1;
+ * docs/evaluation/PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1.json).
+ *
+ * THE RESOURCE IS NAMED NOWHERE IN THIS FILE, DELIBERATELY. The firewall
+ * confines the site-policy resource's literal path to the five modules
+ * approved to name it, and this file - which holds constants and their
+ * reasoning and owns no request path of its own - is not one of them. So the
+ * paths below are described rather than spelled. The literal two-member set
+ * lives at `RobotsAuthorisation.CONTINUATION_PATHS`, and ADR 0016 spells
+ * every case out.
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING. The set of request paths a
+ * site-policy REDIRECT CONTINUATION may target went from the single canonical
+ * policy path to exactly that path OR that same path with one trailing slash
+ * appended - two literals, frozen at `CONTINUATION_PATHS`, and no prefix test
+ * or normaliser anywhere near them. Every other condition on a continuation
+ * is byte-identical to v6: usable redirect facts, both URLs through
+ * `validateRequestUrl`, the same registrable domain, same scheme or
+ * http -> https, not a self-redirect, the host budget, the request budget,
+ * root scope, host policy, DNS, address classification and TLS.
+ *
+ * THE MEASUREMENT THAT FORCED IT. Generation-1 work item `R:66:27` met an
+ * origin that answers its canonical site-policy request with a same-origin
+ * `301` to that same path plus a trailing slash - well formed, same
+ * registrable domain, no credential, no query, no fragment, no explicit port,
+ * no scheme downgrade, not a self-redirect, and reachable. v6 refused it on
+ * the exact-path predicate ALONE. The policy was therefore genuinely unread,
+ * the root terminated `ROBOTS_UNREADABLE_ROOT`, and the slot yielded zero
+ * pages. That is a capability limit of this repository, not a transport
+ * failure of the institution.
+ *
+ * WHY THE INITIAL BOOTSTRAP DID NOT MOVE. `forRobotsTxtBootstrap` still
+ * accepts only the canonical path, so site-policy discovery may still START
+ * in exactly one place per origin. The trailing-slash form is reachable only
+ * as a REDIRECT CONTINUATION target, through the separate
+ * `forRobotsTxtRedirectContinuation` factory, from a `Location` the host
+ * itself sent. Widening the bootstrap instead would have let a caller decide,
+ * on its own authority, to begin policy discovery at the trailing-slash form
+ * on a host that never redirected there.
+ *
+ * WHY IT MUST BE A NEW VERSION. From byte-identical live evidence v7 can
+ * issue a SECOND site-policy request where v6 issued none. A v6 row reading
+ * `ROBOTS_UNREADABLE` after such a 301 means "this build would not have
+ * continued"; the same row stamped v7 would mean "this build examined the
+ * target and refused it for some other reason". Those are different findings
+ * about the same institution, and only the version string can tell them
+ * apart.
+ *
+ * NO HISTORICAL ROW IS REWRITTEN OR REINTERPRETED. Every v1-v6 run keeps its
+ * own version on its run row and on all of its observations, forever.
+ * `assertRunIsExecutable` (authority.ts) refuses to execute a run whose
+ * recorded version this build does not implement, so a v6 run cannot be
+ * resumed under v7 - it can only be read. No migration: migration 0007 puts
+ * no enumeration on `fetch_policy_version`.
+ *
+ * NOTHING ELSE MOVED: not a value in this file, not the gateway, not the
+ * redirect module, not the robots parser's own semantics, not the retry
+ * policy, not the hop bound, not a budget, not the frontier, not extraction.
+ */
+
+/**
+ * WHY v5 BECAME v6 (Phase 2B-2D A2 - discovery RCDATA markup hygiene, owner
+ * decision APPROVE_FETCH_POLICY_V6_FOR_RCDATA_DISCOVERY_HYGIENE_V1;
+ * docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_FETCH_POLICY_V6_REPAIR_V1.json).
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING. Markup-shaped text inside a
+ * `<title>` or `<textarea>` element - RCDATA in HTML, so text and never
+ * elements - can no longer contribute a discovered anchor or the document
+ * `<base>`. Under v5 both regex extractors in
+ * `src/orgunits/orchestrator/anchors.ts` read it as live markup; v6 reads
+ * `stripNonNavigableMarkup` (`extract.ts`) instead. A page with no
+ * markup-shaped text in either element yields byte- and sequence-identical
+ * frontier input under v5 and v6.
+ *
+ * NOTHING ELSE MOVED: not a value in this file, the v5 first-href-bearing
+ * base rule, base or href resolution, admission, the gateway, robots,
+ * redirects, retry, budgets, or page-evidence extraction (`extractPage` does
+ * not use the new sanitiser).
+ *
+ * WHY IT MUST BE A NEW VERSION. From byte-identical HTML v6 can build a
+ * different frontier than v5 - one false `<base>` in a title re-resolves
+ * every relative link on the page - so the stamp must say which rule ran.
+ * No v5 working-corpus run existed when this landed.
+ *
+ * Character-reference decoding in URL-valued attributes is STILL NOT part of
+ * any version (owner decisions
+ * DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1 and
+ * PRESERVE_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_DEFERRED_CAPABILITY_V1).
+ */
+
+/**
+ * WHY v4 BECAME v5 (Phase 2B-2D A2 - the anchor document-base repair, owner
+ * decision APPROVE_FETCH_POLICY_V5_FOR_DOCUMENT_BASE_REPAIR_V1;
+ * docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_FETCH_POLICY_V5_REPAIR_V1.json).
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING. Under v4 every discovered
+ * anchor href was resolved against the fetched document URL. Under v5 it is
+ * resolved against the HTML DOCUMENT BASE: the first `<base>` element with an
+ * href attribute, resolved against the fetched document URL, or the fetched
+ * document URL itself when there is none or it is not a usable http(s) URL
+ * (`src/orgunits/orchestrator/anchors.ts`). A page with no usable `<base
+ * href>` yields byte- and sequence-identical frontier input under v4 and v5.
+ *
+ * NOTHING ELSE MOVED. Not a value in this file, not the retry classes, the
+ * redirect bounds, the robots continuation, the root authority, the scope
+ * gates, the budgets or page eligibility. The base is never fetched and grants
+ * no authority: every base-resolved URL passes the same admission and gateway
+ * checks a v4 URL did.
+ *
+ * WHY IT MUST BE A NEW VERSION. From byte-identical HTML, v5 may request URLs
+ * v4 never would - and never request the ones v4 did. `fetch_policy_version`
+ * is the only durable stamp that tells a reader which link-resolution rule
+ * produced a run's LINK attempts, so a v4 run can be read but not resumed
+ * here, and no v1..v4 evidence is reinterpreted.
+ *
+ * KNOWN OPEN CAPABILITY, NOT PART OF v5: HTML character references inside
+ * URL-valued attributes (`&amp;` in an href or a base href) are still not
+ * decoded (owner decision
+ * DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1).
+ *
+ * WHY v3 BECAME v4 (Phase 2B-2D, ADR 0015 - bounded transport retry).
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING. Under v3, one transport failure
+ * while resolving a host's site policy ended that resolution: the policy stayed
+ * unread (`ROBOTS_UNREADABLE`) and every page under that origin was blocked.
+ * Under v4, a failure inside ONE LOGICAL ROBOTS-POLICY RESOLUTION may produce
+ * AT MOST ONE additional attempt at the EXACT SAME URL, and only when the
+ * persisted transport evidence places it in one of six approved classes
+ * (`retryPolicy.ts`).
+ *
+ * NOTHING ELSE MOVED. TLS verification, the timeouts, the header set, the byte
+ * caps, the redirect posture, the status set, the port rule, the host policy,
+ * the address classification and the robots redirect-continuation boundary are
+ * byte-identical to v3. NO TIMEOUT IS EXTENDED - a retry is a second bounded
+ * attempt, never a longer one. Ordinary pages and sitemap documents retry
+ * ZERO times, exactly as under v3.
+ *
+ * WHY IT MUST BE A NEW VERSION. `fetch_policy_version` is the column a reader
+ * uses to know WHAT NETWORK BEHAVIOUR produced a row. A v3 row means "this
+ * build made one attempt and stopped"; the same row stamped v4 would mean
+ * "this build was willing to try again, and this is what it settled on".
+ * Those are different facts, and a run's ABSENCE of a second row means
+ * different things under each.
+ *
+ * NO v1, v2 OR v3 EVIDENCE IS REINTERPRETED. Every historical run keeps the
+ * version that governed it. The gateway refuses a run whose recorded version
+ * this build does not implement, so a v3 run can be read but never resumed.
+ *
+ * WHY v2 BECAME v3 (Phase 2B-2D, ADR 0013 - same-REGISTRABLE-DOMAIN robots
+ * redirect continuation, "Option C-lite").
+ *
+ * WHAT CHANGED, EXACTLY. Under v2 a site-policy 3xx could be continued only
+ * to the BYTE-IDENTICAL HOSTNAME's own policy path. Under v3 the boundary is
+ * the SAME REGISTRABLE DOMAIN, computed by the one `tldts` implementation
+ * this repository has (`src/website/parse.ts`, reached through
+ * `validateRequestUrl`). A `www.` label dropped or gained inside one
+ * registrable domain is therefore continuable, where v2 refused it.
+ * NOTHING ELSE MOVED: the timeouts, the caps, the headers, the user agent,
+ * the redirect status set, the port rule and the ONE-HOP bound below are
+ * byte-identical to v2 (and, apart from that bound, to v1).
+ *
+ * WHY THE BOUNDARY MOVED. RFC 9309 s2.3.1.2 is explicit that a site-policy
+ * fetch may redirect, that crawlers SHOULD follow at least five consecutive
+ * redirects "even across authorities (for example, hosts in the case of
+ * HTTP)", and that a policy file reached that way MUST be "fetched, parsed,
+ * and its rules followed in the context of the INITIAL authority". ADR 0012
+ * s3 refused a host change partly on the premise that a policy retrieved
+ * from another origin cannot govern the original origin; that premise is not
+ * a correct statement of RFC 9309's redirect semantics, and ADR 0013
+ * supersedes it on that point ONLY. The repository stays deliberately
+ * narrower than the RFC: same registrable domain only, one hop only.
+ *
+ * WHY THAT NEEDS A VERSION AND NOT JUST AN ADR. `fetch_policy_version` is the
+ * column a reader uses to know WHAT NETWORK BEHAVIOUR produced a row. A v2
+ * row reading `ROBOTS_UNREADABLE` after a host-changing 301 means "this build
+ * examined the target and refused it because the hostname changed"; the same
+ * row stamped v3 would mean "this build examined the target and refused it
+ * for some other reason, or never saw one". Those are different findings
+ * about the same institution, and only the version string can tell them
+ * apart.
+ *
+ * NO v1 OR v2 EVIDENCE IS REINTERPRETED. Every historical run keeps the
+ * version it was issued under, on its run row and on all of its observations,
+ * forever. `assertRunIsExecutable` (authority.ts) refuses to execute a run
+ * whose recorded version this build does not implement, so a v1 or v2 run
+ * cannot be resumed under v3 behaviour - it can only be read. Historical
+ * classifier freezes likewise bind the fetch-policy version of the
+ * acquisition run they were built from, never this constant.
+ */
+
+/**
+ * WHY v1 BECAME v2 (Phase 2B-2D, ADR 0012 - same-host robots redirect
+ * continuation).
+ *
+ * The pre-landing window described below CLOSED. `orgunit-fetch-policy-v1`
+ * governed real durable evidence: seven research runs and 78 fetch
+ * observations in the working database, produced by the A2 Batch-01/Batch-02
+ * live acquisition. So the rule that file states - "once the first
+ * observation exists, changing any value in this file requires a new version
+ * string" - is now in force, and this is its first exercise.
+ *
+ * WHAT CHANGED, EXACTLY. Under v1, one invocation of the robots bootstrap
+ * issued at most ONE gateway request; a 3xx left the policy unread
+ * (`ROBOTS_UNREADABLE`) and that was the end of it. Under v2, a site-policy
+ * response that redirects to the SAME HOSTNAME's own policy path - same
+ * scheme, or http upgraded to https, and nothing else - may be followed by
+ * exactly ONE further, separately validated gateway request
+ * (`MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS`). Nothing else about the policy
+ * moved: the timeouts, the caps, the headers, the user agent, the redirect
+ * status set and the port rule are byte-identical to v1.
+ *
+ * WHY THAT NEEDS A VERSION AND NOT JUST AN ADR. `fetch_policy_version` is the
+ * column a reader uses to know WHAT NETWORK BEHAVIOUR produced a row. A v1
+ * row reading `ROBOTS_UNREADABLE` after a 301 means "this build would not
+ * have continued"; the same row stamped v2 would mean "this build examined
+ * the target and refused it". Those are different findings about the same
+ * institution, and only the version string can tell them apart.
+ *
+ * NO v1 EVIDENCE IS REINTERPRETED. The Batch-01 and Batch-02 runs keep
+ * `orgunit-fetch-policy-v1` on their run rows and on all 78 observations,
+ * forever. `assertRunIsExecutable` (authority.ts) refuses to execute a run
+ * whose recorded version this build does not implement, so a v1 run cannot be
+ * resumed under v2 behaviour - it can only be read.
+ */
 
 /**
  * WHY THE CORRECTION OF THE TIMEOUTS BELOW DID NOT BUMP THIS IDENTIFIER.
@@ -148,6 +413,78 @@ export const SUPPORTED_CONTENT_ENCODINGS = Object.freeze(['gzip', 'deflate', 'br
  * one would put a URL in the evidence that no server actually pointed at.
  */
 export const REDIRECT_STATUSES: ReadonlySet<number> = new Set([301, 302, 303, 307, 308]);
+
+/**
+ * How many times ONE site-policy bootstrap may be continued to a redirect
+ * target. Exactly one, and deliberately not five.
+ *
+ * ADR 0012, UNCHANGED BY ADR 0013. This is NOT ADR 0008's
+ * `MAX_REDIRECT_CONTINUATION_HOPS = 5`, and reusing that number here would
+ * have been the mistake: an ordinary page's hop budget exists because a site
+ * may legitimately chain several canonicalisations on the way to a content
+ * URL, and each hop is re-admitted by the frontier's own gates. A POLICY
+ * resource has no such journey. The shapes this repair exists to recover are
+ * a single canonicalisation of the policy URL itself - `http` -> `https`, or
+ * a `www.` label gained or dropped inside the same registrable domain - and
+ * one hop covers each of them completely.
+ *
+ * RFC 9309 s2.3.1.2 says crawlers SHOULD follow at least five consecutive
+ * site-policy redirects. THIS REPOSITORY DELIBERATELY DOES NOT, and ADR 0013
+ * records that as a stricter posture rather than an oversight: five hops is a
+ * recommendation about interoperability, and one hop is what the two observed
+ * shapes need. A SECOND 3xx THEREFORE STOPS. The continuation's own response
+ * is evaluated by the same honest mapping as the first, and a 3xx there is
+ * `ROBOTS_UNREADABLE` with no third request.
+ *
+ * THIS CONSTANT IS NOW THE WHOLE OF THE CHAIN BOUND, and that is a real
+ * change from ADR 0012. Under Option B the predicate's own structure proved a
+ * two-request ceiling independently: with no host change and no downgrade
+ * permitted, the only reachable target from an `https` policy URL was the
+ * identical URL, which the self-redirect condition refuses. Option C-lite
+ * admits a host change, so `a -> b -> a` is expressible and that structural
+ * argument no longer holds. ADR 0016 removes the last of it on a SINGLE host
+ * as well: with the trailing-slash variant of the policy path admissible,
+ * `canonical -> trailing-slash -> canonical` is expressible on one origin.
+ * It is not needed while this is 1 - one hop cannot cycle.
+ *
+ * RAISING IT WOULD REQUIRE A VISITED-URL SET,
+ * and this sentence is here so that a later reader does not raise it on the
+ * strength of the argument that used to justify its safety.
+ */
+export const MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1;
+
+/**
+ * The bounded transport retries ONE LOGICAL ROBOTS-POLICY RESOLUTION may spend
+ * (ADR 0015).
+ *
+ * THE GRAIN IS THE RESOLUTION, AND THAT IS THE WHOLE SAFETY ARGUMENT. It is
+ * not one retry per URL, per redirect hop, per failure or per caller: it is
+ * ONE TOKEN for the entire logical act of resolving a host's policy, spanning
+ * the initial request AND any ADR 0013 continuation. Once spent, a later
+ * retry-eligible failure in that same resolution is simply not retried.
+ *
+ * THIS IS WHY THE WORST CASE DOES NOT DEPEND ON HOW MANY EVIDENCE CLASSES ARE
+ * RETRYABLE. A resolution costs at most
+ *
+ *     1 initial + (at most 1 from this token) + (at most 1 from the hop bound)
+ *   = 3 gateway requests,
+ *
+ * in every interleaving, whether the retryable set has two members or six.
+ * The retryable SET decides WHICH failures may consume the token; the TOKEN
+ * decides HOW MANY requests can exist. Widening one never widens the other.
+ *
+ * IT IS SEPARATE FROM `MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS` on purpose.
+ * They bound different things - "try the same URL again" and "follow the
+ * policy file to where it says it lives" - and collapsing them into one
+ * number would let either silently pay for the other.
+ *
+ * RAISING IT IS NOT A TUNING EXERCISE. Every increment is another request
+ * against a host that has already failed, and the argument that one retry is
+ * proportionate for one idempotent site-policy GET does not extend to two by
+ * repetition. It would need its own measurement, its own ADR and its own
+ * policy version.
+ */
+export const MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION = 1;
 
 /** The only ports this gateway will request. A published non-default port is refused, not silently allowed. */
 export const DEFAULT_PORT_FOR_SCHEME: Readonly<Record<string, number>> = Object.freeze({

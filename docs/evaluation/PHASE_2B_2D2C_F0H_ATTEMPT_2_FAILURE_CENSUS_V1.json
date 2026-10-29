@@ -1,0 +1,1810 @@
+{
+  "attempt2RepairArtifactInventorySha256": "738ef4507c04d8c9dbf410fea16f84ccecedeef00902e0fe0ed5ea7039f26b18",
+  "census": {
+    "itemCount": 49,
+    "items": [
+      {
+        "corpusLineNumber": 21,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F NANTES79|924638533",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g04b64db14c03ce3a",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNIT_PAGE_TO_NOT_A_UNIT", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": "OTHER_UNIT", "validatorState": "ACCEPTED", "verdict": "UNIT_PAGE" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "37fa29caa9960cb39a66d19f3e1bf2318b87e3300da608f499ab612c7e87986e",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 20,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F MONTPEL58|932096087",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g04c5e4d705a2e184",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "49eb7a5617b6c281ed3db755e6e1f2ec7f4f93bc4c0b1eed9241e62494cba0a2",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 37,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS482|897691060",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": true,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": true,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g04d170f4d3fda759",
+        "outcomeClass": "FALSE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "NOT_A_UNIT_TO_UNIT_PAGE" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": true,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "d5ef7f467c8bfaa337d46cc84388c564cb92114203c2b44637ebbdca892dbe4a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 2,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F DIJON35|949637858",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g057656b07c6aa620",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "d1c832222d9b2bdc413c0bbff4e80909620a66b6717be485a13499d51a505042",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 13,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g05d5854d451532bb",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "136ba2108382827bb9ac01203b5591e4b1d39cad5a563e2c6d8640fc73e125d3",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 43,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F RENNES52|949270228",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g0615c0e6bcd45942",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "69b156fbd134a89a5ef9993c3696561fe193b28fc38a7145e50cea970ea5320a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 39,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS525|879184333",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g0b760d6f3dfafad5",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "2353d3e4d6d82cfa3d8c0ae53735dca3299db610ead39c49e441d5149f58c990",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 26,
+        "correctedV2FalseNegative": true,
+        "echeRowKey": "F PARIS003|999885119",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g0ec0d43dad311a77",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "VALIDITY_RECOVERED", "v2ToV3": "VALIDITY_RECOVERED" },
+        "v1": { "unitType": null, "validatorState": "REJECTED", "verdict": null },
+        "v2": { "unitType": null, "validatorState": "REJECTED", "verdict": null },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "a3e6b57ab4f0b7ea9cf9620287db6ee288dc3a50afd7618068ebed9dcba602c9",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 23,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F NANTES79|924638533",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g12732ff0388c49e8",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "37fa29caa9960cb39a66d19f3e1bf2318b87e3300da608f499ab612c7e87986e",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 35,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS482|897691060",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g1a0315d94121cfcf",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "d5ef7f467c8bfaa337d46cc84388c564cb92114203c2b44637ebbdca892dbe4a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 45,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g1b50947deb11a6d5",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "cc76feac6bbf52b7b5bce34769092ea5b52c7299240e4cd3e7cecd0a020cfb20",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 9,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F GRENOBL21|915102366",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g1f85c7bcf67d324e",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "327a3654951fd9d031f10e1799338e8d38967c2c8c9a2e2592b86ec238e5530a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 36,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS482|897691060",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g27504b2635a39531",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "d5ef7f467c8bfaa337d46cc84388c564cb92114203c2b44637ebbdca892dbe4a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 22,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F NANTES79|924638533",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g2dba4106c328f4b8",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "37fa29caa9960cb39a66d19f3e1bf2318b87e3300da608f499ab612c7e87986e",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 30,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS003|999885119",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g2e0dc1ff57327033",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "a3e6b57ab4f0b7ea9cf9620287db6ee288dc3a50afd7618068ebed9dcba602c9",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 8,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F EVRY04|999850296",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g3130d41296ab8739",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNIT_PAGE_TO_NOT_A_UNIT", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "aa200830d306916a5a46bb9e10c448b0f8b82c8572acb5d64fec7f4deea7fbe5",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 33,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS105|949302432",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g32779df2d7b56a34",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "VALIDITY_RECOVERED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "REJECTED", "verdict": null },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "481ee751df783d9b618df1491178fcdfc998d75acd9fb55db9fbc25a0c8584e3",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 40,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS525|879184333",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g34bbf7536e99b410",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "2353d3e4d6d82cfa3d8c0ae53735dca3299db610ead39c49e441d5149f58c990",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 48,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g39e7132da4064000",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "cc76feac6bbf52b7b5bce34769092ea5b52c7299240e4cd3e7cecd0a020cfb20",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 10,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F GRENOBL21|915102366",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g3ef86bc145abfab0",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "327a3654951fd9d031f10e1799338e8d38967c2c8c9a2e2592b86ec238e5530a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 15,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": true,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g4454e841c09dd8d0",
+        "outcomeClass": "FALSE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "NOT_A_UNIT_TO_UNIT_PAGE", "v2ToV3": "NOT_A_UNIT_TO_UNIT_PAGE" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": true,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "136ba2108382827bb9ac01203b5591e4b1d39cad5a563e2c6d8640fc73e125d3",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "OTHER_UNIT"
+        }
+      },
+      {
+        "corpusLineNumber": 19,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F MONTPEL58|932096087",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g4aa8728f64f4525d",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "49eb7a5617b6c281ed3db755e6e1f2ec7f4f93bc4c0b1eed9241e62494cba0a2",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 6,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F EVRY04|999850296",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": true,
+          "minHardNegativeRejection_failure": true,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g52788fd323659c9c",
+        "outcomeClass": "NEEDS_REVIEW_ON_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": {
+          "v1ToV3": "NOT_A_UNIT_TO_NEEDS_REVIEW",
+          "v2ToV3": "NOT_A_UNIT_TO_NEEDS_REVIEW"
+        },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": true,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NEEDS_REVIEW",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NEEDS_REVIEW",
+          "rawArtifactSha256": "aa200830d306916a5a46bb9e10c448b0f8b82c8572acb5d64fec7f4deea7fbe5",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 46,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": true,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": true,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g536c8b148048fcbc",
+        "outcomeClass": "FALSE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "NOT_A_UNIT_TO_UNIT_PAGE" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": true,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "cc76feac6bbf52b7b5bce34769092ea5b52c7299240e4cd3e7cecd0a020cfb20",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 32,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS105|949302432",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g543b604f0f0f8380",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "481ee751df783d9b618df1491178fcdfc998d75acd9fb55db9fbc25a0c8584e3",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 7,
+        "correctedV2FalseNegative": true,
+        "echeRowKey": "F EVRY04|999850296",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g57607d4278d6dc23",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "NOT_A_UNIT_TO_UNIT_PAGE" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "aa200830d306916a5a46bb9e10c448b0f8b82c8572acb5d64fec7f4deea7fbe5",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 18,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F MONTPEL58|932096087",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g581e2c0586577331",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "49eb7a5617b6c281ed3db755e6e1f2ec7f4f93bc4c0b1eed9241e62494cba0a2",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 31,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS105|949302432",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g5e9c0d460fee879b",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "481ee751df783d9b618df1491178fcdfc998d75acd9fb55db9fbc25a0c8584e3",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 16,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g5f96e37ff602795a",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "136ba2108382827bb9ac01203b5591e4b1d39cad5a563e2c6d8640fc73e125d3",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 5,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F EVRY04|999850296",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": true,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": null,
+          "verdict": "NEEDS_REVIEW"
+        },
+        "goldId": "g6458a352bc79ca01",
+        "outcomeClass": "FALSE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "aa200830d306916a5a46bb9e10c448b0f8b82c8572acb5d64fec7f4deea7fbe5",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 3,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F DIJON35|949637858",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": null,
+          "verdict": "NEEDS_REVIEW"
+        },
+        "goldId": "g66010a25ac194274",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "NEEDS_REVIEW_TO_NOT_A_UNIT", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NEEDS_REVIEW" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "d1c832222d9b2bdc413c0bbff4e80909620a66b6717be485a13499d51a505042",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 4,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F EVRY04|999850296",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g735298870fe173b8",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "aa200830d306916a5a46bb9e10c448b0f8b82c8572acb5d64fec7f4deea7fbe5",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 42,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F RENNES52|949270228",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g7a394e6b1670f7ab",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "69b156fbd134a89a5ef9993c3696561fe193b28fc38a7145e50cea970ea5320a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 12,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F GRENOBL21|915102366",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g7c122ea506478abd",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "327a3654951fd9d031f10e1799338e8d38967c2c8c9a2e2592b86ec238e5530a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 24,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F NANTES79|924638533",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g7d88b2fecb73fdb4",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "37fa29caa9960cb39a66d19f3e1bf2318b87e3300da608f499ab612c7e87986e",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 1,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F DIJON35|949637858",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "OTHER_UNIT",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g7e9744e811f58e20",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": "OTHER_UNIT", "validatorState": "ACCEPTED", "verdict": "UNIT_PAGE" },
+        "v2": { "unitType": "OTHER_UNIT", "validatorState": "ACCEPTED", "verdict": "UNIT_PAGE" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "d1c832222d9b2bdc413c0bbff4e80909620a66b6717be485a13499d51a505042",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "OTHER_UNIT"
+        }
+      },
+      {
+        "corpusLineNumber": 38,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS482|897691060",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g82fe2243c52f4d73",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "d5ef7f467c8bfaa337d46cc84388c564cb92114203c2b44637ebbdca892dbe4a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 27,
+        "correctedV2FalseNegative": true,
+        "echeRowKey": "F PARIS003|999885119",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g877a05e6f5bba835",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": true,
+        "transitions": { "v1ToV3": "VALIDITY_RECOVERED", "v2ToV3": "VALIDITY_RECOVERED" },
+        "v1": { "unitType": null, "validatorState": "REJECTED", "verdict": null },
+        "v2": { "unitType": null, "validatorState": "REJECTED", "verdict": null },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "REJECTED",
+          "firstPassVerdict": null,
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "a3e6b57ab4f0b7ea9cf9620287db6ee288dc3a50afd7618068ebed9dcba602c9",
+          "rejectionCategory": null,
+          "repair": {
+            "artifactFileSha256": {
+              "REPAIR_DECISION": "8e91db386afef4cfc440b30568564d1ce1819b535ed8f5940e029d79f2762e46",
+              "REPAIR_OUTCOME": "2e45ae24e2d31929d2b0ea3a23d2ddfc537ce30d486eca47137bb34f52af28bd",
+              "REPAIR_PROVIDER_OUTCOME": "a5d987160bd2662888ab608a67d4a0054998848583937931ad2714565e6d6718",
+              "REPAIR_RAW_OUTPUT_CHECKPOINT": "8f51fa893e43ff1e9c71c0b2ea2d689e00977ee8ff4ed83f840cef28a27e04e7",
+              "REPAIR_REQUEST": "a2fbc837fe58d450c94d4303ac59bbaba8548e82d8d96e2d962e1cc4800facf8",
+              "REPAIR_VALIDATION_RESULT": "0e3fa4fbfcaa7a57587271b78ebb43d4df79579ad955d16e4786423affbed12b"
+            },
+            "category": "EVIDENCE_SPAN_VERIFIES_UNDER_OTHER_SOURCE",
+            "disposition": "ACCEPTED",
+            "round": 1
+          },
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 34,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS105|949302432",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g956f99fae4ad4764",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "VALIDITY_RECOVERED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "REJECTED", "verdict": null },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "481ee751df783d9b618df1491178fcdfc998d75acd9fb55db9fbc25a0c8584e3",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 49,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "g9978fec48fa77fbb",
+        "outcomeClass": "TRUE_NEGATIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "NOT_A_UNIT",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "NOT_A_UNIT",
+          "rawArtifactSha256": "cc76feac6bbf52b7b5bce34769092ea5b52c7299240e4cd3e7cecd0a020cfb20",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": null
+        }
+      },
+      {
+        "corpusLineNumber": 47,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "LANGUAGE_CENTRE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g99a9fe00e4856de2",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "LANGUAGE_CENTRE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": {
+          "unitType": "LANGUAGE_CENTRE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "cc76feac6bbf52b7b5bce34769092ea5b52c7299240e4cd3e7cecd0a020cfb20",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "LANGUAGE_CENTRE"
+        }
+      },
+      {
+        "corpusLineNumber": 44,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F RENNES52|949270228",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g9c1b65eda41afda2",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "69b156fbd134a89a5ef9993c3696561fe193b28fc38a7145e50cea970ea5320a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 14,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": true,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": { "hardNegative": "NOT_HARD_NEGATIVE", "unitType": null, "verdict": "NOT_A_UNIT" },
+        "goldId": "ga435ea22d4b11cf4",
+        "outcomeClass": "FALSE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "NOT_A_UNIT_TO_UNIT_PAGE", "v2ToV3": "NOT_A_UNIT_TO_UNIT_PAGE" },
+        "v1": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": true,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "136ba2108382827bb9ac01203b5591e4b1d39cad5a563e2c6d8640fc73e125d3",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "OTHER_UNIT"
+        }
+      },
+      {
+        "corpusLineNumber": 41,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS525|879184333",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "ga971a6fc52af6b5f",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "2353d3e4d6d82cfa3d8c0ae53735dca3299db610ead39c49e441d5149f58c990",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 28,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F PARIS003|999885119",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "LANGUAGE_DEPARTMENT",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "gcce4e2a5f608de5d",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "LANGUAGE_DEPARTMENT",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": {
+          "unitType": "LANGUAGE_DEPARTMENT",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "a3e6b57ab4f0b7ea9cf9620287db6ee288dc3a50afd7618068ebed9dcba602c9",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "LANGUAGE_DEPARTMENT"
+        }
+      },
+      {
+        "corpusLineNumber": 17,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "gdb5b7246327094ef",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "136ba2108382827bb9ac01203b5591e4b1d39cad5a563e2c6d8640fc73e125d3",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 11,
+        "correctedV2FalseNegative": false,
+        "echeRowKey": "F GRENOBL21|915102366",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "ge419f0b9902faee0",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "UNCHANGED" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "327a3654951fd9d031f10e1799338e8d38967c2c8c9a2e2592b86ec238e5530a",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 25,
+        "correctedV2FalseNegative": true,
+        "echeRowKey": "F NANTES79|924638533",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "ge789b0f0aedc398c",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "NOT_A_UNIT_TO_UNIT_PAGE" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "37fa29caa9960cb39a66d19f3e1bf2318b87e3300da608f499ab612c7e87986e",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      },
+      {
+        "corpusLineNumber": 29,
+        "correctedV2FalseNegative": true,
+        "echeRowKey": "F PARIS003|999885119",
+        "gateContribution": {
+          "maxNeedsReviewRate_contributor": false,
+          "minHardNegativeRejection_failure": false,
+          "minSchemaValidSpanVerifiedRate_miss": false,
+          "minUnitPagePrecision_falsePositive": false,
+          "minUnitPageRecall_miss": false,
+          "minUnitTypeAccuracy_miss": false
+        },
+        "gold": {
+          "hardNegative": "NOT_HARD_NEGATIVE",
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "gf65026e32d9da8db",
+        "outcomeClass": "TRUE_POSITIVE",
+        "repairedEvidenceItem": false,
+        "transitions": { "v1ToV3": "UNCHANGED", "v2ToV3": "NOT_A_UNIT_TO_UNIT_PAGE" },
+        "v1": {
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+          "validatorState": "ACCEPTED",
+          "verdict": "UNIT_PAGE"
+        },
+        "v2": { "unitType": null, "validatorState": "ACCEPTED", "verdict": "NOT_A_UNIT" },
+        "v2ToV3Regression": false,
+        "v3": {
+          "firstPassValidatorState": "ACCEPTED",
+          "firstPassVerdict": "UNIT_PAGE",
+          "postRepairValidatorState": "ACCEPTED",
+          "postRepairVerdict": "UNIT_PAGE",
+          "rawArtifactSha256": "a3e6b57ab4f0b7ea9cf9620287db6ee288dc3a50afd7618068ebed9dcba602c9",
+          "rejectionCategory": null,
+          "repair": null,
+          "unitType": "INTERNATIONAL_MOBILITY_OFFICE"
+        }
+      }
+    ],
+    "reconciliation": [
+      {
+        "denominator": 49,
+        "failingGoldIds": [],
+        "gate": "minSchemaValidSpanVerifiedRate",
+        "numeratorFailures": 0,
+        "observed": 1
+      },
+      {
+        "denominator": 14,
+        "failingGoldIds": [],
+        "gate": "minUnitPageRecall",
+        "numeratorFailures": 0,
+        "observed": 1
+      },
+      {
+        "denominator": 19,
+        "failingGoldIds": [
+          "g04d170f4d3fda759",
+          "g4454e841c09dd8d0",
+          "g536c8b148048fcbc",
+          "g6458a352bc79ca01",
+          "ga435ea22d4b11cf4"
+        ],
+        "gate": "minUnitPagePrecision",
+        "numeratorFailures": 5,
+        "observed": 0.7368421053
+      },
+      {
+        "denominator": 14,
+        "failingGoldIds": [],
+        "gate": "minUnitTypeAccuracy",
+        "numeratorFailures": 0,
+        "observed": 1
+      },
+      {
+        "denominator": 21,
+        "failingGoldIds": ["g04d170f4d3fda759", "g52788fd323659c9c", "g536c8b148048fcbc"],
+        "gate": "minHardNegativeRejection",
+        "numeratorFailures": 3,
+        "observed": 0.8571428571
+      },
+      {
+        "denominator": 49,
+        "failingGoldIds": ["g52788fd323659c9c"],
+        "gate": "maxNeedsReviewRate",
+        "numeratorFailures": 1,
+        "observed": 0.0204081633
+      }
+    ],
+    "summary": {
+      "correctedV2FalseNegatives": [
+        "g0ec0d43dad311a77",
+        "g57607d4278d6dc23",
+        "g877a05e6f5bba835",
+        "ge789b0f0aedc398c",
+        "gf65026e32d9da8db"
+      ],
+      "falseNegatives": [],
+      "falsePositives": [
+        "g04d170f4d3fda759",
+        "g4454e841c09dd8d0",
+        "g536c8b148048fcbc",
+        "g6458a352bc79ca01",
+        "ga435ea22d4b11cf4"
+      ],
+      "hardNegativeRegressions": ["g04d170f4d3fda759", "g52788fd323659c9c", "g536c8b148048fcbc"],
+      "needsReviewOnNegative": ["g52788fd323659c9c"],
+      "needsReviewOnUnitPage": [],
+      "ordinaryNegativeRegressions": ["g4454e841c09dd8d0", "ga435ea22d4b11cf4"],
+      "repairedItems": ["g877a05e6f5bba835"],
+      "truePositives": [
+        "g0ec0d43dad311a77",
+        "g34bbf7536e99b410",
+        "g57607d4278d6dc23",
+        "g735298870fe173b8",
+        "g7e9744e811f58e20",
+        "g877a05e6f5bba835",
+        "g99a9fe00e4856de2",
+        "g9c1b65eda41afda2",
+        "ga971a6fc52af6b5f",
+        "gcce4e2a5f608de5d",
+        "gdb5b7246327094ef",
+        "ge419f0b9902faee0",
+        "ge789b0f0aedc398c",
+        "gf65026e32d9da8db"
+      ],
+      "v2ToV3Regressions": [
+        "g04d170f4d3fda759",
+        "g4454e841c09dd8d0",
+        "g52788fd323659c9c",
+        "g536c8b148048fcbc",
+        "ga435ea22d4b11cf4"
+      ]
+    },
+    "version": "phase2b-2d2c-f0h-attempt2-failure-census-v1"
+  },
+  "excludedFromOutputs": [
+    "raw model output",
+    "rationale text",
+    "evidence quote text",
+    "unit_name text (only its SHA-256 and presence flag are carried upstream)",
+    "chain of thought",
+    "credentials or profile information"
+  ],
+  "kind": "DIAGNOSTIC_CENSUS_DERIVED_FROM_COMMITTED_SCORING",
+  "recordId": "PHASE_2B_2D2C_F0H_ATTEMPT_2_FAILURE_CENSUS_V1",
+  "sourceScoredItemsPath": "docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-2-gold-v1-adjudicated/scored-items.jsonl",
+  "sourceScoredItemsSha256": "b31d01c5bfae888c33612bb221bacd22dac853f8e7dd82a8223456aa472bfa02"
+}

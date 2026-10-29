@@ -1,0 +1,299 @@
+{
+  "record": "PHASE_2B_ROBOTS_OPTION_C_LITE_IMPLEMENTATION",
+  "recordKind": "ROBOTS_OPTION_C_LITE_IMPLEMENTATION_V1",
+  "ownerDecisions": [
+    "SELECT_ROBOTS_OPTION_C_LITE_RFC9309_V1",
+    "AUTHORISE_ROBOTS_OPTION_C_LITE_OFFLINE_IMPLEMENTATION_V1",
+    "AUTHORISE_CORPUS_ACQUISITION_POLICY_TRANSITION_V2_TO_V3_PLANNING_V1"
+  ],
+  "selectedOption": "C_LITE",
+  "standardBasis": "RFC_9309_SECTION_2_3_1_2",
+  "scope": "SAME_REGISTRABLE_DOMAIN_SINGLE_HOP_ROBOTS_REDIRECT_CONTINUATION",
+  "fetchPolicyVersion": "orgunit-fetch-policy-v3",
+  "crossRegistrableDomain": false,
+  "maxRobotsRedirectContinuationHops": 1,
+  "gatewayAutoFollow": false,
+  "targetPolicyAppliedToInitialAuthority": true,
+  "targetOriginCacheContaminated": false,
+  "historicalEvidenceMutated": false,
+  "networkExecuted": false,
+  "targetedRevalidationAuthorised": false,
+  "batchContinuationAuthorised": false,
+  "reserveConsumptionAuthorised": false,
+  "thisFileAuthorises": [],
+  "standardsConclusion": {
+    "section": "RFC 9309 §2.3.1.2",
+    "boundFacts": [
+      "A robots.txt fetch may redirect.",
+      "Crawlers SHOULD follow at least five consecutive redirects, even across authorities.",
+      "A robots.txt reached that way MUST have its rules followed in the context of the INITIAL authority."
+    ],
+    "supersededPremise": "ADR 0012 §3's premise that a robots.txt retrieved from another origin cannot govern the original origin is not a correct statement of RFC 9309 redirect semantics. ADR 0013 supersedes that premise and the one boundary it supported, and nothing else.",
+    "repositoryRemainsStricter": {
+      "crossRegistrableDomainRedirects": "REFUSED",
+      "maxHops": 1,
+      "rfcRecommendedHops": 5,
+      "gatewayFollowsRedirectsAutomatically": false
+    },
+    "historyRewritten": false
+  },
+  "boundArtifacts": {
+    "adr0013": {
+      "path": "docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md",
+      "sha256": "d7c51025759664cb4d4fdcdea00e5da509c39d03fc9e40302baebf0f119a9b1a",
+      "bytes": 22316
+    },
+    "priorPlan": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "priorAmendment": {
+      "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_AMENDMENT_V1.json",
+      "sha256": "d440afabd68f4a528bdeadb6c45cf6a489e541d33c214e961419f4adaa80cbc3",
+      "bytes": 11185
+    },
+    "transitionLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V2_GEN1.json",
+      "sha256": "e3a2fe6199af4c0859b625b8f2b599e51bf4273a815d50ca8a8527fc28611aaf",
+      "bytes": 3054
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047
+    }
+  },
+  "productionFilesChanged": [
+    "src/orgunits/web/policy.ts",
+    "src/orgunits/web/robots.ts",
+    "src/orgunits/orchestrator/rootRunner.ts"
+  ],
+  "productionFilesDeliberatelyUnchanged": [
+    "src/orgunits/web/gateway.ts",
+    "src/orgunits/web/redirect.ts",
+    "src/orgunits/web/robotsAuthority.ts",
+    "src/orgunits/web/hostPolicy.ts",
+    "src/orgunits/web/url.ts",
+    "src/orgunits/orchestrator/constants.ts",
+    "migrations/",
+    "src/cli/",
+    "src/orgunits/classify/"
+  ],
+  "migrationsAdded": 0,
+  "runtimeDependenciesAdded": 0,
+  "persistedRobotsRedirectCensus": {
+    "scope": "EVERY persisted redirect observation in the working database.",
+    "redirectObservationsTotal": 7,
+    "robotsRedirectsTotal": 4,
+    "optionBQualifying": 2,
+    "optionCLiteNewlyQualifying": 2,
+    "stillRefused": 0,
+    "partitionsExhaustively": true,
+    "predicateCalled": "src/orgunits/web/robots.ts::continuationTargetFor",
+    "predicateReimplemented": false
+  },
+  "v3TransitionClassification": {
+    "rule": "For each persisted run under a superseded policy version, call the LANDED v3 predicate against its persisted robots-redirect evidence and ask whether it would NEWLY continue relative to the version that run actually executed under. v1 continued nothing; v2 continued the same-hostname shape only.",
+    "forbiddenInputs": ["pageYield", "label", "modelResult", "semanticClass"],
+    "runsExamined": 9,
+    "acquisitionOfRecordRuns": 8,
+    "supersededRuns": 1,
+    "V3_TRANSITION_UNAFFECTED": 6,
+    "V3_TRANSITION_AFFECTED": 3,
+    "affectedAcquisitionOfRecordRuns": 2,
+    "affectedSelectionIndices": [1, 7],
+    "affectedSelectionIndicesIncludingSupersededRuns": [1, 5, 7],
+    "whyThoseTwoListsDiffer": "Selection index 5's SUPERSEDED v1 run is affected - v1 continued nothing, so its same-hostname robots redirect would newly continue under v3. Its ACQUISITION OF RECORD is the v2 run that already continued it, which is unaffected. Only the first list names organisations whose evidence of record could change.",
+    "disclosureNote": "Selection indices are already published by the Batch-01/Batch-02 execution records, ADR 0012 and the transition ledger. No eche_row_key, organisation id, hostname or URL appears in this record.",
+    "perRun": [
+      {
+        "runOpaqueRef": "e1685cde6ad43f2f38caebfb5e16f5677faddfca92a00e337cdb53bf13067e40",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "acquisitionOfRecord": true,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsContinuableUnderV3": 0,
+        "robotsRedirectsNewlyContinuable": 0,
+        "classification": "V3_TRANSITION_UNAFFECTED"
+      },
+      {
+        "runOpaqueRef": "7aedd8d7106590724655e3dbaf9bf443c2050e316c2123217b50c85c011dc50a",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "acquisitionOfRecord": true,
+        "robotsRedirectObservations": 1,
+        "robotsRedirectsContinuableUnderV3": 1,
+        "robotsRedirectsNewlyContinuable": 1,
+        "classification": "V3_TRANSITION_AFFECTED"
+      },
+      {
+        "runOpaqueRef": "8817e22d9682c3dd071cc6659973ba634c024ffa1a04accfb4ad2a259ffb7566",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "acquisitionOfRecord": true,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsContinuableUnderV3": 0,
+        "robotsRedirectsNewlyContinuable": 0,
+        "classification": "V3_TRANSITION_UNAFFECTED"
+      },
+      {
+        "runOpaqueRef": "2ada6fe0272c409ded4ae198c801f492cede477ee1ec33eac1e0e51d24ca9551",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "acquisitionOfRecord": true,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsContinuableUnderV3": 0,
+        "robotsRedirectsNewlyContinuable": 0,
+        "classification": "V3_TRANSITION_UNAFFECTED"
+      },
+      {
+        "runOpaqueRef": "210ec71c8b3907fc94024a772e046dfb31028d20f9597004af8b1a9d6a0cca53",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "acquisitionOfRecord": true,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsContinuableUnderV3": 0,
+        "robotsRedirectsNewlyContinuable": 0,
+        "classification": "V3_TRANSITION_UNAFFECTED"
+      },
+      {
+        "runOpaqueRef": "eecae5bc8b23e005a1daaf99a73f927b06ab7471bf1cc32c814861c98b096eba",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "acquisitionOfRecord": false,
+        "robotsRedirectObservations": 1,
+        "robotsRedirectsContinuableUnderV3": 1,
+        "robotsRedirectsNewlyContinuable": 1,
+        "classification": "V3_TRANSITION_AFFECTED"
+      },
+      {
+        "runOpaqueRef": "a5550818fe15b4a058d5daddc55ce283834c7d619730e217919157f88e18046c",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "acquisitionOfRecord": true,
+        "robotsRedirectObservations": 0,
+        "robotsRedirectsContinuableUnderV3": 0,
+        "robotsRedirectsNewlyContinuable": 0,
+        "classification": "V3_TRANSITION_UNAFFECTED"
+      },
+      {
+        "runOpaqueRef": "1caccd6c616c6ddaccc5ebc7a23f951b08e6819fc3bc6b6d8e91e14f965a71fe",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v2",
+        "acquisitionOfRecord": true,
+        "robotsRedirectObservations": 1,
+        "robotsRedirectsContinuableUnderV3": 1,
+        "robotsRedirectsNewlyContinuable": 0,
+        "classification": "V3_TRANSITION_UNAFFECTED"
+      },
+      {
+        "runOpaqueRef": "d808fae09b353443abaa4a5405d892a0545c058ac0a503deb712ef922604a0fd",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v2",
+        "acquisitionOfRecord": true,
+        "robotsRedirectObservations": 1,
+        "robotsRedirectsContinuableUnderV3": 1,
+        "robotsRedirectsNewlyContinuable": 1,
+        "classification": "V3_TRANSITION_AFFECTED"
+      }
+    ],
+    "opaqueRefDerivation": "SHA-256 of the run UUID"
+  },
+  "acquisitionOfRecordUnchangedByThisStep": {
+    "statement": "No run status moves on counterfactual capability. A V3_TRANSITION_AFFECTED run keeps its current acquisition status until a separately authorised live run under v3 produces real evidence.",
+    "batch01ExecutionRecordEdited": false,
+    "batch02ExecutionRecordEdited": false,
+    "batch02V2ContinuationExecutionRecordEdited": false,
+    "sd9StatusesEdited": false,
+    "replacementStateEdited": false,
+    "reserveConsumed": 0,
+    "transitionReasonForAnyFutureEntry": "OPTION_C_LITE_SAME_REGISTRABLE_DOMAIN_ROBOTS_CAPABILITY_REPAIR"
+  },
+  "generation1PrimaryAcquisitionState": {
+    "finalised": 8,
+    "neverStarted": [8, 9],
+    "note": "Unchanged by this step. No acquisition success rate may be inferred from eight organisations."
+  },
+  "historicalClassifierFreezes": {
+    "freezeFilesEdited": 0,
+    "ownerFreezeApprovalFilesEdited": 0,
+    "historicalV1ReconstructionStillGreen": true,
+    "rule": "A historical freeze binds the fetch-policy version of the acquisition run it was built from, never the constant the build reading it implements. Production has now moved twice since the 2D2C freeze and the frozen value followed neither move.",
+    "twoDTwoCReFrozen": false
+  },
+  "databaseState": {
+    "readOnly": true,
+    "role": "readonly",
+    "writesIssued": 0,
+    "tableCounts": [
+      {
+        "table": "organisations",
+        "count": 6139
+      },
+      {
+        "table": "website_claims",
+        "count": 6139
+      },
+      {
+        "table": "orgunit_research_runs",
+        "count": 9
+      },
+      {
+        "table": "orgunit_research_run_completions",
+        "count": 9
+      },
+      {
+        "table": "orgunit_fetch_observations",
+        "count": 117
+      },
+      {
+        "table": "orgunit_redirect_observations",
+        "count": 7
+      },
+      {
+        "table": "orgunit_root_promotions",
+        "count": 0
+      },
+      {
+        "table": "orgunit_root_promotion_revocations",
+        "count": 0
+      },
+      {
+        "table": "orgunit_page_evidence",
+        "count": 92
+      },
+      {
+        "table": "orgunit_page_candidates",
+        "count": 184
+      }
+    ],
+    "unchanged": true
+  },
+  "transcriptIdentifierDisclosure": {
+    "classification": "PROCEDURAL_IDENTIFIER_DISCLOSURE_NO_SEMANTIC_HOLDOUT_ACCESS",
+    "whatWasDisclosed": "An organisation's ECHE source-row key appeared transiently in the operator transcript.",
+    "whatWasNotDisclosed": [
+      "page content",
+      "page title",
+      "label",
+      "gold",
+      "classifier result",
+      "semantic evidence"
+    ],
+    "finalHoldoutInvalidated": false,
+    "requirementBeforeNextGatedLiveAcquisition": "An operator-safe execution method that prevents institution identifiers from being pasted into a public or chat transcript.",
+    "cliRedesignedInThisStep": false
+  },
+  "networkAttestation": {
+    "institutionHttpRequests": 0,
+    "dnsLookups": 0,
+    "tlsHandshakes": 0,
+    "executeAcquisitionRuns": 0,
+    "index7Rerun": false,
+    "earlierHostChangingCaseRerun": false,
+    "indices8or9Started": false
+  },
+  "terminalState": "PHASE_2B_ROBOTS_OPTION_C_LITE_IMPLEMENTED_AWAITING_TARGETED_REVALIDATION",
+  "nextOwnerDecision": "A2_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_AUTHORISATION",
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}

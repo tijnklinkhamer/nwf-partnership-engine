@@ -1,0 +1,133 @@
+{
+  "recordId": "phase2b-2d-a2-replacement-ledger-temporal-test-correction-v1",
+  "recordKind": "HISTORICAL_TEST_TEMPORAL_CORRECTION",
+  "records": "PHASE_2B_2D_A2_REPLACEMENT_LEDGER_TEMPORAL_TEST_CORRECTION_V1",
+  "recordedAtUtc": "2026-09-21T14:05:00Z",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "authorisedBy": "AUTHORISE_PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_BATCH_IMPLEMENTATION_V1",
+  "startingHead": "b17503a2420ff16cc0c71ac94709b54fe1f2ead6",
+  "boundOwnerClarification": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+    "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+    "bytes": 18443,
+    "recordedImplementationRequirementHonoured": true
+  },
+  "why": "The canonical reserve replacement ledger is about to be created (empty genesis) at the path the Option-B transition contract already pins. One historical test proved 'Option B replaced nothing' by failing to read that path from the WORKING TREE, which would turn a true historical claim false merely because a later, approved phase creates the file.",
+  "ledgerPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+  "searchPerformed": {
+    "patterns": [
+      "REPLACEMENT_LEDGER / replacement ledger / replacementLedger (case-insensitive)",
+      "reserve + consum|replac|toHaveLength(40)|untouched|existsSync",
+      "readdirSync over harness or docs/evaluation/corpus directories"
+    ],
+    "scope": ["src/test/unit", "src/test/firewall", "src/test/harness/phase2b2d", "scripts"]
+  },
+  "assertionsFound": [
+    {
+      "file": "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+      "test": "has no reserve replacement ledger, because nothing was replaced",
+      "readsWorkingTree": true,
+      "classification": "HISTORICAL_PHASE_ASSERTION",
+      "corrected": true
+    },
+    {
+      "file": "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+      "test": "is a transition ledger, not a replacement ledger, and says so structurally",
+      "readsWorkingTree": false,
+      "reads": "the committed, frozen V2 transition ledger's own field reserveReplacementLedgerExists=false",
+      "classification": "HISTORICAL_RECORD_CONTENT_ASSERTION",
+      "corrected": false,
+      "whyUnaffected": "the record's bytes never change; the field records what was true when it was written"
+    },
+    {
+      "file": "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+      "test": "leaves the reserve list at its full, unconsumed length",
+      "readsWorkingTree": true,
+      "reads": "the frozen draw's reserve array length (40)",
+      "classification": "CURRENT_PRODUCTION_ASSERTION",
+      "corrected": false,
+      "whyUnaffected": "the draw is frozen; assigning a reserve appends a ledger row and never shortens the draw's reserve list"
+    },
+    {
+      "file": "src/test/unit/orgunitCorpus2DA1bDraw.test.ts",
+      "test": "replacementState.noReplacementLedgerExistsYet",
+      "readsWorkingTree": false,
+      "reads": "the committed draw artifact's own field",
+      "classification": "HISTORICAL_RECORD_CONTENT_ASSERTION",
+      "corrected": false
+    },
+    {
+      "file": "src/test/unit/orgunitCorpus2DA1bDrawIsolation.test.ts",
+      "test": "no module creates or writes a replacement ledger",
+      "readsWorkingTree": true,
+      "scope": "the five A1b draw/ modules only",
+      "classification": "CURRENT_PRODUCTION_ASSERTION",
+      "corrected": false,
+      "whyUnaffected": "the new machinery lives in a sibling directory; the draw modules are not touched"
+    },
+    {
+      "file": "src/test/unit/orgunitCorpus2DA3aSd7PilotIsolation.test.ts",
+      "test": "has no reserve-consumption, replacement or inheritance capability at all",
+      "readsWorkingTree": true,
+      "scope": "the nine A3a sd7/ modules only",
+      "classification": "CURRENT_PRODUCTION_ASSERTION",
+      "corrected": false
+    },
+    {
+      "file": "src/test/unit/orgunitCorpus2DOptionBTransitionIsolation.test.ts",
+      "test": "consumes no reserve, creates no replacement and materialises no sample",
+      "readsWorkingTree": true,
+      "scope": "the five transition/ modules only",
+      "classification": "CURRENT_PRODUCTION_ASSERTION",
+      "corrected": false
+    },
+    {
+      "file": "src/test/harness/phase2b2d/transition/materialiseTransition.ts",
+      "test": null,
+      "kind": "HISTORICAL_TOOL_RUNTIME_GUARD",
+      "behaviour": "the closed Option-B materialiser STOPs if the replacement ledger exists",
+      "invokedByAnyTest": false,
+      "classification": "HISTORICAL_TOOL_FAIL_CLOSED_GUARD",
+      "corrected": false,
+      "whyUnchanged": "the Option-B step is closed and re-running its materialiser is not authorised; after the genesis ledger exists that tool refuses, which is the correct fail-closed outcome for a closed step"
+    }
+  ],
+  "corrections": [
+    {
+      "file": "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+      "before": "expect(() => read(RESERVE_REPLACEMENT_LEDGER_PATH)).toThrow()  // working tree",
+      "after": "git cat-file -e <OPTION_B_TERMINAL_COMMIT>:<ledger path> fails (ledger absent at the terminal commit), and the transition ledger IS present there (non-vacuity probe); skipped rather than guessed when the commit is absent from a shallow clone",
+      "testRenamed": "had no reserve replacement ledger at its own terminal commit, because nothing was replaced",
+      "historicalClaimChanged": false
+    }
+  ],
+  "historicalTerminalCommits": [
+    {
+      "step": "OPTION_B_ACQUISITION_POLICY_TRANSITION",
+      "commit": "b0f4efa01d7e861a701e3514afc690a99262f554",
+      "subject": "feat(2b): the acquisition-policy transition census, SD7 measurement and ledger",
+      "provenFrom": [
+        "src/test/unit/orgunitCorpus2DOptionBTransitionIsolation.test.ts pins TRANSITION_TERMINAL_COMMIT = b0f4efa01d7e861a701e3514afc690a99262f554 (the established repair-scope pattern)",
+        "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_V2_CONTINUATION_AUTHORITY_V1.json binds the V2 transition ledger and its companion record to commit b0f4efa01d7e861a701e3514afc690a99262f554",
+        "git log: b0f4efa is the last commit before the Batch-02 v2 continuation (6b91524, e860b29) and the next phase (c2e07b8, Option C-lite); it is an ancestor of the starting head"
+      ],
+      "ledgerExistedAtTerminal": false,
+      "verifiedWith": "git cat-file -e b0f4efa01d7e861a701e3514afc690a99262f554:docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json -> fatal: path does not exist"
+    }
+  ],
+  "historicalLedgerExistence": false,
+  "currentLedgerExistenceAfterThisImplementation": true,
+  "bothFactsCoexist": true,
+  "verifiedIndependentOfWorkingTree": "the corrected test was run with a placeholder file temporarily present at the ledger path and passed; the placeholder was removed and never committed",
+  "historyRewritten": false,
+  "methodologyChanged": false,
+  "planChanged": false,
+  "productionBehaviourChanged": false,
+  "ledgerCreatedByThisCommit": false,
+  "reserveConsumed": 0,
+  "institutionNetwork": false,
+  "terminalState": "PHASE_2B_2D_A2_REPLACEMENT_LEDGER_TEMPORAL_TEST_CORRECTION_APPLIED"
+}

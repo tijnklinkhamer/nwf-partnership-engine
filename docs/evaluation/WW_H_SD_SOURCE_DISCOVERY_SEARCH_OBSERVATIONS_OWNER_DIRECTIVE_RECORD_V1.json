@@ -1,0 +1,43 @@
+{
+  "recordId": "WW_H_SD_SOURCE_DISCOVERY_SEARCH_OBSERVATIONS_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-27",
+  "branch": "ww/e-hsd",
+  "startingHead": "e5b7c07",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_REL_F1_R2_AND_OWNER_DIRECTIVE_2026_10_27__SECOND_SECURITY_REVIEW_REPAIR",
+  "isOwnerRatification": false,
+  "recordedBy": "engineering lane WW H-SD (transcription of the scope it was given; not an OWNER signature)",
+  "authority": {
+    "source": "REL-F1-R2 (local engineering only) and the OWNER directive 2026-10-27 'NWF Partnership Engine - full end-to-end product completion'; the WW integration lead's hardening work package repairing the second independent security review of live source discovery (P1-3, P1-8, P2-1, P2-15, and the P1-9 interface)",
+    "scope": [
+      "P1-3: bound the WebSearch tool's nested side query: one outer WebSearch per session (CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION=1), and keep a call's results only when its tool_use_result reports exactly one search whose hits include every returned URL; amend ADR 0028 s9 truthfully.",
+      "P1-8: record each call's gate observation (hook_invoked, permission_invoked, search_count) with its terminal row, and bind the OWNER smoke verification to hook_invoked, search_count = 1 and result_count > 0; a smoke that made no search can never be RESULTS.",
+      "P2-1: the database refuses a live-search nomination unless its call ended RESULTS with one observed search, the run is not complete and the call's result_count has room.",
+      "P2-15: abort a provider call at its grant's expiry by the database clock; IF NOT FOUND refusals in the 0025 grant-reading functions; document managed policy; pin search_path on the 0019 (and 0020) nomination functions.",
+      "P1-9: a read-only helper returning the nominations a completed granted run may hand on, for the wiring lane."
+    ],
+    "authorised": [
+      "local source edits",
+      "one forward-only migration (0027) creating one append-only table (SELECT/INSERT to the EXISTING NOLOGIN capability nwf_source_discovery, SELECT to nwf_readonly), new triggers, CREATE OR REPLACE of existing trigger functions and ALTER FUNCTION ... SET search_path",
+      "local test runs against a disposable tmpfs PostgreSQL with a fake Agent SDK",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "inserting any source_discovery_grants or source_discovery_smoke_verifications row anywhere but a disposable *_test database",
+      "applying migration 0027 to nwf_pe or any persistent, shared, staging or production database",
+      "any live web search, live fetch, live model call or live auth-status call",
+      "reading or writing the classifier profile or any credential",
+      "push, merge or deploy",
+      "editing a committed migration (0019, 0020, 0022 and 0025 are not edited)",
+      "weakening any security check or firewall"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0027_source_discovery_search_observations.sql",
+  "adr": "docs/adr/0028-campaign-bounded-live-source-discovery.md",
+  "amendsProposedAdr": "docs/adr/0028-campaign-bounded-live-source-discovery.md",
+  "loginInMigrations": false,
+  "newRole": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

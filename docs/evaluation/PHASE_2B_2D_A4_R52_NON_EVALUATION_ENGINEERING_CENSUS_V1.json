@@ -1,0 +1,161 @@
+{
+  "record": "PHASE_2B_2D_A4_R52_NON_EVALUATION_ENGINEERING_CENSUS_V1",
+  "recordKind": "PUBLIC_ENGINEERING_CONTINUATION_CENSUS",
+  "task": "A4_R52_DEV_TRAIN_HUMAN_REVIEW_DEFERRAL_AND_NON_EVALUATION_ENGINEERING_RELEASE_V1",
+  "isEvaluationResult": false,
+  "readOnly": true,
+  "surfacesModifiedByThisCensus": 0,
+  "thisFileAuthorises": [],
+  "statusVocabulary": [
+    "DONE",
+    "IN_PROGRESS_OR_BRANCH_LOCAL",
+    "NOT_STARTED",
+    "BLOCKED_BY_HUMAN_EVALUATION",
+    "BLOCKED_BY_OTHER_REASON"
+  ],
+  "observedRefs": {
+    "originMain": "7adf895fa20e9b25758e0748d1a02e26c387d19b",
+    "r51Terminal": "468e444215727f8d3a789c51681506872b01bfae",
+    "originMainIsStrictAncestorOfR51": true,
+    "a2AcquisitionBranch": "feat/phase2b-2d-a2-batch-02",
+    "a2AcquisitionTip": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+    "a2A4MergeBase": "c025b7f6454ebe75b616f9b9e5dffadff734535b",
+    "fetchPolicyV7Commit": "e0166e0f787e3bba00b35271cab6717eb65a202c",
+    "fetchPolicyV7InR52Lineage": false,
+    "a2IntoR51MergeTreeConflicts": 0,
+    "a2OnlyRuntimePaths": [
+      "src/orgunits/web/policy.ts",
+      "src/orgunits/web/robots.ts",
+      "src/orgunits/web/robotsAuthority.ts",
+      "docs/adr/0016-trailing-slash-robots-redirect-continuation.md"
+    ],
+    "fetchPolicyVersionByRef": {
+      "originMain": "orgunit-fetch-policy-v1",
+      "r51Lineage": "orgunit-fetch-policy-v6",
+      "a2AcquisitionTip": "orgunit-fetch-policy-v7"
+    },
+    "migrationsByRef": {
+      "originMain": "0001..0010",
+      "r51Lineage": "0001..0012"
+    }
+  },
+  "surfaces": [
+    {
+      "id": "official-source-ingestion",
+      "scope": "ECHE, EWP Registry and FR register ingestion, coverage and website claims (Phase 1A-1D)",
+      "status": "DONE",
+      "evidence": "src/ingest/, src/compare/, src/website/, src/cli/commands/{ingestEche,ewp,website,orgs,ingestRuns}.ts; present on origin/main",
+      "integratedOnMain": true,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "web-gateway-and-page-evidence",
+      "scope": "the one network primitive, robots evaluation, charset, extraction, redaction, page evidence",
+      "status": "IN_PROGRESS_OR_BRANCH_LOCAL",
+      "evidence": "src/orgunits/web/ — origin/main carries fetch-policy v1; this lineage carries v2..v6 (ADR 0012-0015, retryPolicy.ts, evidenceCanonical.ts, migration 0012); v7 (ADR 0016) exists only on the A2 acquisition branch",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "deterministic-signals",
+      "scope": "src/orgunits/signals/ orgunit-signal-rules-v1",
+      "status": "DONE",
+      "evidence": "src/orgunits/signals/ unchanged between origin/main and this lineage",
+      "integratedOnMain": true,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "bounded-discovery-orchestrator",
+      "scope": "sitemap reader, frontier, circuit breaker, page collection, candidates, `orgunits discover` CLI",
+      "status": "IN_PROGRESS_OR_BRANCH_LOCAL",
+      "evidence": "landed on origin/main (ADR 0008); this lineage adds rootRunner / anchors / pageCollection hardening not on main",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "classifier-runtime",
+      "scope": "src/orgunits/classify/ Claude Max Agent SDK runtime, repair round, persistence (ADR 0009-0011, migrations 0009-0011)",
+      "status": "IN_PROGRESS_OR_BRANCH_LOCAL",
+      "evidence": "origin/main has migrations through 0010 only; repair.ts, claudeCodeExecutable.ts and migration 0011 are branch-local",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "classifier-operator-entry-point",
+      "scope": "an operator command that runs runOrganisationClassification for one organisation",
+      "status": "NOT_STARTED",
+      "evidence": "runOrganisationClassification has no production caller; only integration tests and the 2D2C study harness invoke a provider; src/cli/commands/ has no classify command",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "operator-read-models",
+      "scope": "read-only operator views of runs, page evidence, candidates and classifications (list / show / paginate / filter / sort)",
+      "status": "NOT_STARTED",
+      "evidence": "the CLI exposes `orgunits discover` only; no command reads orgunit_page_candidates or classifier outputs back",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "operator-api",
+      "scope": "an HTTP operator API",
+      "status": "NOT_STARTED",
+      "evidence": "no HTTP server module exists under src/; the only socket is src/orgunits/web/gateway.ts (outbound)",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "operator-ui",
+      "scope": "an operator UI",
+      "status": "BLOCKED_BY_OTHER_REASON",
+      "evidence": "no UI code exists in this repository; any UI lives in a separate repository whose state this repository cannot prove — UNKNOWN from here",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "deployment",
+      "scope": "a controlled deployment of the engine",
+      "status": "BLOCKED_BY_OTHER_REASON",
+      "evidence": "CI exists (.github/workflows/ci.yml); PostgreSQL is local Docker only with no managed database; no application image or deploy configuration exists; the classifier is bound by ADR 0010 to an owner-provisioned stored subscription profile, and whether that runtime may run on a deployed host is UNKNOWN and needs its own decision",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": false
+    },
+    {
+      "id": "empirical-classifier-evaluation",
+      "scope": "DEV_TRAIN human labels, realised SET_R enrichment, gated-split decision, DEV_CONFIRM, FINAL_HOLDOUT, A5 gold freeze, acceptance gates",
+      "status": "BLOCKED_BY_HUMAN_EVALUATION",
+      "evidence": "R51 authority 468e444 (review authorised, not executed); deferred by R52",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": true
+    },
+    {
+      "id": "semantic-classifier-variants",
+      "scope": "prompt meaning, taxonomy, decision rules, thresholds, accuracy-motivated model choice",
+      "status": "BLOCKED_BY_OTHER_REASON",
+      "evidence": "requires its own explicit design / freeze authority (R52 classifierSemanticBoundary); measuring a variant also requires human gold",
+      "integratedOnMain": false,
+      "humanEvaluationDependency": true
+    }
+  ],
+  "localEndToEndBlockers": [
+    "the engine runtime is split across three lineages (main v1, this lineage v6, A2 branch v7)",
+    "no operator entry point runs the classifier",
+    "no operator read model shows candidates or classifications"
+  ],
+  "controlledDeploymentBlockers": [
+    "all local end-to-end blockers",
+    "origin/main does not carry the current engine",
+    "no application packaging or deploy configuration",
+    "no managed database decision",
+    "classifier runtime hosting under ADR 0010 is UNKNOWN"
+  ],
+  "recommendedNextSlice": {
+    "id": "ENGINE_RUNTIME_LINEAGE_RECONCILIATION_V1",
+    "summary": "Bring the A2-only fetch-policy v7 runtime delta (three production files + ADR 0016 + its tests) into one canonical engine lineage descended from R52, prove the whole engine green there, and prepare it as the single build every later operator slice targets.",
+    "whyFirst": "Every operator surface (classify entry point, read models, API, UI) and every deployment step must target one engine build. Today no single ref carries the newest runtime: origin/main is at v1, this lineage at v6, and v7 is only on the A2 branch.",
+    "evidence": "merge base c025b7f; read-only merge-tree of the A2 tip into R51 reports zero conflicts; the A2-only production delta is exactly three files",
+    "humanEvaluationDependency": false,
+    "classifierSemanticChange": false,
+    "executedInR52": false
+  }
+}

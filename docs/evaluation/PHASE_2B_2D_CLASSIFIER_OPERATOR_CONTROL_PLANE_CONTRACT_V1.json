@@ -1,0 +1,255 @@
+{
+  "record": "PHASE_2B_2D_CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1",
+  "recordKind": "NON_EVALUATION_CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_RESULT",
+  "task": "CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1",
+  "recordedAtUtc": "2026-10-07T10:43:37Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/classifier-operator-control-plane-contract-v1",
+  "isEvaluationResult": false,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "ownerDecisions": [
+    "REFINE_CLASSIFIER_OPERATOR_API_V1_INTO_CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1"
+  ],
+
+  "canonicalBase": {
+    "commit": "f4c747ec4d0427af22c48640ccb6924f9810ed58",
+    "branch": "feat/classifier-operator-read-models-v1",
+    "terminalState": "CLASSIFIER_OPERATOR_READ_MODELS_READY_FOR_OPERATOR_API",
+    "originMainAtStart": "7adf895fa20e9b25758e0748d1a02e26c387d19b",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+    "migrationsThrough": "0012"
+  },
+  "lineage": {
+    "r52EngineeringRelease": "b1dfd82542e7dfb749d5c36063ea750647428a12",
+    "runtimeLineageReconciliation": "3390f61f44f65513ca6b71969b528591f3978e49",
+    "classifierOperatorEntryPoint": "2b9d0d9c94bda00bbe88758b2c207ecadc300934",
+    "classifierOperatorReadModels": "f4c747ec4d0427af22c48640ccb6924f9810ed58"
+  },
+  "startGateNote": "the primary checkout /Users/tijnklinkhamer/Developer/nwf-partnership-engine is on main at 7adf895 and was not touched; the required branch feat/classifier-operator-read-models-v1 was found checked out, clean, at exactly f4c747e in its per-slice worktree (wt-classifier-operator-read-models-v1), following the worktree convention of the two preceding operator slices; the new branch was created from exactly f4c747e in a new worktree wt-classifier-operator-control-plane-contract-v1",
+
+  "whyNotAnHttpServer": "The historical terminal READY_FOR_OPERATOR_API named CLASSIFIER_OPERATOR_API_V1. The owner's architecture audit established that browser-facing HTTP transport already belongs to the separate Operator repository (its Fastify /api/v1 layer). A second HTTP server in the engine would duplicate that transport and split ownership. The smallest engine-owned prerequisite was therefore a stable, versioned, machine-readable contract around the classifier capabilities that already exist, invoked as a process; that is what this slice builds, and nothing else.",
+  "readModelFreeze": {
+    "commit": "48fe0a3aa706e6ee6bfd0c81eb1a77838f459048",
+    "path": "src/test/unit/classifierOperatorReadModelsV1.test.ts",
+    "change": "lineage, changed-surface, router-diff, import-closure equality, byte-identity, firewall-diff, migration, docs and record assertions moved onto CLASSIFIER_OPERATOR_ENTRY_POINT_TERMINAL..CLASSIFIER_OPERATOR_READ_MODELS_TERMINAL and the exact terminal tree; four read-model commits pinned in order, single-parent; changed total surface now an exact equality; behavioural sections and the no-provider/no-web/no-execution safety checks still exercise the live reads; nothing weakened"
+  },
+
+  "independentFindingOnPriorJsonSurface": [
+    "--json success output existed for all four operations, but each had its own unversioned top-level shape (action report, ResearchRunsRead, ClassifierCallsRead, ClassifierCallDetailRead); a caller needed command-specific knowledge to tell them apart and had no version to reject incompatible output",
+    "every command-level refusal under --json (argument bounds, preflight, research run not completed, assembly refusal, non-completed attempt collision, unknown read subcommand, irrelevant option, organisation/call not found) wrote ONLY human stderr text ('ERROR ...' / 'error: ...') and nothing on stdout, so a machine caller had to parse prose",
+    "the execute-mode non-completed attempt collision wrote nothing to stdout at all, only ERROR lines",
+    "the assembly refusal text embedded the raw exception message (which can carry eche_row_keys or a page URL), so no stable category existed without message parsing",
+    "a malformed --limit and an unknown option were refused by the shared CLI layer before classifier routing, again as stderr prose only",
+    "an unexpected exception (pool, connectivity, invariant) propagated to the CLI entry point and printed its message to stderr, with no machine-readable marker of whether classifier rows might already have been written",
+    "dry-run exit semantics (0 iff the equivalent --execute would be permitted to START) were correct but not named by any code a caller could read"
+  ],
+
+  "contractVersion": "nwf-pe.classifier-operator.v1",
+  "contractModule": "src/orgunits/classify/operatorContract.ts",
+  "envelope": {
+    "contractVersion": "exactly 'nwf-pe.classifier-operator.v1'; a caller MUST reject anything else",
+    "operation": "CLASSIFY | CLASSIFY_RUNS | CLASSIFY_CALLS | CLASSIFY_SHOW | UNRESOLVED",
+    "outcome": "SUCCEEDED | REFUSED | NOT_FOUND | NOT_COMPLETED | FAILED, derived from code",
+    "code": "one stable code (below)",
+    "exitCode": "0 | 1, derived from outcome; always equal to the process exit status",
+    "data": "the landed action report or read model, unchanged, or null",
+    "reason": "a bounded discriminated object (kind = the code) with ids, enum values, counts and option names only, or null"
+  },
+  "supportedOperations": [
+    "CLASSIFY",
+    "CLASSIFY_RUNS",
+    "CLASSIFY_CALLS",
+    "CLASSIFY_SHOW",
+    "UNRESOLVED"
+  ],
+  "operationInvocations": {
+    "CLASSIFY": "nwf-pe orgunits classify --organisation-id <uuid> --run-id <uuid> --model <model-id> [--attempt <N>] [--execute] --json",
+    "CLASSIFY_RUNS": "nwf-pe orgunits classify runs --organisation-id <uuid> [--limit <N>] --json",
+    "CLASSIFY_CALLS": "nwf-pe orgunits classify calls --organisation-id <uuid> [--run-id <uuid>] [--limit <N>] --json",
+    "CLASSIFY_SHOW": "nwf-pe orgunits classify show --call-id <uuid> --json",
+    "UNRESOLVED": "an `orgunits classify ... --json` invocation that never resolved to one of the four (unknown read subcommand, CLI usage rejection)"
+  },
+  "canonicalInvocationForm": "argv[0] = 'orgunits', argv[1] = 'classify', then options and (for reads) the read subcommand; '--json' anywhere. Only this form gets a CLI_USAGE_REJECTED envelope for a strict-parse failure.",
+  "codes": {
+    "DRY_RUN_EXECUTION_PERMITTED": "SUCCEEDED",
+    "DRY_RUN_NO_CANDIDATES": "SUCCEEDED",
+    "DRY_RUN_EXECUTION_NOT_PERMITTED": "REFUSED",
+    "EXECUTE_COMPLETED": "SUCCEEDED",
+    "EXECUTE_NO_CANDIDATES": "SUCCEEDED",
+    "EXECUTE_NOT_COMPLETED": "NOT_COMPLETED",
+    "ATTEMPT_ALREADY_EXISTS_NON_COMPLETED": "REFUSED",
+    "RUNTIME_RESULT_MISMATCH": "FAILED",
+    "PREFLIGHT_REFUSED": "REFUSED",
+    "RESEARCH_RUN_NOT_COMPLETED": "REFUSED",
+    "RESEARCH_RUN_NOT_FOUND": "NOT_FOUND",
+    "CLASSIFIER_ASSEMBLY_REFUSED": "REFUSED",
+    "READ_SUCCEEDED": "SUCCEEDED",
+    "CALL_NOT_FOUND": "NOT_FOUND",
+    "UNKNOWN_READ_SUBCOMMAND": "REFUSED",
+    "UNEXPECTED_POSITIONAL": "REFUSED",
+    "OPTION_NOT_ACCEPTED": "REFUSED",
+    "ORGANISATION_NOT_FOUND": "NOT_FOUND",
+    "INVALID_ARGUMENT": "REFUSED",
+    "CLI_USAGE_REJECTED": "REFUSED",
+    "INTERNAL_ERROR": "FAILED"
+  },
+  "exitCodes": {
+    "SUCCEEDED": 0,
+    "REFUSED": 1,
+    "NOT_FOUND": 1,
+    "NOT_COMPLETED": 1,
+    "FAILED": 1
+  },
+  "assemblyRefusalCodes": [
+    "RUN_NOT_COMPLETED",
+    "ORGANISATION_RUN_MISMATCH",
+    "UNEXPECTED_TRACK_VALUE",
+    "MISSING_RESPONSE_SHA",
+    "PAYLOAD_BOUND_EXCEEDED",
+    "MALFORMED_SIGNAL"
+  ],
+  "assemblyRefusalMapping": "by exception CLASS (src/orgunits/classify/errors.ts), never by message; OrganisationNotFoundError -> ORGANISATION_NOT_FOUND, ResearchRunNotFoundError -> RESEARCH_RUN_NOT_FOUND, the six others -> CLASSIFIER_ASSEMBLY_REFUSED with their own .code; any untyped planning exception is INTERNAL_ERROR under --json and stays the landed 'classifier assembly refused' text in human mode",
+
+  "actionOutcomeMapping": {
+    "argument missing or malformed (organisation-id, run-id, model, attempt, or a malformed --limit)": "INVALID_ARGUMENT, reason {argument, problem: MISSING|MALFORMED}, zero pools",
+    "unknown model (both modes) or any execution-preflight refusal with --execute": "PREFLIGHT_REFUSED, reason {preflightKind, detail}, zero pools",
+    "research run FAILED / ABORTED / no completion recorded": "RESEARCH_RUN_NOT_COMPLETED, reason {runId, researchRunStatus, researchRunErrorKind}, classifier pool never opened",
+    "organisation absent": "ORGANISATION_NOT_FOUND",
+    "research run absent at assembly": "RESEARCH_RUN_NOT_FOUND (in practice the completion gate answers NO_COMPLETION_RECORDED first)",
+    "typed assembly refusal": "CLASSIFIER_ASSEMBLY_REFUSED, reason {assemblyRefusalCode}",
+    "DRY_RUN, execution would be permitted to start, batches": "DRY_RUN_EXECUTION_PERMITTED, exit 0, data = the landed dry-run report",
+    "DRY_RUN, nothing eligible, preflight passes": "DRY_RUN_NO_CANDIDATES, exit 0",
+    "DRY_RUN, execution would NOT be permitted to start": "DRY_RUN_EXECUTION_NOT_PERMITTED, exit 1, data = the full landed dry-run report, reason {blockedBy: PREFLIGHT_REFUSED and/or ATTEMPT_ALREADY_EXISTS_NON_COMPLETED}",
+    "EXECUTE, nothing eligible": "EXECUTE_NO_CANDIDATES, exit 0, no provider",
+    "EXECUTE, any batch at this attempt exists non-completed": "ATTEMPT_ALREADY_EXISTS_NON_COMPLETED, exit 1, data null, reason {attemptNo, batches[{batchIndex, persistedState, existingCallId, existingErrorKind}]}, no provider, no write",
+    "EXECUTE, every batch COMPLETED (executed or reused)": "EXECUTE_COMPLETED, exit 0, data.batches[].kind EXECUTED|REUSED; full reuse constructs no provider",
+    "EXECUTE, persisted, at least one batch PARTIAL/FAILED/non-terminal": "EXECUTE_NOT_COMPLETED, exit 1, data = the landed execution report with each batch's terminalState and errorKind; rows kept as written, nothing retried",
+    "EXECUTE, runtime batch count differs from the plan": "RUNTIME_RESULT_MISMATCH, exit 1, reason {plannedBatchCount, returnedBatchCount, classifierWritesMayHaveOccurred: true}",
+    "unexpected exception": "INTERNAL_ERROR, exit 1, reason {stage: BEFORE_EXECUTION|DURING_EXECUTION, classifierWritesMayHaveOccurred}"
+  },
+  "readOutcomeMapping": {
+    "runs / calls / show found": "READ_SUCCEEDED, exit 0, data = the landed read model unchanged (ATTRIBUTABLE_ONLY runs, ordinary-only calls, ordinary or repair detail with ADR 0011 effective view)",
+    "organisation absent (runs, calls)": "ORGANISATION_NOT_FOUND, exit 1, reason {organisationId}",
+    "call absent (show)": "CALL_NOT_FOUND, exit 1, reason {callId}",
+    "a calls run filter that matches nothing": "READ_SUCCEEDED with an empty list (unchanged landed semantics: never a claim the run does not exist)",
+    "third positional other than runs/calls/show": "UNKNOWN_READ_SUBCOMMAND, operation UNRESOLVED, reason {acceptedSubcommands}",
+    "a further positional": "UNEXPECTED_POSITIONAL",
+    "an option outside the read's own set": "OPTION_NOT_ACCEPTED, reason {refusedOptions (sorted names), acceptedOptions}",
+    "missing/malformed uuid or malformed --limit": "INVALID_ARGUMENT",
+    "unexpected exception": "INTERNAL_ERROR, classifierWritesMayHaveOccurred false (reads never write)"
+  },
+
+  "stdoutRule": "under --json, every handled outcome of every classifier operation writes exactly one JSON document followed by one newline to stdout and nothing else; no human prefix, suffix or log line",
+  "stderrRule": "stderr carries only the landed human diagnostics (unchanged text, written in both modes) and, for INTERNAL_ERROR, one diagnostic line; stderr is never part of the contract and a caller never needs to parse it",
+  "exitRule": "the process exit status equals envelope.exitCode: 0 iff outcome SUCCEEDED, otherwise 1",
+  "outOfContract": [
+    "invocations not of the canonical form (argv not starting 'orgunits classify') or without --json",
+    "--help / -h, which prints usage",
+    "a crash of the Node process itself (exit non-zero, empty or partial stdout): a caller treats stdout that is not exactly one parseable envelope as a transport failure"
+  ],
+  "preservedQuirk": "the action route still ignores a well-formed option it does not use (e.g. a positive --limit or --call-id), exactly as landed; a malformed --limit is still refused, now as INVALID_ARGUMENT",
+  "humanModeCompatibility": "non-JSON stdout and stderr text, exit codes and exception propagation are unchanged; human and JSON rendering share one decided code per outcome",
+
+  "disclosureBoundary": {
+    "envelopeReasonCarries": "ids, enum values, counts, option names, and the landed preflight detail (which names variables/fields, never their values)",
+    "neverInMachineOutput": [
+      "raw main_text or complete page text",
+      "serialized classifier input",
+      "system prompt",
+      "raw provider response",
+      "SDK transcript",
+      "provider request configuration",
+      "environment values",
+      "profile directories",
+      "credentials",
+      "candidate scores or signals",
+      "exception messages or stacks"
+    ],
+    "unchangedAuthorisedVisibility": "show still exposes the persisted validated rationale, evidence spans and bounded page context exactly as the read-model slice authorised; the action report still never carries model rationale"
+  },
+
+  "handoff": {
+    "engineBranch": "feat/classifier-operator-control-plane-contract-v1",
+    "invocation": "spawn `node dist/cli/index.js orgunits classify ... --json` (after `npm run build`; the caller supplies the environment) or `node --env-file-if-exists=.env --import tsx src/cli/index.ts orgunits classify ... --json`, from the engine repository root; parse stdout as one JSON document; check contractVersion first. Do NOT wrap it in a plain `npm run cli`: npm writes its own banner to stdout (use `npm run --silent cli -- ...` if npm is required)",
+    "inputs": "CLI arguments only; no stdin",
+    "environmentRequirements": {
+      "CLASSIFY (dry run and execute)": "DATABASE_URL_RESEARCH (completion gate) and DATABASE_URL_CLASSIFIER (assembly, identity, persistence)",
+      "CLASSIFY --execute additionally": "the owner's dedicated Claude Max classifier profile (NWF_PE_CLASSIFIER_CONFIG_DIR as an absolute path, or the default <home>/.claude-nwf-classifier) and NO conflicting auth/provider-routing variable and no setup-token variable (ADR 0009/0010); the provider's own preflight still runs",
+      "CLASSIFY_RUNS / CLASSIFY_CALLS / CLASSIFY_SHOW": "DATABASE_URL_READONLY only"
+    },
+    "effects": {
+      "DRY_RUN": "reads only; no provider constructed, no classifier write",
+      "EXECUTE": "may construct the provider (only when a batch needs a NEW call) and append classifier call/completion/classification rows; never retries, never increments the attempt, repair DISABLED",
+      "reads": "readonly role; zero writes; zero provider calls"
+    },
+    "operatorMustNot": "query classifier tables itself, parse stderr, infer repair or reuse semantics, or choose an attempt number for the owner"
+  },
+
+  "changedProductionSurface": [
+    "src/cli/commands/classify.ts",
+    "src/cli/commands/classifyRead.ts",
+    "src/cli/index.ts",
+    "src/orgunits/classify/operatorContract.ts"
+  ],
+  "changedTestSurface": [
+    "src/test/unit/classifierOperatorReadModelsV1.test.ts",
+    "src/test/unit/classifierOperatorControlPlaneContractV1.test.ts",
+    "src/test/integration/classifierOperatorControlPlaneContract.test.ts",
+    "src/test/integration/classifierOperatorEntryPoint.test.ts",
+    "src/test/integration/classifierOperatorReadModels.test.ts"
+  ],
+  "landedIntegrationSuitesChange": "classifierOperatorEntryPoint.test.ts and classifierOperatorReadModels.test.ts now read the unchanged landed payload from the envelope's data via an unwrap helper that also checks contractVersion; every removed line was a JSON.parse of command output; no exit-code, refusal or semantic assertion changed",
+  "firewallChange": false,
+  "readModelExactPathCarveOutChanged": false,
+  "newSql": false,
+
+  "classifierSemanticChange": false,
+  "promptChange": false,
+  "outputSchemaChange": false,
+  "modelAllowlistChange": false,
+  "repairPolicyChange": false,
+  "candidateSelectionChange": false,
+  "fetchPolicyChange": false,
+  "runtimeSemanticsChange": false,
+  "providerImplementationChange": false,
+  "persistenceSemanticsChange": false,
+  "migrationChange": false,
+  "grantChange": false,
+  "schemaChange": false,
+  "newDependency": false,
+
+  "httpServer": false,
+  "httpFrameworkOrListener": false,
+  "operatorRepositoryModified": false,
+  "operatorRepositoryRead": false,
+  "operatorBranchCreated": false,
+
+  "humanEvaluationDependency": false,
+  "humanReviewResumed": false,
+  "devConfirmOpened": false,
+  "finalHoldoutOpened": false,
+  "a5Authorised": false,
+  "r50ItemsTreatedAsGold": false,
+  "r52DeferralByteIdentical": true,
+  "empiricalQualityClaim": false,
+  "mainUpdated": false,
+
+  "commits": [
+    {
+      "commit": "48fe0a3aa706e6ee6bfd0c81eb1a77838f459048",
+      "subject": "test(engine): freeze classifier operator read-model scope"
+    },
+    {
+      "commit": "c03967320f0e9bf72369b385c751e3c6423af2f1",
+      "subject": "feat(engine): add classifier operator machine contract V1"
+    },
+    {
+      "commit": "4c7127d58394b3f556312bd3a9f79156131a1bb5",
+      "subject": "test(engine): prove classifier operator machine contract V1"
+    }
+  ],
+
+  "terminalState": "CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_READY_FOR_OPERATOR_INTEGRATION",
+  "nextStep": "browser-facing integration belongs to the separate Operator repository (Agent C) and requires a separate owner decision; not started here"
+}

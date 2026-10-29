@@ -1,0 +1,103 @@
+{
+  "recordId": "phase2b-2d-method-v2-sd7-short-text-owner-decision-v1",
+  "recordKind": "OWNER_OPERATIONAL_ADJUDICATION_RECORD",
+  "adjudicates": "PHASE_2B_2D_A3A_SD7_SHORT_TEXT_UNRESOLVED_IMPLEMENTATION_EDGE_CASE_V1",
+  "recordedAtUtc": "2026-09-19T00:00:00Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "whatThisRecordIs": "An IMMUTABLE governance record of the owner's operational adjudication of the one SD7 implementation edge case the A3a pilot returned for confirmation. It adds a decision; it changes no evidence, no frozen methodology byte and no earlier record. The A3a execution record named below is NOT edited, NOT re-hashed and NOT re-statused - this file references it by SHA-256, which is the only correction mechanism this methodology has.",
+  "theReturnedTokenThisAnswers": {
+    "token": "SD7_IMPLEMENTATION_DETAIL_REQUIRING_OWNER_CONFIRMATION",
+    "returnedBy": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+    "theQuestionAsPosed": "One analysed document fell below the 5-gram shingle window, so it produced an EMPTY shingle set. Jaccard(empty, empty) is undefined, and the pilot refused to invent a value for it rather than silently calling the document a near-duplicate or silently calling it unique.",
+    "thePilotDidNotResolveItSilently": true,
+    "thePilotFlaggedItAndStopped": true
+  },
+  "boundA3aExecution": {
+    "executionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+    "executionRecordSha256": "3be65f6e491f46c00a855a06a24167d4fd1d74201942b0240b74dc6a0e4d9ee8",
+    "executionRecordBytes": 5599,
+    "executionRecordCommit": "013a04d194d7171c8c7319a84987d9e23a618fea",
+    "hashReverifiedOnDiskWhenThisRecordWasWritten": true,
+    "thisRecordDoesNotEditIt": true
+  },
+  "boundA3aAuthority": {
+    "authorityRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json",
+    "authorityRecordSha256": "f5ccfa65d37223db60ad2935fd5c2ec3032cd76ba2af576fe385a376ab7336dd",
+    "authorityRecordBytes": 12787,
+    "authorityRecordCommit": "b23d929f56fe7cbec4e35575b739a1c02433c9e2",
+    "hashReverifiedOnDiskWhenThisRecordWasWritten": true
+  },
+  "boundMethodology": {
+    "proposalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+    "proposalSha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "proposalBytes": 142306,
+    "ownerFreezeApprovalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+    "ownerFreezeApprovalSha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+    "ownerFreezeApprovalBytes": 17514,
+    "methodologyIsFrozenAndNotReopenedHere": true,
+    "noR4Created": true
+  },
+  "ownerDecision": {
+    "decision": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9",
+    "batch01TerminalStateAccepted": true,
+    "batch01TerminalStateAsAccepted": "PHASE_2B_2D_A3A_SD7_PILOT_COMPLETE_AWAITING_BATCH_02_DECISION",
+    "r3Changed": false,
+    "shortTextStillUnresolvedSemantically": true,
+    "automaticNearDuplicateVerdictInvented": false,
+    "sd9FinalisationRule": "finalise only if every admissible treatment lies on the same side of the MIN_PAGES_PER_ORGANISATION = 4 boundary",
+    "classification": "OPERATIONAL_ADJUDICATION_OF_AN_IMPLEMENTATION_EDGE_CASE",
+    "explicitlyNotClassifiedAs": [
+      "METHODOLOGY_AMENDMENT",
+      "SD7_RULE_CHANGE",
+      "SD9_THRESHOLD_CHANGE",
+      "R4"
+    ],
+    "recordedAppendOnly": true
+  },
+  "frozenOperationalRuleGoingForward": {
+    "ruleId": "SD7_SHORT_TEXT_UNRESOLVED_HANDLING_V1",
+    "clauses": [
+      "short-text documents remain flagged SD7_SHORT_TEXT_UNRESOLVED",
+      "do NOT invent Jaccard(empty, empty)",
+      "do NOT silently declare them near-duplicates or unique",
+      "if all possible treatments leave the organisation on the SAME side of the >=4-page SD9 boundary, SD9 may be mechanically finalised",
+      "if the unresolved short-text treatment COULD move the organisation across the >=4 boundary, status remains ACQUISITION_STATUS_PENDING_SD7_OWNER_DETAIL and execution stops for owner review"
+    ],
+    "theBlockingStatusWhenItDoesBind": "ACQUISITION_STATUS_PENDING_SD7_OWNER_DETAIL",
+    "whyThisIsNotAMethodologyChange": "SD7 already refuses to invent a similarity value for an empty shingle set, and SD9 already decides on a page count against MIN_PAGES_PER_ORGANISATION = 4. This rule says only WHEN an unresolved SD7 detail is permitted to stop being decision-relevant: when it is provably unable to change the SD9 answer under ANY admissible treatment. It adds no similarity value, moves no threshold and removes no flag.",
+    "theSemanticQuestionIsDeferredNotAnswered": "A short-text document's near-duplicate status remains genuinely unresolved. This rule governs whether that unresolved status BLOCKS, never what the resolution is.",
+    "decisionRelevanceIsProvedNotAssumed": "The implementation must evaluate the SD9 outcome across EVERY admissible treatment of the unresolved document and finalise only when the whole range falls on one side of the boundary. A single treatment that crosses the boundary is enough to block."
+  },
+  "whatThisDoesNotChange": {
+    "r3Methodology": false,
+    "fiveGramRule": false,
+    "jaccardThreshold": false,
+    "sd9Threshold": false,
+    "anyFrozenMethodologyByte": false,
+    "statement": "Every value in this object is false in the sense of 'this decision changed it'. NEAR_DUPLICATE_SHINGLE_SIZE remains 5, NEAR_DUPLICATE_JACCARD_THRESHOLD remains 0.9 compared at-or-above inclusive, MIN_PAGES_PER_ORGANISATION remains 4, comparison scope remains WITHIN_ONE_ORGANISATION_ONLY, and the R3 bytes named above are untouched."
+  },
+  "howThisAppliesToTheBatch01Result": {
+    "shortTextUnresolvedPageCount": 1,
+    "organisationsWithShortTextUnresolvedPages": 1,
+    "wasTheUnresolvedDetailAbleToChangeAnySd9Answer": false,
+    "sd9MechanicallyFinalisedSuccessCount": 2,
+    "sd9MechanicallyFinalisedFailureCount": 3,
+    "sd9StillPendingOwnerDetailCount": 0,
+    "whyTheFinalisationWasAlreadyAdmissible": "The A3a pilot measured the exact RANGE of post-SD7 page counts over all possible survivor orders per organisation and finalised only where the whole range fell on one side of MIN_PAGES_PER_ORGANISATION. The one short-text document could not move its organisation across that boundary under any treatment, which is exactly the condition this rule now names.",
+    "thisRecordRatifiesThatTreatmentItDoesNotReviseTheNumbers": true,
+    "noBatch01OrganisationChangesStatusBecauseOfThisRecord": true
+  },
+  "whatThisRecordDoesNotDo": [
+    "it does not resolve the semantic near-duplicate status of any short-text document",
+    "it does not authorise Batch 02 - that is a separate owner decision in a separate record",
+    "it does not authorise any reserve consumption or replacement",
+    "it does not change any frozen methodology rule, including the 5-gram size, the Jaccard threshold, P5's threshold or SD9's minimum",
+    "it does not grant any network, labelling, provider-inference or HOLDOUT authority",
+    "it does not declare any organisation ACQUISITION_SUCCESSFUL or ACQUISITION_UNSUCCESSFUL beyond what A3a already mechanically finalised"
+  ],
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused.",
+    "itReferencesTheA3aRecordsByHashRatherThanAmendingThem": true
+  }
+}

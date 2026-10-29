@@ -1,0 +1,364 @@
+{
+  "recordId": "phase2b-2d-method-v2-a2-batch-02-authority-v1",
+  "recordKind": "OWNER_AUTHORISATION",
+  "authorises": "PHASE_2B_2D_A2_LIVE_INSTITUTION_ACQUISITION_BATCH_02_V1",
+  "recordedAtUtc": "2026-09-19T00:00:00Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the authorisation itself is the owner's",
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_LIVE_INSTITUTION_ACQUISITION_BATCH_02_V1",
+  "statementMarkerAsReceived": "AUTHORISE_PHASE_2B_2D_A2_LIVE_INSTITUTION_ACQUISITION_BATCH_02_V1",
+  "whatIsDifferentFromBatch01": {
+    "statement": "Batch 02 is the SECOND live institution-web execution under Methodology V2. It is still DIAGNOSTIC, not corpus acquisition. The one substantive difference is that P5 is now unambiguous, incremental, and ENFORCED BY AN EXECUTABLE GATE rather than by prose.",
+    "batch01ProvedProseAloneIsInsufficient": "Batch 01 started selection index 4 roughly two seconds after P5's condition had already become true, because the implemented between-run gate evaluated P3, P4 and P7 but not P5. The owner adjudicated that as a process deviation within authorised scope and required the incremental reading to be restated in every future batch authority record. It is restated below, and this batch additionally makes it executable.",
+    "thisIsAPilotBatchNotTheCorpusAcquisition": true,
+    "batch02IsStillDiagnostic": true,
+    "thisIsNotAuthorityToRunIndicesFiveThroughNineRegardlessOfWhatHappens": true
+  },
+  "boundDraw": {
+    "drawPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+    "artifactFileBytes": 74047,
+    "drawCommit": "34537caf2308ade014f9f459ca9f97596dc48a17",
+    "drawHashAndFileShaAreNotTheSameValue": "drawHash covers the canonical serialization of the draw payload with the drawHash field excluded and is stable under reformatting. artifactFileSha256 covers the committed file bytes. They are reported apart and never conflated. Batch 02 reverifies BOTH, plus the byte length, before it reads a single entry.",
+    "selectionCount": 110,
+    "reserveCount": 40,
+    "allOneHundredFiftyDrawnOrganisationsCarryExactlyOneWebsiteClaimAuthority": true,
+    "totalRootPromotionAuthoritiesInTheDraw": 0,
+    "theDrawIsNotAlteredByThisBatch": true,
+    "theDrawRemainsTheCanonicalSourceOfOrganisationIdentity": true,
+    "batch02MayReadOnlyPrimarySelectionIndicesFiveThroughNine": true,
+    "batch02MayNotReadTheReserveList": true
+  },
+  "boundFrame": {
+    "framePath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+    "frameCommit": "c64fad3474499d392d316e35c720310c76e9405b",
+    "frameIsNotReopenedHere": true
+  },
+  "boundMethodology": {
+    "proposalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+    "proposalSha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "proposalBytes": 142306,
+    "ownerFreezeApprovalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+    "ownerFreezeApprovalSha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+    "methodologyIsFrozenAndNotReopenedHere": true,
+    "noR4Created": true
+  },
+  "boundCorpusPlan": {
+    "planPath": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+    "planSha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+    "planBytes": 45200,
+    "planOperationalPauseConditionsRemainApplicable": true,
+    "batch02KeepsTheStricterFailClosedPilotPosture": true
+  },
+  "boundPriorAuthority": {
+    "batch01AuthorityRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json",
+    "batch01AuthorityRecordSha256": "03e1e08054eb381d9be527857ef70d92ae1aade0e5095e7b6507f0c7e8105a46",
+    "batch01AuthorityRecordBytes": 17425,
+    "batch01ExecutionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+    "batch01ExecutionRecordSha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc",
+    "batch01ExecutionRecordBytes": 23602,
+    "batch01DeviationAdjudicationPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_DEVIATION_ADJUDICATION_V1.json",
+    "batch01DeviationAdjudicationSha256": "de49e39b6f3b503526d81243f1c30135f9f7cf1d2b63a11b73d4d065e1913c65",
+    "batch01DeviationAdjudicationBytes": 5727,
+    "a3aAuthorityRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json",
+    "a3aAuthorityRecordSha256": "f5ccfa65d37223db60ad2935fd5c2ec3032cd76ba2af576fe385a376ab7336dd",
+    "a3aExecutionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+    "a3aExecutionRecordSha256": "3be65f6e491f46c00a855a06a24167d4fd1d74201942b0240b74dc6a0e4d9ee8",
+    "a3aExecutionRecordBytes": 5599,
+    "a3aTerminalStateAccepted": "PHASE_2B_2D_A3A_SD7_PILOT_COMPLETE_AWAITING_BATCH_02_DECISION",
+    "a3aNextOwnerDecisionWas": "BATCH_02_DECISION",
+    "thisRecordIsThatDecision": true,
+    "allHashesReverifiedOnDiskWhenThisRecordWasWritten": true
+  },
+  "boundShortTextOwnerDecision": {
+    "recordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+    "recordSha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+    "recordBytes": 7584,
+    "recordCommit": "d7d686b855489bdb21be95041e4dd165d1acd0a2",
+    "decision": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9",
+    "r3Changed": false,
+    "whyItIsBoundHere": "It is the governance precondition the owner required before Batch 02, and it closes A3a's one returned token. It grants Batch 02 nothing: it is an SD7 measurement rule, and Batch 02 performs no SD7 measurement."
+  },
+  "scope": {
+    "selectionIndices": [5, 6, 7, 8, 9],
+    "maximumOrganisationsThatMayStart": 5,
+    "maximumIsSubjectToTheIncrementalP5StopGate": true,
+    "reserveOrganisationsAuthorised": 0,
+    "replacementAuthorised": false,
+    "executionMode": "SEQUENTIAL_ONE_ORGANISATION_PER_CLI_INVOCATION",
+    "concurrency": 1,
+    "executionOrder": "STRICT_ASCENDING_SELECTION_INDEX_5_6_7_8_9",
+    "selectionIndexBelow5IsAlreadyExecutedAndIsNotReExecuted": true,
+    "selectionIndexAtOrAbove10IsNotAuthorised": true,
+    "noReserveOrganisationIsAuthorised": true,
+    "splitsSpannedBySelectionIndices5To9": ["DEV_TRAIN", "DEV_CONFIRM", "FINAL_HOLDOUT"],
+    "whyAHoldoutOrganisationMayBeACQUIREDHere": "Acquisition fetches already-public pages under the landed, frozen Phase 2B-1e policy and produces no label, no gold, no classifier output and no semantic reading of any kind. SD2 froze the split assignment BEFORE acquisition precisely so that acquisition could be split-blind. What FINAL_HOLDOUT protects is SEMANTIC access, and holdoutSemanticAccessAuthorised is false in this record and stays false.",
+    "noSplitInfluencesAcquisitionBehaviourInAnyWay": true,
+    "theOperatorDoesNotReadTheSplitWhileExecuting": true
+  },
+  "authorityFlags": {
+    "a2Batch02LiveAcquisitionAuthorised": true,
+    "networkAuthorised": true,
+    "institutionNetworkAuthorised": true,
+    "databaseResearchReadAuthorised": true,
+    "databaseResearchAppendOnlyWriteAuthorised": true,
+    "providerInferenceAuthorised": false,
+    "labellingAuthorised": false,
+    "pageSelectionAuthorised": false,
+    "sd7DeduplicationAuthorised": false,
+    "finalSd9DecisionDuringAcquisitionAuthorised": false,
+    "setPAuthorised": false,
+    "setRAuthorised": false,
+    "holdoutSemanticAccessAuthorised": false,
+    "phase2EAuthorised": false,
+    "replacementAuthorised": false,
+    "reserveConsumptionAuthorised": false,
+    "rootPromotionAuthorised": false,
+    "budgetWideningAuthorised": false,
+    "networkPolicyWideningAuthorised": false,
+    "promptV7Authorised": false,
+    "devConfirmScoringAuthorised": false,
+    "batch03Authorised": false
+  },
+  "theIncrementalP5StopGate": {
+    "restatedBecauseTheDeviationAdjudicationRequiresIt": true,
+    "adjudicationRequirement": "mustBeRestatedInEachFutureBatchAuthorityRecord",
+    "semantics": "INCREMENTAL_BETWEEN_RUN_GATE",
+    "lowRawYieldCountDefinition": "the number of COMPLETED Batch-02 organisations whose PRE-SD7 page-evidence count is fewer than 4",
+    "threshold": 2,
+    "comparison": ">=",
+    "evaluatedAfter": "EACH completed organisation",
+    "actionWhenTriggered": "DO NOT START THE NEXT ORGANISATION",
+    "appliesEvenIfFewerThanFiveOrganisationsHaveCompleted": true,
+    "thereIsNoPostBatchInterpretation": true,
+    "preSd7IsTheOnlyCountThatFeedsIt": "SD7 is not authorised in this batch, so the count fed to the gate is the RAW orgunit_page_evidence row count for that run. No deduplication is applied and none may be.",
+    "workedExamplesFromTheOwnerInstruction": [
+      {
+        "rawCounts": [0, 0],
+        "outcome": "stop after 2"
+      },
+      {
+        "rawCounts": [12, 0, 7, 0],
+        "outcome": "stop after 4"
+      },
+      {
+        "rawCounts": [20, 14, 0, 9, 0],
+        "outcome": "the fifth may execute, because the second low-yield event occurs only when the fifth completes"
+      }
+    ],
+    "stickiness": "Once the gate returns PAUSE for a batch it stays PAUSE for that batch. A later high-yield organisation cannot un-trigger it, because the count it reads is cumulative and never decreases.",
+    "itIsNotAnSd9Decision": "P5 is an EARLY WARNING on raw yield. It is not ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET, which only SD7-then-SD9 can produce, and neither is authorised here."
+  },
+  "p5IsMadeExecutableNotOnlyWritten": {
+    "why": "Batch 01 proved prose alone is insufficient. The gate must be a thing the operator CANNOT accidentally skip.",
+    "location": "src/test/harness/phase2b2d/acquisitionGate/",
+    "theHelperIsPure": true,
+    "theHelperContainsNoNetworkCaller": true,
+    "theHelperStartsNoProcess": "It decides only whether the operator is ALLOWED to start the next organisation. It cannot run the CLI, spawn a child, open a socket or touch a database.",
+    "itIsNotAGeneralBatchRunner": "No batch command, no queue, no scheduler, no concurrency and no second crawler is built here. The CLI remains the only way an organisation is executed, one invocation at a time.",
+    "fatalConditionsAlsoSupportedWherePractical": ["P0", "P3", "P4", "P7"],
+    "fullValidateMustPassBeforeAnyLiveRequest": true
+  },
+  "whatBatch02MayDo": [
+    "reverify the frozen draw by drawHash, artifact file SHA-256, byte length and commit",
+    "read the research database read-only to verify the exact post-Batch-01 precondition state",
+    "run the existing `orgunits discover` CLI WITHOUT --execute, as a network-free dry run, for each of selection indices 5..9",
+    "run the existing `orgunits discover` CLI WITH --execute, strictly sequentially, for those organisations the gate still permits",
+    "allow the landed Phase 2B-1e pipeline to append the evidence rows it naturally produces",
+    "read back and verify each run's durable records before evaluating the between-run gate",
+    "evaluate the incremental P5 gate after every completed organisation and stop when it says stop",
+    "create, hash and commit exactly one Batch-02 execution record"
+  ],
+  "whatBatch02MayNotDo": [
+    "execute any selection index outside 5..9",
+    "execute or consume any reserve organisation",
+    "perform a replacement or create a replacement ledger entry, even for an obvious zero-page organisation",
+    "declare ACQUISITION_SUCCESSFUL or ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET for any organisation",
+    "implement or run SD7 near-duplicate deduplication",
+    "perform A3 page selection",
+    "create a label, a gold item, an adjudication or a reviewer artifact",
+    "call any inference provider, including the owner's own Claude Max subscription",
+    "create Prompt V7 or score DEV_CONFIRM",
+    "read FINAL_HOLDOUT semantically",
+    "execute anything in Phase 2E",
+    "materialise SET_P or SET_R",
+    "add --all, --batch, a database sweep, a queue, a scheduler, concurrency, a second crawler or any direct gateway caller",
+    "issue a request to an institution outside the landed pipeline - no curl, no wget, no browser",
+    "retry a run with changed arguments, headers, user agent, budgets, root or URL",
+    "widen any network or request budget",
+    "weaken robots, redirect or host policy",
+    "create a root promotion or a root promotion revocation",
+    "modify any file under src/orgunits/, any migration, the gateway, any policy or any budget",
+    "transfer an early-stopped organisation's unused request capacity to another organisation",
+    "mutate any A0, A1, A1b, Batch-01 or A3a state"
+  ],
+  "frozenNetworkBoundsRestatedNotChanged": {
+    "statement": "Every value below is quoted from the landed, frozen implementation. This record changes none of them, and a change to any of them would require its own ADR and its own measurement.",
+    "callPath": "runOrgunitsDiscover -> runOrganisationDiscovery -> runRootAcquisition -> authoriseAndFetchPage -> executeWebAttempt",
+    "databaseRole": "research",
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "TRACK_B_FLOOR": 8,
+    "MAX_SITEMAP_DOCUMENTS_PER_ROOT": 5,
+    "MAX_SITEMAP_DEPTH": 2,
+    "MAX_SITEMAP_URLS_PER_ROOT": 3000,
+    "MIN_HOST_PACING_SECONDS": 1.2,
+    "MAX_REDIRECT_CONTINUATION_HOPS": 5,
+    "CIRCUIT_BREAKER_TRANSIENT_FAILURE_THRESHOLD": 3,
+    "CONNECT_TIMEOUT_MS": 30000,
+    "TOTAL_TIMEOUT_MS": 45000,
+    "MAX_BODY_BYTES": 5242880,
+    "FETCH_POLICY_VERSION": "orgunit-fetch-policy-v1",
+    "noWidening": true,
+    "batch02AbsoluteGatewayRequestCeilingIfAllFiveStart": 300,
+    "batch02AbsoluteOrdinaryPageAttemptCeilingIfAllFiveStart": 175,
+    "howTheCeilingsAreDerived": "5 organisations x 1 root each x 60 total requests = 300; 5 x 35 ordinary page attempts = 175. Each of the five drawn organisations carries exactly one WEBSITE_CLAIM authority and zero root promotions, which is what makes 1 root per organisation a fact rather than an assumption.",
+    "ifP5StopsEarlyTheUnusedAuthorityExpires": true,
+    "unusedCapacityIsNeverTransferred": true
+  },
+  "policyRemainsAuthoritative": {
+    "robotsRefusalIsObeyed": true,
+    "robotsRefusalIsEvidenceNotAReasonToCircumvent": true,
+    "robotsUnreadableRemainsAPolicyOutcome": true,
+    "hostPacingRemainsAtLeast1Point2Seconds": true,
+    "crossDomainRedirectIsNotFollowedAsANewDomainRequest": true,
+    "crossDomainRedirectRequiresPromotionRemainsTerminalPolicyEvidence": true,
+    "aRedirectObservationMayBeRECORDEDByTheLandedPath": true,
+    "noRootPromotionMayBeCREATEDByThisBatch": true,
+    "noManualRecoveryAgainstAnotherUrl": true
+  },
+  "pauseConditions": {
+    "posture": "FAIL_CLOSED_DIAGNOSTIC",
+    "P0_AUTHORITY_OR_INPUT_MISMATCH": "any frozen input or root mismatch - draw, frame or authority hash mismatch; dry-run root mismatch; unexpected root count, type or id. STOP.",
+    "P1_ROOT_AUTHORITY_DEFECT": "INVALID_ROOT_AUTHORITY on any Batch-02 organisation. STOP.",
+    "P2_ROBOTS_ANOMALY": "the frozen pilot rule: three consecutive ROBOTS_BLOCKED_ROOT / ROBOTS_UNREADABLE_ROOT, OR more than 40% of the completed organisations, OR any evidence the robots evaluator behaved inconsistently. A single genuine robots refusal is allowed and is never retried.",
+    "P3_EXECUTION_FAILURE": "ANY runTerminalState FAILED, ANY orchestration error, any uncaught CLI or process error after execution began. STOP.",
+    "P4_PERSISTENCE_ANOMALY": "ANY durability or persistence anomaly - any expected run, completion or evidence insert missing; any append-only collision that is not an expected idempotency guard; any research write outside the landed tables. STOP.",
+    "P5_LOW_RAW_YIELD": "the count of COMPLETED Batch-02 organisations with raw page evidence < 4 reaches 2. STOP BEFORE NEXT. This is the intended diagnostic outcome, not an incident.",
+    "P6_INVARIANT_OR_HASH_MISMATCH": "any draw, frame or batch-record hash fails to recompute. STOP.",
+    "P7_HOST_STATE_ANOMALY": "sleep or wake, pacing-clock discontinuity, or a wall-clock stall inconsistent with normal request timing. P7 triggers immediately after the current durable run and no next organisation starts. STOP.",
+    "noSemanticOrLabelBasedPauseConditionExists": true,
+    "onPause": [
+      "finish and preserve only the current run's durable evidence",
+      "do not start the next organisation",
+      "do not retry",
+      "do not consume a reserve",
+      "write the pause reason into the execution record",
+      "stop for owner review"
+    ]
+  },
+  "noReserveNoReplacementAndNoSd9DecisionInBatch02": {
+    "statement": "Frozen SD9 defines ACQUISITION_SUCCESSFUL only AFTER SD7 near-duplicate deduplication. SD7 is not authorised in this batch, so Batch 02 is structurally unable to reach the SD9 question.",
+    "everySelectedOrganisationRemains": "ACQUISITION_STATUS_PENDING_SD7",
+    "batch02MayReportOnly": ["run completed", "raw page-evidence counts", "policy terminal reason"],
+    "batch02MayNotReport": ["ACQUISITION_SUCCESSFUL", "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"],
+    "evenAnObviousZeroPageOrganisationIsNotReplaced": true,
+    "aRobotsRootOrHostTerminalOutcomeIsRecordedFactuallyAndStillConsumesNoReserve": true,
+    "reserveConsumption": 0,
+    "acquisitionFactsOnly": true
+  },
+  "databasePrecondition": {
+    "requirement": "the database must equal the exact post-Batch-01 state before any live request",
+    "orgunit_research_runs": 5,
+    "orgunit_research_run_completions": 5,
+    "orgunit_fetch_observations": 76,
+    "orgunit_redirect_observations": 3,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "orgunit_page_evidence": 59,
+    "orgunit_page_candidates": 118,
+    "allFourClassifierTablesMustBeZero": true,
+    "classifierTables": [
+      "orgunit_classification_subjects",
+      "orgunit_classifier_calls",
+      "orgunit_classifier_call_completions",
+      "orgunit_page_classifications"
+    ],
+    "a0TablesUnchanged": true,
+    "ifUnexpectedRowsExist": "STOP"
+  },
+  "dryRunPreflightRequirement": {
+    "everyIndexIsDryRunSeparatelyBeforeAnyLiveRequest": true,
+    "theDryRunIsNetworkFree": "zero DNS, zero HTTP - a plain read of website_claims and orgunit_root_promotions",
+    "verifiedAgainstTheDrawPerIndex": [
+      "organisationId",
+      "echeRowKey",
+      "exactly one root",
+      "WEBSITE_CLAIM",
+      "exact root authority id",
+      "non-null URL",
+      "no promotion",
+      "no unexpected second root"
+    ],
+    "allFivePreflightsMustBeGreenBeforeStartingLiveBatch02": true,
+    "ifAnyMismatch": "STOP"
+  },
+  "hostSafetyPrecondition": {
+    "theMachineMustBePreventedFromSleepingForTheWholeLiveWindow": true,
+    "mechanism": "the existing OS mechanism (macOS caffeinate), scoped to the batch and never a permanent change to system protections",
+    "required": [
+      "AC power",
+      "lid open",
+      "FullWake",
+      "no recent unresolved sleep/wake anomaly",
+      "database reachable",
+      "enough disk space",
+      "clean execution worktree"
+    ],
+    "why": "The F5 execution of the 2D2C study was lost to a host clamshell sleep whose symptoms were indistinguishable from institution-side latency. A host stall is NOT institution evidence, and this batch must never record one as though it were.",
+    "aHostSleepOrWakeDuringTheBatchIsPauseConditionP7": true
+  },
+  "codeChangePosture": {
+    "noProductionFileMayChange": true,
+    "noSrcOrgunitsFileMayChange": true,
+    "noGatewayPolicyOrBudgetMayChange": true,
+    "noNewNetworkCallerMayBeCreated": true,
+    "noFirewallFileMayChange": true,
+    "anyPureHelperMustLiveUnder": "src/test/harness/phase2b2d/",
+    "sd7DeduperIsNotBuiltHere": true,
+    "theChangesThisBatchMakes": [
+      {
+        "path": "src/test/harness/phase2b2d/acquisitionGate/",
+        "change": "a new, pure, dependency-free between-run gate helper plus its unit test",
+        "why": "P5 must be executable, not only written. This is the smallest helper that makes the gate impossible to skip, and it is a decision function only - it starts nothing.",
+        "itIsATestHarnessNamespaceNotProductionCode": true
+      },
+      {
+        "path": "src/test/unit/orgunitCorpus2DA1bDrawIsolation.test.ts",
+        "change": "added exactly three filenames to the `permitted` array of the 'changed no frozen methodology, plan or approval byte' assertion",
+        "why": "That assertion diffs the whole of docs/evaluation against the A1 frame commit, so it freezes the directory for every DESCENDANT branch. Batch 02 descends from A3a and must land its own governance records there. The three filenames were added BY EXACT NAME, the same deliberate, reviewed widening pattern Phase 2B-1c used on the firewall - every other path in docs/evaluation is still refused, and no other assertion in that file was touched.",
+        "noAssertionWasWeakenedOrDeleted": true
+      }
+    ],
+    "fullValidateWasRunAfterTheChangesAndBeforeAnyLiveRequest": true
+  },
+  "boundActionState": {
+    "A0": { "name": "OFFICIAL_SOURCE_BOOTSTRAP", "status": "COMPLETED" },
+    "A1": { "name": "FRAME_MATERIALISATION", "status": "COMPLETED" },
+    "A1b": { "name": "DETERMINISTIC_DRAW", "status": "COMPLETED" },
+    "A2": { "name": "LIVE_INSTITUTION_ACQUISITION", "status": "BATCH_02_DIAGNOSTIC_AUTHORISED" },
+    "A3a": { "name": "SD7_NEAR_DUPLICATE_PILOT", "status": "BATCH_01_COMPLETE" },
+    "A3": { "name": "PAGE_SELECTION", "status": "NOT_AUTHORISED" },
+    "phase2E": { "name": "RUNTIME_MODEL_SELECTION", "status": "NOT_AUTHORISED" }
+  },
+  "nextOwnerDecision": {
+    "decision": "A3A_SD7_BATCH_02_MEASUREMENT_AUTHORISATION",
+    "batch03IsDeliberatelyNotAuthorisedNext": true,
+    "terminalStateIfClean": "PHASE_2B_2D_A2_BATCH_02_COMPLETE_AWAITING_SD7_MEASUREMENT",
+    "terminalStateIfSeriousIncident": "PHASE_2B_2D_A2_BATCH_02_PAUSED_AWAITING_OWNER_REVIEW",
+    "aP5StopIsNotASeriousIncident": "P5 is the gate this batch exists to exercise. Stopping on it is the batch working as designed and still reaches the COMPLETE_AWAITING_SD7_MEASUREMENT terminal state."
+  },
+  "reportingDiscipline": {
+    "theExecutionRecordIsAggregateAndPublicSafe": true,
+    "noInstitutionIdentityDomainOrPageContentIsExposed": true,
+    "perSelectionIndexOperationalSummaryCarriesNoIdentity": true,
+    "rawPageCountsAreReportedBySelectionIndexOnly": true
+  },
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused."
+  }
+}

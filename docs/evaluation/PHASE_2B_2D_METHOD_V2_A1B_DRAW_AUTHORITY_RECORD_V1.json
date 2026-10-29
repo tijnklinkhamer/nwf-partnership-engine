@@ -1,0 +1,254 @@
+{
+  "recordId": "phase2b-2d-method-v2-a1b-draw-authorisation-v1",
+  "recordKind": "OWNER_AUTHORISATION",
+  "authorises": "PHASE_2B_2D_A1B_DETERMINISTIC_110_PLUS_40_DRAW_V1",
+  "recordedAtUtc": "2026-09-18T15:45:00Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the authorisation itself is the owner's",
+
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A1B_DETERMINISTIC_DRAW_V1",
+  "statementMarkerAsReceived": "AUTHORISE_PHASE_2B_2D_A1B_DETERMINISTIC_DRAW_V1",
+
+  "boundFrame": {
+    "framePath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+    "artifactFileBytes": 3554080,
+    "frameCommit": "c64fad3474499d392d316e35c720310c76e9405b",
+    "frameBranch": "feat/phase2b-2d-methodology-v2-a1-frame",
+    "frameHashAndFileShaAreNotTheSameValue": "frameHash covers the canonical serialization of the frame payload with the frameHash field excluded, and is stable under reformatting. artifactFileSha256 covers the committed file bytes. They are reported apart and never conflated. A1b reverifies both before it reads a single entry.",
+    "examinedOrganisationCount": 6139,
+    "eligibleOrganisationCount": 5820,
+    "excludedOrganisationCount": 319,
+    "excludedHistoricalDevelopmentCount": 12,
+    "excludedPriorGenerationCount": 0,
+    "noValidRootAuthorityCount": 307,
+    "eligibleCountIsAtLeast150": true,
+    "thereforeSd2ProceedsWithoutFrameExpansion": true
+  },
+
+  "boundMethodology": {
+    "proposalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+    "proposalSha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "proposalBytes": 142306,
+    "ownerFreezeApprovalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+    "ownerFreezeApprovalSha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+    "ownerFreezeApprovalCommit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0",
+    "methodologyIsFrozenAndNotReopenedHere": true,
+    "noR4Created": true,
+    "noR3ByteAltered": true
+  },
+
+  "boundCorpusPlan": {
+    "planPath": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+    "planSha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+    "planBytes": 45200,
+    "planCommit": "6f2de0fd5a80f050857a14531e74b659f0ff30c1",
+    "planApprovalPath": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+    "planApprovalSha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+    "planApprovalCommit": "ee7384087979ec74a45668bc9d770963444600cc"
+  },
+
+  "acceptedA1IdentityFinding": {
+    "decision": "ACCEPT_HISTORICAL_DEVELOPMENT_EXCLUSION_KEYED_ON_ECHE_ROW_KEY",
+    "exclusionKeysOn": "eche_row_key",
+    "exclusionDoesNotKeyOn": "current database organisationId",
+    "why": [
+      "the historical 49-item DEVELOPMENT fixture carries a stable echeRowKey",
+      "A0 created fresh organisation UUIDs, so historical organisationId values do not survive database reconstruction",
+      "all 12 historical echeRowKey values do survive",
+      "matching on the current organisationId would silently have excluded nothing"
+    ],
+    "isTheCorrectImplementationOf": "contributes no item to the historical DEVELOPMENT set",
+    "doNotChangeThisBack": true,
+    "methodologyV2IsNotReopenedByThisFinding": true
+  },
+
+  "authorityFlags": {
+    "A1bDeterministicDrawAuthorised": true,
+
+    "networkAuthorised": false,
+    "databaseReadAuthorised": false,
+    "databaseWriteAuthorised": false,
+    "institutionAcquisitionAuthorised": false,
+    "replacementAuthorised": false,
+    "pageSelectionAuthorised": false,
+    "labellingAuthorised": false,
+    "providerInferenceAuthorised": false,
+    "candidateDevelopmentAuthorised": false,
+    "holdoutExecutionAuthorised": false,
+    "phase2EAuthorised": false
+  },
+
+  "whatA1bMayDo": [
+    "create the minimal pure tooling required to implement frozen SD2",
+    "read exactly one input: the frozen FRAME_V2_GEN1 artifact named above",
+    "deterministically rank the already-frozen A1 eligible frame by sha256 of the exact UTF-8 echeRowKey bytes",
+    "create the 110-organisation SELECTION LIST",
+    "create the 40-organisation RESERVE LIST",
+    "assign the 110 selection slots to the frozen 20/45/45 SPLIT_ASSIGNMENT_CYCLE_V2_R2 split cycle",
+    "materialise and commit exactly one DRAW_V2_GEN1 artifact, with its drawHash"
+  ],
+
+  "whatA1bMayNotDo": [
+    "issue any network request of any kind",
+    "open any database connection, read or write",
+    "reopen any official source artifact",
+    "inspect any institution website",
+    "re-read the historical evaluation fixtures",
+    "resolve a root authority identifier into a URL, hostname, registrable domain, sitemap or robots path",
+    "acquire an institution",
+    "consume a reserve entry or perform a replacement",
+    "create a page identity, an item identity, a document hash, gold or a classifier output",
+    "create a DEV_CONFIRM or FINAL_HOLDOUT manifest",
+    "create any extra human-readable list of holdout or confirm organisations",
+    "execute A2, page selection, labelling, provider inference, Prompt V7, DEV_CONFIRM evaluation, FINAL_HOLDOUT access or Phase 2E",
+    "add any file under src/orgunits/",
+    "weaken any firewall assertion"
+  ],
+
+  "frozenAlgorithm": {
+    "rankAlgorithmId": "SHA256_EXACT_UTF8_ECHE_ROW_KEY_ASC_V1",
+    "rankKey": "sha256(echeRowKey)",
+    "hashedBytes": "the UTF-8 bytes of the EXACT echeRowKey string stored in the frozen frame",
+    "noTrim": true,
+    "noLowercase": true,
+    "noUppercase": true,
+    "noLocaleTransform": true,
+    "noUnicodeNormalization": true,
+    "noPrefix": true,
+    "noSalt": true,
+    "seeded": false,
+    "rankRendering": "64-character lower-case hexadecimal",
+    "sortOrder": "ascending, bytewise/plain lexicographic comparison over the 64-character string",
+    "noLocaleAwareSorting": true,
+    "collisionBetweenDistinctKeysIsAStop": "STOP_FAIL_CLOSED",
+    "noTieBreakRuleNotFrozenBySd2MayBeInvented": true,
+    "selectionPositions": "0..109",
+    "reservePositions": "110..149",
+    "positionsAtOrAbove150AreIgnoredForThisGenerationDraw": true,
+    "ACQUISITION_TARGET_ORGANISATIONS": 110,
+    "ACQUISITION_RESERVE_ORGANISATIONS": 40,
+    "splitAssignment": "SPLIT_ASSIGNMENT_CYCLE_V2_R2[i mod 22] where i is the 0-based selectionIndex",
+    "cycleId": "SPLIT_ASSIGNMENT_CYCLE_V2_R2",
+    "cycleLength": 22,
+    "repetitions": 5,
+    "exactRealisedCounts": { "DEV_TRAIN": 20, "DEV_CONFIRM": 45, "FINAL_HOLDOUT": 45 },
+    "noReserveOrganisationReceivesASplitNow": true,
+    "aReserveAcquiresASplitOnlyUnderSeparatelyAuthorisedA2Replacement": true
+  },
+
+  "frameIsTheOnlyInput": {
+    "statement": "A1 already projected all SD1 eligibility into the immutable frame. A1b consumes entries where included === true and nothing else.",
+    "requiredEligibleEntryCount": 5820,
+    "stopConditions": [
+      "frameHash mismatches",
+      "artifactFileSha256 mismatches",
+      "eligible count is not exactly 5820",
+      "a duplicate echeRowKey exists",
+      "a duplicate organisationId exists among eligible entries",
+      "an eligible entry lacks usable root authority metadata",
+      "two distinct echeRowKey values produce the same rankHash"
+    ],
+    "doNotRedrawFromARepairedOrInferredInput": true
+  },
+
+  "noAcquisitionUrlDerivation": {
+    "statement": "The draw carries authority identifiers from the frozen frame and nothing that could be requested.",
+    "mustNotContain": [
+      "canonical root URL",
+      "domain",
+      "hostname",
+      "institution title",
+      "acquisition URL",
+      "sitemap URL",
+      "robots URL"
+    ],
+    "resolvedLaterUnder": "A2 authority, from the database / approved root-authority path",
+    "a1bIsASelectionArtifactNotAnAcquisitionManifest": true
+  },
+
+  "sealedSplitDiscipline": {
+    "drawIsCommittedToGitByTheFrozenPlan": true,
+    "theDrawRevealsOrganisationAssignmentOnlyBecauseSd2FreezesItBeforeAcquisition": true,
+    "noSemanticDataExists": true,
+    "onlyTheCanonicalDrawArtifactMayCarryTheSplitField": true,
+    "noExtraHumanReadableHoldoutOrConfirmListMayBeCreated": true,
+    "noPageIdentity": true,
+    "noItemIdentity": true,
+    "noGold": true,
+    "noPageUrl": true,
+    "noClassifierOutput": true,
+    "noDevConfirmManifestYet": true,
+    "noFinalHoldoutManifestYet": true,
+    "finalReportStatesCountsAndHashesAndEnumeratesNoIdentity": true
+  },
+
+  "drawHashing": {
+    "drawHash": "SHA-256 over the canonical draw payload EXCLUDING the drawHash field",
+    "canonicalJsonConvention": "the same canonicalStringify convention A1 used, unless a mechanically necessary difference exists",
+    "artifactFileSha256": "SHA-256 of the final complete artifact bytes, computed separately",
+    "neverConflated": true,
+    "writeOnceThenRereadReparseRecomputeAndRequireEquality": true
+  },
+
+  "replacementLedgerNotCreatedYet": {
+    "a2ReplacementIsUnauthorised": true,
+    "noPopulatedReplacementLedgerMayBeCreated": true,
+    "noSelectedOrganisationIsDeclaredSuccessful": true,
+    "noSelectedOrganisationIsDeclaredFailed": true,
+    "noReserveEntryIsConsumed": true,
+    "noSplitIsInheritedOntoAReserveEntry": true,
+    "theDrawIsNotAltered": true,
+    "replacementWillBeAppendOnlyUnderFutureA2Authority": true
+  },
+
+  "boundActionState": {
+    "A0": { "name": "OFFICIAL_SOURCE_BOOTSTRAP", "status": "COMPLETED" },
+    "A1": { "name": "FRAME_MATERIALISATION", "status": "COMPLETED" },
+    "A1b": { "name": "DETERMINISTIC_DRAW", "status": "AUTHORISED_BY_THIS_RECORD" },
+    "A2": { "name": "LIVE_INSTITUTION_ACQUISITION", "status": "NOT_AUTHORISED" },
+    "A3": { "name": "PAGE_SELECTION_AND_CORPUS_FREEZE_PREP", "status": "NOT_AUTHORISED" },
+    "A4": { "name": "HUMAN_LABELLING", "status": "NOT_AUTHORISED" },
+    "A5": { "name": "GOLD_CORPUS_FREEZE_APPROVAL", "status": "NOT_AUTHORISED" },
+    "A6": { "name": "CANDIDATE_DEVELOPMENT", "status": "NOT_AUTHORISED" },
+    "everyRemainingActionStillRequiresItsOwnSeparateOwnerAuthorisation": true
+  },
+
+  "exclusionsReaffirmed": {
+    "noNetworkRequest": true,
+    "noDatabaseRead": true,
+    "noDatabaseWrite": true,
+    "noDatabaseMutation": true,
+    "noOfficialSourceFetch": true,
+    "noInstitutionAcquisition": true,
+    "noWebsiteInspection": true,
+    "noReserveReplacement": true,
+    "noPageSelection": true,
+    "noLabelsCreated": true,
+    "noGoldChanged": true,
+    "noAdjudication": true,
+    "noProviderInference": true,
+    "noCandidateInference": true,
+    "noPromptV7Created": true,
+    "noDevConfirmEvaluation": true,
+    "noHoldoutAccess": true,
+    "noHistoricalHoldoutFileOpened": true,
+    "noHistoricalEvaluationFixtureReopened": true,
+    "noR4Created": true,
+    "noMethodologyReopened": true,
+    "noProductionOrgunitsFileTouched": true,
+    "noFirewallAssertionWeakened": true,
+    "noPhase2EExecution": true,
+    "noRuntimeModelSelected": true,
+    "noProductionDefaultChanged": true,
+    "noNewNetworkAuthority": true
+  },
+
+  "nextOwnerDecisionAfterA1b": "A2_LIVE_INSTITUTION_ACQUISITION_AUTHORISATION",
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused.",
+    "boundBytesAreNotCopiedHere": "Every value quoted above is quoted from the frozen R3 bytes, the approved Plan V1 bytes, the committed FRAME_V2_GEN1 bytes, or the owner instruction that produced this record. No approved artifact is restated here in a form that could drift from it, and no approved artifact's bytes change because this record exists."
+  }
+}

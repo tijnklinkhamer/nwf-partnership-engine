@@ -23,12 +23,18 @@
 import type pg from 'pg';
 import { authoriseAndFetchPage, createRobotsCache, type RobotsCache } from '../web/robots.js';
 import { resolveRoot, WebGatewayRefusal, type RootAuthorityRef } from '../web/authority.js';
+import { enforceSubjectRootResearchEligibility } from '../subjectAdmission/runGuard.js';
 import { checkHostAdmissible } from '../web/hostPolicy.js';
 import { checkRootScope, validateRequestUrl, type ValidatedUrl } from '../web/url.js';
 import { hasBinaryFileExtension, hasCartActionQueryParam } from '../signals/packs/universal.js';
 import { rawPathname } from '../signals/tree.js';
 import type { WebAttemptResult, WebTransport } from '../web/gateway.js';
-import { extractDiscoveryAnchors, resolveAnchorHref } from './anchors.js';
+import {
+  extractDiscoveryAnchors,
+  extractDocumentBaseHref,
+  resolveAnchorHref,
+  resolveDocumentBase,
+} from './anchors.js';
 import {
   createHostCircuitBreaker,
   type HostCircuitBreaker,
@@ -46,6 +52,12 @@ import { createFrontier, type Frontier } from './frontier.js';
 import { RequestBudget, TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON } from './requestBudget.js';
 import { deriveEligiblePage, persistCollectedPages, type CollectedPage } from './pageCollection.js';
 import { scoreAndPersistCandidates, type PersistedCandidateSummary } from './candidates.js';
+import { scoreAndPersistCandidatesWithRuleset } from './rulesetCandidates.js';
+import { loadRunSignalRuleset, SIGNAL_RULESET_V1 } from './signalRuleset.js';
+import {
+  enforceRootResearchEligibility,
+  type ResearchCohortGuardDeps,
+} from './researchCohortGuard.js';
 import {
   conventionalSitemapUrl,
   discoverSitemapUrls,
@@ -100,9 +112,22 @@ export interface RootSummary {
   readonly refusalDetail: string | null;
 }
 
-export interface RootRunnerDeps {
+/**
+ * REL L2: receives each OFF-DOMAIN anchor of a page whose evidence was
+ * persisted - (page evidence id, absolute href, redacted anchor text). The
+ * runner NEVER fetches these; the sink only records them.
+ */
+export type OffDomainAnchorSink = (
+  pageEvidenceId: string,
+  href: string,
+  anchorText: string | null,
+) => void | Promise<void>;
+
+export interface RootRunnerDeps extends ResearchCohortGuardDeps {
   transport?: WebTransport;
   clock?: Clock;
+  /** REL L2: optional; defaults to a no-op, so off-domain anchors stay discarded. */
+  offDomainAnchorSink?: OffDomainAnchorSink;
 }
 
 /** Per-host sequential pacing, using an injectable clock (production: real timers; tests: `createFakeClock()`). */
@@ -159,18 +184,41 @@ export async function runRootAcquisition(
 
   let resolved;
   try {
-    resolved = await resolveRoot(pool, root);
+    resolved = await resolveRoot(pool, root, { runId });
   } catch (error) {
     if (error instanceof WebGatewayRefusal) return invalidAuthoritySummary();
     throw error;
   }
+  // EVALUATION-COHORT GUARD (B3.0) - after the root's stored authority is
+  // resolved (a read) and BEFORE any robots cache, frontier, pacing wait or
+  // request exists. Holds for every caller, not only runOrganisationDiscovery:
+  // a protected root, or one bound to another organisation, throws
+  // ResearchCohortRefusal here with zero network activity and zero writes.
+  //
+  // GLOBAL R8 (ADR 0025): a discovery-subject root has no ECHE row for B3.0 to
+  // judge, so it passes the subject guard instead - at the same point, with
+  // the same zero-activity refusal. Which guard runs is decided by the STORED
+  // authority `resolveRoot` returned, never by the caller. That a run never
+  // mixes root scopes is the database's own guarantee (migration 0017's
+  // run-scope foreign key), so the ECHE branch is exactly as it was.
+  if (resolved.subjectAdmission !== null) {
+    await enforceSubjectRootResearchEligibility(pool, runId, resolved, deps);
+  } else {
+    await enforceRootResearchEligibility(pool, runId, resolved, deps);
+  }
+
   const rootUrl: ValidatedUrl = resolved.rootUrl;
   const rootKey = resolved.rootKey;
 
   const cache: RobotsCache = createRobotsCache();
   const circuitBreaker: HostCircuitBreaker = createHostCircuitBreaker();
   const pacer = new HostPacer(clock);
-  const frontier: Frontier = createFrontier();
+  // REL harvest H1: the run's STORED rule version picks the ruleset - v1 for
+  // an ECHE root, v2 for a subject root - and a run whose stamp does not
+  // match its root's scope is refused here, before any request. The frontier
+  // and candidate persistence below both use it.
+  const ruleset = await loadRunSignalRuleset(pool, runId, resolved);
+  const frontier: Frontier = createFrontier(ruleset.scoreFrontierUrl);
   const hostsUsed = new Set<string>();
   const hostCrawlDelay = new Map<string, number>();
   // Every URL this root has already attempted (root bootstrap, frontier pick,
@@ -189,6 +237,8 @@ export async function runRootAcquisition(
   // test for the scenario this closes).
   const attemptedUrls = new Set<string>();
   const collectedPages: CollectedPage[] = [];
+  const offDomainAnchorSink = deps.offDomainAnchorSink ?? (() => undefined);
+  const offDomainAnchors = new Map<string, { href: string; text: string | null }[]>();
 
   const budget = new RequestBudget();
   let pageAttempts = 0;
@@ -249,11 +299,65 @@ export async function runRootAcquisition(
     return true;
   }
 
+  /**
+   * ADR 0013 s8: whether ONE host-changing site-policy continuation may be
+   * issued to this exact URL, under THIS root's ledger.
+   *
+   * `continuationTargetFor` has already decided the target is a
+   * same-registrable-domain site-policy path with no downgrade, no port, no
+   * query and no credential. What is left is everything that is a property of
+   * this ROOT RUN rather than of the redirect: root scope, the service-
+   * subdomain refusal, the per-host circuit breaker and the distinct-host
+   * ceiling. There is no robots exemption from any of them.
+   *
+   * THE GATEWAY WOULD REFUSE MOST OF THESE TOO, AND THAT IS THE POINT OF
+   * ASKING FIRST. A gateway refusal THROWS (`WebGatewayRefusal`) rather than
+   * recording a row, and a throw from inside the site-policy resolution would
+   * escape as this root's `ROOT_REQUEST_REFUSED` - turning an ordinary
+   * redirect to, say, `mail.example.edu` into a failed root instead of an
+   * unread policy. Refusing here keeps it an unread policy.
+   *
+   * THE ATTEMPT'S OWN HOST IS COUNTED AS ALREADY SPENT. `hostsUsed.add` does
+   * not run until after the request returns, but this attempt is committed by
+   * the time this function can be called, so the projection below includes it
+   * - otherwise the eighth host's continuation could quietly become a ninth.
+   */
+  function mayReachContinuationHost(continuationUrl: string, pendingHost: string): boolean {
+    const validated = validateRequestUrl(continuationUrl);
+    if (!validated.ok) return false;
+    if (!checkRootScope(rootUrl, validated.value).ok) return false;
+    if (!checkHostAdmissible(validated.value.hostname, validated.value.registrableDomain).ok) {
+      return false;
+    }
+
+    const candidate = validated.value.hostname;
+    if (circuitBreaker.isOpen(candidate)) return false;
+
+    const projected = new Set(hostsUsed);
+    projected.add(pendingHost);
+    if (!projected.has(candidate) && projected.size >= MAX_HOSTS_PER_ROOT) return false;
+    return true;
+  }
+
+  /** The lower-cased hostname of an already-requested URL, or null if it will not parse. */
+  function hostnameOf(url: string): string | null {
+    try {
+      return new URL(url).hostname.toLowerCase();
+      /* c8 ignore next 3 -- every URL here was serialised by the gateway itself */
+    } catch {
+      return null;
+    }
+  }
+
   // -------------------------------------------------------- the one attempt
 
   type AttemptStatus =
-    | { status: 'FETCHED'; result: WebAttemptResult; robotsFetched: boolean }
-    | { status: 'BLOCKED'; decision: 'DISALLOWED' | 'ROBOTS_UNREADABLE'; robotsFetched: boolean }
+    | { status: 'FETCHED'; result: WebAttemptResult; robotsRequestCount: number }
+    | {
+        status: 'BLOCKED';
+        decision: 'DISALLOWED' | 'ROBOTS_UNREADABLE';
+        robotsRequestCount: number;
+      }
     | { status: 'HOST_CAP' }
     | { status: 'CIRCUIT_OPEN' }
     | { status: 'ALREADY_ATTEMPTED' }
@@ -286,7 +390,26 @@ export async function runRootAcquisition(
     if (circuitBreaker.isOpen(hostname)) return { status: 'CIRCUIT_OPEN' };
 
     const needsRobots = cache.get(runId, scheme, hostname) === undefined;
-    const predictedCost = (needsRobots ? 1 : 0) + 1;
+    // THE ROBOTS TERM IS 3 SINCE ADR 0015, HAVING BEEN 2 SINCE ADR 0012 AND 1
+    // BEFORE THAT. A site-policy resolution may now spend one narrowly
+    // authorised same-registrable-domain continuation AND one bounded
+    // transport retry, so an uncached host can cost three gateway requests
+    // before the page request. Both bounds are 1 and neither can be consumed
+    // twice, so 3 is the exact worst case, not a margin.
+    //
+    // THIS IS A PREDICTION, and `RequestBudget.consume` THROWS rather than
+    // clamping when it is exceeded - so under-predicting here would convert a
+    // budget edge into a thrown error mid-root instead of a clean
+    // BUDGET_EXCEEDED refusal. Predicting the worst case costs only headroom,
+    // and ADR 0008 §4 already measured the 60-ceiling as mechanically
+    // unreachable through the other three caps.
+    //
+    // RESERVING THE WORST CASE UP FRONT IS ALSO WHAT MAKES THE RETRY SAFE TO
+    // ISSUE. Because this check passed, a retry that the policy later
+    // authorises is already affordable; `admitTransportRetry` re-checks
+    // anyway, so a caller that under-predicts degrades to "no retry" rather
+    // than throwing mid-root.
+    const predictedCost = (needsRobots ? 3 : 0) + 1;
     // Checked BEFORE any pacing wait and before authoriseAndFetchPage below -
     // refusal here means zero network activity for this attempt, and the
     // primitive itself (requestBudget.ts) is what a dedicated unit test
@@ -304,15 +427,70 @@ export async function runRootAcquisition(
     const result = await authoriseAndFetchPage(
       pool,
       cache,
-      { runId, root, targetUrl: url, attemptNo: 1, discoveryMethod, discoveryParentUrl },
+      {
+        runId,
+        root,
+        targetUrl: url,
+        attemptNo: 1,
+        discoveryMethod,
+        discoveryParentUrl,
+        // ADR 0013 s8: the site-policy resolution may now reach a SECOND
+        // hostname, and this root's distinct-host ledger lives here.
+        admitHostChangingContinuation: (continuationUrl) =>
+          mayReachContinuationHost(continuationUrl, hostname),
+        // ADR 0015: the bounded transport retry is admitted HERE, because
+        // this is the only layer holding both ledgers it needs - the root's
+        // request budget and the per-host pacer. `robots.ts` decides WHETHER
+        // the evidence justifies a retry; this decides whether this root can
+        // afford one and spaces it.
+        admitTransportRetry: async (retryUrl) => {
+          // AFFORDABILITY, CHECKED AGAIN RATHER THAN ASSUMED. The prediction
+          // above already reserved the worst case, so this should always
+          // pass; it is here so that an unaffordable retry is REFUSED (the
+          // first outcome stands, honestly mapped) instead of reaching
+          // `budget.consume` and throwing mid-root over an OPTIONAL request.
+          if (!budget.canAfford(1)) return false;
+
+          // THE SAME PACING PATH EVERY OTHER REQUEST TAKES, with the same
+          // delay resolution - no new backoff constant, and no bypass. For a
+          // host whose crawl delay is not yet known (the usual case, since the
+          // site policy that would declare one is still being resolved) this
+          // is MIN_HOST_PACING_SECONDS.
+          //
+          // LOAD-BEARING, NOT DECORATIVE: CONNECTION_RESET and
+          // CONNECTION_REFUSED fail in milliseconds, so without this the
+          // retry would follow its own failure almost immediately.
+          const retryHost = hostnameOf(retryUrl) ?? hostname;
+          const retryDelay = hostCrawlDelay.get(retryHost) ?? MIN_HOST_PACING_SECONDS;
+          await pacer.waitForSlot(retryHost, retryDelay);
+          return true;
+        },
+      },
       transport,
     );
 
     hostsUsed.add(hostname);
-    const robotsFetched = result.robots.robotsFetch.fetchResult !== null;
-    if (robotsFetched) {
-      budget.consume(1);
-      robotsRequests += 1;
+    // EVERY HOST THE SITE-POLICY RESOLUTION ACTUALLY REACHED IS RECORDED
+    // (ADR 0013 s8). Under ADR 0012 this was always just `hostname`, because
+    // a continuation could not change host; under C-lite it can, and a host
+    // that was requested but never counted would let the NINTH host be
+    // reached under an 8-host cap. Read from each attempt's own
+    // `requestedUrl` - the URL the gateway was actually given - rather than
+    // recomputed from the predicate, so the ledger records what happened
+    // rather than what was permitted.
+    for (const attempt of result.robots.robotsFetch.attempts) {
+      const attemptedHost = hostnameOf(attempt.requestedUrl);
+      if (attemptedHost !== null) hostsUsed.add(attemptedHost);
+    }
+    // A COUNT, NOT A BOOLEAN (ADR 0012). One authorisation may now make two
+    // gateway requests: the site-policy bootstrap and, for the narrow
+    // same-host redirect shape only, one continuation. Both are real requests
+    // against the total-request ceiling, so both are charged here. A cache hit
+    // is 0.
+    const robotsRequestCount = result.robots.robotsFetch.attempts.length;
+    if (robotsRequestCount > 0) {
+      budget.consume(robotsRequestCount);
+      robotsRequests += robotsRequestCount;
     }
     if (result.robots.effectiveCrawlDelaySeconds !== null) {
       hostCrawlDelay.set(
@@ -328,7 +506,7 @@ export async function runRootAcquisition(
       return {
         status: 'BLOCKED',
         decision: decision === 'DISALLOWED' ? 'DISALLOWED' : 'ROBOTS_UNREADABLE',
-        robotsFetched,
+        robotsRequestCount,
       };
     }
 
@@ -337,7 +515,7 @@ export async function runRootAcquisition(
     else sitemapRequests += 1;
 
     updateCircuitBreaker(hostname, result.fetch);
-    return { status: 'FETCHED', result: result.fetch, robotsFetched };
+    return { status: 'FETCHED', result: result.fetch, robotsRequestCount };
   }
 
   function updateCircuitBreaker(hostname: string, fetch: WebAttemptResult): void {
@@ -367,9 +545,24 @@ export async function runRootAcquisition(
     if (derived.outcome !== 'ELIGIBLE') return;
     collectedPages.push(derived.page);
 
+    // Fetch policy v5: hrefs resolve against the HTML DOCUMENT BASE (the first
+    // href-bearing <base>, else this page's URL), exactly as a browser would.
+    // The base changes resolution only: every resolved URL still passes
+    // admissibleUrl below and the gateway after it, and the discovery parent
+    // stays the page that was actually fetched.
+    const documentBase = resolveDocumentBase(
+      fetch.requestedUrl,
+      extractDocumentBaseHref(derived.decodedHtml),
+    );
     for (const anchor of extractDiscoveryAnchors(derived.decodedHtml)) {
-      const resolution = resolveAnchorHref(fetch.requestedUrl, anchor.hrefRaw);
+      const resolution = resolveAnchorHref(documentBase.url, anchor.hrefRaw);
       if (!resolution.ok) continue;
+      const linkOut = validateRequestUrl(resolution.url);
+      if (linkOut.ok && linkOut.value.registrableDomain !== rootUrl.registrableDomain) {
+        const list = offDomainAnchors.get(fetch.requestedUrl) ?? [];
+        list.push({ href: linkOut.value.url, text: anchor.text });
+        offDomainAnchors.set(fetch.requestedUrl, list);
+      }
       if (!admissibleUrl(resolution.url)) continue;
       frontier.add(resolution.url, 'LINK', fetch.requestedUrl, anchor.text);
     }
@@ -535,7 +728,17 @@ export async function runRootAcquisition(
     title: page.title,
     headings: page.headings,
   }));
-  const candidates = await scoreAndPersistCandidates(pool, runId, candidateInputs);
+  // v1 runs keep the K1/K2-bound candidates.ts path byte-for-byte; any other
+  // stored ruleset persists through the same-grain ruleset-parameterised path.
+  const candidates =
+    ruleset === SIGNAL_RULESET_V1
+      ? await scoreAndPersistCandidates(pool, runId, candidateInputs)
+      : await scoreAndPersistCandidatesWithRuleset(pool, runId, candidateInputs, ruleset);
+  for (const page of persistedPages) {
+    for (const a of offDomainAnchors.get(page.url) ?? []) {
+      await offDomainAnchorSink(page.id, a.href, a.text);
+    }
+  }
 
   // A page-evidence persistence failure is NOT a root-level operational
   // outcome - it is thrown here, AFTER candidates were scored and persisted

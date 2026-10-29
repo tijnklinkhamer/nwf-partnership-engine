@@ -1,0 +1,42 @@
+{
+  "recordId": "WW_E_SD_LIVE_SOURCE_DISCOVERY_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-27",
+  "branch": "ww/e-sd",
+  "startingHead": "bdf16f9",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_REL_F1_R2_AND_OWNER_DIRECTIVE_2026_10_27__OWNER_GRANT_DECISION_PENDING",
+  "isOwnerRatification": false,
+  "recordedBy": "engineering lane WW E-SD (transcription of the scope it was given; not an OWNER signature)",
+  "authority": {
+    "source": "REL-F1-R2 (local engineering only) and the OWNER directive 2026-10-27 'NWF Partnership Engine - full end-to-end product completion', phases A1/A2",
+    "scope": [
+      "Implement ADR 0027 D1-D8 so that a live source-discovery run is structurally possible ONLY under a stored OWNER-path grant row that no runtime role can insert.",
+      "Generalise ADR 0027 D4's single use to an OWNER-selectable max_runs (1..200, default 1) within a validity window of at most 14 days, each run still one grant-use row (ADR 0028).",
+      "Add a pure, reusable worldwide search planner producing nwf-discovery-plan-v2.",
+      "Ship everything inert: no grant row exists, no LOGIN holds the capability outside a disposable *_test database, and no live call is made by the lane or by any test."
+    ],
+    "authorised": [
+      "local source edits",
+      "one forward-only migration (0022) creating five append-only tables, SELECT/INSERT to the EXISTING NOLOGIN capability nwf_source_discovery (SELECT only on the grant table), SELECT to nwf_readonly, INSERT triggers and one deferred constraint trigger",
+      "local test runs against a disposable tmpfs PostgreSQL with a fake Agent SDK",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "inserting any source_discovery_grants row anywhere but a disposable *_test database",
+      "applying migration 0022 to nwf_pe or any persistent, shared, staging or production database",
+      "any live web search, live fetch, live model call or live auth-status call",
+      "reading or writing the classifier profile or any credential",
+      "push, merge or deploy",
+      "editing a committed migration",
+      "weakening any security check or firewall"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0022_source_discovery_live_grants.sql",
+  "adr": "docs/adr/0028-campaign-bounded-live-source-discovery.md",
+  "amendsProposedAdr": "docs/adr/0027-owner-granted-live-source-discovery-pilot.md",
+  "loginInMigrations": false,
+  "newRole": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

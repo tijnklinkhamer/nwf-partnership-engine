@@ -1,0 +1,395 @@
+# ADR 0029 — OWNER-signed acquisition campaigns and an append-only work queue
+
+- **Status:** Proposed. LOCAL, synthetic-only implementation under REL-F1-R2 and
+  the OWNER directive of 2026-10-27 ("full end-to-end product completion",
+  phases A3 and A5 core), as relayed by the integration lead. Not ratified, not
+  pushed, not applied to any persistent database. **Inert:** the campaign trust
+  set holds no key and no production stage handler is wired.
+- **Date:** 2026-10-27
+- **Package:** WW E-Q (branch `ww/e-queue`)
+- **Extends:** ADR 0023 (OWNER-attested review: Ed25519 over canonical JSON,
+  a pinned trust set), ADR 0025 (subject research admission), ADR 0026/0027
+  (source-discovery nominations; the proposed per-run search grant).
+  **Supersedes nothing.**
+- **Migration:** `migrations/0023_acquisition_campaigns_and_queue.sql`
+  (0022 is reserved for the parallel source-discovery package).
+- **Scope record:** `docs/evaluation/WW_E_Q_ACQUISITION_CAMPAIGN_OWNER_DIRECTIVE_RECORD_V1.json`
+
+Claims are tagged **FACT**, **DESIGN DECISION**, **UNKNOWN**.
+
+## 1. Problem
+
+**FACT.** Every acquisition step in the Engine is one operator invocation for
+one organisation: one discovery run, one admission, one research run, one
+review. That is safe and does not scale, and it gives an operator no way to
+approve a bounded body of work once and let it proceed. Firewalls deliberately
+forbid a `--all` flag, a crawler loop and a job-queue dependency.
+
+## 2. Decision
+
+A **campaign** is a bounded body of work the OWNER approves once, by signature.
+A **work queue** in PostgreSQL holds its items. A **worker** processes approved
+items without a per-organisation prompt. It never grants itself authority, and
+it never passes the human identity gate.
+
+| piece                                   | what it is                                                                                       |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `src/orgunits/acquisition/document.ts`  | the campaign document `nwf-pe.acquisition-campaign.v1`, protocol `nwf-pe.acquisition-campaign/1` |
+| `canonical.ts`, `trust.ts`, `verify.ts` | canonical JSON, the pinned campaign trust set (EMPTY), signature-first verification              |
+| `authority.ts`                          | owner-path record and control; the sealed `CampaignAuthority`                                    |
+| `store.ts`, `scheduler.ts`              | idempotent enqueue, leased claims, outcomes, derived budgets; the fair scheduler                 |
+| `worker.ts`                             | `runWorker` and the `StageHandler` port                                                          |
+| `status.ts`                             | the derived, read-only status                                                                    |
+| `nwf-pe acquisition ...`                | `campaign verify/record/control`, `status`, `worker`                                             |
+
+## 3. Authority model
+
+**DESIGN DECISION.** The authority is the OWNER **signature**, never a row.
+
+- A signed envelope is `{keyId, payload, protocol, signature}`; Ed25519 covers
+  `UTF8("nwf-pe.acquisition-campaign/1\n") || payloadBytes`. The protocol line
+  is part of the signed bytes, so no review signature (ADR 0023) and no
+  Operator signature can verify as a campaign, and the reverse.
+- The trust set is **separate** from the review trust set: authority
+  `OWNER_ACQUISITION_CAMPAIGN`, its own protocol, its own reviewed list
+  `OPERATIONAL_OWNER_CAMPAIGN_KEYS` — **empty**. A test set exists only inside
+  vitest (`CampaignTrustSet.vitestOnly`), and only with `test-` key ids and
+  `TEST_ONLY` scope, which the operational set refuses.
+- The signed payload binds: campaign key, this database's environment id (the
+  ADR 0023 environment), issuance instant and nonce, a window of at most 30
+  days, a scope (ISO geographies or exactly `WORLDWIDE`; source kinds
+  `SEARCH_GRANT`/`LINK_OUT`/`SEED`; the worker stages; the search grant ids it
+  may consume) and eight budgets (§5). Budgets are decimal strings because the
+  canonical encoding has no numbers.
+- **Recording** (owner path only — no runtime role holds `INSERT`): verify
+  signature first; key `ACTIVE` by the database clock; environment equals this
+  database's; not issued in the future; window not over. The database then
+  proves the stored `document` IS the signed bytes and that every column
+  equals its field. A campaign is recorded `NOT_STARTED`.
+- **Use:** `deriveCampaignAuthority` is the one way to obtain a
+  `CampaignAuthority` (private `#sealed` brand, unexported mint). It re-reads
+  the row, **re-verifies the stored signature** under the pinned set, checks
+  the key is still authority for the recording instant (a `REVOKED` key stops
+  every campaign it signed), and requires a `RUNNING` control state and an open
+  window, by the database clock. The worker derives it **before every claim**.
+- **Control:** `START | PAUSE | RESUME | STOP | EMERGENCY_STOP`, owner path
+  only, totally ordered (`sequence_no`). The state is derived from the latest
+  event. `STOP` and `EMERGENCY_STOP` are terminal (`EMERGENCY_STOP` may escalate
+  a `STOP`). `START` and `RESUME` require the campaign to verify; a halt never
+  does, so a campaign can always be stopped.
+- **Defence in depth.** The claim trigger itself refuses a claim unless the
+  campaign is `RUNNING`, inside its window, the stage is listed, the item is
+  due, the previous attempt is finished or expired, and a concurrency slot is
+  free — whatever a caller holds.
+
+**FACT — what the signature proves.** That whoever signed held a listed key.
+Custody, and which person operated it, are outside code (ADR 0023 §4). The
+owner path itself proves database ownership, not a person (ADR 0020 §6): the
+database cannot verify Ed25519, so an owner could insert a row by hand — but it
+would carry no valid signature and the worker would refuse it.
+
+## 4. The queue, the scheduler and the worker
+
+**Stages** (closed): `DISCOVERED → NOMINATED → DEDUPLICATED → RESEARCH_PENDING →
+RESEARCHED → IDENTITY_REVIEW → ASSESSABLE`. What each stage is about is a CHECK
+(a search grant / research run / seed list; a nomination; a nomination or
+discovery subject; then a discovery subject).
+
+- **Items** are idempotent per `(campaign, stage, subject)` — the key is
+  deterministic and CHECKed. A child is admitted only while its parent's latest
+  attempt is in flight and only at the parent's next stage. Worker roots are
+  only the search grants the signed campaign lists; link-out and seed-list
+  roots are owner-path only.
+- **Claims** are INSERTs; `(work_item_id, attempt_no)` is unique, so two
+  workers cannot hold the same attempt. Attempt `n+1` needs attempt `n` to have
+  expired with no outcome, or a due `RETRY_SCHEDULED`.
+- **Outcomes**: one per claim; at most one terminal (incl. `ADVANCED`) per item
+  by a unique partial index — **an item is never ADVANCED twice**, even with
+  every trigger bypassed (tested). An outcome on a superseded claim is refused.
+  An outcome and its children are one transaction.
+- **Retry backoff**: `min(60 s · 2^(attempt−1), 3600 s)`, no jitter;
+  `max_attempts_per_item` bounds attempts; an expired lease at the last attempt
+  is closed `FAILED_TERMINAL / LEASE_EXPIRED_ATTEMPTS_EXHAUSTED`.
+- **Priority** is `100 × stage ordinal` (CHECKed): later stages drain first. It
+  orders work, never organisations. Nothing here scores or ranks an
+  organisation (the product has one score: the Operator's C1 rubric).
+- **Scheduler** (pure, deterministic): round-robin across stages in
+  descending priority, starting after the stage of the last claim; within the
+  stage, the least-recently-served registrable domain (ties lexical); then
+  priority, age, id. A domain with a live claim or an open circuit is skipped.
+- **Worker**: before each claim — authority, budgets and the human backlog
+  from rows. A stage whose required resource is spent is not claimed; when only
+  such items remain the worker stops `BUDGET_EXHAUSTED`. At the
+  `max_awaiting_human_backlog` cap it stops `BACKPRESSURE`. `PAUSE`/`STOP` stop
+  claiming; the current item finishes. `EMERGENCY_STOP` is polled while a
+  handler runs and aborts the handler's signal; the item is recorded
+  `REFUSED_TERMINAL / CAMPAIGN_EMERGENCY_STOPPED` with no children. A caller's
+  `AbortSignal` is honoured between items. A crash leaves only a claim, whose
+  lease expires and is retried. Every stop is a row in
+  `acquisition_worker_stops`. The orchestrator's `HostCircuitBreaker` is reused,
+  keyed by registrable domain.
+- **The handler port** is the only way work is done. The worker imports no
+  gateway, robots, sitemap, search provider, classifier or research path.
+
+## 5. Budgets (mechanical safety bounds, not calibrated targets)
+
+Per campaign, signed and CHECKed: `maxWorkItems` 1–10000, `maxSearchRuns`
+0–100, `maxResearchRoots` 0–500, `maxGatewayRequests` 0–30000,
+`maxItemsPerRegistrableDomain` 1–100, `maxConcurrency` 1–4,
+`maxAttemptsPerItem` 1–10, `maxAwaitingHumanBacklog` 1–1000. The bounds cap
+what one document can ask for; they are not measured values. Consumption is
+what handlers report per outcome; remaining budget is derived from sums.
+`WORLDWIDE` scope is allowed only with these budgets, like any other scope.
+
+**UNKNOWN.** A handler that throws, or a process that dies, records no
+consumption for that attempt. The leak per attempt is bounded by the Engine's
+own per-root budgets (35 pages / 60 requests) and by `maxAttemptsPerItem`.
+
+## 6. Why identity review stays human
+
+**DESIGN DECISION.** Automated work may discover, nominate, deduplicate and
+research; it may never decide that a discovered organisation **is** who the
+evidence says it is. That decision is the OWNER-attested review of ADR 0023,
+and research admission (ADR 0025) and every downstream use rest on it.
+
+- `IDENTITY_REVIEW` is not a worker stage: a campaign cannot list it, a handler
+  for it is refused at worker start, and the worker parks every such item as
+  `AWAITING_HUMAN / OWNER_IDENTITY_REVIEW` by itself.
+- The database refuses any other outcome for an identity-review claim, and
+  refuses an `ASSESSABLE` item unless the **owner path** creates it as the
+  child of an identity-review item that is awaiting a human.
+- Backpressure stops the worker when the human backlog reaches the signed cap,
+  so automation cannot outrun review.
+
+A campaign is not research admission either: `RESEARCH_PENDING` handlers are
+injected ports, and campaign-scoped admission is a separate later package.
+
+## 7. Inertness (FACT, in this build)
+
+- `OPERATIONAL_OWNER_CAMPAIGN_KEYS` is empty: `campaign verify` and
+  `campaign record --execute` refuse every real envelope (`KEY_UNKNOWN`), and a
+  stored campaign derives no authority (`CAMPAIGN_UNVERIFIED`).
+- `PRODUCTION_STAGE_HANDLERS` is empty: `acquisition worker` refuses every
+  campaign with `ACQUISITION_HANDLERS_NOT_WIRED` before touching the worker
+  capability.
+- `nwf_acquisition_worker` is NOLOGIN; no migration creates a login.
+- Migration 0023 has been applied only to disposable tmpfs databases.
+- Firewall `src/test/firewall/wwAcquisitionQueue.firewall.test.ts` pins all of
+  the above. No existing firewall was edited: the namespace avoids every
+  earlier pin by construction (its canonical encoder is a reviewed copy, not an
+  import of `subjectReview/`), no queue dependency was added, and `src/queue`
+  and `src/workers` stay absent.
+
+## 8. What activation needs
+
+1. OWNER ratification of this ADR and migration 0023.
+2. An OWNER campaign-key custody decision (separate from the review key) and a
+   reviewed source change adding one `ACTIVE` entry to
+   `OPERATIONAL_OWNER_CAMPAIGN_KEYS`. An offline campaign signer (the ADR 0023
+   §6 pattern) does not exist yet and is part of that change.
+3. A wiring package that implements the stage handlers (search under ADR 0027
+   grants, link-out nominations, dedupe, campaign-scoped research admission,
+   export) and replaces `PRODUCTION_STAGE_HANDLERS` by exact path.
+4. An OWNER decision to apply 0023 to a persistent database and to provision
+   one login granted `nwf_acquisition_worker`.
+5. A signed, recorded campaign and an explicit `START`.
+
+## 9. Not authorised here
+
+Provisioning or generating any operational key; recording or starting a real
+campaign; wiring any production handler; any live network, search or model
+call; applying 0023 anywhere persistent; push, merge or deploy.
+
+## 10. Amendments by WW E-W (ADR 0030 §9, migration 0024)
+
+The independent review of this queue was fixed in migration 0024 (claim-time
+budget reservations, lease heartbeats, a narrowed worker session, pinned
+search paths, an EMERGENCY_STOP that never waits on the advisory lock, queue
+shape rules, the campaign lock in the outcome rule, and an environment check
+against the database's own record). **Clone replay:** a database clone keeps
+the environment id, so a campaign recorded in one copy verifies in the
+other; the environment binding defends against cross-environment replay,
+not against a clone (ADR 0030 §9).
+
+## 11. Amendment (2026-10-28): the first operational campaign key is pinned
+
+**OWNER DECISION.** OWNER record **R2-P1** (signed 2026-10-28T13:29:34Z,
+items P1-5 and P1-11) authorises pinning one OWNER campaign key, completing
+§8 item 2's key half. The "**empty**" statements in §3 and §7 described every
+build before this amendment; from this commit `OPERATIONAL_OWNER_CAMPAIGN_KEYS`
+holds exactly one entry:
+
+| field         | value                                                              |
+| ------------- | ------------------------------------------------------------------ |
+| `keyId`       | `owner-campaign-2026-10`                                           |
+| `fingerprint` | `43dbea7551266adffc853f6cff4f054dfc924d7e76d4e2f994320e6091a6581c` |
+| `publicKey`   | `icnzFLRZVG-hiMlyY6lMxw1RKDrfVfoFbzz2ROxM_i4`                      |
+| authority     | `OWNER_ACQUISITION_CAMPAIGN`                                       |
+| scope / state | `OPERATIONAL` / `ACTIVE`                                           |
+| `activatedAt` | `2026-10-28T15:54:00.000Z`                                         |
+
+The review key `owner-review-2026-10` is pinned separately (ADR 0023 §5a).
+Custody: an encrypted PKCS#8 Ed25519 PEM (PBKDF2-SHA512, 2,000,000
+iterations) on the OWNER's Mac
+(`~/Library/Application Support/nwf-engine/keys/owner-campaign-2026-10.pem`)
+and in the OWNER's cloud custody folder; no private material is in this
+repository. Revocation is a reviewed commit setting the entry's state
+`REVOKED` (with `revokedAt`), which stops every campaign recorded under it at
+once. Pinning a key records and starts nothing: a campaign still runs only
+after the OWNER signs it, records it and records `START`, and the other §8
+items stand as written.
+
+## 12. Amendment (R2, 2026-10-28): a campaign may CONTINUE a stopped predecessor's stranded nominations
+
+**FACT (measured in production `nwf_pe`, campaign `nwf-nl-canary-2026-10-v1`,
+id `46b17c8f-d355-4731-befd-f5daf9179855`, signed `maxWorkItems` 100).** The
+NL search produced 87 nominations (87 NOMINATED items). 72 passed
+de-duplication (outcome ADVANCED, next DEDUPLICATED) but only 4 received a
+child before the work-item budget was spent: 68 NOMINATED items are ADVANCED
+with NO child - **stranded**. A second campaign could not reach them: a
+re-found URL is `ON CONFLICT (dedupe_key) DO NOTHING` (no new nomination) and a
+re-found domain is refused `DUPLICATE_OF_EARLIER_NOMINATION`. Budgets are part
+of the signed document and cannot be raised in place.
+
+**DESIGN DECISION (OWNER-approved requirements).** A NEW OWNER-signed campaign
+explicitly continues eligible stranded candidates of a NAMED predecessor;
+nothing is loosened, nothing is merged.
+
+- **Document `nwf-pe.acquisition-campaign.v3`** (draft
+  `nwf-pe.acquisition-campaign-draft.v3`) = v2 plus ONE signed scope field,
+  `scope.continuation = { predecessorCampaignId, nominationIds }`: 1..200
+  distinct nomination ids whose ORDER is the OWNER's priority (first =
+  highest). v1 and v2 are unchanged and still accepted; the canonical JSON,
+  protocol line and signature rules are unchanged. A v3 document must list
+  `SEARCH_GRANT` (the adopted items keep that source kind, so the unchanged
+  dedupe scope rule - the nomination's search-run geography inside the signed
+  geographies - applies as before; it never needed the grant id).
+- **Adoption (migration 0029).** At every worker start, after the first
+  authority and BEFORE any search seeding, the worker adopts the listed
+  nominations in signed order: per nomination, ONE transaction appends one
+  `acquisition_campaign_continuations` row and one NEW work item in the NEW
+  campaign at stage NOMINATED for the SAME nomination (same subject id, same
+  registrable domain, source kind `SEARCH_GRANT`) with **no parent** - it is
+  never presented as the predecessor's child. The database checks, on every
+  adoption and for every role: the adopting campaign's STORED SIGNED document
+  is v3, names this predecessor and lists this nomination at exactly this
+  position; predecessor ≠ campaign, same environment; the predecessor's latest
+  control event is STOP (an OWNER act; nothing lets the worker stop it); the
+  adopting campaign is RUNNING inside its window; the predecessor item is the
+  predecessor's NOMINATED item for the nomination, of source kind
+  SEARCH_GRANT, latest outcome ADVANCED, with no child. Nomination, predecessor
+  item and adopted item are each GLOBALLY UNIQUE in that table, so a
+  nomination is adopted at most once across every campaign and every
+  concurrent worker; the adoption row's foreign key to its item is DEFERRED to
+  commit and a parentless NOMINATED item is admitted only as the item an
+  adoption row names, so a crash leaves only whole adoptions. The
+  pre-adoption geography check runs on the readonly role (the worker role
+  cannot read the run and no read grant was widened) and the unchanged
+  NOMINATED handler re-checks it.
+- **Budgets.** Every adopted item is inserted through the unchanged work-item
+  trigger, so it counts against the NEW campaign's `maxWorkItems` and
+  per-domain cap; all later stages reserve and spend against the NEW
+  campaign's signed budgets, concurrency, attempts and window as any item.
+  The predecessor's usage is not touched.
+- **Priority.** The scheduler breaks a tie between never-served domains (and
+  between equal-priority items) by the signed continuation position, so the
+  adopted items are claimed in the OWNER's order; descendants follow through
+  the unchanged least-recently-served rule. A campaign with no continuation is
+  scheduled exactly as before.
+- **Reuse before search (the item-4 choice).** BOTH safeguards are
+  implemented: the template drafts `maxSearchRuns '0'` when `--continue-from`
+  is given (a reuse-only campaign seeds NO search root at all), and if the
+  OWNER signs `maxSearchRuns > 0`, the worker seeds the campaign's search
+  roots only after no SEARCH_GRANT item of it is still open at a listed stage
+  among NOMINATED / DEDUPLICATED / RESEARCH_PENDING - i.e. after every adopted
+  item has moved on or is terminal.
+- **Named skips.** A listed nomination that is not adopted is reported by
+  name in the worker summary (`continuation.skipped[]`) and in
+  `nwf-pe.acquisition-status.v1` (`continuation`, derived at read time):
+  `ADOPTED_BY_ANOTHER_CAMPAIGN`, `PREDECESSOR_NOT_STOPPED`,
+  `NOT_A_PREDECESSOR_NOMINATION`, `SOURCE_KIND_NOT_SEARCH_GRANT`,
+  `NOT_ADVANCED`, `HAS_CHILD`, `OUT_OF_SCOPE`, `ALREADY_IN_CAMPAIGN`,
+  `WORK_ITEM_BUDGET_EXHAUSTED`, `DOMAIN_CAP_REACHED`. Never silently dropped.
+
+**What does not change.** No nomination, sighting, identity, source evidence or
+dedupe record is created, rewritten or merged; the NOMINATED handler still
+refuses a domain that became a website claim or a discovery subject since
+(`first_nomination_id` still names the same nomination, so it passes). The
+subject id is still derived from (campaign, nomination). The cloud, the I0
+admission contract, the trust sets and the review protocol are untouched. No
+role, LOGIN, UPDATE/DELETE grant or SECURITY DEFINER function is added.
+
+**UNKNOWN.** Whether the 68 production nominations are all still eligible:
+eligibility is decided by the database at adoption time, and each refusal is
+reported by name. An EMERGENCY_STOPPED predecessor is not continuable (STOP
+only, as the OWNER requirement states).
+
+### 12a. R2-P3 correction (2026-10-29): adopt only what the signed budgets can carry
+
+This ADR is still **Proposed**; this paragraph corrects s12 before
+ratification and rewrites none of it.
+
+**FACT (reproduced against a disposable PostgreSQL before the fix).** s12's
+worker adopted EVERY eligible listed nomination at its start. Each adopted
+lineage then needs one research root and `RESEARCH_GATEWAY_RESERVATION` (60)
+gateway requests at RESEARCH_PENDING, and six work items NOMINATED ..
+ASSESSABLE. With more listed nominations than research roots (the OWNER's
+R2-P3 draft: 16 listed, 8 roots, 600 gateway requests, 400 work items), the
+lineages beyond the root budget parked at RESEARCH_PENDING, the worker stopped
+BUDGET_EXHAUSTED, and - because a nomination is adopted at most once, globally
+(`acquisition_continuations_nomination_uidx`), and an adopted NOMINATED item
+with a child is not continuable - no campaign could ever continue them. Scaled
+down (5 listed, 2 roots) the run left 3 adopted lineages at RESEARCH_PENDING
+and a second v3 campaign skipped all 3 `ADOPTED_BY_ANOTHER_CAMPAIGN`. A
+LINK_OUT lineage of the same campaign could also take an adopted lineage's
+research root or its last work items.
+
+**DESIGN DECISION (no migration; 0029 is unchanged).**
+
+- **Allocation-gated adoption.** Under the campaign lock, a listed nomination
+  is adopted only when the campaign's signed limits minus its DERIVED spend
+  (`acquisition_campaign_spend`, live reservations included) and its existing
+  work items cover the nomination's WHOLE lineage after reserving what every
+  already-adopted lineage still needs (`allocationShortfall`, vocabulary.ts):
+  the work items still ahead through every consecutive stage the campaign
+  signs up to the OWNER's release to ASSESSABLE (6 with every worker stage),
+  all on its registrable domain (so also inside the per-domain cap), plus one
+  research root and 60 gateway requests while its research claim is still
+  ahead. Otherwise the nomination is skipped **`NO_PROCESSING_ALLOCATION`**
+  and stays untouched in the STOPPED predecessor: this campaign adopts it if
+  allocation frees up, or a later OWNER-signed v3 campaign may list it. (The
+  check subsumes s12's `WORK_ITEM_BUDGET_EXHAUSTED` / `DOMAIN_CAP_REACHED`
+  skips, which stay in the vocabulary for a refusal the database raises.)
+- **Strict signed order.** The first eligible, in-scope nomination without an
+  allocation ends adoption for that pass: it and every later-listed eligible
+  nomination are skipped `NO_PROCESSING_ALLOCATION`, even one whose own need
+  would fit (no queue-jumping). A nomination skipped for any other named
+  reason does not block.
+- **Allocations are protected.** Work outside the adopted lineages (a
+  link-out or search lineage, an owner-path root or release) is neither
+  inserted into the work items / domain items nor claimed into the research
+  roots / gateway requests those lineages still need; an adopted lineage's own
+  next item and claim use its own allocation.
+- **Just in time.** The worker adopts before EVERY claim (not only at its
+  start), at most `maxConcurrency` minus the adopted lineages still in flight
+  (open before the identity review), and none while the human backlog holds it
+  back. Allocation freed by a lineage refused before research (e.g. DUPLICATE
+  at de-duplication) is used in the same run; a STOP or the window end can
+  leave at most `maxConcurrency` adopted lineages unfinished.
+- **Seen before signing.** `campaign verify` / `sign` print the allocation
+  rule and how many lineages the signed budgets carry (`continuationCapacity`:
+  8 of 16 for the R2-P3 numbers); `nwf-pe.acquisition-status.v1` derives
+  `pending` / `NO_PROCESSING_ALLOCATION` by the same walk, and the engine
+  status explains the skip.
+
+**Residual (UNKNOWN until a later decision).** (1) STOP, EMERGENCY_STOP or the
+window end strands the adopted lineages then in flight - at most
+`maxConcurrency` (1 for R2-P3). (2) A research attempt retried after it
+recorded its admission (PAUSE/RESUME, a lost lease or crash, a handler
+exception, a stale admission) needs a second full reservation under the
+unchanged claim rule (migrations 0024/0026); allocations do not pre-reserve
+retries, so the retried lineage can be stranded when it is the last one the
+root/gateway budget carries. Closing (2) needs a migration (a retry
+reservation crediting the earlier attempt), not taken here. (3) The rule is
+enforced by this build's worker and owner-path store, not by a database
+trigger: every worker of a v3 campaign must run this build.

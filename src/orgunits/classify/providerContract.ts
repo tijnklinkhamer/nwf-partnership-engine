@@ -58,6 +58,18 @@ export interface ClassifierProviderRequest {
   readonly outputJsonSchema: unknown;
   readonly modelId: string;
   readonly runConfig: ClassifierRunConfig;
+  /**
+   * OPTIONAL, ADR 0011: a caller-supplied TOTAL time window, in
+   * milliseconds, for this one call. Absent, the adapter applies its own
+   * frozen total budget exactly as before. Present, the adapter opens its
+   * window the moment `classify()` is entered (so pre-flight and
+   * auth-status time count against it), never widens it beyond the frozen
+   * total, and bounds every attempt inside it. It exists so that a bounded
+   * repair round can spend only what REMAINS of its original evaluation's
+   * budget. It is a runtime bound, never semantic input: it enters no
+   * serialisation, no identity and no persisted `request_config`.
+   */
+  readonly totalBudgetMs?: number;
 }
 
 export type ClassifierProviderOutcomeKind =
@@ -92,6 +104,18 @@ export interface ClassifierProviderResult {
    * source rather than at the persistence boundary.
    */
   readonly outcomeDetail: string | null;
+  /**
+   * 2D2C-F0Z: the machine-readable reason behind a non-`OK` outcome, from
+   * the closed `PROVIDER_OUTCOME_REASON_CODES` set. `null` on `OK` and on
+   * any implementation that predates the field.
+   *
+   * REPORTING ONLY. Nothing branches on it — the outcome enum alone still
+   * decides stop/continue. It exists so that `error_max_turns` (a turn-budget
+   * exhaustion) can never be read as a schema failure, and so that a
+   * liveness-deadline TIMEOUT can be told apart from a total-budget one
+   * without parsing English.
+   */
+  readonly outcomeReasonCode: string | null;
 }
 
 /** The provider-neutral seam. Implementations own network, auth and retries entirely themselves. */

@@ -12,18 +12,53 @@ could distribute NWF to language learners.
 **Current state: Phase 1D, plus the Phase 2B-1a trust foundation, the
 Phase 2B-1b web gateway, the Phase 2B-1c policy-governed page evidence
 capability, the Phase 2B-1d deterministic signal layer, and the Phase 2B-1e
-bounded discovery orchestrator (landed on main). This
-repository ingests THREE official datasets into a local PostgreSQL database —
-the ECHE list, the EWP Registry catalogue and the French Ministry register of
-higher-education institutions — lets you inspect them, and measures how their
-published identifiers and website values relate. It also holds a bounded
-DISCOVERY capability: given one trusted organisation root, it evaluates that
-host's robots.txt, discovers a bounded sitemap tree and a bounded set of
-same-domain anchor links, fetches up to 35 policy-governed pages under a
-60-request total budget, ranks each successfully-read page with the pure
-deterministic signal layer, and appends the ranked result as candidate
-evidence. Nothing beyond this is wired together: no semantic classifier, no
-AI, no contact discovery, no outbound capability. That is all it DOES.**
+bounded discovery orchestrator (landed on main), plus the accepted
+Phase 2B-2C2 / 2B-2C2A semantic-classifier runtime and the accepted
+Phase 2B-2D2C-R1 bounded item-level repair round — see
+`docs/adr/0009-claude-max-only-classifier-runtime.md`,
+`docs/adr/0010-stored-max-subscription-profile-auth.md` and
+`docs/adr/0011-bounded-item-level-repair-round.md` (all Status: Accepted),
+plus the accepted robots-redirect continuation repairs
+`docs/adr/0012-same-host-robots-redirect-continuation.md` and
+`docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md`.
+This repository ingests THREE official datasets into a
+local PostgreSQL database — the ECHE list, the EWP Registry catalogue and
+the French Ministry register of higher-education institutions — lets you
+inspect them, and measures how their published identifiers and website
+values relate. It also holds a bounded DISCOVERY capability: given one
+trusted organisation root, it evaluates that host's robots.txt, discovers a
+bounded sitemap tree and a bounded set of same-domain anchor links, fetches
+up to 35 policy-governed pages under a 60-request total budget, ranks each
+successfully-read page with the pure deterministic signal layer, and appends
+the ranked result as candidate evidence. On top of that, an approved,
+narrowly-scoped internal semantic classifier (`src/orgunits/classify/`,
+migrations 0009-0011, the append-only `nwf_classifier` role) can turn that
+ranked page evidence into a structured, schema-validated classification, by
+calling ONLY the owner's own Claude Max subscription through the Agent SDK —
+never a Console API key, never PAYG, never Bedrock, never Vertex, never an
+unapproved provider or auth path. That classifier is INFERENCE ONLY: it
+sends nothing to a partner organisation, creates no contact, and has no
+outreach action. Nothing beyond all of this is wired together: still no
+contact discovery, no outreach execution, no Apollo integration, and no
+capability that sends anything to a real organisation. That is all it
+DOES. Plus the WW acquisition line (ADRs 0027–0030, Proposed until accepted):
+OWNER-granted live source discovery, OWNER-signed campaigns and an
+append-only acquisition queue whose worker discovers, deduplicates,
+researches through the existing gateway, extracts source-backed C1 evidence
+(`nwf-pe.qualification-input-export.v2`, rules
+`nwf-pe-c1-extraction-rules-v3`, extraction label `orgunit-extraction-v4`)
+and writes an outbox (`nwf-pe.acquisition-outbox.v1`) for the Operator; and
+the Mac runtime (`npm run engine -- …`) that supervises it. Migrations
+0013–0028.**
+
+**Current phase note (Phase 2B-2D2C, DEVELOPMENT only).** The branch-local
+Phase 2B-2D2C work, through the owner-reviewed F0X slice on this branch, is a
+bounded V4/V5 N=5 REPLICATION STUDY that evaluates classifier reliability
+under ADR 0011's one bounded repair round. It is an EVALUATION capability,
+not a general-purpose production classifier CLI and not an outreach
+capability: it runs only under its exact frozen per-slot authorisations plus
+one exact study-level owner execution approval, stays DEVELOPMENT-only, and
+HOLDOUT remains prohibited until separately authorised.
 
 **Migration 0007 creates eight `orgunit_*` tables and the `nwf_research` role.
 Phase 2B-1b built `src/orgunits/web/gateway.ts` against them; Phase 2B-1c added
@@ -56,10 +91,34 @@ resolution: see "What Phase 1B measured" below. Website agreement is likewise a
 DERIVED comparison over immutable claims, never a stored conclusion: see "What
 Phase 1D measured".
 
-There is no entity resolution, no crawling or scraping, no research pipeline, no
-Claude/Anthropic integration, no contact discovery or storage, no scoring, no
-compliance engine, no email templates, no Apollo integration and no outbound
-capability. Do not add any of them without an approved phase.
+There is no entity resolution, no unbounded crawling or scraping, no contact
+discovery or storage, no compliance engine, no email templates, no Apollo
+integration and no outbound/outreach capability. Do not add any of them
+without an approved phase. Three bounded exceptions are approved, each
+INFERENCE- or RESEARCH-ONLY, each sending nothing to an organisation, storing
+no contact and performing no outreach:
+
+1. the internal semantic classifier (ADR 0009, ADR 0010, ADR 0011): the
+   owner's own Claude Max subscription through the Agent SDK;
+2. **live WebSearch source discovery** (ADR 0027, ADR 0028): one Agent SDK
+   call site (`src/orgunits/sourceDiscovery/`), the owner's Claude Max
+   subscription only, and only under a stored OWNER-path grant row (plan
+   digest, geography, model, query and run caps, DB-clock window). Each call
+   performs at most one WebSearch for exactly the planned query (PreToolUse
+   hook + `canUseTool`, `allowedTools: []`), keeps results only when the tool
+   reported exactly one search, and is relied on only after an OWNER smoke
+   verification of that SDK version and model. A nomination is a URL to
+   consider, never a fetch: nothing is requested until a campaign admits it;
+3. **the acquisition queue** (ADR 0029, ADR 0030): an append-only work queue
+   driven only by an OWNER-signed campaign document (Ed25519, operational
+   trust set `OPERATIONAL_OWNER_CAMPAIGN_KEYS`), bounded by DB-enforced
+   budgets, a window, geographies, source kinds and link-out hops. Its
+   research goes through the existing gateway and robots rules unchanged.
+   Identity review stays a batched, per-subject, OWNER-signed act; the worker
+   never confirms an identity, states a country or scores anything.
+
+Every other prohibition in this paragraph governs anything beyond those
+bounded uses, and none of them gains an exception to any rule below.
 
 **Phase 1D never fetches an institution website.** It reasons about websites
 using only what official registers PUBLISH about them. It issues no request to
@@ -80,10 +139,29 @@ it, or depend on it, and must never touch learner, payment, or payout data.
 
 ## Non-negotiable rules
 
-1. **No outbound capability.** This repository cannot send anything and must stay
-   that way in Phase 1B. When an outbound phase is eventually approved, sending
-   must default to off and pass an explicit multi-gate check. Never add an email
-   dependency, provider credential or send code path to this repo now.
+1. **No outbound PARTNERSHIP-OUTREACH capability.** This repository cannot send
+   anything to an external organisation, activate a contact, or execute outreach —
+   no email, no Apollo execution — and must stay that way absent a separately
+   approved outbound-outreach phase, where sending would default to off and
+   pass an explicit multi-gate check. Never add an email dependency, an
+   outreach-provider credential, or a partnership-outreach send code path to
+   this repo now.
+
+   **Separately approved internal semantic-classifier inference is not
+   partnership outreach.** ADR 0009, ADR 0010 and ADR 0011 govern the bounded
+   Claude Max classifier runtime and its repair policy. That runtime may use
+   only the owner-provisioned Claude Max subscription path defined by ADR 0010
+   through the Agent SDK; no Console API key, PAYG, Bedrock, Vertex or other
+   unapproved provider/auth path is permitted. It classifies already-fetched,
+   already-authorised page evidence only and does not create or activate
+   contacts, send outreach, or access HOLDOUT without separate authorisation.
+
+   **Approved live source discovery is not partnership outreach either.** ADR
+   0028 governs it: the same owner-provisioned Claude Max path as the
+   classifier (ADR 0010), a stored OWNER-path grant per run, and no provider,
+   key or auth path beyond that. It reads public search results only; it never
+   contacts, emails or submits anything to an organisation.
+
 2. **Never guess a value.** No inferred websites, no inferred country from a name
    or an Erasmus-code prefix, no invented identifiers. Unknown is `NULL`.
    `normaliseRow` throws on a malformed row rather than repairing it.
@@ -191,10 +269,17 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     The gateway returns bounded bytes IN MEMORY because a later extractor needs
     them; when the caller drops that value the bytes are gone.
     `src/research/`, `src/crawl/`, `src/scrape/` and `src/enrich/` stay
-    forbidden, as do `src/orgunits/web/robots.ts`, `sitemap.ts`, `frontier.ts`,
-    `extract.ts`, `charset.ts`, `src/orgunits/signals/`,
-    `src/orgunits/candidates/` and `src/orgunits/classify/` — all asserted
-    absent, all belonging to later slices.
+    forbidden, as does `src/orgunits/candidates/`. (This list described a
+    point-in-time snapshot as later slices landed; several of the paths named
+    here — including `src/orgunits/web/robots.ts`, `extract.ts`, `charset.ts`
+    and `src/orgunits/signals/` — exist today, per "What Phase 2B-1c built"
+    and "What Phase 2B-1d built" below.) **`src/orgunits/classify/` is no
+    longer forbidden or absent**: ADR 0009, ADR 0010 and ADR 0011 (all
+    Status: Accepted) approved a bounded internal semantic-classifier
+    namespace there, gated to the owner's own Claude Max subscription via
+    the Agent SDK, append-only through the `nwf_classifier` role (migration
+    0009). It remains subject to every other rule in this file, including
+    rule 1's outreach prohibition.
 
 18. **ONE invocation of the gateway is ONE HTTP ATTEMPT, and every authority
     comes from the database.** `executeWebAttempt` performs at most one GET. It
@@ -264,9 +349,22 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     ordinary page. `src/orgunits/web/robots.ts` is the ONE production caller
     of `executeWebAttempt`, owns no socket itself, and fetches robots.txt at
     most once per host per run via an explicit, run-scoped `RobotsCache` —
-    never a module-level singleton. Robots.txt redirects are never followed
-    and map onto the already-landed `ROBOTS_UNREADABLE` value; no migration
-    was needed (ADR 0006 s7).
+    never a module-level singleton. **A robots.txt 3xx may be continued
+    EXACTLY ONCE, to the SAME REGISTRABLE DOMAIN's own policy path** — ADR
+    0012 (same hostname) as widened by ADR 0013 (same registrable domain,
+    "Option C-lite"), on RFC 9309 §2.3.1.2, which says a policy file reached
+    through redirects governs the INITIAL authority. The gateway still
+    follows nothing: the continuation is a separate, fully revalidated
+    request decided in `robots.ts`, under a freshly minted URL-scoped
+    authority. A cross-registrable-domain target, a downgrade, any other
+    path, a query, a port, a credential and a second hop are all refused, and
+    anything refused maps onto the already-landed `ROBOTS_UNREADABLE` value;
+    no migration was ever needed (ADR 0006 s7). A HOST-CHANGING continuation
+    consumes a distinct-host slot like any other hostname — there is no
+    robots exemption from `MAX_HOSTS_PER_ROOT`, and the orchestrator answers
+    that question before the request is issued — and its result is NOT cached
+    as the target origin's own policy, because nobody asked that origin for
+    its policy. If the run later crawls that host, it resolves its own.
 23. **Page evidence is extracted with no DOM, and every returned field is
     redacted before it is returned.** `extract.ts` reads charset-decoded text
     with regular expressions — `jsdom`, `cheerio`, `parse5`,
@@ -310,10 +408,14 @@ Keep these apart. Do not promote one to another without evidence.
   `src/orgunits/web/gateway.ts`, using Node's core HTTP client rather than
   `fetch()` so the connection can be pinned to a validated address, and no proxy
   indirection can put a resolver back in between (Phase 2B-1b,
-  `docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`). Fetch policy
-  `orgunit-fetch-policy-v1`: **30 s connect, 45 s total**, 5 MiB body cap over
-  both the wire and the decoded stream. A run whose recorded policy version this
-  build does not implement is REFUSED. The long connect timeout is the frozen
+  `docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`). The fetch
+  policy is now **`orgunit-fetch-policy-v3`** — v1 under ADR 0005, v2 under
+  ADR 0012, v3 under ADR 0013, and each bump changed ONLY the robots-redirect
+  continuation boundary. The numbers have never moved: **30 s connect, 45 s
+  total**, 5 MiB body cap over both the wire and the decoded stream. A run
+  whose recorded policy version this build does not implement is REFUSED, so a
+  v1 or v2 run can be read but never resumed, and no historical observation is
+  reinterpreted. The long connect timeout is the frozen
   design baseline and is deliberate: a shorter one buys throughput by turning
   slow-but-reachable institutional sites into `CONNECT_TIMEOUT` rows that are
   indistinguishable from genuinely unreachable ones. The cost the holdout
@@ -326,6 +428,14 @@ Keep these apart. Do not promote one to another without evidence.
   regular expressions over decoded text rather than a DOM; charset resolution
   scans a real 64 KiB `<head>` rather than the 1024-byte prescan window that
   missed the ADR 0004 s3 holdout's own late-meta case.
+- A robots.txt 3xx is continued exactly ONCE, to the same registrable domain's
+  own policy path (Phase 2B-2D, `docs/adr/0012-...` as superseded on that one
+  boundary by `docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md`).
+  RFC 9309 §2.3.1.2 recommends following at least five such redirects, even
+  across authorities, and applying the result to the INITIAL authority; this
+  repository deliberately follows ONE, inside ONE registrable domain, and
+  records that as a stricter posture rather than an oversight. The gateway is
+  untouched by both repairs and still follows nothing.
 
 **Working hypotheses — not settled**
 
@@ -1095,6 +1205,17 @@ npm run fixture:build -- <path-to-real-eche.xlsx>
 npm run cli -- orgunits discover --organisation-id <uuid>              # DRY RUN: zero DNS, zero HTTP
 npm run cli -- orgunits discover --organisation-id <uuid> --execute    # a REAL bounded research run
 npm run cli -- orgunits discover --organisation-id <uuid> --execute --json
+
+# Mac runtime (OWNER Mac only; never applies a migration, never pins a key)
+npm run engine -- doctor
+npm run engine -- start --campaign-id <uuid> --outbox-dir <dir>
+npm run engine -- status | pause | resume | stop | shutdown | logs | recover
+
+# Acquisition (OWNER path; every write needs its OWNER key and --execute)
+npm run cli -- acquisition campaign template
+npm run cli -- acquisition review list --campaign-id <uuid> --json
+npm run cli -- acquisition review sign --campaign-id <uuid> --subject-id <S> \
+  --expect <S>=<stateDigest> [--country <S>=<CC>@<pageEvidenceId>] --execute
 ```
 
 ## Layout
@@ -1209,12 +1330,34 @@ src/orgunits/orchestrator/  the Phase 2B-1e bounded discovery orchestrator:
                      Nothing else under src/orgunits/ may import node:dns,
                      node:net, node:tls, node:http or node:https, or call
                      fetch(). src/orgunits/web/sitemap.ts, web/frontier.ts and
-                     src/orgunits/candidates/ and /classify/ do not exist and
-                     belong to later slices (sitemap/frontier logic lives at
-                     the paths above instead - a deliberate naming decision).
+                     src/orgunits/candidates/ still do not exist (sitemap/
+                     frontier logic lives at the paths above instead - a
+                     deliberate naming decision). src/orgunits/classify/ DOES
+                     exist: an approved, bounded internal semantic-classifier
+                     namespace (ADR 0009, ADR 0010, ADR 0011, all Status:
+                     Accepted), which calls ONLY the owner's own Claude Max
+                     subscription through the Agent SDK and is append-only
+                     through the nwf_classifier role (migration 0009). See
+                     those ADRs for its internal layout.
                      Nothing under src/orgunits/signals/ opens a socket, a
                      database connection or a file handle, reads an
                      environment variable, or calls Date.now()/Math.random().
+src/orgunits/sourceDiscovery/  ADR 0027/0028: the ONE Agent SDK WebSearch call
+                     site, the search planner, grants, smoke verification,
+                     nominations. No socket of its own beyond the SDK.
+src/orgunits/acquisition/      ADR 0029: signed campaigns, trust set, the
+                     append-only queue, claims, leases, budgets, worker loop.
+src/orgunits/acquisitionWiring/ ADR 0030: the six wired stage handlers,
+                     CAMPAIGN research admission, the batched OWNER identity
+                     review (`review list` / `review sign --expect
+                     [--country]`), the outbox, status v1.
+src/orgunits/c1Extraction/     deterministic C1 evidence extraction (rules v3):
+                     OBSERVED only for listing-shaped artefacts, proposals for
+                     statements, negation and page guards in 8 languages.
+src/runtime/         the Mac runtime: doctor, start/stop/pause/resume/
+                     shutdown, status, logs, recover, install-agent (writes a
+                     launchd plist only with --i-understand --execute; never
+                     loads it).
 ```
 
 ## Things the real data will surprise you with

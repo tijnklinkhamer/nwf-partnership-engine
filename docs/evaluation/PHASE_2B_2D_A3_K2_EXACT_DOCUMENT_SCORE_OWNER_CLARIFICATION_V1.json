@@ -1,0 +1,269 @@
+{
+  "recordId": "phase2b-2d-a3-k2-exact-document-score-owner-clarification-v1",
+  "recordKind": "OWNER_CLARIFICATION",
+  "decisionToken": "K2_EXACT_DOCUMENT_SCORE_MAX_SOURCE_ROW_NO_REPRESENTATIVE_V1",
+  "selectedOption": "RECOMMEND_K2_MAX_SOURCE_ROW_SCORE_NO_REPRESENTATIVE",
+  "jointSemanticsToken": "SET_R_DOCUMENT_SCORE_MAX_PERSISTED_SIGNAL_EVIDENCE_V1",
+  "jointOwnerSelection": "RECOMMEND_SET_R_DOCUMENT_SCORE_MAX_PERSISTED_SIGNAL_EVIDENCE",
+  "classification": "OWNER_INTERPRETATION_OF_UNDEFINED_EXACT_DOCUMENT_SCORE_REDUCTION",
+  "explicitlyNotClassifiedAs": [
+    "METHODOLOGY_AMENDMENT",
+    "NEW_METHODOLOGY_VERSION",
+    "R4",
+    "SD7_RULE_CHANGE",
+    "SIGNAL_RULE_CHANGE",
+    "CANDIDATE_SCORE_CHANGE",
+    "EXECUTION_AUTHORITY"
+  ],
+  "recordedAtUtc": "2026-09-21T22:38:34Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "branch": "feat/phase2b-2d-a3-k1-k2-set-r-score-policy",
+  "canonicalParentCommit": "1a324ba812168332954f5c1a483d4d54f718c2de",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "whatThisRecordIs": "An IMMUTABLE governance record of the owner's interpretation of how ONE exact document (one documentSha256, possibly grouping several source page-evidence rows) receives ONE SET_R score, and of whether any source row is that document's canonical representative. It consumes the landed K1 page-level score by reference and restates none of K1's semantics independently.",
+  "resolvesMarker": {
+    "id": "K2",
+    "marker": "A3_PREP_OWNER_DECISION_REQUIRED:EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE",
+    "markerDeclaredIn": "src/test/harness/phase2b2d/a3prep/contracts.ts",
+    "markerStringIsRetainedUnchanged": true
+  },
+  "boundK1": {
+    "path": "docs/evaluation/PHASE_2B_2D_A3_K1_SET_R_TRACK_SCORE_OWNER_CLARIFICATION_V1.json",
+    "sha256": "2437ef4b0bcabc816432c338e02da3b6eaa80fedb561b805232ad906fbbc94be",
+    "bytes": 10367,
+    "decisionToken": "K1_SET_R_TRACK_SCORE_MAX_V1",
+    "commit": "f48b9a6fbff00c59d93c3a084c7bfdc51b2fb73f",
+    "consumes": "K1 pageSetRScore(row), exactly as K1 defines it",
+    "k1SemanticsRestatedHere": false
+  },
+  "theGapAcknowledged": {
+    "whatIsUndefined": "SD7 collapses source page-evidence rows with the same documentSha256 into one exact document, and no frozen source chooses which row (and so which candidate score) speaks for the group.",
+    "frozenAuthorityAlreadyChoseARepresentative": false,
+    "statement": "This is an explicit owner clarification of an undefined reduction, not a reading of existing text."
+  },
+  "ownerDecision": {
+    "documentIdentity": "documentSha256",
+    "documentIdentityStatement": "Canonical SET_R document identity remains documentSha256. No page-evidence row, URL or root becomes identity. Every source page-evidence id in the exact-document group remains provenance.",
+    "nonIdentities": ["PAGE_EVIDENCE_ID", "URL", "ROOT"],
+    "representativePolicy": "NO_PAGE_EVIDENCE_REPRESENTATIVE_IS_CANONICAL_FOR_SET_R",
+    "representativeSelectorsProhibited": [
+      "LOWEST_PAGE_EVIDENCE_ID",
+      "FIRST_FETCH",
+      "URL",
+      "ROOT",
+      "RANK_WITHIN_ROOT",
+      "BEST_SCORE"
+    ],
+    "maxScoreRowRole": "SCORE_PROVENANCE",
+    "maxScoreRowIsNot": "DOCUMENT_REPRESENTATIVE",
+    "maxScoreRowStatement": "Even when one source observation supplies the maximum score, that row is SCORE_PROVENANCE, not DOCUMENT_REPRESENTATIVE.",
+    "documentLevelReducer": "MAX_K1_PAGE_SCORE_ACROSS_SOURCE_ROWS",
+    "definition": "documentSetRScore = max(K1 pageSetRScore(row) for every source page-evidence row of D)",
+    "equivalentDefinition": "documentSetRScore = max(candidate_score observation over every source page-evidence row of D and both required tracks)",
+    "jointSemantics": "SET_R_DOCUMENT_SCORE_MAX_PERSISTED_SIGNAL_EVIDENCE_V1",
+    "reductionOrderIndependence": {
+      "property": "For a finite non-empty evidence set: max_rows(max_tracks(score)) = max_(row,track)(score) = max_tracks(max_rows(score))",
+      "canonicalResultDependsOnReductionStaging": false,
+      "trackFirstVsRowFirstSemanticDifference": "NONE"
+    },
+    "duplicateMultiplicityPolicy": "IDEMPOTENT_NO_MULTIPLICITY_WEIGHT",
+    "duplicateMultiplicityStatement": "Another copy of the same exact document with an already-observed score neither increases nor decreases the document score. Exact duplicate multiplicity must not become enrichment weight.",
+    "multiplicityWeightingsProhibited": [
+      "SUM_OVER_ALIASES",
+      "ALIAS_COUNT_MULTIPLIER",
+      "OBSERVATION_COUNT_WEIGHTED_MEAN"
+    ],
+    "urlAliasEffect": {
+      "acknowledged": true,
+      "statement": "Source rows sharing the same document bytes can carry different candidate scores because the URL path is part of candidate evidence. Under MAX, the strongest persisted deterministic evidence attached to ANY observed alias of the exact document determines the document score.",
+      "ownerAcceptsThisConsequence": true,
+      "winningAliasBecomesRepresentative": false,
+      "allAliasesRemainProvenance": true
+    },
+    "integrityPolicy": {
+      "everySourceRowMustBeK1Valid": true,
+      "refuseRatherThanRepair": [
+        "MISSING_TRACK_A",
+        "MISSING_TRACK_B",
+        "DUPLICATE_REQUIRED_TRACK_OBSERVATION",
+        "UNEXPECTED_OR_MIXED_SIGNAL_RULE_VERSION",
+        "MALFORMED_PERSISTED_SCORE_VALUE",
+        "CANDIDATE_OBSERVATION_FOR_PAGE_OUTSIDE_DOCUMENT_SOURCE_GROUP",
+        "FETCH_DOCUMENT_SHA_MISMATCH",
+        "UNEXPECTED_CANDIDATE_TRACK"
+      ],
+      "prohibitedRepairs": [
+        "SCORE_ZERO_SUBSTITUTION",
+        "SKIP_MALFORMED_ROWS",
+        "FALLBACK_TO_ONE_REMAINING_TRACK"
+      ],
+      "detailedValidationBelongsTo": "IMPLEMENTATION",
+      "failClosedPolicyIsOwnerBoundHere": true
+    },
+    "finalSetROrder": {
+      "keys": [
+        {
+          "position": 1,
+          "key": "documentSetRScore",
+          "direction": "DESCENDING"
+        },
+        {
+          "position": 2,
+          "key": "sha256(\"SET_R_V2_R2:\" + documentSha256)",
+          "direction": "ASCENDING"
+        }
+      ],
+      "wording": "SET_R total order is EXACTLY: 1. documentSetRScore descending; 2. sha256(\"SET_R_V2_R2:\" + documentSha256) ascending. Nothing else.",
+      "hiddenSecondaryKeysProhibited": [
+        "TRACK",
+        "PAGE",
+        "URL",
+        "ROOT",
+        "RUN",
+        "PERSISTED_ROOT_RANK",
+        "DISCOVERY_ORDER"
+      ]
+    },
+    "provenance": {
+      "futurePreparationShouldProve": [
+        "ALL_SOURCE_PAGE_EVIDENCE_IDS",
+        "THEIR_REQUIRED_TRACK_A_B_OBSERVATIONS",
+        "THE_BOUND_SIGNAL_RULE_VERSION"
+      ],
+      "scoringResultNeedsRawUrlsOrText": false,
+      "sourceRowDiscardedSemanticallyForNotWinningMax": false,
+      "outputShapeDesignedHere": false
+    }
+  },
+  "rejectedAlternatives": [
+    "SUM_TRACK_SCORES",
+    "MEAN",
+    "MIN_SOURCE_SCORE",
+    "REPRESENTATIVE_BY_URL",
+    "REPRESENTATIVE_BY_PAGE_ID",
+    "REPRESENTATIVE_BY_PERSISTED_RANK",
+    "TRACK_PRIORITY",
+    "INTERLEAVING",
+    "CLAMP_TO_ZERO",
+    "MULTIPLICITY_WEIGHTING"
+  ],
+  "exclusions": {
+    "doesNotDecide": [
+      "GOLD_ID",
+      "A4_ITEM_IDENTITY",
+      "LABEL",
+      "UNIT_TYPE",
+      "HARD_NEGATIVE_STATUS",
+      "NEAR_DUPLICATE_IDENTITY",
+      "SHORT_TEXT_SEMANTICS",
+      "K4",
+      "CLASSIFIER_RESULT"
+    ],
+    "postLabelInformationParticipates": false
+  },
+  "whatThisDoesNotChange": {
+    "r3Changed": false,
+    "planV1Changed": false,
+    "k1Changed": false,
+    "k3Changed": false,
+    "shortTextPolicyChanged": false,
+    "sd7Changed": false,
+    "rankSaltChanged": false,
+    "capChanged": false,
+    "signalRuleVersionChanged": false,
+    "scoreRecomputationAuthorised": false,
+    "realSetRAuthorised": false,
+    "realA3Authorised": false,
+    "newMethodologyVersion": false,
+    "r4Created": false,
+    "statement": "Every value in this object is false in the sense of 'this decision changed or authorised it'."
+  },
+  "boundAuthority": {
+    "canonicalParentCommit": "1a324ba812168332954f5c1a483d4d54f718c2de",
+    "k1OwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_K1_SET_R_TRACK_SCORE_OWNER_CLARIFICATION_V1.json",
+      "sha256": "2437ef4b0bcabc816432c338e02da3b6eaa80fedb561b805232ad906fbbc94be",
+      "bytes": 10367,
+      "commit": "f48b9a6fbff00c59d93c3a084c7bfdc51b2fb73f"
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "corpusPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "corpusPlanApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    "k3OwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_OWNER_CLARIFICATION_V1.json",
+      "sha256": "987b88a0848a5020605619f24a9accd73a04e886c80f72ab81608fbade765eab",
+      "bytes": 15475
+    },
+    "shortTextMembershipPolicy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_OWNER_POLICY_V1.json",
+      "sha256": "b734805bbaddc6890dc7032179b4a639a69a790282923b41641710a060b3d05a",
+      "bytes": 19924
+    },
+    "productionCandidateScoring": {
+      "path": "src/orgunits/signals/score.ts",
+      "sha256": "bf0622370dadaa82c177c10bcde2cda54d2b80ad80979e6533944cd3e19f917c",
+      "bytes": 11511
+    },
+    "productionCandidatePersistence": {
+      "path": "src/orgunits/orchestrator/candidates.ts",
+      "sha256": "3cb8a57dd1663590a4781b15d0d0a2edfc39a80a75d195a1cc9de36ede27cecc",
+      "bytes": 5639
+    },
+    "signedScoreMigration": {
+      "path": "migrations/0008_signed_candidate_score.sql",
+      "sha256": "fa777cd193c0b97461bfc2167a8bb42cc64a8960ee2817aaa2f74553440df2b5",
+      "bytes": 6886
+    },
+    "canonicalR9Audit": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R9_CORPUS_FREEZE_PREFLIGHT_V1.md",
+      "sha256": "f5423992096bbef9cac1964b36f8af694cc0ae6fe7a0c51323c4ee993d19f48d",
+      "bytes": 11901
+    },
+    "a3DocumentTypes": {
+      "path": "src/test/harness/phase2b2d/a3prep/types.ts",
+      "sha256": "d73d41f8e8ab92a788aa74c0ec3ec4455b4b541eba450cbc84362c78dbec38c1",
+      "bytes": 8576
+    },
+    "exactDocumentSd7Contract": {
+      "path": "src/test/harness/phase2b2d/sd7/sd7Contract.ts",
+      "sha256": "882dad5e990cf40ff326b5fecea3e691720b6d8214f02bf4629ab6fefd2b0f60",
+      "bytes": 7750
+    },
+    "exactDocumentSd7A3Adapter": {
+      "path": "src/test/harness/phase2b2d/a3prep/sd7.ts",
+      "sha256": "322d2dd09f17dcc7ce0afa1862a13892f8bdadfece1c3ec919580f9d49977086",
+      "bytes": 19821
+    }
+  },
+  "whatThisRecordDoesNotDo": [
+    "it does not implement any score reducer, decimal comparator, SET_R hash, SET_R rank or SET_R survivor binding",
+    "it does not design any public or sealed output shape",
+    "it does not resolve K4",
+    "it does not change K1, K3 or the short-text membership policy",
+    "it does not authorise real A3, any score recomputation, any real SET_R, any manifest, any corpus freeze, any label or any provider inference",
+    "it does not grant any network, database, sealed-filesystem or reserve authority"
+  ],
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused."
+  }
+}

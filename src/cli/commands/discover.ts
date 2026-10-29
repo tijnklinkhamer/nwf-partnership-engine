@@ -10,11 +10,19 @@
  * one approved gateway via `robots.ts`.
  *
  * EXECUTION GUARD: without `--execute`, this command performs a DRY RUN -
- * it resolves the organisation's root authority (a plain SQL read of
- * `website_claims`/`orgunit_root_promotions`, never `resolveRoot` from
- * `web/authority.ts`) and reports the plan. ZERO DNS, ZERO HTTP requests, no
- * fake fetch evidence, no invented candidate result. `--execute` is required
- * for a real research run.
+ * it resolves the organisation's root authority and its evaluation-cohort
+ * eligibility through the orchestrator's own guard
+ * (`planOrganisationResearch` - plain reads of `organisations`,
+ * `website_claims`, the promotion chain and the pinned cohort files) and
+ * reports the plan. ZERO DNS, ZERO HTTP requests, no run row, no fake fetch
+ * evidence, no invented candidate result. `--execute` is required for a real
+ * research run.
+ *
+ * EVALUATION-COHORT GUARD (Track B, B3.0): a protected, unverifiable or
+ * identity-conflicting organisation is REFUSED in both modes, with a generic
+ * code/kind/reason and no root list - the dry run is never a cohort
+ * enumeration endpoint. `--execute` does not trust a previous dry run:
+ * `runOrganisationDiscovery` re-plans and re-guards before it starts a run.
  *
  * SCOPE: exactly ONE organisation per invocation (`--organisation-id`).
  * There is no `--all`, `--crawl-everything` or `--scan-database` - a
@@ -24,9 +32,14 @@
  * append-only, root-authority-read-only role migration 0007 created for
  * exactly this purpose. Never `admin`/`ingest`.
  */
-import type pg from 'pg';
 import { withPool } from '../../db/client.js';
 import * as log from '../../logging/log.js';
+import type { OrganisationRunResult } from '../../orgunits/orchestrator/orchestrate.js';
+import type {
+  ResearchCohortGuardDeps,
+  ResearchCohortRefusal,
+  ResearchExecutionPlan,
+} from '../../orgunits/orchestrator/researchCohortGuard.js';
 
 export interface DiscoverOptions {
   organisationId?: string;
@@ -34,52 +47,53 @@ export interface DiscoverOptions {
   json: boolean;
 }
 
-interface ResolvedRootPlanRow {
-  kind: 'WEBSITE_CLAIM' | 'ROOT_PROMOTION';
-  id: string;
-  label: string;
-  url: string | null;
+/**
+ * Test seam: the cohort-registry loader only. Production (`src/cli/index.ts`)
+ * passes nothing, so the committed pinned artifacts decide. There is no
+ * transport here: `--execute` always uses the production gateway.
+ */
+export type DiscoverDependencies = ResearchCohortGuardDeps;
+
+const NO_NETWORK_NOTE =
+  'No DNS lookup and no HTTP request were made. Pass --execute to run bounded ' +
+  'discovery for real, through the research role.';
+
+/** Generic by construction: code, kind and reason only - never a cohort, key or root. */
+function reportRefusal(
+  options: DiscoverOptions,
+  mode: 'DRY_RUN' | 'EXECUTE',
+  refusal: ResearchCohortRefusal,
+): number {
+  if (options.json) {
+    process.stdout.write(
+      `${JSON.stringify(
+        {
+          mode,
+          organisationId: options.organisationId,
+          eligibility: 'REFUSED',
+          refusal: refusal.toJSON(),
+          note: 'No research run was created. No DNS lookup and no HTTP request were made.',
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  } else {
+    log.error(
+      `orgunits discover refused for organisation ${options.organisationId}: ` +
+        `${refusal.code} ${refusal.kind} (${refusal.reason}). No research run was created, ` +
+        'and no DNS lookup or HTTP request was made.',
+    );
+  }
+  return 1;
 }
 
-async function planRoots(pool: pg.Pool, echeRowKey: string): Promise<ResolvedRootPlanRow[]> {
-  const claims = await pool.query<{
-    id: string;
-    source_kind: string;
-    normalised_url: string | null;
-  }>(
-    `SELECT id, source_kind, normalised_url FROM website_claims
-      WHERE eche_row_key = $1 AND structural_status = 'STRUCTURALLY_VALID'
-      ORDER BY source_kind, id`,
-    [echeRowKey],
-  );
-  const promotions = await pool.query<{ id: string; to_url_resolved: string | null }>(
-    `SELECT p.id, r.to_url_resolved
-       FROM orgunit_root_promotions p
-       JOIN orgunit_redirect_observations r ON r.id = p.redirect_observation_id
-       JOIN orgunit_fetch_observations f    ON f.id = r.fetch_observation_id
-      WHERE f.eche_row_key = $1
-        AND NOT EXISTS (SELECT 1 FROM orgunit_root_promotion_revocations v WHERE v.promotion_id = p.id)
-      ORDER BY p.id`,
-    [echeRowKey],
-  );
-  return [
-    ...claims.rows.map((row) => ({
-      kind: 'WEBSITE_CLAIM' as const,
-      id: row.id,
-      label: `claim:${row.source_kind}`,
-      url: row.normalised_url,
-    })),
-    ...promotions.rows.map((row) => ({
-      kind: 'ROOT_PROMOTION' as const,
-      id: row.id,
-      label: 'promotion',
-      url: row.to_url_resolved,
-    })),
-  ];
-}
-
-export async function runOrgunitsDiscover(options: DiscoverOptions): Promise<number> {
-  if (!options.organisationId) {
+export async function runOrgunitsDiscover(
+  options: DiscoverOptions,
+  deps: DiscoverDependencies = {},
+): Promise<number> {
+  const organisationId = options.organisationId;
+  if (!organisationId) {
     log.error('orgunits discover requires --organisation-id <uuid>.');
     return 1;
   }
@@ -87,29 +101,48 @@ export async function runOrgunitsDiscover(options: DiscoverOptions): Promise<num
   return withPool('research', async (pool) => {
     const orgRow = await pool.query<{ eche_row_key: string }>(
       `SELECT eche_row_key FROM organisations WHERE id = $1`,
-      [options.organisationId],
+      [organisationId],
     );
     const echeRowKey = orgRow.rows[0]?.eche_row_key;
     if (echeRowKey === undefined) {
-      log.error(`No organisation with id ${options.organisationId}.`);
+      log.error(`No organisation with id ${organisationId}.`);
       return 1;
     }
 
+    const { ResearchCohortRefusal: Refusal, planOrganisationResearch } =
+      await import('../../orgunits/orchestrator/researchCohortGuard.js');
+
     if (!options.execute) {
-      const roots = await planRoots(pool, echeRowKey);
-      const plan = {
-        mode: 'DRY_RUN',
-        organisationId: options.organisationId,
-        echeRowKey,
-        roots,
-        note:
-          'No DNS lookup and no HTTP request were made. Pass --execute to run bounded ' +
-          'discovery for real, through the research role.',
-      };
+      let plan: ResearchExecutionPlan;
+      try {
+        plan = await planOrganisationResearch(pool, { organisationId, echeRowKey }, deps);
+      } catch (error) {
+        if (error instanceof Refusal) return reportRefusal(options, 'DRY_RUN', error);
+        throw error;
+      }
+      const roots = plan.roots.map(({ ref, url }) => ({
+        kind: ref.kind,
+        id: ref.id,
+        label: ref.sourceLabel,
+        url,
+      }));
       if (options.json) {
-        process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`);
+        process.stdout.write(
+          `${JSON.stringify(
+            {
+              mode: 'DRY_RUN',
+              organisationId,
+              echeRowKey,
+              eligibility: 'ELIGIBLE',
+              roots,
+              note: NO_NETWORK_NOTE,
+            },
+            null,
+            2,
+          )}\n`,
+        );
       } else {
-        log.info(`Dry run for organisation ${options.organisationId} (${echeRowKey}):`);
+        log.info(`Dry run for organisation ${organisationId} (${echeRowKey}):`);
         if (roots.length === 0) {
           log.info('  no STRUCTURALLY_VALID website claim and no live root promotion was found.');
         }
@@ -122,16 +155,23 @@ export async function runOrgunitsDiscover(options: DiscoverOptions): Promise<num
     }
 
     const { runOrganisationDiscovery } = await import('../../orgunits/orchestrator/orchestrate.js');
-    const result = await runOrganisationDiscovery(pool, {
-      echeRowKey,
-      networkVantage: 'cli',
-    });
+    let result: OrganisationRunResult;
+    try {
+      result = await runOrganisationDiscovery(
+        pool,
+        { organisationId, echeRowKey, networkVantage: 'cli' },
+        deps,
+      );
+    } catch (error) {
+      if (error instanceof Refusal) return reportRefusal(options, 'EXECUTE', error);
+      throw error;
+    }
 
     if (options.json) {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
       log.info(
-        `Run ${result.runId} for organisation ${options.organisationId} (${echeRowKey}): ${result.runTerminalState}`,
+        `Run ${result.runId} for organisation ${organisationId} (${echeRowKey}): ${result.runTerminalState}`,
       );
       for (const root of result.roots) {
         log.info(

@@ -38,6 +38,35 @@
  * with a fake message stream without constructing the production runner
  * (`phase2b.firewall.test.ts` forbids any test from doing that).
  *
+ * THE HARD LIVENESS BOUNDARY (2D2B-2, reconstructed on the 2D2B-R2 recovery
+ * branch after the original was lost with its laptop). The 2D2B DEV run
+ * observed five `classify()` calls that NEVER SETTLED; the mechanism is
+ * unknown. A stream that never yields and never ends would hold the
+ * provider — and every retry, completion row and scratch cleanup behind it —
+ * forever, because the pinned SDK offers no per-query inference timeout.
+ * `runQueryWithLivenessBoundary` below is that missing bound:
+ *
+ *   1. soft deadline (`CLASSIFIER_CALL_SOFT_DEADLINE_MS`, or the provider's
+ *      smaller remaining total budget) — the ONLY duration an attempt may run;
+ *   2. at the deadline the TIMEOUT decision is taken and is TERMINAL: the
+ *      owned `AbortController` is aborted and the real query's synchronous
+ *      `close()` is called (verified in the pinned bundle: close ends the CLI
+ *      subprocess's stdin, then escalates SIGTERM -> SIGKILL within ~7 s);
+ *   3. the helper waits at most `CLASSIFIER_CALL_HARD_KILL_GRACE_MS` for the
+ *      stream to settle, then throws `AgentSdkTimeoutError` UNCONDITIONALLY —
+ *      a late result, a late rejection or a close-triggered settlement can
+ *      never overwrite the decision, and no late rejection goes unhandled.
+ *
+ * `Query.interrupt()` is deliberately NOT the boundary: it is a control
+ * request the CLI must answer, and a wedged child cannot answer anything.
+ * The abort controller, the stderr collector and the deadline are RUNTIME
+ * controls owned by this seam alone — never part of `sdkOptions.ts`, the
+ * provider-neutral request, or any input identity.
+ *
+ * Tier 1 bounds a live event loop. If the batch process itself wedges, only
+ * something OUTSIDE it can intervene: that is the test-harness-only Tier 2
+ * watchdog under `src/test/harness/`, which production never imports.
+ *
  * `USAGE_LIMIT_ERROR_PREFIXES` is RE-EXPORTED here from the SDK itself —
  * the SDK's own list of "a usage limit was genuinely reached" message
  * prefixes — so the outcome-mapping module can recognise subscription
@@ -56,6 +85,363 @@ import type { AgentSdkInvocation } from './sdkOptions.js';
 
 export { USAGE_LIMIT_ERROR_PREFIXES };
 export type { AgentSdkInvocation };
+
+/** FROZEN: the maximum duration of ONE Agent SDK runner attempt. */
+export const CLASSIFIER_CALL_SOFT_DEADLINE_MS = 300_000;
+
+/** FROZEN: how long the inner query may take to settle after abort + close before TIMEOUT is thrown anyway. */
+export const CLASSIFIER_CALL_HARD_KILL_GRACE_MS = 10_000;
+
+/** FROZEN: the maximum cumulative provider-attempt window, retry backoff included (enforced by the provider). */
+export const CLASSIFIER_CALL_TOTAL_BUDGET_MS = 600_000;
+
+/** Timeout diagnostics retain only the LAST this-many characters of SDK subprocess stderr. */
+export const AGENT_SDK_STDERR_TAIL_MAX_CHARS = 2_048;
+
+/** Timeout diagnostics hold at most this many progress entries. */
+export const AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES = 32;
+
+/**
+ * 2D2C-F0Z: the nominal period of the in-child liveness heartbeat armed
+ * alongside the soft deadline. NOT a timeout and NOT a control: nothing is
+ * aborted, retried or refused because of a missed beat. It exists so that a
+ * future incident can be CLASSIFIED rather than guessed at.
+ *
+ * Why a heartbeat and not a clock comparison: the F0Z experiment measured,
+ * on this runtime, that `performance.now()` advances through a process
+ * suspension (a child SIGSTOPped for 2,000 ms saw wall and monotonic agree
+ * to within 0.3 ms), and Recovery-1's own PAIR_4_V4 record corroborates it —
+ * its `monotonicWallTimeMs` and its UTC delta are 4 ms apart over 18
+ * minutes. **Wall-versus-monotonic drift therefore does NOT detect host
+ * suspension here and is never presented as if it did.** A missed beat does:
+ * the same suspended child produced 1 beat where ~5 were due, with an
+ * inter-beat gap of 2,055 ms against a 100 ms nominal.
+ */
+export const AGENT_SDK_HEARTBEAT_INTERVAL_MS = 1_000;
+
+/**
+ * The CLOSED set of progress stages. Each is recorded at most once per
+ * attempt and none is emitted per message, so a trace can say how far an
+ * attempt got without ever carrying what it said.
+ */
+export const AGENT_SDK_PROGRESS_STAGES = [
+  'QUERY_STARTED',
+  'FIRST_STREAM_ACTIVITY',
+  'RESULT_RECEIVED',
+  'STREAM_ENDED_WITHOUT_RESULT',
+  'STREAM_FAILED',
+  'DEADLINE_EXPIRED',
+  'ABORT_SIGNALLED',
+  'CLOSE_CALLED',
+  'SETTLED_WITHIN_GRACE',
+  'GRACE_EXPIRED',
+] as const;
+
+export type AgentSdkProgressStage = (typeof AGENT_SDK_PROGRESS_STAGES)[number];
+
+const PROGRESS_STAGE_SET: ReadonlySet<string> = new Set(AGENT_SDK_PROGRESS_STAGES);
+
+/** One trace entry: a closed stage and a numeric offset from the attempt's start. Nothing else. */
+export interface AgentSdkProgressEntry {
+  readonly stage: AgentSdkProgressStage;
+  readonly elapsedMs: number;
+}
+
+/**
+ * 2D2C-F0Z: how many heartbeats were DUE versus how many were OBSERVED, and
+ * the largest gap between consecutive observed beats. Pure measurement — it
+ * states what the event loop did, never why.
+ *
+ * `maxGapWallMs` and `maxGapMonotonicMs` are recorded side by side precisely
+ * so a reader can SEE that they agree under suspension rather than being
+ * told to assume a difference that this runtime does not produce.
+ */
+export interface AgentSdkHeartbeatWitness {
+  readonly nominalIntervalMs: number;
+  readonly expectedBeats: number;
+  readonly observedBeats: number;
+  readonly maxGapWallMs: number;
+  readonly maxGapMonotonicMs: number;
+}
+
+/**
+ * 2D2C-F0Z: when the soft deadline was ARMED, when its callback actually
+ * RAN, and the difference between the two minus the nominal duration.
+ *
+ * `deadlineOvershootMs` is the field Recovery-1 lacked. PAIR_4_V4 recorded
+ * `DEADLINE_EXPIRED` at 1,080,400 ms on a 300,000 ms deadline; had this
+ * field existed it would have read 780,400 and the event would have been
+ * self-evident instead of reconstructed in prose.
+ *
+ * EVIDENCE, NOT CAUSE. A large overshoot proves the callback did not run on
+ * time. It does NOT say whether the host suspended, the loop was starved, or
+ * the process was descheduled, and nothing here claims otherwise.
+ */
+export interface AgentSdkLivenessWitness {
+  readonly deadlineNominalMs: number;
+  readonly deadlineArmedAtUtc: string;
+  readonly deadlineArmedAtMonotonicMs: number;
+  readonly deadlineFiredAtUtc: string | null;
+  readonly deadlineFiredAtMonotonicMs: number | null;
+  /** `fired − armed − nominal`, on the monotonic clock. Null when the deadline never fired. */
+  readonly deadlineOvershootMs: number | null;
+  readonly heartbeat: AgentSdkHeartbeatWitness | null;
+}
+
+/**
+ * Bounded, deeply frozen timeout diagnostics. No prompt, document, model
+ * response, request option, environment, credential, cwd or transcript
+ * field exists here — by construction, not by filtering. Never persisted,
+ * never placed in an outcome detail, never written to stdout.
+ */
+export interface AgentSdkDiagnostics {
+  readonly progress: readonly AgentSdkProgressEntry[];
+  readonly stderrTail: string;
+  /**
+   * Always null with the pinned SDK, which exposes no child PID on `Query`
+   * or `Options`. Reserved for a future VERIFIED SDK surface; never obtained
+   * by probing private fields, patching the SDK or enumerating processes.
+   */
+  readonly pid: number | null;
+  /**
+   * 2D2C-F0Z liveness witness. Null on any path that recorded none — an
+   * older artifact, or a boundary that never armed its deadline.
+   */
+  readonly livenessWitness: AgentSdkLivenessWitness | null;
+}
+
+/** Accumulates one attempt's diagnostics while it runs; `snapshot()` freezes a bounded copy. */
+export interface AgentSdkDiagnosticsCollector {
+  record(stage: AgentSdkProgressStage): void;
+  appendStderr(chunk: string): void;
+  /** 2D2C-F0Z: records the one liveness witness for this attempt. Last write wins; never merged. */
+  recordLivenessWitness(witness: AgentSdkLivenessWitness): void;
+  snapshot(): AgentSdkDiagnostics;
+}
+
+/** The final `max` characters of `text`, never starting on an orphaned low surrogate. */
+function tailOf(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const tail = text.slice(text.length - max);
+  const first = tail.charCodeAt(0);
+  return first >= 0xdc00 && first <= 0xdfff ? tail.slice(1) : tail;
+}
+
+/**
+ * Builds a bounded, deeply frozen diagnostics value: the object, the trace
+ * array and every trace entry. Unknown stages are dropped, the trace is
+ * capped, stderr keeps its tail, and `pid` is kept only if it is a positive
+ * integer (the pinned SDK always yields null).
+ */
+/** A whole number of milliseconds, never negative, never NaN/Infinity. */
+const boundedMs = (value: number): number =>
+  Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+
+/** Deeply freezes the 2D2C-F0Z witness, or returns null when none was recorded. */
+function freezeLivenessWitness(
+  witness: AgentSdkLivenessWitness | null | undefined,
+): AgentSdkLivenessWitness | null {
+  if (witness === null || witness === undefined) return null;
+  const heartbeat = witness.heartbeat;
+  return Object.freeze({
+    deadlineNominalMs: boundedMs(witness.deadlineNominalMs),
+    deadlineArmedAtUtc: String(witness.deadlineArmedAtUtc),
+    deadlineArmedAtMonotonicMs: boundedMs(witness.deadlineArmedAtMonotonicMs),
+    deadlineFiredAtUtc:
+      witness.deadlineFiredAtUtc === null ? null : String(witness.deadlineFiredAtUtc),
+    deadlineFiredAtMonotonicMs:
+      witness.deadlineFiredAtMonotonicMs === null
+        ? null
+        : boundedMs(witness.deadlineFiredAtMonotonicMs),
+    // Overshoot may legitimately be 0; it is never negative, because a timer
+    // cannot fire early. It stays null when the deadline never fired.
+    deadlineOvershootMs:
+      witness.deadlineOvershootMs === null ? null : boundedMs(witness.deadlineOvershootMs),
+    heartbeat:
+      heartbeat === null || heartbeat === undefined
+        ? null
+        : Object.freeze({
+            nominalIntervalMs: boundedMs(heartbeat.nominalIntervalMs),
+            expectedBeats: boundedMs(heartbeat.expectedBeats),
+            observedBeats: boundedMs(heartbeat.observedBeats),
+            maxGapWallMs: boundedMs(heartbeat.maxGapWallMs),
+            maxGapMonotonicMs: boundedMs(heartbeat.maxGapMonotonicMs),
+          }),
+  });
+}
+
+/**
+ * What `freezeAgentSdkDiagnostics` accepts. `livenessWitness` is OPTIONAL so
+ * that every pre-F0Z caller — and every test that builds a diagnostics value
+ * by hand — stays valid unchanged; an absent witness freezes to null.
+ */
+export type AgentSdkDiagnosticsInput = Omit<AgentSdkDiagnostics, 'livenessWitness'> & {
+  readonly livenessWitness?: AgentSdkLivenessWitness | null;
+};
+
+export function freezeAgentSdkDiagnostics(input: AgentSdkDiagnosticsInput): AgentSdkDiagnostics {
+  const progress = input.progress
+    .filter((entry) => PROGRESS_STAGE_SET.has(entry.stage))
+    .slice(0, AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES)
+    .map((entry) =>
+      Object.freeze({
+        stage: entry.stage,
+        elapsedMs: boundedMs(entry.elapsedMs),
+      }),
+    );
+  const pid =
+    typeof input.pid === 'number' && Number.isSafeInteger(input.pid) && input.pid > 0
+      ? input.pid
+      : null;
+  return Object.freeze({
+    progress: Object.freeze(progress),
+    stderrTail: tailOf(String(input.stderrTail), AGENT_SDK_STDERR_TAIL_MAX_CHARS),
+    pid,
+    livenessWitness: freezeLivenessWitness(input.livenessWitness),
+  });
+}
+
+const monotonicNow = (): number => performance.now();
+
+/**
+ * A per-attempt collector. Collection is unconditional — it does not depend
+ * on `NWF_PE_VERBOSE`; verbosity only gates optional emission further up.
+ */
+export function createAgentSdkDiagnosticsCollector(
+  now: () => number = monotonicNow,
+): AgentSdkDiagnosticsCollector {
+  const startedAt = now();
+  const progress: AgentSdkProgressEntry[] = [];
+  const recorded = new Set<string>();
+  let stderrTail = '';
+  let livenessWitness: AgentSdkLivenessWitness | null = null;
+  return {
+    record(stage: AgentSdkProgressStage): void {
+      if (!PROGRESS_STAGE_SET.has(stage) || recorded.has(stage)) return;
+      if (progress.length >= AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES) return;
+      recorded.add(stage);
+      progress.push({ stage, elapsedMs: Math.max(0, Math.round(now() - startedAt)) });
+    },
+    appendStderr(chunk: string): void {
+      if (typeof chunk !== 'string' || chunk.length === 0) return;
+      // Never concatenate an unbounded chunk onto the tail first.
+      const combined = chunk.length >= AGENT_SDK_STDERR_TAIL_MAX_CHARS ? chunk : stderrTail + chunk;
+      stderrTail = tailOf(combined, AGENT_SDK_STDERR_TAIL_MAX_CHARS);
+    },
+    recordLivenessWitness(witness: AgentSdkLivenessWitness): void {
+      livenessWitness = witness;
+    },
+    snapshot(): AgentSdkDiagnostics {
+      return freezeAgentSdkDiagnostics({ progress, stderrTail, pid: null, livenessWitness });
+    },
+  };
+}
+
+/**
+ * Thrown — always, once the soft deadline has passed — by
+ * `runQueryWithLivenessBoundary`. The outcome mapping recognises it as
+ * `TIMEOUT` by class, ahead of any text heuristic, and its message also
+ * says "timed out" so the text path agrees.
+ */
+export class AgentSdkTimeoutError extends Error {
+  override readonly name = 'AgentSdkTimeoutError';
+  declare readonly deadlineMs: number;
+  declare readonly diagnostics: AgentSdkDiagnostics;
+
+  constructor(deadlineMs: number, diagnostics: AgentSdkDiagnosticsInput) {
+    super(
+      `Agent SDK query timed out: no terminal result within its ${deadlineMs} ms liveness ` +
+        `deadline; the query was aborted and closed.`,
+    );
+    Object.defineProperty(this, 'deadlineMs', { value: deadlineMs, enumerable: true });
+    Object.defineProperty(this, 'diagnostics', {
+      value: freezeAgentSdkDiagnostics(diagnostics),
+      enumerable: true,
+    });
+  }
+}
+
+/**
+ * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: the closed point at which a
+ * NON-timeout attempt failed by throwing rather than returning a result.
+ *
+ *   - `QUERY_CONSTRUCTION_FAILED`: the SDK's `query()` threw synchronously,
+ *     before any stream existed.
+ *   - `STREAM_FAILED`: the message stream threw before a terminal result
+ *     (process exit, transport failure, an SDK-internal throw).
+ *   - `STREAM_ENDED_WITHOUT_RESULT`: the stream ended cleanly with no
+ *     `result` message at all.
+ */
+export const AGENT_SDK_ATTEMPT_FAILURE_STAGES = [
+  'QUERY_CONSTRUCTION_FAILED',
+  'STREAM_FAILED',
+  'STREAM_ENDED_WITHOUT_RESULT',
+] as const;
+
+export type AgentSdkAttemptFailureStage = (typeof AGENT_SDK_ATTEMPT_FAILURE_STAGES)[number];
+
+/**
+ * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1. Thrown by the runner for every
+ * NON-timeout attempt failure, so that the attempt's bounded diagnostics
+ * snapshot travels with the failure exactly as `AgentSdkTimeoutError`'s
+ * already does. Before this class, `runQueryWithLivenessBoundary` rethrew the
+ * ORIGINAL error and the collector's snapshot — progress, stderr tail,
+ * liveness witness — became unreachable the instant it escaped.
+ *
+ * `cause` is the ORIGINAL thrown value, unchanged. It exists so the ONE
+ * mapping authority (`outcomeMapping.ts`) classifies exactly what it
+ * classified before this wrapper existed — the wrapper adds evidence, it
+ * never changes an outcome. Neither `cause` nor `diagnostics` is ever
+ * persisted or placed in an outcome detail as-is; only closed values derived
+ * from them by `outcomeMapping.ts` may escape.
+ *
+ * The message is FIXED text naming the closed stage — never the original
+ * message, so a careless `String(error)` upstream cannot leak it.
+ */
+export class AgentSdkAttemptError extends Error {
+  override readonly name = 'AgentSdkAttemptError';
+  declare readonly failureStage: AgentSdkAttemptFailureStage;
+  declare readonly diagnostics: AgentSdkDiagnostics;
+
+  constructor(
+    failureStage: AgentSdkAttemptFailureStage,
+    cause: unknown,
+    diagnostics: AgentSdkDiagnosticsInput,
+  ) {
+    super(`Agent SDK attempt failed (${failureStage}).`, { cause });
+    Object.defineProperty(this, 'failureStage', { value: failureStage, enumerable: true });
+    Object.defineProperty(this, 'diagnostics', {
+      value: freezeAgentSdkDiagnostics(diagnostics),
+      enumerable: true,
+    });
+  }
+}
+
+/** The fixed message `consumeQueryStream` throws when the stream ends without a result. */
+export const STREAM_ENDED_WITHOUT_RESULT_MESSAGE =
+  'Agent SDK query ended without a result message.';
+
+/**
+ * Runtime-only options for ONE runner attempt. Not semantic input: never
+ * hashed, never persisted, never part of the invocation.
+ */
+export interface AgentSdkRunOptions {
+  /** This attempt's soft deadline. Defaults to `CLASSIFIER_CALL_SOFT_DEADLINE_MS`; never exceeds it. */
+  readonly deadlineMs?: number;
+}
+
+function assertPositiveDuration(name: string, value: number): void {
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new TypeError(`${name} must be a positive, finite number of milliseconds.`);
+  }
+}
+
+/** The deadline the production runner applies to one attempt: the override when given, capped at the frozen soft deadline. */
+export function resolveAgentSdkAttemptDeadline(runOptions: AgentSdkRunOptions = {}): number {
+  if (runOptions.deadlineMs === undefined) return CLASSIFIER_CALL_SOFT_DEADLINE_MS;
+  assertPositiveDuration('deadlineMs', runOptions.deadlineMs);
+  return Math.min(runOptions.deadlineMs, CLASSIFIER_CALL_SOFT_DEADLINE_MS);
+}
 
 /** The normalized terminal result of one SDK run. */
 export interface AgentSdkRunResult {
@@ -83,14 +469,59 @@ export interface AgentSdkRunResult {
   readonly outputTokens: number | null;
   /** Error strings the SDK attached to an error-subtype result. */
   readonly errors: readonly string[];
+  /**
+   * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: the attempt's bounded,
+   * deeply frozen diagnostics on the RETURNED-result path too, so an
+   * error-shaped result is as diagnosable as a throw. Optional so a fake
+   * runner may omit it. In memory only: never persisted, never in a detail.
+   */
+  readonly diagnostics?: AgentSdkDiagnostics;
+  /**
+   * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: STRUCTURAL failure fields the
+   * pinned SDK declares on its own messages, which `normalizeResult` used to
+   * drop. All optional, so a fake runner may omit them; every one is a number
+   * or a member of an SDK-declared closed union, validated again by the
+   * mapping before it can reach a witness.
+   *
+   *   - `apiErrorStatus`: the result's `api_error_status` — the HTTP status of
+   *     the API error behind an `is_error` result (SDK `SDKResultSuccess`).
+   *   - `terminalReason`: the result's `terminal_reason` (SDK `TerminalReason`).
+   *   - `assistantError`: the LAST assistant message's `error`
+   *     (SDK `SDKAssistantMessageError`), seen before the result arrived.
+   *   - `apiRetryCount` / `lastApiRetryErrorStatus`: how many `system/api_retry`
+   *     messages the CLI emitted before the result, and the last one's
+   *     `error_status` (null there means a connection error with no response).
+   */
+  readonly apiErrorStatus?: number | null;
+  readonly terminalReason?: string | null;
+  readonly assistantError?: string | null;
+  readonly apiRetryCount?: number;
+  readonly lastApiRetryErrorStatus?: number | null;
 }
 
-/** The injectable seam. Production: `createProductionAgentSdkRunner()`. Tests: a fake. */
+/** Closed structural facts observed on the stream BEFORE its terminal result. Never content. */
+interface StreamStructuralFacts {
+  assistantError: string | null;
+  apiRetryCount: number;
+  lastApiRetryErrorStatus: number | null;
+}
+
+/**
+ * The injectable seam. Production: `createProductionAgentSdkRunner()`. Tests: a fake.
+ * `runOptions` is optional so a one-argument fake stays a valid runner.
+ */
 export interface AgentSdkRunner {
-  run(invocation: AgentSdkInvocation): Promise<AgentSdkRunResult>;
+  run(invocation: AgentSdkInvocation, runOptions?: AgentSdkRunOptions): Promise<AgentSdkRunResult>;
 }
 
-function normalizeResult(message: SDKResultMessage): AgentSdkRunResult {
+function normalizeResult(
+  message: SDKResultMessage,
+  facts: StreamStructuralFacts = {
+    assistantError: null,
+    apiRetryCount: 0,
+    lastApiRetryErrorStatus: null,
+  },
+): AgentSdkRunResult {
   const modelIds = Object.keys(message.modelUsage);
   const responseModelId =
     modelIds.length === 0
@@ -109,7 +540,36 @@ function normalizeResult(message: SDKResultMessage): AgentSdkRunResult {
     inputTokens: message.usage.input_tokens ?? null,
     outputTokens: message.usage.output_tokens ?? null,
     errors: message.subtype === 'success' ? [] : message.errors,
+    apiErrorStatus:
+      'api_error_status' in message && typeof message.api_error_status === 'number'
+        ? message.api_error_status
+        : null,
+    terminalReason: typeof message.terminal_reason === 'string' ? message.terminal_reason : null,
+    assistantError: facts.assistantError,
+    apiRetryCount: facts.apiRetryCount,
+    lastApiRetryErrorStatus: facts.lastApiRetryErrorStatus,
   };
+}
+
+/**
+ * Reads ONLY closed structural fields off a non-terminal stream message:
+ * an assistant message's `error` union member, and a `system/api_retry`
+ * message's `error_status`. Never a message's content.
+ */
+function observeStructuralFacts(message: { type: string }, facts: StreamStructuralFacts): void {
+  const fields = message as {
+    type: string;
+    subtype?: unknown;
+    error?: unknown;
+    error_status?: unknown;
+  };
+  if (fields.type === 'assistant' && typeof fields.error === 'string') {
+    facts.assistantError = fields.error;
+  } else if (fields.type === 'system' && fields.subtype === 'api_retry') {
+    facts.apiRetryCount += 1;
+    facts.lastApiRetryErrorStatus =
+      typeof fields.error_status === 'number' ? fields.error_status : null;
+  }
 }
 
 /**
@@ -120,31 +580,298 @@ function normalizeResult(message: SDKResultMessage): AgentSdkRunResult {
  * instant a `result` message arrives: never calls `next()` again afterwards,
  * relying on `for await...of`'s `IteratorClose` (`return()`, not `next()`)
  * to unwind the stream on `break`.
+ *
+ * `record`, when given, receives closed progress stages only — the first
+ * message of any kind (once), the terminal result, a stream that ended
+ * without one, or a stream that threw. It never sees a message's content,
+ * and it iterates the stream it was given directly, so `IteratorClose`
+ * still reaches the real iterator's own `return()`.
  */
 export async function consumeQueryStream(
   stream: AsyncIterable<{ type: string }>,
+  record?: (stage: AgentSdkProgressStage) => void,
 ): Promise<AgentSdkRunResult> {
   let terminal: SDKResultMessage | undefined;
-  for await (const message of stream) {
-    if (message.type === 'result') {
-      terminal = message as SDKResultMessage;
-      break;
+  let sawActivity = false;
+  const facts: StreamStructuralFacts = {
+    assistantError: null,
+    apiRetryCount: 0,
+    lastApiRetryErrorStatus: null,
+  };
+  try {
+    for await (const message of stream) {
+      if (!sawActivity) {
+        sawActivity = true;
+        record?.('FIRST_STREAM_ACTIVITY');
+      }
+      if (message.type === 'result') {
+        terminal = message as SDKResultMessage;
+        record?.('RESULT_RECEIVED');
+        break;
+      }
+      observeStructuralFacts(message, facts);
     }
+  } catch (error) {
+    record?.('STREAM_FAILED');
+    throw error;
   }
   if (terminal === undefined) {
-    throw new Error('Agent SDK query ended without a result message.');
+    record?.('STREAM_ENDED_WITHOUT_RESULT');
+    throw new Error(STREAM_ENDED_WITHOUT_RESULT_MESSAGE);
   }
-  return normalizeResult(terminal);
+  return normalizeResult(terminal, facts);
+}
+
+/**
+ * The structural slice of the SDK `Query` the boundary needs: the message
+ * stream itself, and the synchronous `close()` that terminates it. Tests
+ * pass a fake; production passes the real `Query` object, so `close()`
+ * reaches the SDK's own teardown.
+ */
+export interface LivenessBoundedQuery extends AsyncIterable<{ type: string }> {
+  close(): void;
+}
+
+export interface LivenessBoundaryOptions {
+  /** This attempt's soft deadline. */
+  readonly deadlineMs: number;
+  /** Test seam only; production uses `CLASSIFIER_CALL_HARD_KILL_GRACE_MS`. */
+  readonly graceMs?: number;
+  /** The controller whose signal was handed to the query (production: the one passed as `Options.abortController`). */
+  readonly abortController: { abort(): void };
+  readonly diagnostics: AgentSdkDiagnosticsCollector;
+  /**
+   * 2D2C-F0Z test seam for the witness clocks only. Production passes
+   * nothing and gets `performance.now()` / `Date`. These clocks feed
+   * EVIDENCE fields exclusively — no deadline, abort, close or grace
+   * decision reads them, so a fake clock cannot alter control flow.
+   */
+  readonly witnessClock?: {
+    readonly monotonicMs: () => number;
+    readonly nowUtc: () => Date;
+  };
+  /** 2D2C-F0Z test seam: the heartbeat period. Production uses `AGENT_SDK_HEARTBEAT_INTERVAL_MS`. */
+  readonly heartbeatIntervalMs?: number;
+}
+
+type StreamSettlement =
+  | { readonly kind: 'RESULT'; readonly result: AgentSdkRunResult }
+  | { readonly kind: 'FAILED'; readonly error: unknown };
+
+/**
+ * Consumes `query` to its terminal result under a hard liveness boundary.
+ *
+ *   - Result before the deadline: returned unchanged; no abort; every timer
+ *     cleared.
+ *   - Stream failure before the deadline: that ORIGINAL error rethrown —
+ *     never relabelled a timeout; every timer cleared.
+ *   - Deadline first: TIMEOUT is decided and cannot be undone. Abort, then
+ *     close, then wait at most `graceMs` for the stream to settle, then throw
+ *     `AgentSdkTimeoutError` regardless of how (or whether) it settled.
+ *
+ * Both settlement handlers are attached synchronously, before any timer can
+ * fire, so a rejection arriving after the decision is already observed and
+ * can never surface as an unhandled rejection.
+ */
+export async function runQueryWithLivenessBoundary(
+  activeQuery: LivenessBoundedQuery,
+  options: LivenessBoundaryOptions,
+): Promise<AgentSdkRunResult> {
+  const graceMs = options.graceMs ?? CLASSIFIER_CALL_HARD_KILL_GRACE_MS;
+  assertPositiveDuration('deadlineMs', options.deadlineMs);
+  assertPositiveDuration('graceMs', graceMs);
+  const { diagnostics } = options;
+
+  // ---- 2D2C-F0Z liveness witness: observation only, no control ----
+  const witnessClock = options.witnessClock ?? {
+    monotonicMs: monotonicNow,
+    nowUtc: () => new Date(),
+  };
+  const heartbeatIntervalMs = options.heartbeatIntervalMs ?? AGENT_SDK_HEARTBEAT_INTERVAL_MS;
+  const armedAtMonotonicMs = witnessClock.monotonicMs();
+  const armedAtUtc = witnessClock.nowUtc().toISOString();
+  let observedBeats = 0;
+  let maxGapWallMs = 0;
+  let maxGapMonotonicMs = 0;
+  let lastBeatMonotonicMs = armedAtMonotonicMs;
+  let lastBeatWallMs = witnessClock.nowUtc().getTime();
+  let firedAtMonotonicMs: number | null = null;
+  let firedAtUtc: string | null = null;
+
+  /**
+   * Builds the witness from whatever was observed. `expectedBeats` is how
+   * many beats the elapsed time was DUE; `observedBeats` is how many the
+   * event loop actually ran. A shortfall is the stall signal.
+   */
+  const buildWitness = (): AgentSdkLivenessWitness => {
+    const endedAtMonotonicMs = firedAtMonotonicMs ?? witnessClock.monotonicMs();
+    const elapsedMs = Math.max(0, endedAtMonotonicMs - armedAtMonotonicMs);
+    return {
+      deadlineNominalMs: options.deadlineMs,
+      deadlineArmedAtUtc: armedAtUtc,
+      deadlineArmedAtMonotonicMs: armedAtMonotonicMs,
+      deadlineFiredAtUtc: firedAtUtc,
+      deadlineFiredAtMonotonicMs: firedAtMonotonicMs,
+      deadlineOvershootMs:
+        firedAtMonotonicMs === null
+          ? null
+          : Math.max(0, firedAtMonotonicMs - armedAtMonotonicMs - options.deadlineMs),
+      heartbeat: {
+        nominalIntervalMs: heartbeatIntervalMs,
+        expectedBeats: Math.floor(elapsedMs / heartbeatIntervalMs),
+        observedBeats,
+        maxGapWallMs,
+        maxGapMonotonicMs,
+      },
+    };
+  };
+
+  // `unref()` so a pending beat can never hold the batch process open, and
+  // the `finally` below clears it on EVERY path — a leaked interval would
+  // trip the existing `vi.getTimerCount() === 0` assertions.
+  const heartbeat = setInterval(() => {
+    observedBeats += 1;
+    const beatMonotonicMs = witnessClock.monotonicMs();
+    const beatWallMs = witnessClock.nowUtc().getTime();
+    maxGapMonotonicMs = Math.max(maxGapMonotonicMs, beatMonotonicMs - lastBeatMonotonicMs);
+    maxGapWallMs = Math.max(maxGapWallMs, beatWallMs - lastBeatWallMs);
+    lastBeatMonotonicMs = beatMonotonicMs;
+    lastBeatWallMs = beatWallMs;
+  }, heartbeatIntervalMs);
+  if (typeof (heartbeat as { unref?: () => void }).unref === 'function') {
+    (heartbeat as { unref: () => void }).unref();
+  }
+
+  diagnostics.record('QUERY_STARTED');
+  const settlement: Promise<StreamSettlement> = consumeQueryStream(activeQuery, (stage) =>
+    diagnostics.record(stage),
+  ).then(
+    (result): StreamSettlement => ({ kind: 'RESULT', result }),
+    (error: unknown): StreamSettlement => ({ kind: 'FAILED', error }),
+  );
+
+  let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
+  let graceTimer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const first = await Promise.race([
+      settlement,
+      new Promise<{ readonly kind: 'DEADLINE' }>((resolveDeadline) => {
+        deadlineTimer = setTimeout(() => resolveDeadline({ kind: 'DEADLINE' }), options.deadlineMs);
+      }),
+    ]);
+    if (first.kind === 'RESULT') return first.result;
+    if (first.kind === 'FAILED') throw first.error;
+
+    // From here on the outcome is TIMEOUT, whatever the stream does next.
+    // The witness's fire instants are captured FIRST, before any teardown
+    // work can add latency that would be mistaken for overshoot.
+    firedAtMonotonicMs = witnessClock.monotonicMs();
+    firedAtUtc = witnessClock.nowUtc().toISOString();
+    diagnostics.record('DEADLINE_EXPIRED');
+    try {
+      options.abortController.abort();
+    } catch {
+      // An abort listener that throws cannot overturn the decision.
+    }
+    diagnostics.record('ABORT_SIGNALLED');
+    try {
+      activeQuery.close();
+    } catch {
+      // Nor can a close that throws.
+    }
+    diagnostics.record('CLOSE_CALLED');
+
+    const afterClose = await Promise.race([
+      settlement.then(() => 'SETTLED' as const),
+      new Promise<'GRACE_EXPIRED'>((resolveGrace) => {
+        graceTimer = setTimeout(() => resolveGrace('GRACE_EXPIRED'), graceMs);
+      }),
+    ]);
+    diagnostics.record(afterClose === 'SETTLED' ? 'SETTLED_WITHIN_GRACE' : 'GRACE_EXPIRED');
+    // Recorded before the snapshot, so the witness travels with the error.
+    diagnostics.recordLivenessWitness(buildWitness());
+    throw new AgentSdkTimeoutError(options.deadlineMs, diagnostics.snapshot());
+  } finally {
+    clearTimeout(deadlineTimer);
+    clearTimeout(graceTimer);
+    clearInterval(heartbeat);
+  }
+}
+
+/**
+ * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: attaches one attempt's bounded
+ * diagnostics snapshot to whatever the liveness boundary settled with,
+ * WITHOUT changing what it settled with.
+ *
+ *   - a returned result comes back unchanged, plus `diagnostics`;
+ *   - an `AgentSdkTimeoutError` is rethrown AS IS (it already carries its own);
+ *   - any other failure is rethrown as an `AgentSdkAttemptError` whose
+ *     `cause` is the ORIGINAL value and whose closed stage is read from the
+ *     collector's own trace — `STREAM_ENDED_WITHOUT_RESULT` when the stream
+ *     recorded that, else `STREAM_FAILED`.
+ *
+ * Composed AROUND `runQueryWithLivenessBoundary` rather than inside it, so
+ * the boundary's own landed contract — an ordinary stream failure rethrows
+ * the ORIGINAL error — is untouched.
+ */
+export async function attachAttemptDiagnostics(
+  attempt: Promise<AgentSdkRunResult>,
+  diagnostics: AgentSdkDiagnosticsCollector,
+): Promise<AgentSdkRunResult> {
+  let result: AgentSdkRunResult;
+  try {
+    result = await attempt;
+  } catch (error) {
+    if (error instanceof AgentSdkTimeoutError || error instanceof AgentSdkAttemptError) {
+      throw error;
+    }
+    const snapshot = diagnostics.snapshot();
+    const endedWithoutResult = snapshot.progress.some(
+      (entry) => entry.stage === 'STREAM_ENDED_WITHOUT_RESULT',
+    );
+    throw new AgentSdkAttemptError(
+      endedWithoutResult ? 'STREAM_ENDED_WITHOUT_RESULT' : 'STREAM_FAILED',
+      error,
+      snapshot,
+    );
+  }
+  return { ...result, diagnostics: diagnostics.snapshot() };
+}
+
+/**
+ * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: calls `start()` (production:
+ * the SDK's `query()`), converting a SYNCHRONOUS throw into an
+ * `AgentSdkAttemptError` at the closed `QUERY_CONSTRUCTION_FAILED` stage.
+ */
+export function startQueryWithDiagnostics<Q>(
+  start: () => Q,
+  diagnostics: AgentSdkDiagnosticsCollector,
+): Q {
+  try {
+    return start();
+  } catch (error) {
+    throw new AgentSdkAttemptError('QUERY_CONSTRUCTION_FAILED', error, diagnostics.snapshot());
+  }
 }
 
 /**
  * The production runner: one `query()` per `run()`, streamed to its terminal
- * result message. Never retries, never falls back, never persists anything —
- * retry policy and outcome mapping belong to the provider above this seam.
+ * result message under the hard liveness boundary. One native
+ * `AbortController` per run; SDK subprocess stderr feeds the bounded
+ * collector and nothing else. Never retries, never falls back, never
+ * persists anything — retry policy, the total budget and outcome mapping
+ * belong to the provider above this seam.
  */
 export function createProductionAgentSdkRunner(): AgentSdkRunner {
   return {
-    async run(invocation: AgentSdkInvocation): Promise<AgentSdkRunResult> {
+    async run(
+      invocation: AgentSdkInvocation,
+      runOptions: AgentSdkRunOptions = {},
+    ): Promise<AgentSdkRunResult> {
+      const deadlineMs = resolveAgentSdkAttemptDeadline(runOptions);
+      const diagnostics = createAgentSdkDiagnosticsCollector();
+      const abortController = new AbortController();
+
       // The structural invocation options are converted to the SDK's own
       // Options type HERE, at the single import site — this assignment is
       // what proves, at compile time, that the pure builder's surface
@@ -171,9 +898,29 @@ export function createProductionAgentSdkRunner(): AgentSdkRunner {
         cwd: invocation.options.cwd,
         thinking: invocation.options.thinking,
         ...(invocation.options.effort !== undefined ? { effort: invocation.options.effort } : {}),
+        // The exact SDK-bundled native binary the auth-status preflight ran
+        // (ADR 0010 Amendment A): passed through the SDK's documented option,
+        // never left to the SDK's implicit default.
+        pathToClaudeCodeExecutable: invocation.options.pathToClaudeCodeExecutable,
+        // Runtime controls, added HERE and only here — never in the pure
+        // invocation builder, never in any input identity.
+        abortController,
+        stderr: (data: string) => diagnostics.appendStderr(data),
       };
 
-      return consumeQueryStream(query({ prompt: invocation.prompt, options }));
+      // The real Query object is retained so the boundary's close() reaches it.
+      const activeQuery = startQueryWithDiagnostics(
+        () => query({ prompt: invocation.prompt, options }),
+        diagnostics,
+      );
+      return attachAttemptDiagnostics(
+        runQueryWithLivenessBoundary(activeQuery, {
+          deadlineMs,
+          abortController,
+          diagnostics,
+        }),
+        diagnostics,
+      );
     },
   };
 }

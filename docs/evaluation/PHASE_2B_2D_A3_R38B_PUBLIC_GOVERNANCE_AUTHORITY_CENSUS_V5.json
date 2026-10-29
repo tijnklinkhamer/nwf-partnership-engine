@@ -1,0 +1,302 @@
+{
+  "record": "PHASE_2B_2D_A3_R38B_PUBLIC_GOVERNANCE_AUTHORITY_CENSUS_V5",
+  "recordKind": "PUBLIC_GOVERNANCE_ONLY_AUTHORITY_CENSUS",
+  "task": "A3_R38B_COMMITTED_GOVERNANCE_V5_RETRY_USING_CROSS_GENERATION_CONTRACT_V1",
+  "ownerDecision": "AUTHORISE_A3_R38B_COMMITTED_GOVERNANCE_V5_RETRY_USING_CROSS_GENERATION_CONTRACT_V1",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "thisFileAuthorisesNote": "a census is a projection of an in-process minted snapshot; it is never authority and is never deserialised into authority",
+  "lineage": {
+    "r38aBase": "80f792de8117c3c91ddb56bbb4dbe6518fde7d8a",
+    "r38Terminal": "960856bb4e503fcc6961843f88761f66ebffcd27",
+    "branch": "feat/phase2b-2d-a3-r38b-committed-governance-v5-retry",
+    "r38aScopePinTouchedFiles": 1,
+    "ownerAuthorisedR38RefusalTestScopePin": {
+      "touchedFiles": 1,
+      "change": "the one working-tree \"no Governance V5 namespace\" assertion of the R38 refusal test now reads the tree at R38_TERMINAL; nothing widened or weakened",
+      "authorisedBy": "owner decision during R38B, after the conflict between creating a3governanceV5/ and that assertion was reported"
+    },
+    "mergesIntroduced": 0,
+    "a2MergedRebasedOrCherryPicked": false,
+    "a2CheckpointIsAncestorOfA3": false,
+    "a2ReadOnlyThroughCommitAddressedBytes": true
+  },
+  "preconditions": {
+    "r38Refusal": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_R38_CROSS_GENERATION_AUTHORITY_ADAPTER_REFUSAL_V1.json",
+      "commit": "960856bb4e503fcc6961843f88761f66ebffcd27",
+      "sha256": "7cf59593d06ba77cf29206120496c3e642acccd28a580b1b13b7d5181fc9dec0",
+      "terminalState": "R38_CROSS_GENERATION_AUTHORITY_MAPPING_REFUSED_AWAIT_OWNER_CONTRACT_DECISION"
+    },
+    "r38aContract": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_R38A_CROSS_GENERATION_SLOT_AUTHORITY_CONTRACT_V1.json",
+      "commit": "80f792de8117c3c91ddb56bbb4dbe6518fde7d8a",
+      "terminalState": "R38A_CROSS_GENERATION_SLOT_AUTHORITY_CONTRACT_V1_COMPLETE_READY_FOR_SEPARATELY_AUTHORISED_GOVERNANCE_V5_RETRY",
+      "r17Modified": false,
+      "governanceV5MintedBefore": false,
+      "realDevTrainDeltaDerivedBefore": false,
+      "r39StartedBefore": false
+    }
+  },
+  "contracts": {
+    "r17": {
+      "path": "src/test/harness/phase2b2d/a3prep/slotAuthority.ts",
+      "modified": false
+    },
+    "r38a": {
+      "contractVersion": "A3_R38A_CROSS_GENERATION_SLOT_AUTHORITY_CONTRACT_V1",
+      "namespace": "src/test/harness/phase2b2d/a3crossGenerationSlotAuthority/",
+      "modified": false,
+      "resolverCalledUnchanged": "resolveCrossGenerationSlotAuthorities",
+      "continuityBridgeCalledUnchanged": "compareR17WithCrossGenerationAuthorities"
+    },
+    "r26ComparatorUsedForCrossGenerationContinuity": false
+  },
+  "terminalA2Checkpoint": {
+    "commit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CORPUS_FREEZE_APPROVAL_V1.json",
+    "sha256": "dc3f96120edcc9f37fa4e26034d4df1bae576b7289e8d2ad93e26fdb414c7942",
+    "bytes": 24833,
+    "corpusState": "GENERATION2_ACQUISITION_CORPUS_FROZEN",
+    "terminalState": "PHASE_2B_2D_A2_GENERATION2_CORPUS_FREEZE_APPROVED_TERMINAL",
+    "designation": "TERMINAL_A2_GOVERNANCE_CHECKPOINT_ELIGIBLE_FOR_SEPARATELY_AUTHORISED_A3_REVIEW",
+    "freezeBindingClosure": {
+      "bindingsVerified": 57,
+      "bindingsMismatched": 0,
+      "bindingsVerifiedAtTheirOwnCommit": 17,
+      "bindingsVerifiedAtTheCheckpoint": 40
+    }
+  },
+  "registryV5": {
+    "registryVersion": "COMMITTED_A2_GOVERNANCE_REGISTRY_V5",
+    "checkpointCommit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+    "ownEntryCount": 69,
+    "reusedV4EntriesByReference": 52,
+    "ownEntriesByParserFamily": {
+      "FROZEN_FRAME": 1,
+      "GENERATION1_POST_CLOSURE_WINDOW_ADJUDICATION": 4,
+      "GENERATION1_POST_CLOSURE_WINDOW_LIVE_RESULT": 4,
+      "GENERATION1_TERMINAL_LEDGER": 1,
+      "GENERATION1_TERMINAL_RECORD": 1,
+      "GENERATION2_CARRY_FORWARD_BASELINE": 1,
+      "GENERATION2_CARRY_FORWARD_FEASIBILITY": 1,
+      "GENERATION2_CORPUS_FREEZE_CROSS_CHECK": 1,
+      "GENERATION2_HOST_INTEGRITY_RULING": 1,
+      "GENERATION2_HOST_RECOVERY_AUTHORITY": 1,
+      "GENERATION2_HOST_RECOVERY_CLOSURE_RULING": 1,
+      "GENERATION2_HOST_RECOVERY_PRECONDITION": 1,
+      "GENERATION2_HOST_RECOVERY_RESULT": 1,
+      "GENERATION2_REPLACEMENT_LEDGER": 1,
+      "GENERATION2_RESERVE_SCHEDULE": 1,
+      "GENERATION2_RESERVE_SCHEDULE_PROPOSAL": 1,
+      "GENERATION2_WINDOW_ADJUDICATION": 13,
+      "GENERATION2_WINDOW_CADENCE_AUTHORITY": 4,
+      "GENERATION2_WINDOW_LIVE_AUTHORITY": 13,
+      "GENERATION2_WINDOW_LIVE_RESULT": 13,
+      "METHODOLOGY_V3_HOST_RECOVERY_AMENDMENT": 1,
+      "METHODOLOGY_V3_OWNER_FREEZE": 1,
+      "R38A_CONTRACT_PRECONDITION": 1,
+      "R38_REFUSAL_PRECONDITION": 1
+    },
+    "ownEntriesBySemanticRole": {
+      "ADJUDICATED_OBSERVATION_BINDING": 18,
+      "CADENCE_EXECUTION_AUTHORITY": 4,
+      "CARRY_FORWARD_ADMISSION_AUTHORITY": 1,
+      "CARRY_FORWARD_PER_SLOT_AUDIT": 1,
+      "FROZEN_OCCUPANT_IDENTITY": 3,
+      "GENERATION1_TERMINAL_STATE": 1,
+      "GENERATION_STRUCTURE_AUTHORITY": 1,
+      "GOVERNANCE_PRECONDITION": 2,
+      "HISTORICAL_REPLACEMENT_REASON_AUTHORITY": 17,
+      "HOST_RECOVERY_PROVENANCE": 6,
+      "OCCUPANT_CHAIN_AUTHORITY": 2,
+      "TERMINAL_CHECKPOINT_CROSS_CHECK": 1,
+      "TERMINAL_DISPOSITION_AUTHORITY": 17,
+      "WINDOW_EXECUTION_AUTHORITY": 13
+    },
+    "reusedV4EntriesBySemanticRole": {
+      "ADJUDICATED_OBSERVATION_BINDING": 25,
+      "FROZEN_OCCUPANT_IDENTITY": 1,
+      "HISTORICAL_REPLACEMENT_REASON_AUTHORITY": 12,
+      "RUN_SUPERSESSION_AUTHORITY": 2,
+      "TERMINAL_DISPOSITION_AUTHORITY": 25
+    },
+    "commitAddressedLoading": "one git cat-file --batch over exact <commit>:<path> object names",
+    "branchTipHeadOrLatestUsed": false,
+    "directoryEnumerationOrGlobUsed": false,
+    "workingTreeGovernanceBytesUsed": false
+  },
+  "structure": {
+    "totalSlots": 110,
+    "primaryOccupants": 74,
+    "generation1ReserveOccupants": 24,
+    "generation2ReserveOccupants": 12,
+    "devTrainSlots": 20,
+    "devTrainGeneration2ReserveOccupants": 2,
+    "generation1TerminalLedgerEntries": 39,
+    "generation2LedgerEntries": 21,
+    "generation2ReserveScheduleEntries": 5670,
+    "reserveNamespacesKeptDistinct": true,
+    "syntheticCombinedLedgerCreated": false,
+    "derivedBeforeComparison": true,
+    "matchesAcceptedR38StructuralAudit": true
+  },
+  "history": {
+    "generation2WindowsReplayedInExplicitOrder": 13,
+    "generation2CadenceAuthorityWindows": [8, 9, 10, 12],
+    "generation2AdjudicatedItemsReplayed": 54,
+    "generation1PostClosureWindows": [8, 9, 10, 11],
+    "currentTerminalFacts": 110,
+    "historicalTerminalFacts": 27
+  },
+  "carryForward": {
+    "admissionsGenuinelyAccepted": 75,
+    "admissionRecordIsTheOwnerApprovedBaseline": true,
+    "everyAdmissionEqualsItsGeneration1AcquisitionOfRecord": true
+  },
+  "runReferenceIntegrity": {
+    "generation2OrdinaryRunReferences": 54,
+    "generation2AcceptedRecoveryRunReferences": 1,
+    "generation2GlobalUnion": 55,
+    "generation2Distinct": 55,
+    "window13OriginalRunRetainedAsOrdinaryHistory": true,
+    "window13OriginalRunIsAcquisitionOfRecord": false,
+    "generation1FactRunReferences": 83,
+    "crossGenerationCollisions": 0
+  },
+  "replacementHistoryAudit": {
+    "generation1EntriesAudited": 39,
+    "generation1EntriesAuditedThroughV4Audit": 30,
+    "generation1EntriesAuditedAgainstV4UnsuccessfulOccupant": 3,
+    "generation1EntriesAuditedAgainstPostClosureFact": 6,
+    "generation2EntriesAudited": 21,
+    "replacementsOfTerminalSuccess": 0
+  },
+  "provenanceClosure": {
+    "factBindingsVerified": 507,
+    "reusedV4IdsBoundByFacts": 51,
+    "unregisteredBindings": 0
+  },
+  "terminalAuthority": {
+    "resolvedBy": "R38A resolveCrossGenerationSlotAuthorities (unchanged), exactly once",
+    "totalSlots": 110,
+    "ready": 110,
+    "notReady": 0,
+    "currentUnsuccessful": 0,
+    "pendingAdjudication": 0,
+    "noTerminalEvidence": 0,
+    "openReplacementObligations": 0,
+    "reserveExhaustedObligations": 0,
+    "readyBySplit": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    },
+    "readyByAcquisitionGeneration": {
+      "METHODOLOGY_V2_GEN1": 75,
+      "METHODOLOGY_V3_GEN2": 35
+    },
+    "readyByOccupantAndAcquisitionGeneration": {
+      "occupant METHODOLOGY_V2_GEN1 / acquisition METHODOLOGY_V2_GEN1": 75,
+      "occupant METHODOLOGY_V2_GEN1 / acquisition METHODOLOGY_V3_GEN2": 23,
+      "occupant METHODOLOGY_V3_GEN2 / acquisition METHODOLOGY_V3_GEN2": 12
+    },
+    "readyByAcquisitionOfRecordKind": {
+      "ACCEPTED_TARGETED_RECOVERY_ACQUISITION": 1,
+      "ORDINARY_ADJUDICATED_ACQUISITION": 109
+    },
+    "readyCarriedThroughAdmission": 75,
+    "overallState": "A3_GENERATION_SLOT_AUTHORITY_COMPLETE"
+  },
+  "freezeCrossCheck": {
+    "freezeAggregateUsedAsDispositionSource": false,
+    "freezeAggregateUsedOnlyAsPostDerivationCrossCheck": true,
+    "successfulAgrees": true,
+    "splitTotalsAgree": true,
+    "noFailurePendingOrNeverStartedAgrees": true,
+    "runReferenceIntegrityAgrees": true,
+    "canonicalLedgerAgrees": true,
+    "explicitWindowHistoryAgrees": true
+  },
+  "generation1TerminalStateCrossCheck": {
+    "agrees": true
+  },
+  "snapshot": {
+    "kind": "A3_COMMITTED_GOVERNANCE_SNAPSHOT_V5",
+    "minted": true,
+    "branding": "private WeakSet (snapshot) + private WeakMap (cross-generation READY -> V5 snapshot)",
+    "mintedOnlyAfterTheWholePipelinePassed": true,
+    "serialisedForm": false
+  },
+  "continuity": {
+    "bridge": "compareR17WithCrossGenerationAuthorities",
+    "oldSide": "genuine Governance V4 READY authorities via readyAuthoritiesOfV4",
+    "newSide": "genuine Governance V5 READY authorities via readyAuthoritiesOfV5",
+    "overall": {
+      "v4Ready": 69,
+      "v5Ready": 110,
+      "unchanged": 69,
+      "new": 41,
+      "changed": 0,
+      "retracted": 0
+    },
+    "devTrain": {
+      "v4Ready": 13,
+      "v5Ready": 20,
+      "unchanged": 13,
+      "new": 7,
+      "changed": 0,
+      "retracted": 0
+    },
+    "resolutionGenerationChangeAloneIsNotAnEvidenceChange": true,
+    "everyUnchangedDevTrainAuthorityCarriedThroughVerifiedAdmission": true
+  },
+  "a3Consequence": {
+    "r37CoveragePreservedForUnchangedDevTrainAuthorities": 13,
+    "r33ToR37Reproduced": false,
+    "newDevTrainAuthorities": 7,
+    "newDevTrainAuthoritiesWithA3EvidenceCoverage": 0,
+    "evidenceRequestsCreated": 0
+  },
+  "noSideEffects": {
+    "workingDatabaseConnections": 0,
+    "sqlStatements": 0,
+    "databaseReads": 0,
+    "databaseWrites": 0,
+    "institutionNetworkRequests": 0,
+    "sealedRootReads": 0,
+    "devTrainEvidenceLookups": 0,
+    "devConfirmEvidenceReads": 0,
+    "finalHoldoutEvidenceReads": 0,
+    "documentAssembly": 0,
+    "graphMeasurement": 0,
+    "samplePreparation": 0,
+    "a3Sd9OrReadinessDerivation": 0,
+    "labels": 0,
+    "classifierOrProviderCalls": 0,
+    "gitUse": "commit-addressed object reads only, as governance transport"
+  },
+  "notStarted": {
+    "r39": true,
+    "completeCorpusPreflight": true,
+    "finalSetPOrSetR": true,
+    "governanceV6": true,
+    "a5Freeze": true
+  },
+  "identityDisclosure": {
+    "selectionIndicesPublished": 0,
+    "reservePositionsPublished": 0,
+    "organisationIdsPublished": 0,
+    "echeRowKeysPublished": 0,
+    "runIdsOrRunReferenceDigestsPublished": 0,
+    "scheduleFrameOrDrawEntryDigestsPublished": 0,
+    "ledgerEntryHashesPublished": 0,
+    "perSlotProvenanceOrAuthorityPublished": 0,
+    "aggregateCountsOnly": true
+  },
+  "terminalState": "R38B_COMMITTED_GOVERNANCE_V5_COMPLETE_NEW_DEV_TRAIN_DELTA_REQUIRES_INCREMENTAL_EVIDENCE_BINDING",
+  "nextOwnerQuestion": "Should R39 be authorised to perform incremental durable-evidence binding for ONLY the seven genuinely NEW Governance V5 DEV_TRAIN authorities, preserving R37’s thirteen unchanged authorities and all their downstream coverage untouched?",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}

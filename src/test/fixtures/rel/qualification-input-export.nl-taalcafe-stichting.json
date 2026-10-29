@@ -1,0 +1,327 @@
+{
+  "document": "nwf-pe.qualification-input-export.v1",
+  "producerVersion": "nwf-pe-qualification-input-producer-v1",
+  "targetContracts": {
+    "qualificationInput": "nwf-qualification-input/1-provisional",
+    "qualificationRubric": "nwf-qualification-rubric/V0-R2",
+    "researchInput": "nwf-qualification-research-input/1-provisional",
+    "researchReference": "nwf-research-provisional-reference/1-provisional"
+  },
+  "evidenceClass": "RESEARCH_REAL",
+  "instantRule": "WHOLE_SECOND_UTC_TRUNCATED_TOWARD_EPOCH",
+  "dateRuleVersion": "nwf-pe-stated-date-rules-v1",
+  "sourceRepository": "nwf-partnership-engine",
+  "readConsistency": "SINGLE_SNAPSHOT_TRANSACTION",
+  "subjectId": "66666666-0000-4000-8000-b10000000003",
+  "evaluatedAt": "2026-10-27T09:55:34Z",
+  "candidate": {
+    "candidateRef": "rp-candidate:66666666-0000-4000-8000-b10000000003",
+    "relations": []
+  },
+  "country": {
+    "value": "NL",
+    "standing": "STATED",
+    "rule": "ADR_0024_COUNTRY_OF_OPERATION_STATED",
+    "notRankableReason": null
+  },
+  "channels": [
+    {
+      "channelRef": "rp-channel:dddddddd-0000-4000-8000-b10000000035",
+      "kind": "RESOURCE_PAGE",
+      "visibility": "PUBLIC",
+      "websiteClaimId": "dddddddd-0000-4000-8000-b10000000035",
+      "admissionIds": [
+        "dddddddd-0000-4000-8000-b10000000036"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000000b",
+      "publisherRelation": "THIRD_PARTY",
+      "capturedAt": "2026-10-26T09:00:00Z",
+      "c1": {
+        "captureKind": "ARTEFACT",
+        "contentDigest": null,
+        "originKey": "url.2610a178f4c8b9bf97b05ee4403fb7bb9a2208f0698b5df03934d9e24bdb6bb7",
+        "derivedFromSourceRef": null,
+        "attesterRef": null,
+        "partnerRecordRef": null
+      },
+      "reproducibility": {
+        "kind": "EXTERNAL_REFERENCE_ONLY",
+        "origin": "https://register.stichtingen-fict.nl/taalcafe-leiden",
+        "accessedAt": "2026-10-26T09:00:00Z",
+        "contentDigest": null
+      },
+      "record": {
+        "kind": "PUBLIC_URL_UNRESOLVED",
+        "provenanceKey": "url:https://register.stichtingen-fict.nl/taalcafe-leiden|v="
+      }
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000003a",
+      "publisherRelation": "SELF",
+      "capturedAt": "2026-10-27T09:55:33Z",
+      "c1": {
+        "captureKind": "ARTEFACT",
+        "contentDigest": "fcc68990dd38881b755a651e5d476e4ebea5baab655f0810a131786d26d1591d",
+        "originKey": "url.3c95ba3c12ac0c7b4c6889cd19570ef303c7caa9cd68f555c7076b3a6a837208",
+        "derivedFromSourceRef": null,
+        "attesterRef": null,
+        "partnerRecordRef": null
+      },
+      "reproducibility": {
+        "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
+        "contentDigest": "fcc68990dd38881b755a651e5d476e4ebea5baab655f0810a131786d26d1591d",
+        "bytesAvailable": false,
+        "origin": "https://www.taalcafe-leiden-fict.nl/",
+        "digestRecordedAt": "2026-10-27T09:55:33Z"
+      },
+      "record": {
+        "kind": "PAGE_EVIDENCE",
+        "pageEvidenceId": "dddddddd-0000-4000-8000-b1000000003a",
+        "fetchObservationId": "dddddddd-0000-4000-8000-b10000000039",
+        "researchRunId": "dddddddd-0000-4000-8000-b10000000043",
+        "admissionId": "dddddddd-0000-4000-8000-b10000000036",
+        "extractionRuleVersion": "orgunit-extraction-v3",
+        "candidates": [
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b1000000002d",
+            "track": "INTERNATIONAL_OFFICE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 1,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          },
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b1000000000d",
+            "track": "LANGUAGE_CENTRE",
+            "candidateScore": "8.0000",
+            "rankWithinRoot": 1,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          }
+        ]
+      }
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000042",
+      "publisherRelation": "SELF",
+      "capturedAt": "2026-10-27T09:55:33Z",
+      "c1": {
+        "captureKind": "ARTEFACT",
+        "contentDigest": "cf479df288153c0f9b5be01e5f21371b9519f376d1734649bc0f6868fa16fb56",
+        "originKey": "url.1d7872104dda4783000647ae46349cc2b24cb0181808124ece8d1739661161da",
+        "derivedFromSourceRef": null,
+        "attesterRef": null,
+        "partnerRecordRef": null
+      },
+      "reproducibility": {
+        "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
+        "contentDigest": "cf479df288153c0f9b5be01e5f21371b9519f376d1734649bc0f6868fa16fb56",
+        "bytesAvailable": false,
+        "origin": "https://www.taalcafe-leiden-fict.nl/vrijwilligers/",
+        "digestRecordedAt": "2026-10-27T09:55:33Z"
+      },
+      "record": {
+        "kind": "PAGE_EVIDENCE",
+        "pageEvidenceId": "dddddddd-0000-4000-8000-b10000000042",
+        "fetchObservationId": "dddddddd-0000-4000-8000-b1000000003b",
+        "researchRunId": "dddddddd-0000-4000-8000-b10000000043",
+        "admissionId": "dddddddd-0000-4000-8000-b10000000036",
+        "extractionRuleVersion": "orgunit-extraction-v3",
+        "candidates": [
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b10000000007",
+            "track": "INTERNATIONAL_OFFICE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 2,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          },
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b10000000045",
+            "track": "LANGUAGE_CENTRE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 2,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          }
+        ]
+      }
+    }
+  ],
+  "claims": [
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000019",
+      "claimKey": "channel.operator_binding",
+      "subject": {
+        "kind": "CHANNEL",
+        "ref": "rp-channel:dddddddd-0000-4000-8000-b10000000035"
+      },
+      "mode": "OBSERVED",
+      "attribution": "EXACT",
+      "producedBy": "NWF_SYSTEM",
+      "value": {
+        "operatorCandidateId": "rp-candidate:66666666-0000-4000-8000-b10000000003",
+        "basis": "HOSTED_ON_CANDIDATE_SITE"
+      },
+      "basis": {
+        "origin": "ADMITTED_WEBSITE_CAPTURED",
+        "websiteClaimId": "dddddddd-0000-4000-8000-b10000000035",
+        "admissionIds": [
+          "dddddddd-0000-4000-8000-b10000000036"
+        ]
+      },
+      "researchRealConflicts": [
+        "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+        "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+      ]
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000001e",
+      "claimKey": "channel.existence",
+      "subject": {
+        "kind": "CHANNEL",
+        "ref": "rp-channel:dddddddd-0000-4000-8000-b10000000035"
+      },
+      "mode": "OBSERVED",
+      "attribution": "EXACT",
+      "producedBy": "NWF_SYSTEM",
+      "value": {
+        "status": "EXISTS"
+      },
+      "basis": {
+        "origin": "ADMITTED_WEBSITE_CAPTURED",
+        "websiteClaimId": "dddddddd-0000-4000-8000-b10000000035",
+        "admissionIds": [
+          "dddddddd-0000-4000-8000-b10000000036"
+        ]
+      },
+      "researchRealConflicts": [
+        "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+        "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+      ]
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000023",
+      "claimKey": "channel.static_currency",
+      "subject": {
+        "kind": "CHANNEL",
+        "ref": "rp-channel:dddddddd-0000-4000-8000-b10000000035"
+      },
+      "mode": "OBSERVED",
+      "attribution": "EXACT",
+      "producedBy": "NWF_SYSTEM",
+      "value": {
+        "marker": "CURRENT_OR_UPCOMING_YEAR",
+        "lastModified": null
+      },
+      "basis": {
+        "origin": "STATED_DATE_IN_CAPTURE",
+        "pageEvidenceId": "dddddddd-0000-4000-8000-b1000000003a",
+        "statedDates": [
+          "2027-12-12"
+        ]
+      },
+      "researchRealConflicts": [
+        "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+        "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+      ]
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000002c",
+      "claimKey": "candidate.location",
+      "subject": {
+        "kind": "CANDIDATE",
+        "ref": "rp-candidate:66666666-0000-4000-8000-b10000000003"
+      },
+      "mode": "THIRD_PARTY_ASSERTED",
+      "attribution": "LIKELY",
+      "producedBy": "HUMAN_RESEARCHER",
+      "value": {
+        "countryCode": "NL"
+      },
+      "basis": {
+        "origin": "ADR_0024_COUNTRY_OF_OPERATION",
+        "jurisdictionClaimId": "dddddddd-0000-4000-8000-b10000000015",
+        "recordedByActorKey": "rel-p1-owner-test"
+      },
+      "researchRealConflicts": []
+    }
+  ],
+  "claimLinks": [
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000019",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000003a",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000019",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000042",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000001e",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000003a",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000001e",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000042",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000023",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000003a",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000002c",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000000b",
+      "relation": "SUPPORTS"
+    }
+  ],
+  "excluded": [
+    {
+      "ref": "identity_claim:dddddddd-0000-4000-8000-b10000000028",
+      "reason": "REGISTRY_KIND_HAS_NO_FAITHFUL_C1_KIND"
+    }
+  ],
+  "researchRuns": [
+    {
+      "runId": "dddddddd-0000-4000-8000-b10000000043",
+      "admissionId": "dddddddd-0000-4000-8000-b10000000036",
+      "included": true,
+      "pages": 2
+    }
+  ],
+  "permissions": {
+    "qualification": "NONE",
+    "ranking": "NONE",
+    "publication": "NONE",
+    "memberRelease": "NONE",
+    "identityBinding": "NONE",
+    "outreach": "NONE",
+    "contactPermission": "NOT_GRANTED"
+  },
+  "limitations": {
+    "documentSignature": "NONE_NOT_A_SIGNED_EXPORT",
+    "scoring": "NONE_THE_OPERATOR_C1_RUBRIC_ALONE_SCORES",
+    "descriptors": "NONE_THE_OPERATOR_PAIRS_THE_OWNER_PILOT_DESCRIPTOR_FOR_THE_STATED_COUNTRY",
+    "identity": "PROVISIONAL_ENGINE_LOCAL_REFERENCES_I0_BINDS_IDENTITY_IN_THE_OPERATOR",
+    "country": "ADR_0024_COUNTRY_OF_OPERATION_STATED_ONLY_ELSE_NULL_NEVER_INFERRED",
+    "bytes": "RESPONSE_BODIES_ARE_NEVER_STORED_A_CAPTURE_IS_A_DIGEST_ONLY",
+    "pageText": "NO_PAGE_TEXT_IS_EXPORTED",
+    "classifier": "NO_CLASSIFIER_OR_PAGE_PHRASE_CLAIM_IS_EXPORTED",
+    "licence": "UNKNOWN_NO_STORED_SOURCE_RECORDS_A_LICENCE",
+    "asOf": "RECORDS_CREATED_AFTER_EVALUATED_AT_ARE_EXCLUDED",
+    "instants": "WHOLE_SECOND_UTC_TRUNCATED_TOWARD_EPOCH",
+    "completeness": "NOT_PROVEN",
+    "piiFields": "NONE_BY_CONSTRUCTION"
+  }
+}

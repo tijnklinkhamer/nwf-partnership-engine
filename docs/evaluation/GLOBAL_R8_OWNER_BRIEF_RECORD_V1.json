@@ -1,0 +1,45 @@
+{
+  "recordId": "GLOBAL_R8_OWNER_BRIEF_RECORD_V1",
+  "recordKind": "OWNER_BRIEF_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-20",
+  "branch": "feat/global-research-execution-r8",
+  "worktree": "~/wt-pe-global-research-execution-r8",
+  "startingHead": "fea23839741e0329842d276f53032fcb52f4b53c",
+  "startingHeadLineage": "Global R6 firewall pin (fea2383) over R6 9d6d1f1, parent 0e9e943",
+  "status": "LOCAL_SYNTHETIC_IMPLEMENTATION_UNDER_OWNER_BRIEF__RATIFICATION_PENDING",
+  "isOwnerRatification": false,
+  "authority": {
+    "source": "OWNER brief 'NWF Partnership Engine — R8: Global Research Execution' (2026-10-20)",
+    "objectiveVerbatim": "The OWNER authorises a local, synthetic-only R8 implementation, using the decisions below. No real research or production activation is authorised.",
+    "restrictionsVerbatim": [
+      "No pushes, real network acquisition, production/staging migrations, deployments, operational keys, real canonical identity issuance, Qualification activation or outreach.",
+      "Do not modify the Operator repository or existing French release records."
+    ]
+  },
+  "decisionsApplied": ["Q1", "Q2", "Q3", "D4", "D5", "D6", "D7", "D8"],
+  "migrationUnderThisBrief": "migrations/0017_subject_research_admission.sql",
+  "adr": "docs/adr/0025-global-subject-research-admission.md",
+  "admissionPolicyVersion": "subject-research-admission-policy-v1",
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "editsPriorMigrations": false,
+  "rewritesCohortPins": false,
+  "migrationAppliedTo": "disposable tmpfs PostgreSQL 16 test databases only",
+  "productionMigrationApplied": false,
+  "runtimeRoleGrantedInsert": false,
+  "networkUsed": false,
+  "realOrganisationsInserted": false,
+  "operationalKeyProvisioned": false,
+  "contactDataStored": false,
+  "grantsContactPermission": false,
+  "activatesQualificationOrInsightsPublication": false,
+  "issuesCanonicalIdentity": false,
+  "classifierChanged": false,
+  "openForOwner": [
+    "Ratify or reject ADR 0025 and migration 0017.",
+    "Decide OWNER review-key custody and provision one ACTIVE operational key (ADR 0023 s15); without it no real subject can be confirmed or admitted.",
+    "Decide whether and when to apply migration 0017 to nwf_pe, with a measured lock window and a before/after root_key and corpus-digest proof.",
+    "Authorise (or not) a subject research CLI and an OWNER-path admission command.",
+    "Decide whether to amend ADR 0023 s11a so a recorded protection re-evaluation can clear UNCERTAIN-registered subjects (ADR 0025 s6); until then they stay blocked."
+  ]
+}

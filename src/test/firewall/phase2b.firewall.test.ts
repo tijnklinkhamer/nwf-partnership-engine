@@ -357,6 +357,11 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       'src/orgunits/web/extract.ts',
       'src/orgunits/web/redact.ts',
       'src/orgunits/web/pageEvidence.ts',
+      // 2B-2D2B-1: the ONE definition of canonical evidence text - the
+      // complete 252-name HTML 4.01 entity table plus NFC. Pure: no socket,
+      // no database, no clock, no dependency. Named here by exact path so a
+      // second, competing decoder cannot appear quietly beside it.
+      'src/orgunits/web/evidenceCanonical.ts',
       // 2B-1d: the pure deterministic signal layer. See the dedicated
       // describe block below for what these files may NOT do.
       'src/orgunits/signals/types.ts',
@@ -367,6 +372,22 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       'src/orgunits/signals/packs/universal.ts',
       'src/orgunits/signals/packs/fr.ts',
       'src/orgunits/signals/packs/en.ts',
+      // orgunit-signal-rules-v2 (Japan/Mexico/Netherlands pilot): an opt-in
+      // second ruleset BESIDE v1 (score.ts/types.ts are bound by bytes in
+      // OWNER records and are untouched), and three REAL packs - named here
+      // by exact path, a deliberate, reviewed widening of the "only fr/en
+      // ship" pin below. See the signal-layer describe block.
+      'src/orgunits/signals/scoreV2.ts',
+      'src/orgunits/signals/typesV2.ts',
+      'src/orgunits/signals/scriptAware.ts',
+      'src/orgunits/signals/packs/ja.ts',
+      'src/orgunits/signals/packs/es.ts',
+      'src/orgunits/signals/packs/nl.ts',
+      // REL Engine integration (OWNER directive 2026-10-26): the v2-ONLY
+      // English extension. `en.ts` is shared with v1 and stays
+      // byte-identical, so new English Track B terms live beside it, named
+      // here by exact path; v1 may never import it (asserted below).
+      'src/orgunits/signals/packs/enV2.ts',
       // 2B-1e: PURE sitemap XML parsing + bounded orchestration over the
       // one gateway. See the dedicated "sitemap"/"frontier" describe blocks
       // below for what these files may and may not do.
@@ -414,10 +435,10 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       // is the approved home for handoff assembly; this sibling name stays
       // refused so a second, competing namespace cannot appear beside it.
       'src/orgunits/candidates',
-      // Only fr/en ship. No placeholder for an unmeasured language.
+      // v1 ships fr/en; v2 adds ja/es/nl, each carrying real rules (asserted
+      // in the signal-layer block). No placeholder for an unmeasured
+      // language: de/it stay refused.
       'src/orgunits/signals/packs/de.ts',
-      'src/orgunits/signals/packs/nl.ts',
-      'src/orgunits/signals/packs/es.ts',
       'src/orgunits/signals/packs/it.ts',
     ]) {
       expect(exists(path), `${path} exists but belongs to a later slice`).toBe(false);
@@ -519,10 +540,17 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     // response body (none exists anywhere in the classifier layer), and the
     // stricter assertion below proves it writes no file CONTENT at all:
     // directory creation only, never a byte.
-    const EMPTY_DIR_ISOLATION_FILE = 'src/orgunits/classify/provider/runtimeIsolation.ts';
+    //
+    // WW E-SD (ADR 0027 D3 / ADR 0028) widened it by ONE exact path, under
+    // the same stricter assertion: sourceDiscovery/agentQuery.ts creates and
+    // removes the live search's EMPTY scratch cwd, and writes no byte.
+    const EMPTY_DIR_ISOLATION_FILES = new Set([
+      'src/orgunits/classify/provider/runtimeIsolation.ts',
+      'src/orgunits/sourceDiscovery/agentQuery.ts',
+    ]);
     for (const file of PHASE_2B_FILES) {
       const source = code(file);
-      if (file === EMPTY_DIR_ISOLATION_FILE) {
+      if (EMPTY_DIR_ISOLATION_FILES.has(file)) {
         expect(source, `${file} writes file content`).not.toMatch(
           /writeFile|createWriteStream|appendFile|copyFile/,
         );
@@ -885,6 +913,10 @@ describe('PHASE-2B-FIREWALL: the deterministic signal layer is PURE, and produce
       'src/orgunits/signals/score.ts',
       'src/orgunits/signals/tree.ts',
       'src/orgunits/signals/normalise.ts',
+      // v2's scoring core, held to the same rule.
+      'src/orgunits/signals/scoreV2.ts',
+      'src/orgunits/signals/typesV2.ts',
+      'src/orgunits/signals/scriptAware.ts',
     ]) {
       const source = code(file);
       for (const banned of ['country', 'locale', 'market', 'targetLanguage', 'langPack']) {
@@ -893,19 +925,117 @@ describe('PHASE-2B-FIREWALL: the deterministic signal layer is PURE, and produce
     }
   });
 
-  it('ships exactly the approved universal/fr/en packs, and no per-organisation activation switch', () => {
+  it('ships exactly the approved universal/fr/en (v1) + ja/es/nl (v2) packs, and no per-organisation activation switch', () => {
     const packsDir = resolve(ROOT, 'src/orgunits/signals/packs');
     const packFiles = readdirSync(packsDir)
       .filter((f) => f.endsWith('.ts'))
       .sort();
-    expect(packFiles).toEqual(['en.ts', 'fr.ts', 'universal.ts']);
+    // Widened deliberately, by exact file name, for orgunit-signal-rules-v2,
+    // and once more for the v2-only English extension (REL Engine integration).
+    expect(packFiles).toEqual([
+      'en.ts',
+      'enV2.ts',
+      'es.ts',
+      'fr.ts',
+      'ja.ts',
+      'nl.ts',
+      'universal.ts',
+    ]);
 
-    // score.ts must import all three unconditionally - never behind a branch
-    // keyed on a per-organisation property.
+    // score.ts (v1) imports exactly its three packs, unconditionally - never
+    // behind a branch keyed on a per-organisation property.
     const scoreSource = code('src/orgunits/signals/score.ts');
     expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/universal\.js['"]/);
     expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/fr\.js['"]/);
     expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/en\.js['"]/);
+
+    // scoreV2.ts imports all six, plus the en v2 extension, the same way.
+    const v2Source = code('src/orgunits/signals/scoreV2.ts');
+    for (const pack of ['universal', 'fr', 'en', 'enV2', 'ja', 'es', 'nl']) {
+      expect(v2Source, pack).toMatch(new RegExp(`from\\s+['"]\\./packs/${pack}\\.js['"]`));
+    }
+    // No dynamic import, no require: a pack cannot be loaded conditionally.
+    for (const source of [scoreSource, v2Source]) {
+      expect(source).not.toMatch(/\bimport\s*\(/);
+      expect(source).not.toMatch(/\brequire\s*\(/);
+    }
+  });
+
+  it('v1 never reaches v2: no v1 engine file imports the v2 modules or the ja/es/nl packs', () => {
+    // orgunit-signal-rules-v1 is pinned by persisted runs, frozen classifier
+    // configurations and (score.ts/types.ts) OWNER records bound by bytes.
+    // A new pack silently joining v1 would change every v1 score without
+    // changing the v1 version string.
+    for (const file of [
+      'src/orgunits/signals/score.ts',
+      'src/orgunits/signals/types.ts',
+      'src/orgunits/signals/normalise.ts',
+      'src/orgunits/signals/tree.ts',
+      'src/orgunits/signals/weights.ts',
+      'src/orgunits/signals/packs/universal.ts',
+      'src/orgunits/signals/packs/fr.ts',
+      'src/orgunits/signals/packs/en.ts',
+    ]) {
+      const source = code(file);
+      expect(source, file).not.toMatch(/scoreV2|typesV2|scriptAware/);
+      expect(source, file).not.toMatch(/packs\/(ja|es|nl|enV2)\.js/);
+    }
+    expect(code('src/orgunits/signals/score.ts')).toMatch(
+      /export const ORGUNIT_SIGNAL_RULE_VERSION = 'orgunit-signal-rules-v1';/,
+    );
+    expect(code('src/orgunits/signals/scoreV2.ts')).toMatch(
+      /export const ORGUNIT_SIGNAL_RULE_VERSION_V2 = 'orgunit-signal-rules-v2';/,
+    );
+  });
+
+  it('each v2 pack carries REAL rules on both tracks - never a placeholder', async () => {
+    for (const [file, exportName, pack] of [
+      ['src/orgunits/signals/packs/ja.ts', 'JA_RULES', 'ja'],
+      ['src/orgunits/signals/packs/es.ts', 'ES_RULES', 'es'],
+      ['src/orgunits/signals/packs/nl.ts', 'NL_RULES', 'nl'],
+    ] as const) {
+      const module = (await import(resolve(ROOT, file))) as Record<string, unknown>;
+      const rules = module[exportName] as readonly {
+        pack: string;
+        kind: string;
+        tracks: readonly string[];
+        phrases: readonly string[];
+      }[];
+      expect(Array.isArray(rules), `${file} exports ${exportName}`).toBe(true);
+      for (const rule of rules) {
+        expect(rule.pack, file).toBe(pack);
+        expect(rule.phrases.length, file).toBeGreaterThan(0);
+      }
+      for (const track of ['A', 'B']) {
+        const positives = rules.filter(
+          (rule) => rule.kind === 'positive' && rule.tracks.includes(track),
+        );
+        expect(positives.length, `${file} track ${track} positives`).toBeGreaterThanOrEqual(4);
+      }
+    }
+  });
+
+  it('the en v2 extension carries REAL Track B rules, tagged en, and only v2 composes it', async () => {
+    const module = (await import(resolve(ROOT, 'src/orgunits/signals/packs/enV2.ts'))) as Record<
+      string,
+      unknown
+    >;
+    const rules = module['EN_V2_EXTENSION_RULES'] as readonly {
+      pack: string;
+      kind: string;
+      tracks: readonly string[];
+      phrases: readonly string[];
+    }[];
+    expect(Array.isArray(rules)).toBe(true);
+    expect(rules.length).toBeGreaterThanOrEqual(4);
+    for (const rule of rules) {
+      expect(rule.pack).toBe('en');
+      expect(rule.kind).toBe('positive');
+      expect(rule.tracks).toEqual(['B']);
+      expect(rule.phrases.length).toBeGreaterThan(0);
+    }
+    expect(code('src/orgunits/signals/scoreV2.ts')).toMatch(/\.\.\.EN_V2_EXTENSION_RULES,/);
+    expect(code('src/orgunits/signals/score.ts')).not.toMatch(/EN_V2_EXTENSION_RULES|enV2/);
   });
 
   it('declares no AI, Apollo or outbound reference in the signal layer', () => {
@@ -1285,7 +1415,44 @@ describe('PHASE-2B-FIREWALL: research evidence is append-only and owns nothing e
         if (!table.startsWith('orgunit_')) readable.add(table);
       }
     }
-    expect([...readable].sort()).toEqual(['organisations', 'website_claims']);
+    // Global R8 (OWNER-authorised exact-path exception, 2026-10-20, ADR 0025):
+    // a discovery-subject root is read from its OWNER admission, its
+    // revocations and the registry's row counts - and from migration 0017
+    // only. No discovery-subject table itself is readable.
+    const R8_SUBJECT_ROOT_SOURCES = [
+      'subject_research_admission_revocations',
+      'subject_research_admissions',
+      'subject_research_registry_fingerprint',
+    ];
+    // WW H-ACQ (exact-name exception, ADR 0030 s13, P1-1): the root resolver
+    // refuses a CAMPAIGN admission outside its campaign by reading ONE
+    // definer-rights view of booleans, an instant, a run id and a count -
+    // granted in migration 0026 only, SELECT only. No acquisition table
+    // itself is readable.
+    const H_ACQ_CAMPAIGN_STANDING = 'subject_research_campaign_admission_standing';
+    expect([...readable].sort()).toEqual(
+      [
+        'organisations',
+        'website_claims',
+        ...R8_SUBJECT_ROOT_SOURCES,
+        H_ACQ_CAMPAIGN_STANDING,
+      ].sort(),
+    );
+    for (const { file, grant } of RESEARCH_GRANTS) {
+      if (grant.target.includes(H_ACQ_CAMPAIGN_STANDING)) {
+        expect(file, `${grant.target} is granted outside migration 0026`).toMatch(
+          /0026_acquisition_hardening\.sql$/,
+        );
+        expect(grant.target.trim()).toBe(H_ACQ_CAMPAIGN_STANDING);
+        expect(grant.privileges.trim().toUpperCase()).toBe('SELECT');
+        continue;
+      }
+      if (!R8_SUBJECT_ROOT_SOURCES.some((t) => grant.target.includes(t))) continue;
+      expect(file, `${grant.target} is granted outside migration 0017`).toMatch(
+        /0017_subject_research_admission\.sql$/,
+      );
+      expect(grant.privileges.trim().toUpperCase()).toBe('SELECT');
+    }
   });
 
   it('never grants nwf_research the database TEMPORARY privilege', () => {
@@ -1598,6 +1765,16 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
   const CLASSIFY_READ_ONLY_FILES = CLASSIFY_FILES.filter(
     (file) => file !== CLASSIFY_PERSISTENCE_FILE,
   );
+  /**
+   * CLASSIFIER_OPERATOR_READ_MODELS_V1: the ONE other file permitted to NAME
+   * the classifier-persistence tables (and the migration-0011 repair
+   * columns), BY EXACT PATH - because inspecting persisted calls, repairs and
+   * classifications through the `readonly` role is impossible without naming
+   * them. It stays inside CLASSIFY_READ_ONLY_FILES, so every write-free check
+   * above and below still binds it, and it carries its own STRICTER block
+   * (SELECT-only, no DDL, two imports, never persist.ts) just below.
+   */
+  const CLASSIFY_OPERATOR_READ_MODEL_FILE = 'src/orgunits/classify/operatorReadModels.ts';
 
   it('populates the classify namespace', () => {
     expect(CLASSIFY_FILES.length, 'src/orgunits/classify is empty').toBeGreaterThan(0);
@@ -1629,11 +1806,26 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
   });
 
   it('imports no search-engine, browser-automation or PDF/OCR dependency', () => {
+    // `bing` must START a word rather than merely occur: it is also the tail
+    // of ordinary English words ("describing", "probing"), and prompt v2
+    // (2D2B-3) carries "Describing" as runtime prompt text. Anchoring only
+    // the start still flags everything a whole-word match would, plus
+    // `bingapi`/`bing_search`-shaped identifiers - the controls prove both.
+    const BING = /(?<![a-z])bing/;
+    for (const sample of [
+      "from 'bing'",
+      "from 'bing-search'",
+      'https://api.bing.microsoft.com/v7.0/search',
+      'const bing_search = bingapi;',
+    ]) {
+      expect(sample, `the bing pattern misses ${sample}`).toMatch(BING);
+    }
+    expect('describing', 'the bing pattern flags English prose').not.toMatch(BING);
     for (const file of CLASSIFY_FILES) {
       const source = code(file).toLowerCase();
+      expect(source, `${file} names bing`).not.toMatch(BING);
       for (const banned of [
         'googleapis',
-        'bing',
         'serpapi',
         'brave-search',
         'duckduckgo',
@@ -1675,8 +1867,9 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
     }
   });
 
-  it('never names a classifier-persistence table OUTSIDE persist.ts', () => {
+  it('never names a classifier-persistence table OUTSIDE persist.ts (and the exact-path readonly read model)', () => {
     for (const file of CLASSIFY_READ_ONLY_FILES) {
+      if (file === CLASSIFY_OPERATOR_READ_MODEL_FILE) continue;
       const source = code(file);
       for (const table of [
         'orgunit_classifier_calls',
@@ -1691,6 +1884,28 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
         expect(source, `${file} names ${table}`).not.toContain(table);
       }
     }
+  });
+
+  it('the operator read model names those tables ONLY to SELECT: no write, no DDL, two imports, never persist.ts', () => {
+    expect(CLASSIFY_FILES).toContain(CLASSIFY_OPERATOR_READ_MODEL_FILE);
+    expect(CLASSIFY_READ_ONLY_FILES).toContain(CLASSIFY_OPERATOR_READ_MODEL_FILE);
+    const source = code(CLASSIFY_OPERATOR_READ_MODEL_FILE);
+    expect(source).not.toMatch(
+      /\b(INSERT|UPDATE|DELETE|TRUNCATE|MERGE|UPSERT|CREATE|ALTER|DROP|GRANT|REVOKE|COPY|LOCK|NOTIFY|CALL)\b/,
+    );
+    expect(source).not.toMatch(/\b(nextval|setval|pg_advisory|set_config|FOR\s+UPDATE)\b/i);
+    expect(source).not.toMatch(/withTransaction|BEGIN|COMMIT|ROLLBACK/);
+    // Every statement it issues is a SELECT or a WITH ... SELECT.
+    const statements = [...source.matchAll(/pool\.query<[\s\S]*?>\(\s*`([\s\S]*?)`/g)].map((m) =>
+      m[1]!.trim(),
+    );
+    expect(statements.length).toBeGreaterThan(0);
+    for (const sql of statements) expect(sql).toMatch(/^(SELECT|WITH)\b/);
+    const imports = [...source.matchAll(/\bfrom\s*['"]([^'"]+)['"]/g)].map((m) => m[1]!).sort();
+    expect(imports).toEqual(['./constants.js', 'pg']);
+    expect(source).not.toMatch(/\bimport\s*\(/);
+    expect(source).not.toContain('process.env');
+    expect(source).not.toMatch(/Date\.now\(|new Date\(|Math\.random\(/);
   });
 
   it('declares no contact-shaped property and names no mailto:/tel: scheme', () => {
@@ -1730,6 +1945,97 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
         );
       }
     }
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-2D2B-1: ONE canonicalisation definition, and no second entity decoder', () => {
+  const CANONICAL_MODULE = 'src/orgunits/web/evidenceCanonical.ts';
+
+  it('defines the HTML 4.01 named-entity table in exactly one file', () => {
+    // A second table would drift from the first, and the whole point of the
+    // 252-name contract is that ONE reviewed table decides what a named
+    // reference means.
+    const definers = PRODUCTION_FILES.filter((file) =>
+      /NAMED_ENTITIES(\s*:\s*Readonly|\s*=)/.test(code(file)),
+    );
+    expect(definers, 'more than one module defines a named-entity table').toEqual([
+      CANONICAL_MODULE,
+    ]);
+  });
+
+  it('never re-admits &apos;, which HTML 4.01 does not define', () => {
+    const source = code(CANONICAL_MODULE);
+    expect(source, 'apos was added back to the HTML 4.01 table').not.toMatch(/^\s*apos\s*:/m);
+  });
+
+  it('keeps the canonicalisation module pure - no socket, no database, no clock, no randomness', () => {
+    const source = code(CANONICAL_MODULE);
+    expect(source).not.toMatch(/from\s+['"]node:(net|tls|http|https|dns|fs)['"]/);
+    expect(source).not.toMatch(/from\s+['"]pg['"]/);
+    expect(source).not.toMatch(/process\.env/);
+    expect(source).not.toMatch(/Date\.now\s*\(|Math\.random\s*\(/);
+    expect(source, 'the canonicaliser must own no socket').not.toMatch(/\bfetch\s*\(/);
+  });
+
+  it('adds no mojibake-repair or compatibility-folding path', () => {
+    // NFC only. NFKC would rewrite ligatures and full-width forms into
+    // characters the page never published, and a mojibake repair has no
+    // measured population to repair (2D2B observed zero).
+    const source = code(CANONICAL_MODULE);
+    expect(source, 'NFKC compatibility folding appeared').not.toMatch(/NFKC|NFKD/);
+    expect(source).toMatch(/normalize\(\s*'NFC'\s*\)/);
+  });
+
+  it('keeps both extraction callers on the SAME extraction rule version', () => {
+    // They produce the same evidence grain; a split between them would make
+    // the assembly-time canonicalisation gate ambiguous.
+    const versionIn = (file: string): string | undefined =>
+      /EXTRACTION_RULE_VERSION\s*=\s*'([^']+)'/.exec(code(file))?.[1];
+    const a = versionIn('src/orgunits/web/pageEvidence.ts');
+    const b = versionIn('src/orgunits/orchestrator/pageCollection.ts');
+    expect(a).toBeDefined();
+    expect(a).toBe(b);
+  });
+
+  it('gates assembly-time canonicalisation on ONE exact version, never an ordering', () => {
+    // A comparator would have to interpret arbitrary future version strings
+    // and would silently opt in versions nobody reviewed.
+    const constants = code('src/orgunits/classify/constants.ts');
+    expect(constants).toMatch(
+      /EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION\s*=\s*'orgunit-extraction-v1'/,
+    );
+    const document = code('src/orgunits/classify/document.ts');
+    expect(document, 'the gate must be an equality').toMatch(
+      /extractionRuleVersion\s*===\s*EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION/,
+    );
+    expect(document, 'a version comparator appeared in the gate').not.toMatch(
+      /localeCompare|parseInt\(.*version|<=?\s*EXTRACTION_VERSION/i,
+    );
+  });
+
+  it('keeps unit_name verification deterministic: whitespace, diacritics and case only', () => {
+    // The fuzzy/similarity-algorithm blacklist is NOT restated here: the
+    // Phase 1B firewall already forbids those across every source file, and
+    // naming them again would trip that very check (it walks this file too).
+    // What is asserted here is the POSITIVE contract instead.
+    const source = code('src/orgunits/classify/evidenceVerification.ts');
+    expect(source, 'verification must stay a literal substring test').toMatch(/\.includes\(/);
+    expect(source, 'a locale-sensitive fold would make verification machine-dependent').not.toMatch(
+      /toLocaleLowerCase|toLocaleUpperCase/,
+    );
+    expect(source, 'case folding is the ONE fold 2B-2D2B-1 added').toMatch(/toLowerCase\(\)/);
+    expect(source, 'the diacritic fold must remain NFD + combining-mark stripping').toMatch(
+      /normalize\(\s*'NFD'\s*\)/,
+    );
+  });
+
+  it('never reads another document while verifying one document', () => {
+    // Cross-document lookup is exactly how a sibling's text becomes a
+    // fabricated name for this page.
+    const source = code('src/orgunits/classify/evidenceVerification.ts');
+    expect(source, 'verification takes a document ARRAY').not.toMatch(
+      /documents\s*:\s*readonly|ClassifierBatch|documents\[/,
+    );
   });
 });
 
@@ -1848,11 +2154,31 @@ describe('PHASE-2B-FIREWALL 2B-2C1: semantic core is provider-neutral, and persi
 
   it('declares frozen, versioned prompt and output-schema constants', () => {
     const prompt = code('src/orgunits/classify/prompt.ts');
-    expect(prompt).toContain("ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v1'");
+    expect(prompt).toContain(
+      "ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v7.2'",
+    );
     const schema = code('src/orgunits/classify/outputSchema.ts');
     expect(schema).toContain(
       "ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION = 'orgunit-classifier-output-schema-v2'",
     );
+  });
+
+  it('orchestrate.ts sends the one exported prompt under its exported version, and no other file declares a prompt version', () => {
+    // 2D2B-3 bumped the prompt to v2 WITHOUT a selector: one production
+    // prompt, wired through the two exported constants. A v1 comparator runs
+    // from the commit that still carries v1, never from a second prompt here.
+    const orchestrate = code('src/orgunits/classify/orchestrate.ts');
+    expect(orchestrate).toMatch(
+      /import\s*\{\s*ORGUNIT_CLASSIFIER_PROMPT_VERSION,\s*ORGUNIT_CLASSIFIER_SYSTEM_PROMPT\s*\}\s*from\s*'\.\/prompt\.js'/,
+    );
+    expect(orchestrate).toContain('systemPrompt: ORGUNIT_CLASSIFIER_SYSTEM_PROMPT');
+    expect(orchestrate).toContain('promptVersion: ORGUNIT_CLASSIFIER_PROMPT_VERSION');
+    for (const file of PRODUCTION_FILES) {
+      if (file === 'src/orgunits/classify/prompt.ts') continue;
+      expect(code(file), `${file} declares a prompt version`).not.toMatch(
+        /orgunit-classifier-prompt-v\d/,
+      );
+    }
   });
 
   it('migration 0010 widens error_kind with exactly the two Max-runtime failure kinds, and nothing else', () => {
@@ -1905,8 +2231,28 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
   const PROVIDER_FILES = PHASE_2B_FILES.filter((file) => file.startsWith(`${PROVIDER_DIR}/`));
   /** THE single permitted Agent SDK import site, by exact path (ADR 0009). */
   const SDK_IMPORT_SITE = `${PROVIDER_DIR}/agentSdkRunner.ts`;
+  /**
+   * WW E-SD (ADR 0027 D3 / ADR 0028): the ONE further import site, for the
+   * WebSearch-only source-discovery runtime, by exact path. It imports the
+   * SDK's `query` and usage-limit vocabulary only (pinned in
+   * wwSourceDiscoveryLive.firewall.test.ts).
+   */
+  const SOURCE_DISCOVERY_SDK_IMPORT_SITE = 'src/orgunits/sourceDiscovery/agentQuery.ts';
   /** THE single permitted child-process import site, by exact path (ADR 0010). */
   const CHILD_PROCESS_IMPORT_SITE = `${PROVIDER_DIR}/authStatusRunner.ts`;
+  /**
+   * WW E-M (OWNER directive 2026-10-27 s5, Mac operation): the ONE further
+   * child-process site, by exact path - the Mac runtime's process seam, which
+   * runs only the Engine's own CLI, `docker compose ps|up` from a fixed
+   * allowlist and its own supervisor (pinned in wwMacRuntime.firewall.test.ts).
+   */
+  const MAC_RUNTIME_PROCESS_SITE = 'src/runtime/processes.ts';
+  /**
+   * THE single module permitted to NAME the Agent SDK package without
+   * importing it: the executable resolver locates the installed SDK on disk
+   * to verify the native binary the SDK will spawn (ADR 0010 Amendment A).
+   */
+  const SDK_NAMING_SITE = `${PROVIDER_DIR}/claudeCodeExecutable.ts`;
 
   const EXPECTED_PROVIDER_FILES = [
     `${PROVIDER_DIR}/agentSdkRunner.ts`,
@@ -1914,6 +2260,7 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     `${PROVIDER_DIR}/authConflicts.ts`,
     `${PROVIDER_DIR}/authStatus.ts`,
     `${PROVIDER_DIR}/authStatusRunner.ts`,
+    `${PROVIDER_DIR}/claudeCodeExecutable.ts`,
     `${PROVIDER_DIR}/claudeMaxAgentProvider.ts`,
     `${PROVIDER_DIR}/environment.ts`,
     `${PROVIDER_DIR}/outcomeMapping.ts`,
@@ -1924,16 +2271,25 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     `${PROVIDER_DIR}/sdkOptions.ts`,
   ];
 
-  it('the provider namespace holds exactly the thirteen approved modules', () => {
+  it('the provider namespace holds exactly the fourteen approved modules', () => {
     expect([...PROVIDER_FILES].sort()).toEqual(EXPECTED_PROVIDER_FILES);
   });
 
-  it('exactly ONE production module imports the Agent SDK, by exact path', () => {
+  it('exactly TWO production modules import the Agent SDK, each by exact path', () => {
     for (const file of PRODUCTION_FILES) {
       const source = code(file);
-      if (file === SDK_IMPORT_SITE) {
+      if (file === SDK_IMPORT_SITE || file === SOURCE_DISCOVERY_SDK_IMPORT_SITE) {
         expect(source, `${file} must import the official Agent SDK`).toMatch(
           /from\s+['"]@anthropic-ai\/claude-agent-sdk['"]/,
+        );
+        continue;
+      }
+      if (file === SDK_NAMING_SITE) {
+        // Names the package in ONE constant, to find it on disk; never imports it.
+        expect(source).toContain("AGENT_SDK_PACKAGE_NAME = '@anthropic-ai/claude-agent-sdk'");
+        expect(source.split('@anthropic-ai/claude-agent-sdk')).toHaveLength(2);
+        expect(source, `${file} imports the Agent SDK`).not.toMatch(
+          /(from\s+|require\(\s*|import\(\s*)['"]@anthropic-ai\//,
         );
         continue;
       }
@@ -1967,10 +2323,10 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     }
   });
 
-  it('exactly ONE production module imports child_process, by exact path, and it runs ONLY the fixed request-free command', async () => {
+  it('exactly TWO production modules import child_process, each by exact path (the classifier auth-status runner, which runs ONLY the fixed request-free command, and the Mac runtime process seam)', async () => {
     for (const file of PRODUCTION_FILES) {
       const source = code(file);
-      if (file === CHILD_PROCESS_IMPORT_SITE) {
+      if (file === CHILD_PROCESS_IMPORT_SITE || file === MAC_RUNTIME_PROCESS_SITE) {
         expect(source, `${file} must import node:child_process`).toMatch(
           /from\s+['"]node:child_process['"]/,
         );
@@ -1980,15 +2336,68 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
         'child_process',
       );
     }
-    // The command and argument vector are module constants: no setup-token
-    // invocation, no /login automation, no arbitrary command is expressible.
-    const { AUTH_STATUS_COMMAND, AUTH_STATUS_ARGS } =
+    // The argument vector is a module constant: no setup-token invocation,
+    // no /login automation, no arbitrary command is expressible.
+    const { AUTH_STATUS_ARGS } =
       await import('../../orgunits/classify/provider/authStatusRunner.js');
-    expect(AUTH_STATUS_COMMAND).toBe('claude');
     expect([...AUTH_STATUS_ARGS]).toEqual(['auth', 'status', '--json']);
     const runnerSource = code(CHILD_PROCESS_IMPORT_SITE);
     expect(runnerSource).not.toContain('setup-token');
     expect(runnerSource).not.toMatch(/['"](?:\/)?login['"]/);
+    // ADR 0010 Amendment A: the executable is the resolved SDK-bundled binary
+    // at an ABSOLUTE path on the invocation — never a bare command that PATH
+    // would resolve, never through a shell.
+    expect(runnerSource).not.toContain('AUTH_STATUS_COMMAND');
+    expect(runnerSource).not.toMatch(/['"]claude(?:\.exe)?['"]/);
+    expect(runnerSource).toMatch(/execFile\(\s*invocation\.executablePath,/);
+    expect(runnerSource).toMatch(/isAbsolute\(invocation\.executablePath\)/);
+    expect(runnerSource).toContain('shell: false');
+    expect(runnerSource).not.toMatch(/shell:\s*(?:true|process)/);
+  });
+
+  it('ONE resolved SDK-bundled executable serves both the auth-status preflight and the inference subprocess; PATH never chooses it (ADR 0010 Amendment A)', () => {
+    const resolver = code(SDK_NAMING_SITE);
+    // The resolver reads node_modules and nothing else: no subprocess, no
+    // socket, no environment, and only Node core imports.
+    expect(resolver).not.toContain('child_process');
+    expect(resolver).not.toMatch(/\bspawn|\bexecFile|\bexec\s*\(/);
+    expect(resolver).not.toContain('process.env');
+    for (const specifier of [...resolver.matchAll(/from\s+['"]([^'"]+)['"]/g)].map((m) => m[1]!)) {
+      expect(specifier, `resolver imports ${specifier}`).toMatch(/^node:/);
+    }
+    expect(resolver).toContain('export function resolveProductionClaudeCodeExecutable');
+    for (const kind of [
+      'UNSUPPORTED_PLATFORM',
+      'SDK_PACKAGE_UNREADABLE',
+      'NATIVE_PACKAGE_MISSING',
+      'VERSION_MISMATCH',
+      'PATH_OUTSIDE_NODE_MODULES',
+      'NOT_A_REGULAR_FILE',
+      'NOT_EXECUTABLE',
+      'CHECKSUM_MISMATCH',
+      'AMBIGUOUS_RESOLUTION',
+    ]) {
+      expect(resolver, `resolver lacks the ${kind} refusal`).toContain(`'${kind}'`);
+    }
+    // The provider resolves ONCE and feeds that one path to BOTH seams.
+    const provider = code(`${PROVIDER_DIR}/claudeMaxAgentProvider.ts`);
+    expect(provider.split('this.#claudeCodeExecutable()')).toHaveLength(2);
+    expect(provider).toMatch(/authStatusRunner\.run\(\{\s*executablePath,/);
+    expect(provider).toMatch(/claudeCodeExecutablePath:\s*executablePath,/);
+    expect(provider).toContain('resolveProductionClaudeCodeExecutable');
+    // The builder pins the SDK's documented option to exactly that path, and
+    // the runner passes it through to the SDK unchanged.
+    const builder = code(`${PROVIDER_DIR}/sdkOptions.ts`);
+    expect(builder).toContain('pathToClaudeCodeExecutable: input.claudeCodeExecutablePath');
+    expect(code(SDK_IMPORT_SITE)).toContain(
+      'pathToClaudeCodeExecutable: invocation.options.pathToClaudeCodeExecutable',
+    );
+    // No provider module consults PATH or a `which`-style lookup for Claude.
+    for (const file of PROVIDER_FILES) {
+      const source = code(file);
+      expect(source, `${file} looks Claude up on PATH`).not.toMatch(/\bwhich\b|\bwhere\.exe\b/);
+      expect(source, `${file} names a bare claude command`).not.toMatch(/execFile\(\s*['"]claude/);
+    }
   });
 
   it('the setup-token credential is PROHIBITED: constant pinned, never read, never forwarded (ADR 0010)', async () => {
@@ -2036,6 +2445,24 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
       ['CLAUDE_CONFIG_DIR', ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED), 'PATH', 'HOME'].sort(),
     );
     expect(JSON.stringify(child)).not.toContain('firewall-fake-token');
+    // ADR 0010 Amendment A: the POSIX account NAME crosses (the macOS Keychain
+    // selector), and ONLY under its own name - LOGNAME is not a substitute.
+    expect(CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH).toContain('USER');
+    expect(CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH).not.toContain('LOGNAME');
+    const withUser = buildChildEnvironment({
+      parentEnv: { ...parentEnv, USER: 'owner-account', LOGNAME: 'owner-account' },
+      configDir: 'X:/dedicated/classifier-profile',
+    });
+    expect(withUser['USER']).toBe('owner-account');
+    expect(Object.keys(withUser)).not.toContain('LOGNAME');
+    expect(
+      Object.keys(
+        buildChildEnvironment({
+          parentEnv: { LOGNAME: 'owner-account' },
+          configDir: 'X:/dedicated/classifier-profile',
+        }),
+      ),
+    ).not.toContain('USER');
     // The allowlist itself may not admit a credential-shaped or DB variable.
     for (const name of [
       ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED),
@@ -2214,5 +2641,568 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     for (const banned of [/NEEDS_REVIEW/, /\brelevant\b/i, /verified/i]) {
       expect(mapping).not.toMatch(banned);
     }
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-2D2B-2: the hard liveness boundary is runtime-only and bounded, and Tier 2 never reaches production', () => {
+  const PROVIDER_DIR = 'src/orgunits/classify/provider';
+  const PROVIDER_FILES = PHASE_2B_FILES.filter((file) => file.startsWith(`${PROVIDER_DIR}/`));
+  const RUNNER = `${PROVIDER_DIR}/agentSdkRunner.ts`;
+  const PROVIDER = `${PROVIDER_DIR}/claudeMaxAgentProvider.ts`;
+  const OUTCOME_MAPPING = `${PROVIDER_DIR}/outcomeMapping.ts`;
+  /** THE Tier 2 watchdog, by exact path. Test-harness-only. */
+  const TIER2_HARNESS = 'src/test/harness/processIsolatedBatch.ts';
+
+  /** The fields declared by one `export interface <name> { ... }` in comment-stripped source. */
+  function interfaceFields(source: string, name: string): string[] {
+    const block = source.match(new RegExp(`export interface ${name} \\{([\\s\\S]*?)\\n\\}`));
+    expect(block, `${name} is declared`).not.toBeNull();
+    return [...block![1]!.matchAll(/readonly\s+(\w+)\??:/g)].map((m) => m[1]!).sort();
+  }
+
+  it('pins the frozen liveness constants, and leaves the transient retry policy exactly as it was', async () => {
+    const runner = await import('../../orgunits/classify/provider/agentSdkRunner.js');
+    expect(runner.CLASSIFIER_CALL_SOFT_DEADLINE_MS).toBe(300_000);
+    expect(runner.CLASSIFIER_CALL_HARD_KILL_GRACE_MS).toBe(10_000);
+    expect(runner.CLASSIFIER_CALL_TOTAL_BUDGET_MS).toBe(600_000);
+    expect(runner.AGENT_SDK_STDERR_TAIL_MAX_CHARS).toBe(2_048);
+    expect(runner.AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES).toBe(32);
+    const retry = await import('../../orgunits/classify/retry.js');
+    expect(retry.MAX_TRANSIENT_RETRIES).toBe(2);
+    expect(retry.TRANSIENT_RETRY_BASE_DELAY_MS).toBe(500);
+  });
+
+  it('the production runner wires the runtime controls itself and never uses interrupt() as the boundary', () => {
+    const source = code(RUNNER);
+    expect(source).toMatch(/new AbortController\(\)/);
+    expect(source).toMatch(/^\s*abortController,$/m);
+    expect(source).toMatch(/stderr:\s*\(data: string\)\s*=>\s*diagnostics\.appendStderr\(data\)/);
+    expect(source).toMatch(/runQueryWithLivenessBoundary\(activeQuery,/);
+    expect(source).toContain('resolveAgentSdkAttemptDeadline(runOptions)');
+    // The unbounded pre-2D2B-2 path is gone, and interrupt() is never the boundary.
+    expect(source).not.toMatch(/consumeQueryStream\(\s*query\(/);
+    for (const file of PROVIDER_FILES) {
+      expect(code(file), `${file} calls interrupt()`).not.toMatch(/\.interrupt\s*\(/);
+    }
+  });
+
+  it('no SDK debug or debugFile option is ever enabled, and the SDK debug-log variable is never named', () => {
+    for (const file of PROVIDER_FILES) {
+      const source = code(file);
+      expect(source, `${file} enables SDK debug mode`).not.toMatch(/\bdebug\s*:/);
+      expect(source, `${file} sets an SDK debug file`).not.toMatch(/\bdebugFile\s*:/);
+      expect(source, `${file} names the SDK debug-log variable`).not.toContain(
+        'DEBUG_CLAUDE_AGENT_SDK',
+      );
+    }
+  });
+
+  it('AgentSdkDiagnostics is exactly { progress, stderrTail, pid, livenessWitness } over a closed ten-stage trace - no prompt, response, env, document, transcript or cwd field', async () => {
+    const source = code(RUNNER);
+    // 2D2C-F0Z widened this by exactly one field, `livenessWitness`, and the
+    // ban list below is applied to IT and to every field of its two nested
+    // shapes as well - so the diagnostics value still cannot carry a prompt,
+    // a response, an environment, a document, a transcript or a cwd.
+    const fields = interfaceFields(source, 'AgentSdkDiagnostics');
+    expect(fields).toEqual(['livenessWitness', 'pid', 'progress', 'stderrTail']);
+    expect(interfaceFields(source, 'AgentSdkProgressEntry')).toEqual(['elapsedMs', 'stage']);
+    const witnessFields = interfaceFields(source, 'AgentSdkLivenessWitness');
+    expect(witnessFields).toEqual([
+      'deadlineArmedAtMonotonicMs',
+      'deadlineArmedAtUtc',
+      'deadlineFiredAtMonotonicMs',
+      'deadlineFiredAtUtc',
+      'deadlineNominalMs',
+      'deadlineOvershootMs',
+      'heartbeat',
+    ]);
+    const heartbeatFields = interfaceFields(source, 'AgentSdkHeartbeatWitness');
+    expect(heartbeatFields).toEqual([
+      'expectedBeats',
+      'maxGapMonotonicMs',
+      'maxGapWallMs',
+      'nominalIntervalMs',
+      'observedBeats',
+    ]);
+    for (const field of [...fields, ...witnessFields, ...heartbeatFields]) {
+      for (const banned of [
+        'prompt',
+        'response',
+        'env',
+        'document',
+        'transcript',
+        'cwd',
+        'option',
+        'session',
+        'message',
+        'credential',
+        'token',
+      ]) {
+        expect(field.toLowerCase(), `diagnostics field ${field}`).not.toContain(banned);
+      }
+    }
+    const runner = await import('../../orgunits/classify/provider/agentSdkRunner.js');
+    expect(runner.AGENT_SDK_PROGRESS_STAGES).toHaveLength(10);
+    const snapshot = runner.createAgentSdkDiagnosticsCollector().snapshot();
+    expect(Object.keys(snapshot).sort()).toEqual([
+      'livenessWitness',
+      'pid',
+      'progress',
+      'stderrTail',
+    ]);
+    expect(snapshot.pid).toBeNull();
+    // A collector that never ran a boundary records no witness at all.
+    expect(snapshot.livenessWitness).toBeNull();
+    expect(Object.isFrozen(snapshot)).toBe(true);
+  });
+
+  it('2D2C-F0Z: the liveness witness is EVIDENCE - it carries no causal claim and no decision reads it', () => {
+    const source = code(RUNNER);
+    // The witness must never name a cause. A field called `hostStalled`,
+    // `suspended` or `cause` would be an inference presented as a record.
+    for (const banned of ['hostStall', 'suspend', 'cause', 'reason', 'because', 'diagnosis']) {
+      expect(
+        interfaceFields(source, 'AgentSdkLivenessWitness').join(' ').toLowerCase(),
+        `the witness names a cause via ${banned}`,
+      ).not.toContain(banned.toLowerCase());
+    }
+    // The heartbeat is observation-only: nothing aborts, closes, retries or
+    // refuses on a missed beat.
+    const heartbeatBlock = source.slice(source.indexOf('const heartbeat = setInterval'));
+    const body = heartbeatBlock.slice(0, heartbeatBlock.indexOf('}, heartbeatIntervalMs)'));
+    for (const forbidden of ['abort', 'close(', 'throw ', 'reject']) {
+      expect(body, `the heartbeat callback performs control action ${forbidden}`).not.toContain(
+        forbidden,
+      );
+    }
+  });
+
+  it('no PID is recovered through unsupported SDK internals: no pid read, no private-field probe, no custom spawner, no process enumeration', () => {
+    const source = code(RUNNER);
+    // The ONE permitted `.pid` read is the diagnostics freezer normalising
+    // its own input field (`input.pid`); nothing reads a pid off the SDK,
+    // the query, a transport or a process.
+    expect(source.replace(/\binput\.pid\b/g, '')).not.toMatch(/\.pid\b/);
+    expect(source).not.toMatch(/\.\s*_[A-Za-z]|\[\s*['"]_/);
+    expect(source).not.toContain('spawnClaudeCodeProcess');
+    expect(source).not.toContain('child_process');
+    expect(source).not.toMatch(/\bpgrep\b|\blsof\b|\bpidof\b/);
+  });
+
+  it('runtime controls never enter semantic input: the invocation builder, the request contract, identity and orchestration name none of them', () => {
+    for (const file of [
+      `${PROVIDER_DIR}/sdkOptions.ts`,
+      'src/orgunits/classify/providerContract.ts',
+      'src/orgunits/classify/finalIdentity.ts',
+      'src/orgunits/classify/canonical.ts',
+      'src/orgunits/classify/orchestrate.ts',
+    ]) {
+      const source = code(file);
+      for (const runtimeOnly of [
+        'abortController',
+        'AbortController',
+        'stderr',
+        'deadlineMs',
+        'onAttemptDiagnostics',
+        'AgentSdkDiagnostics',
+        'CLASSIFIER_CALL_',
+      ]) {
+        expect(source, `${file} names the runtime-only ${runtimeOnly}`).not.toContain(runtimeOnly);
+      }
+    }
+  });
+
+  it('diagnostics reach no persisted summary and no stdout: the outcome mapping never reads them, and the provider writes no stdout', () => {
+    expect(code(OUTCOME_MAPPING)).not.toMatch(/\.diagnostics\b|stderrTail|\.progress\b/);
+    const provider = code(PROVIDER);
+    expect(provider).not.toContain('process.stdout');
+    expect(provider).not.toContain('console.');
+    expect(provider).not.toMatch(/outcomeDetail:[^\n]*(diagnostics|stderr)/i);
+  });
+
+  it('Tier 2 exists ONLY under src/test/, is excluded from the build, and no production module imports it or falls back to process isolation', () => {
+    expect(exists(TIER2_HARNESS)).toBe(true);
+    const buildConfig = JSON.parse(read('tsconfig.build.json')) as { exclude?: string[] };
+    expect(buildConfig.exclude).toContain('src/test/**/*');
+    for (const file of PRODUCTION_FILES) {
+      const source = code(file);
+      expect(file, `${file} is a harness outside src/test`).not.toMatch(/harness/i);
+      expect(source, `${file} imports the Tier 2 harness`).not.toMatch(
+        /test\/harness|processIsolatedBatch/,
+      );
+      expect(source, `${file} forks a process`).not.toMatch(/\bfork\s*\(/);
+      expect(source, `${file} carries a Tier 2 protocol string`).not.toContain('nwf-pe-tier2');
+    }
+  });
+
+  it('the Tier 2 harness never kills the direct child with child.kill(), never uses a shell, and signals only a validated group', () => {
+    const harness = code(TIER2_HARNESS);
+    expect(harness).not.toMatch(/\b(child|forked|subprocess)\.kill\s*\(/);
+    expect(harness).not.toMatch(/\.kill\(\s*['"]SIGTERM['"]/);
+    expect(harness).not.toMatch(/shell:\s*true/);
+    expect(harness).not.toMatch(/\bexecSync\b|\bspawnSync\b|\bexec\s*\(/);
+    const killTargets = [...harness.matchAll(/process\.kill\(([^,]+),/g)].map((m) => m[1]!.trim());
+    expect(killTargets).toEqual(['-target']);
+    expect(harness).toMatch(
+      /const target = validateSignalTargetPid\(pid\);\s*try \{\s*process\.kill\(-target, signal\)/,
+    );
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-2D2C-R1: the ONE bounded item-level repair round is pure, isolated, budget-bound and never silent (ADR 0011)', () => {
+  const REPAIR = 'src/orgunits/classify/repair.ts';
+  const ORCHESTRATE = 'src/orgunits/classify/orchestrate.ts';
+  const PERSIST = 'src/orgunits/classify/persist.ts';
+  const CONTRACT = 'src/orgunits/classify/providerContract.ts';
+  const PROVIDER = 'src/orgunits/classify/provider/claudeMaxAgentProvider.ts';
+  const CHILD = 'src/test/harness/phase2b2d2c/childMain.ts';
+
+  it('the repair module exists, and is pure: no socket, no database, no filesystem, no environment, no clock, no randomness', () => {
+    expect(exists(REPAIR)).toBe(true);
+    const source = code(REPAIR);
+    expect(source).not.toMatch(/from\s+['"]pg['"]/);
+    expect(source).not.toMatch(/from\s+['"].*\/db\//);
+    expect(source).not.toMatch(/from\s+['"]node:(fs|net|tls|http|https|dns|child_process)['"]/);
+    expect(source).not.toContain('process.env');
+    expect(source).not.toMatch(/\bDate\.now\s*\(|\bMath\.random\s*\(|\bperformance\.now\s*\(/);
+    expect(source).not.toMatch(/\bfetch\s*\(/);
+    // It never reaches the provider namespace: the liveness numbers are restated, not imported.
+    expect(source).not.toMatch(/from\s+['"]\.\/provider\//);
+    expect(source).not.toContain('CLASSIFIER_CALL_');
+  });
+
+  it('the repair module names no gold, evaluation, holdout or expected-answer concept: it cannot see a label', () => {
+    const source = code(REPAIR).toLowerCase();
+    for (const banned of [
+      'gold',
+      'holdout',
+      'expected_',
+      'expectedverdict',
+      'adjudicat',
+      'fixture',
+    ]) {
+      expect(source, `repair.ts names ${banned}`).not.toContain(banned);
+    }
+    expect(code(REPAIR)).not.toMatch(/from\s+['"].*evaluation\//);
+  });
+
+  it('exactly one repair round, and the repair constants restate the frozen liveness contract by exact value', async () => {
+    const repair = await import('../../orgunits/classify/repair.js');
+    const runner = await import('../../orgunits/classify/provider/agentSdkRunner.js');
+    expect(repair.REPAIR_MAX_ROUNDS_PER_LOGICAL_EVALUATION).toBe(1);
+    expect(repair.REPAIR_TOTAL_BUDGET_MS).toBe(runner.CLASSIFIER_CALL_TOTAL_BUDGET_MS);
+    expect(repair.REPAIR_HARD_KILL_GRACE_MS).toBe(runner.CLASSIFIER_CALL_HARD_KILL_GRACE_MS);
+    expect(repair.REPAIR_ATTEMPT_SOFT_DEADLINE_MS).toBe(runner.CLASSIFIER_CALL_SOFT_DEADLINE_MS);
+    expect(repair.REPAIR_POLICY_DISABLED.enabled).toBe(false);
+    expect(repair.REPAIRABLE_CATEGORIES).toEqual(['EVIDENCE', 'LENGTH']);
+    // The source literally admits no other round count.
+    expect(code(REPAIR)).toMatch(/REPAIR_MAX_ROUNDS_PER_LOGICAL_EVALUATION = 1 as const/);
+  });
+
+  it('no code path corrects, substitutes or rewrites a unit_name, a quote or a source: the repair only re-asks', () => {
+    for (const file of [REPAIR, ORCHESTRATE, PERSIST, CHILD]) {
+      const source = code(file);
+      // No assignment INTO a result's evidence or name fields anywhere.
+      expect(source, `${file} rewrites unit_name`).not.toMatch(/\.unit_name\s*=[^=]/);
+      expect(source, `${file} rewrites a quote`).not.toMatch(/\.quote\s*=[^=]/);
+      expect(source, `${file} rewrites a source`).not.toMatch(/\.source\s*=[^=]/);
+      expect(source, `${file} spreads a corrected span`).not.toMatch(
+        /evidence_spans:\s*\[[^\]]*source:\s*['"]EXCERPT['"]/,
+      );
+    }
+  });
+
+  it('orchestration invokes the provider in exactly two places - the original call and the single repair - and never loops on a repair', () => {
+    const source = code(ORCHESTRATE);
+    const invocations = source.match(/input\.provider\.classify\(/g) ?? [];
+    expect(invocations).toHaveLength(2);
+    // The repair call passes a caller-supplied window, the original does not.
+    expect(source).toMatch(/totalBudgetMs:\s*budget\.windowMs/);
+    // A repair is planned with originalIsRepair: false ONLY from the original path, and the plan is never re-entered.
+    expect(source.match(/planRepairRound\(/g) ?? []).toHaveLength(1);
+    expect(source).toContain('originalIsRepair: false');
+    expect(source).not.toContain('originalIsRepair: true');
+    // The disabled policy is the default.
+    expect(source).toMatch(/input\.repairPolicy \?\? REPAIR_POLICY_DISABLED/);
+    // The original completion is inserted BEFORE the repair round begins (order in the file).
+    const roundStart = source.indexOf('await runRepairRound(');
+    expect(roundStart).toBeGreaterThan(-1);
+    const lastOriginalCompletion = source.lastIndexOf('await insertCompletion(pool, {', roundStart);
+    expect(lastOriginalCompletion).toBeGreaterThan(-1);
+    expect(lastOriginalCompletion).toBeLessThan(roundStart);
+  });
+
+  it('a repair row is linked by the two migration-0011 columns and only there; persist.ts stays INSERT-only', () => {
+    const persist = code(PERSIST);
+    expect(persist).toContain('repair_of_call_id');
+    expect(persist).toContain('repair_doc_index');
+    expect(persist).not.toMatch(/UPDATE\s+\w+\s+SET/i);
+    expect(persist).not.toMatch(/DELETE\s+FROM/i);
+    for (const file of PRODUCTION_FILES) {
+      if (file === PERSIST) continue;
+      // CLASSIFIER_OPERATOR_READ_MODELS_V1: the exact-path readonly read model
+      // SELECTs the repair linkage to show it; its SELECT-only block pins it.
+      if (file === 'src/orgunits/classify/operatorReadModels.ts') continue;
+      expect(code(file), `${file} names a repair column`).not.toMatch(
+        /repair_of_call_id|repair_doc_index/,
+      );
+    }
+  });
+
+  it('migration 0011 adds exactly the two repair columns, one partial unique index, one trigger, and no grant', () => {
+    const migration = MIGRATIONS.find((m) => m.file.startsWith('0011_'));
+    expect(migration, 'migration 0011 does not exist').toBeDefined();
+    const sql = migration!.sql.replace(/--.*$/gm, '');
+    expect(sql).not.toMatch(/CREATE\s+TABLE/i);
+    expect(sql).not.toMatch(/\bGRANT\b/i);
+    expect(sql).not.toMatch(/\bREVOKE\b/i);
+    expect(sql).not.toMatch(/DROP\s+COLUMN/i);
+    expect(sql.match(/ADD\s+COLUMN/gi) ?? []).toHaveLength(2);
+    expect(sql).toMatch(/CREATE UNIQUE INDEX orgunit_classifier_calls_repair_uidx/);
+    expect(sql).toMatch(/WHERE repair_of_call_id IS NOT NULL/);
+    expect(sql).toMatch(/repair_single_document_chk/);
+    expect(sql).toMatch(/CREATE TRIGGER orgunit_classifier_calls_refuse_repair_of_repair/);
+    // The trigger reads and raises; it never updates or deletes.
+    const trigger = sql.slice(sql.indexOf('CREATE FUNCTION'), sql.indexOf('CREATE TRIGGER'));
+    expect(trigger).not.toMatch(/\bUPDATE\b|\bDELETE\b|\bINSERT\b/i);
+  });
+
+  it('the caller-supplied window is a runtime bound that never enters semantic input, identity or persisted config', () => {
+    expect(code(CONTRACT)).toMatch(/readonly totalBudgetMs\?: number/);
+    for (const file of [
+      'src/orgunits/classify/provider/sdkOptions.ts',
+      'src/orgunits/classify/finalIdentity.ts',
+      'src/orgunits/classify/canonical.ts',
+      PERSIST,
+    ]) {
+      expect(code(file), `${file} reads the window`).not.toContain('totalBudgetMs');
+    }
+    // The provider never widens beyond the frozen total.
+    expect(code(PROVIDER)).toMatch(/Math\.min\(CLASSIFIER_CALL_TOTAL_BUDGET_MS, callerWindowMs\)/);
+  });
+
+  it('the DEV runner honours the freeze: repair is disabled unless a freeze declares it, and a root without the module is refused under an enabled policy', () => {
+    const child = code(CHILD);
+    expect(child).toMatch(/deps\.repairPolicyFor \?\? freezeRepairPolicy/);
+    expect(child).toContain(
+      'the repair policy is enabled but the variant root ships no built repair module',
+    );
+    const freeze = code('src/test/harness/phase2b2d2c/freeze.ts');
+    expect(freeze).toMatch(/repairPolicy: RepairPolicySchema\.optional\(\)/);
+    expect(freeze).toMatch(/enabled: false,/);
+    // The production entry binds no policy override: the freeze alone decides.
+    expect(read('src/test/harness/phase2b2d2c/childEntry.mjs')).not.toContain('repairPolicyFor');
+    // Repair artifacts live under the attempt directory, never beside the ten per-attempt kinds.
+    const artifacts = code('src/test/harness/phase2b2d2c/artifacts.ts');
+    expect(artifacts).toMatch(/REPAIR_ROUND_DIRECTORY_NAME = 'repair-1'/);
+  });
+
+  it('the scorer inventories repair artifacts separately, so the F3 aggregate is never rewritten by a repair', () => {
+    const sources = code('src/test/harness/phase2b2d2c/scoring/sources.ts');
+    expect(sources).toMatch(/inventorySha256\(outputRoot, 'PRIMARY'\)/);
+    expect(sources).toMatch(/inventorySha256\(outputRoot, 'REPAIR'\)/);
+    // An ACCEPTED repair is re-validated by the unchanged validator, never trusted from its artifact alone.
+    expect(sources).toContain('validateClassifierResponse(');
+    const summarise = code('src/test/harness/phase2b2d2c/scoring/summarise.ts');
+    expect(summarise).toMatch(/gatesAppliedTo: 'POST_REPAIR_VALIDITY'/);
+    expect(summarise).toMatch(/firstPassRateAlwaysReported: true/);
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only, freshly authorised against the CURRENT (F0E) freeze only, family-dispatched by hash, and scored against the pinned comparator', () => {
+  const F0C_DIR = 'src/test/harness/phase2b2d2c/f0c';
+  const CLI = `${F0C_DIR}/cliF0C.ts`;
+  const LOCK = `${F0C_DIR}/authorisationF0C.ts`;
+  const FAMILY = `${F0C_DIR}/freezeFamily.ts`;
+  const V3_ROOT = `${F0C_DIR}/variantRootF0C.ts`;
+
+  it('the attempt-2 modules exist; F0G/F0H (2026-09-14) COMMITTED the attempt-2 result under exactly its named directory, and F0L (2026-09-15) additionally COMMITTED the attempt-3 result under exactly its own named directory, and nothing else matching attempt-2/attempt-3 exists; no raw authorisation or consumption-marker file leaked into the repository; and the F0E approval record is pinned by literal', () => {
+    for (const file of [
+      CLI,
+      LOCK,
+      FAMILY,
+      V3_ROOT,
+      `${F0C_DIR}/planVerification.ts`,
+      `${F0C_DIR}/attempt2FreezeCore.ts`,
+      `${F0C_DIR}/freezeF0C.ts`,
+      `${F0C_DIR}/freezeF0E.ts`,
+      'src/test/harness/phase2b2d2c/scoring/attempt2Sources.ts',
+      'src/test/harness/phase2b2d2c/scoring/attempt2Run.ts',
+      'src/test/harness/phase2b2d2c/scoring/attempt2Summarise.ts',
+      'src/test/harness/phase2b2d2c/scoring/attempt2Generate.ts',
+    ]) {
+      expect(exists(file), `${file} is missing`).toBe(true);
+    }
+    // F0G/F0H deliberately widened this check, by exact name: attempt 2 was
+    // executed under an owner-issued authorisation and its DERIVED,
+    // PII-free scored result was committed to the one directory the F0D
+    // emitter names (`COMMITTED_ATTEMPT2_RESULTS_DIR`). F0O (2026-09-15) then
+    // widened it a second time, by exact name only: F0L committed exactly
+    // one deterministic, PII-free attempt-3 scored-results directory
+    // alongside it. F0S (2026-09-15) now widens it a THIRD time, by exact
+    // name only: this task committed exactly one deterministic, PII-free
+    // attempt-4 scored-results directory alongside both. This is a
+    // test-only historical-state widening — it names the three directories
+    // that now legitimately exist and continues to refuse anything else
+    // attempt-2/attempt-3/attempt-4-shaped.
+    const resultsEntries = readdirSync(resolve(ROOT, 'docs/evaluation/results'));
+    const attemptDirs = resultsEntries
+      .filter(
+        (entry) =>
+          entry.includes('attempt-2') || entry.includes('attempt-3') || entry.includes('attempt-4'),
+      )
+      .sort();
+    expect(
+      attemptDirs,
+      'exactly the three committed attempt-2, attempt-3 and attempt-4 results directories, and nothing else attempt-2/attempt-3/attempt-4-shaped',
+    ).toEqual([
+      'phase2b-2d2c-dev-attribution-attempt-2-gold-v1-adjudicated',
+      'phase2b-2d2c-dev-attribution-attempt-3-gold-v1-adjudicated',
+      'phase2b-2d2c-dev-attribution-attempt-4-gold-v1-adjudicated',
+    ]);
+    for (const entry of readdirSync(resolve(ROOT, 'docs/evaluation'))) {
+      expect(entry).not.toMatch(/attempt-2/);
+      expect(entry).not.toMatch(/attempt-3/);
+      expect(entry).not.toMatch(/attempt-4/);
+      expect(entry).not.toMatch(/authorisation/i);
+      expect(entry).not.toMatch(/consumption/i);
+    }
+    // The F0E owner approval record exists and is pinned by a 64-hex LITERAL, never derived at runtime.
+    expect(exists('docs/evaluation/PHASE_2B_2D2C_F0E_OWNER_FREEZE_APPROVAL_V1.json')).toBe(true);
+    expect(code(`${F0C_DIR}/freezeF0E.ts`)).toMatch(
+      /export const F0E_APPROVAL_RECORD_RAW_SHA256: string \| null =\n {2}'[0-9a-f]{64}';/,
+    );
+  });
+
+  it('the attempt-2 CLI never imports a socket-bearing module, has no --all/--v1-root/--v2-root, requires an EMPTY output root, refuses execution while F0E is unapproved, loads the CURRENT revision only, and evaluates the attempt-2 lock only', () => {
+    const cli = code(CLI);
+    expect(cli).not.toMatch(
+      /orgunits\/web\/(gateway|robots|authority|observations|pageEvidence|robotsAuthority)/,
+    );
+    expect(cli).not.toMatch(/from\s+['"]node:(net|http|https|dns|tls)['"]/);
+    expect(cli).not.toMatch(/['"]--all['"]/);
+    expect(cli).not.toMatch(/['"]--v1-root['"]|['"]--v2-root['"]/);
+    expect(cli).toContain('ATTEMPT2_OUTPUT_ROOT_NOT_EMPTY');
+    expect(cli).toContain('REPLACEMENT_FREEZE_NOT_OWNER_APPROVED');
+    expect(cli).toContain('evaluateAttempt2ExecutionLock(');
+    expect(cli).not.toContain('evaluateExecutionLock(');
+    expect(cli).not.toContain('repairPolicyFor');
+    expect(cli).not.toMatch(/from\s+['"]\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/scripts\//);
+    expect(cli).toMatch(/if \(options\.attemptNo !== ATTEMPT_2_NO\)/);
+    expect(cli).toContain('loadF0EFreezeFromBytes(readFileSync(freezePath))');
+    expect(cli).not.toContain('loadF0CFreezeFromBytes(');
+  });
+
+  it('the attempt-2 lock pins attempt 2, the F0E hash, the F0E plan, the superseded F0C hash and the one V3B variant by literal; refuses the spent, the attempt-1 and the F0C-naming authorisation by name; and refuses everything while F0E is unapproved', () => {
+    const lock = code(LOCK);
+    expect(lock).toContain('attemptNo: z.literal(ATTEMPT_2_NO)');
+    expect(lock).toContain('freezeConfigRawSha256: z.literal(PROPOSED_F0E_FREEZE_RAW_SHA256)');
+    expect(lock).toContain('planSha256: z.literal(PROPOSED_F0E_PLAN_SHA256)');
+    expect(lock).toContain('supersededFreezeRawSha256: z.literal(APPROVED_F0C_FREEZE_RAW_SHA256)');
+    expect(lock).toContain('name: z.literal(F0E_VARIANT.name)');
+    expect(lock).toContain('SPENT_ATTEMPT_1_AUTHORISATION_PRESENTED');
+    expect(lock).toContain('ATTEMPT_1_AUTHORISATION_PRESENTED');
+    expect(lock).toContain('SUPERSEDED_F0C_FREEZE_NAMED');
+    expect(lock).toContain('REPLACEMENT_FREEZE_NOT_OWNER_APPROVED');
+    expect(lock).not.toMatch(/freezeConfigRawSha256:\s*z\.string\(\)/);
+    expect(lock).not.toMatch(/attemptNo:\s*z\.int\(\)/);
+    expect(lock).not.toMatch(/writeFileSync|mkdirSync|appendFileSync/);
+  });
+
+  it('the freeze family is decided by the bytes’ own SHA-256 — F0E dispatches, the superseded F0C is refused, never a caller flag or environment variable — and the child entry routes through it', () => {
+    const family = code(FAMILY);
+    expect(family).toMatch(
+      /const rawSha256 = createHash\('sha256'\)\.update\(bytes\)\.digest\('hex'\);/,
+    );
+    expect(family).toContain(
+      "if (rawSha256 === PROPOSED_F0E_FREEZE_RAW_SHA256) return 'F0E_ATTEMPT_2';",
+    );
+    expect(family).toContain(
+      "if (rawSha256 === APPROVED_F0C_FREEZE_RAW_SHA256) return 'F0C_ATTEMPT_2_SUPERSEDED';",
+    );
+    expect(family).toContain('superseded by F0E before any execution');
+    expect(family).not.toContain('process.env');
+    expect(family).not.toMatch(/from\s+['"]node:(fs|net|http|https|dns|child_process)['"]/);
+    const entry = read('src/test/harness/phase2b2d2c/childEntry.mjs');
+    expect(entry).toContain("import('./f0c/freezeFamily.js')");
+    expect(entry).toContain('verifyRootForVariant(view, variantName, root, probes)');
+    expect(entry).not.toContain('repairPolicyFor');
+  });
+
+  it('the V3 root verifier probes the EFFECTIVE floor from the root’s own decision function and fails closed on a default-floor contradiction, with no special case for any revision or waiver', () => {
+    const verifier = code(V3_ROOT);
+    expect(verifier).toContain('REPAIR_FLOOR_HONOURED_FROM_POLICY');
+    expect(verifier).toContain('REPAIR_DEFAULT_FLOOR_CONSTANT');
+    expect(verifier).toMatch(
+      /repair\.decideRepairBudget\(\{ elapsedMs: elapsedForUsable\(floor\), policy \}\)/,
+    );
+    expect(verifier).toContain("return fail(\n      'REPAIR_DEFAULT_FLOOR_CONSTANT'");
+    expect(verifier).not.toContain('process.env');
+    expect(verifier).not.toMatch(/F0E_|F0C_|waiver|WAIVER/);
+  });
+
+  it('the attempt-2 scorer pins the comparator to the freeze’s own comparator identity and the gold inputs to its scoringInputs hashes, and reads the CURRENT freeze', () => {
+    const run = code('src/test/harness/phase2b2d2c/scoring/attempt2Run.ts');
+    expect(run).toContain('comparator.artifactInventorySha256 !== pinned.artifactInventorySha256');
+    expect(run).toContain('verifyPinnedScoringInput(');
+    expect(run).toContain("scoreVariant(attempt2, 'PROMPT_V3_CANONICAL'");
+    expect(run).toContain("scoreVariant(comparator, 'PROMPT_V1_CANONICAL'");
+    expect(run).toContain("scoreVariant(comparator, 'PROMPT_V2_CANONICAL'");
+    const sources = code('src/test/harness/phase2b2d2c/scoring/attempt2Sources.ts');
+    expect(sources).toContain('SPENT_ATTEMPT_1_AUTHORISATION_SHA256');
+    expect(sources).toContain('attempt-1 variants are never inside the attempt-2 namespace');
+    expect(sources).toContain('loadF0EFreezeFromBytes(');
+    expect(sources).not.toContain('loadF0CFreezeFromBytes(');
+    const summarise = code('src/test/harness/phase2b2d2c/scoring/attempt2Summarise.ts');
+    expect(summarise).toContain("gatesAppliedTo: 'POST_REPAIR_VALIDITY'");
+    expect(summarise).toContain('firstPassRateAlwaysReported: true');
+    expect(summarise).toContain('holdoutInferencePermittedByThisSummary: false');
+    for (const banned of ['PROMOTE_', 'ACCEPTED_FOR_PRODUCTION', 'HOLDOUT_AUTHORISED']) {
+      expect(summarise, `attempt-2 summary names ${banned}`).not.toContain(banned);
+    }
+  });
+});
+
+describe('PHASE-2B-FIREWALL CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: a provider failure is diagnosable from CLOSED structure only, and control flow is untouched', () => {
+  const PROVIDER_DIR = 'src/orgunits/classify/provider';
+  const RUNNER = `${PROVIDER_DIR}/agentSdkRunner.ts`;
+  const PROVIDER = `${PROVIDER_DIR}/claudeMaxAgentProvider.ts`;
+  const OUTCOME_MAPPING = `${PROVIDER_DIR}/outcomeMapping.ts`;
+
+  it('the production runner wraps EVERY non-timeout attempt failure so its diagnostics snapshot survives', () => {
+    const runner = code(RUNNER);
+    expect(runner).toMatch(/startQueryWithDiagnostics\(\s*\(\) => query\(/);
+    expect(runner).toMatch(/attachAttemptDiagnostics\(\s*runQueryWithLivenessBoundary\(/);
+    // The typed failure's message is FIXED text naming a closed stage, never the original message.
+    expect(runner).toContain('super(`Agent SDK attempt failed (${failureStage}).`, { cause });');
+  });
+
+  it('the retry helper stays provider-neutral and its bound is unchanged', async () => {
+    const retry = code('src/orgunits/classify/retry.ts');
+    expect(retry).not.toMatch(/Witness|AgentSdk|outcomeMapping/);
+    const { MAX_TRANSIENT_RETRIES, TRANSIENT_RETRY_BASE_DELAY_MS } =
+      await import('../../orgunits/classify/retry.js');
+    expect(MAX_TRANSIENT_RETRIES).toBe(2);
+    expect(TRANSIENT_RETRY_BASE_DELAY_MS).toBe(500);
+  });
+
+  it('the witness is derived ONLY in the one mapping authority, and the detail appends ONLY its rendering', () => {
+    const provider = code(PROVIDER);
+    expect(provider).not.toMatch(/\.toLowerCase\(\)|\.includes\(|RegExp|\.test\(|\.match\(/);
+    const detailAppends = [...provider.matchAll(/renderProviderFailureDiagnostic\(([^)]*)\)/g)].map(
+      (m) => m[1],
+    );
+    expect(detailAppends.sort()).toEqual(['[witness]', 'witnesses'].sort());
+    // The mapping module still never reads the runner's raw diagnostics (pinned above, restated).
+    expect(code(OUTCOME_MAPPING)).not.toMatch(/\.diagnostics\b|stderrTail|\.progress\b/);
+  });
+
+  it('the raw failure diagnostics reach ONLY a local hook and debug(), never a result field', () => {
+    const provider = code(PROVIDER);
+    expect(provider).toContain(
+      'this.#onAttemptFailureDiagnostics(error.failureStage, error.diagnostics)',
+    );
+    expect(provider).not.toMatch(/debug\([^)]*stderrTail[^)]*failureStage/);
+    expect(provider).not.toMatch(/outcomeDetail:[^\n]*(diagnostics|stderr)/i);
   });
 });

@@ -1,0 +1,160 @@
+{
+  "recordId": "track-b-b2-3-owner-attested-review-owner-decision-v1",
+  "recordKind": "DISCOVERY_SUBJECT_REVIEW_ATTESTATION_LOCAL_IMPLEMENTATION_RECORD",
+  "records": "TRACK_B_B2_3_OWNER_ATTESTED_REVIEW_OWNER_DECISION_V1",
+  "recordedAtUtc": "2026-10-16T12:45:18Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/pe-discovery-owner-review-v1",
+  "worktree": "~/wt-pe-discovery-owner-review-b23",
+  "startingHead": "983359da887cabef5e029d114d073e0077e3973d",
+  "startingHeadLineage": {
+    "b2_2Implementation": "4189d1e0c160b6d1f89a61b89c5fc20477897d39",
+    "b2_2FirewallPin": "93af30edd38a455d87b07b8816763a2bf646bf0e",
+    "b2_2FirewallCacheRepair": "983359da887cabef5e029d114d073e0077e3973d"
+  },
+  "sharedContract": {
+    "adr": "ADR 0021 RC2, Operator repository",
+    "commit": "887c904",
+    "section": "s3 Trusted review authority"
+  },
+  "status": "LOCAL_UNCOMMITTED_PENDING_OWNER_REVIEW",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "authorisesLiveExecution": false,
+  "grantsResearchAuthority": false,
+  "grantsReviewAuthority": false,
+  "operationalKeyProvisioned": false,
+  "productionReviewActivated": false,
+  "researchAdmissionImplemented": false,
+  "canonicalIdentityIssued": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. No HTTP, no DNS, no institutional request. The only sockets were loopback connections to the disposable test database.",
+  "databaseWrittenByThisRecord": "none",
+  "databaseUsedByTests": "one disposable PostgreSQL 16 container only (local image postgres:16-alpine cf78e76683b9, --pull never, tmpfs data, no volume, 127.0.0.1 dynamic port, random superuser and password, migration-created runtime logins rotated to random passwords); no shared or persistent database touched",
+  "inferenceUsed": "none",
+  "keysUsed": "synthetic Ed25519 keys generated in memory by each test run, TEST_ONLY scope, test- key-id prefix; never written to the repository, never operational",
+  "protectedCohortContentInspected": false,
+  "realOrganisationsInserted": false,
+  "contactDataStored": false,
+  "ownerDecisions": [
+    "AUTHORISE_B2_3_R1_CRYPTOGRAPHICALLY_TRUSTED_OWNER_REVIEW_LOCAL_IMPLEMENTATION"
+  ],
+  "approvedChoices": {
+    "G1": "dedicated offline Engine signing workflow; no network, no database; verifier and writer never hold the private key",
+    "G2": "dedicated Ed25519 OWNER review key separate from Operator release keys; encrypted PKCS#8 with access controls; no operational key generated or provisioned",
+    "G3": "ACTIVE, RETIRED, REVOKED; retired keys keep valid history; revoked keys keep history but hold it, failing closed",
+    "G4": "default lifetime 15 minutes, maximum 60 minutes, maximum clock skew 300 seconds, database clock authoritative",
+    "G5": "a source or identity review is not research clearance; no research admission in B2.3"
+  },
+  "ownerDecisionScope": {
+    "authorised": [
+      "a dedicated worktree and branch at the B2.2 tip",
+      "the review protocol, a pinned public-key trust set with no operational key, an offline signer",
+      "one forward-only migration (0015) for environment identity, append-only attestations and a reviewer capability",
+      "read-time attestation verification with explicit integrity holds",
+      "synthetic unit and disposable-database integration tests, a B2.3 firewall, ADR 0023 and this record",
+      "full validation if the host allows"
+    ],
+    "notAuthorised": [
+      "generating, registering or provisioning a real OWNER signing key",
+      "production or shared database access or migration",
+      "activating review in any persistent environment",
+      "research admission, protected-cohort changes, suppression changes",
+      "canonical identity issuance, B to I0 integration",
+      "real organisations, outreach, classifier inference",
+      "committing, pushing, merging or deploying"
+    ]
+  },
+  "implementedDelta": {
+    "migration": "migrations/0015_discovery_subject_review_attestation.sql",
+    "tables": ["subject_review_environment", "subject_review_attestations"],
+    "role": "nwf_discovery_subject_reviewer (NOLOGIN, no attributes, no password, granted to no existing role)",
+    "protocol": "nwf-pe.discovery-subject-review/1",
+    "trustSet": "src/orgunits/subjectReview/trust.ts OPERATIONAL_OWNER_REVIEW_KEYS = Object.freeze([])",
+    "cli": [
+      "discovery-subjects review --prepare",
+      "discovery-subjects review --execute --envelope <path>",
+      "discovery-subject-review-sign --request <path> --encrypted-key <path> --key-id <id>"
+    ],
+    "productionExecutionRefusal": "REVIEWER_TRUST_PRIMITIVE_ABSENT while no ACTIVE operational key is pinned"
+  },
+  "historicalTestAcknowledgements": [
+    "src/test/integration/orgunitSchema.test.ts: versions through 0015",
+    "src/test/unit/orgunitCorpus2DA1Frame.test.ts: one manifest entry for 0015",
+    "src/test/integration/discoveryIdentitySchema.test.ts: grant inventory excludes the reviewer capability",
+    "src/test/integration/discoverySubjectRegistry.test.ts: newest migration 0015; unattested reviews are not authority",
+    "src/test/unit/discoverySubjectRegistryB22.test.ts: unattested fixture reviews are not authority"
+  ],
+  "activationPrerequisitesStillOpen": [
+    "OWNER key-custody and provisioning decision",
+    "a reviewed source change adding one ACTIVE operational entry",
+    "a deployment-provisioned reviewer login",
+    "explicit OWNER activation approval under ADR 0021 RC2 s10",
+    "a future, separately approved research-admission mechanism (none exists)",
+    "a separately authorised B to I0 handoff (none exists)"
+  ],
+  "repairs": [
+    {
+      "repairId": "B2.3-R2",
+      "title": "Verified review authority isolation and monotonic research protection",
+      "ownerDecision": "AUTHORISE_B2_3_R2_VERIFIED_REVIEW_AUTHORITY_ISOLATION_AND_MONOTONIC_PROTECTION_REPAIR",
+      "authorisedBy": "supervising technical lead, OWNER-authorised security repair; local, uncommitted, no operational activation",
+      "trigger": "B2_3_COMMIT_CLOSURE_BLOCKED: raw, unattested review rows reached the B2.1 validator and structural-parent evaluator inside the B2.3 read model",
+      "startingHead": "983359da887cabef5e029d114d073e0077e3973d",
+      "rootCauseReproducedBeforeRepair": {
+        "A": "forged CONFIRMED INDEPENDENT_COMMUNITY kind review on an UNCERTAIN subject removed STRUCTURAL_PARENT_UNKNOWN",
+        "B": "forged REJECTED FACULTY_SCHOOL_DEPARTMENT kind review removed STRUCTURAL_PARENT_UNKNOWN and hid the kind from kinds.claimed",
+        "C": "forged CONFIRMED review of an AFFILIATED_WITH target removed RELATIONSHIP_TARGET_IDENTITY_UNRESOLVED; targetIdentityReview read CONFIRMED",
+        "D": "valid attested independent-kind confirmation cleared parentage uncertainty with no protection re-evaluation",
+        "E": "a later parent-implying kind claim was suppressed by the older valid confirmation",
+        "researchAuthorityGranted": "false in every case, before and after"
+      },
+      "design": {
+        "authorityIsolation": "effectiveReviewProjection in subjectRegistry/reviewAttestation.ts: the one boundary; a review chain is admitted whole only if every row is currently authoritative, else withheld (AUTHORITY_WITHHELD); every fact is derived from the admitted reviews only",
+        "readings": "recorded (history and integrity findings), effective (facts), unreviewed baseline (protection)",
+        "protection": "the union of restrictions across the three readings, plus REQUIRES_PROTECTION_REEVALUATION on STRUCTURAL_CLAIM_REVIEWED, REVIEW_CHANGES_STRUCTURAL_READING or PROTECTION_RELEVANT_EVIDENCE_AFTER_REVIEW",
+        "unchanged": "protocol, canonical signing bytes, domain separation, trust set (empty operationally), evidence and target digests, covered record ids, audience, fingerprint, expected head, nonce, expiry, actor derivation, attestation persistence, grants, migrations 0013-0015, B2.1, B2.2 firewall, B3.0"
+      },
+      "changedFiles": [
+        "src/orgunits/subjectRegistry/reviewAttestation.ts: verdict exposes coveredRecordIds; effectiveReviewProjection",
+        "src/orgunits/subjectRegistry/readModel.ts: show and list derive facts from the projection; protection projection",
+        "src/cli/commands/discoverySubjects.ts: text rendering shows effective beside recorded state and the protection lines",
+        "src/test/unit/discoverySubjectReviewB23.test.ts: 16 R2 tests",
+        "src/test/integration/discoverySubjectReviewB23.test.ts: 2 R2 tests",
+        "src/test/firewall/phase2bOwnerAttestedReview.firewall.test.ts: R2 boundary check; historical-edit pins extended",
+        "src/test/unit/discoverySubjectRegistryB22.test.ts and src/test/integration/discoverySubjectRegistry.test.ts: see historicalTestAcknowledgements",
+        "docs/adr/0023-owner-attested-discovery-subject-review.md: s10a, s11a, s13, s15, s16",
+        "this record: this block only"
+      ],
+      "newFiles": "none",
+      "historicalTestAcknowledgements": [
+        "src/test/unit/discoverySubjectRegistryB22.test.ts: an unattested REJECTED kind review no longer removes the kind from kinds.claimed",
+        "src/test/integration/discoverySubjectRegistry.test.ts: the same, through the test-seam writer",
+        "src/test/unit/discoverySubjectRegistryB22.test.ts (B2.2-C): the pinned claim-view key set gains effectiveReview"
+      ],
+      "negativeMutations": {
+        "M1_everyChainAdmitted": "10 failing tests",
+        "M2_perRowNotWholeChain": "1 failing test (chain laundering)",
+        "M3_effectiveOnlyUncertainty": "5 failing tests",
+        "M4_noReadingChangeTrigger": "6 failing tests",
+        "M5_noEvidenceAfterTrigger": "2 failing tests",
+        "restoration": "each mutant reverted; sha256 of both source files verified identical"
+      },
+      "validation": {
+        "focused": "B2.3 unit 56/56, integration 21/21, firewall 30/30; B2.2 unit 45/45, integration 32/32; B2.1 75/75 + schema 17/17; B3.0 67/67 + 9/9; all firewalls 28 files / 755 tests; migrations check OK",
+        "fullValidate": "npm run validate EXIT 0, 2026-10-16T14:31:13Z to 14:40:40Z; 346 files (341 passed, 5 skipped); 10405 tests (10330 passed, 75 skipped, all pre-existing classifier-evaluation artifact gates)",
+        "database": "one disposable postgres:16-alpine (16.15) container, --pull=never, tmpfs, no volume, 127.0.0.1 dynamic port, random superuser and rotated runtime-login passwords, removed after the run",
+        "network": "none beyond loopback to that container"
+      },
+      "r1ValidationEvidence": "this record held no in-file R1 validation result; the R1 fields above are left exactly as written",
+      "operationalKeyProvisioned": false,
+      "productionReviewActivated": false,
+      "researchAdmissionImplemented": false,
+      "canonicalIdentityIssued": false,
+      "protectedCohortContentInspected": false,
+      "realOrganisationsInserted": false,
+      "committed": false
+    }
+  ]
+}

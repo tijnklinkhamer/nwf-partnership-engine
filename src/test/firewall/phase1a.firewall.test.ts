@@ -74,6 +74,14 @@ const PERMITTED_ANTHROPIC_DEPENDENCY = '@anthropic-ai/claude-agent-sdk';
 const AUTH_CONFLICT_GUARD_FILE = 'src/orgunits/classify/provider/authConflicts.ts';
 const MODEL_ALLOWLIST_FILE = 'src/orgunits/classify/provider/allowedModels.ts';
 /**
+ * WW E-SD (ADR 0027 D1 / ADR 0028): the live source-discovery search has its
+ * OWN closed model allowlist, mirrored by migration 0022's CHECK, because that
+ * namespace may import nothing from classify/ but the eight ADR 0027 D3
+ * authentication modules. Widened by this ONE exact path; the file holds the
+ * allowlist and nothing else.
+ */
+const SOURCE_DISCOVERY_MODEL_ALLOWLIST_FILE = 'src/orgunits/sourceDiscovery/allowedModels.ts';
+/**
  * The one TEST permitted to spell the credential identifier out: the unit
  * test that pins the guard's canonical 14-variable list VERBATIM, so drift
  * in the constant cannot hide behind an indirection. Every other test
@@ -99,7 +107,7 @@ describe('PHASE-1A-FIREWALL: no AI/research capability', () => {
       expect(source, `${file} references the Anthropic API host`).not.toContain(
         'api.anthropic.com',
       );
-      if (file !== MODEL_ALLOWLIST_FILE) {
+      if (file !== MODEL_ALLOWLIST_FILE && file !== SOURCE_DISCOVERY_MODEL_ALLOWLIST_FILE) {
         expect(source, `${file} references a Claude model id`).not.toMatch(/claude-[a-z0-9-]*\d/);
       }
       if (file !== AUTH_CONFLICT_GUARD_FILE && file !== AUTH_CONFLICT_LIST_TEST_FILE) {
@@ -120,8 +128,11 @@ describe('PHASE-1A-FIREWALL: no AI/research capability', () => {
     expect(guard).toContain('FORBIDDEN_AUTH_VARIABLES');
     const allowlist = read(MODEL_ALLOWLIST_FILE);
     expect(allowlist).toContain('ORGUNIT_CLASSIFIER_ALLOWED_MODELS');
-    // Neither exempted file may itself construct a client or name the API host.
-    for (const source of [guard, allowlist]) {
+    const sourceDiscoveryAllowlist = read(SOURCE_DISCOVERY_MODEL_ALLOWLIST_FILE);
+    expect(sourceDiscoveryAllowlist).toContain('SOURCE_DISCOVERY_ALLOWED_MODELS');
+    expect(sourceDiscoveryAllowlist).not.toMatch(/\bimport\b/);
+    // No exempted file may itself construct a client or name the API host.
+    for (const source of [guard, allowlist, sourceDiscoveryAllowlist]) {
       expect(source).not.toContain('api.anthropic.com');
       expect(source).not.toMatch(/new\s+Anthropic\s*\(/);
       expect(source).not.toMatch(/from\s+['"]@anthropic-ai\//);

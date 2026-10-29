@@ -1,0 +1,154 @@
+{
+  "clarificationId": "PHASE_2B_2D2C_F0X_PARTIAL_REPLICATE_ANALYSIS_CLARIFICATION_V1",
+  "clarificationVersion": "phase2b-2d2c-f0x-partial-replicate-analysis-clarification-v1",
+  "status": "FROZEN_ADDITIVE_CLARIFICATION_UNDER_OWNER_DIRECTION",
+  "scope": "DEVELOPMENT_ONLY",
+  "studyId": "REPLICATION_V4_V5_N5",
+  "ownerDirectionDate": "2026-09-16",
+  "authorises": [],
+  "doesNotAuthorise": [
+    "scoring against DEV gold or the owner adjudication record",
+    "any provider request, rerun, replacement or further recovery",
+    "any holdout-split or mixed DEVELOPMENT/HOLDOUT file access",
+    "any V6 or prompt change",
+    "any gate threshold change",
+    "any semantic interpretation of results"
+  ],
+  "additivity": {
+    "historicalBytesEdited": false,
+    "f0uMethodologyRawSha256": "d8b3e57992fe091aed95e7490d4b3c0fe0f4a7bfcc1bb6c7b09bd83252e79cf7",
+    "f0vFreezeRawSha256": "77e26f30cc5e323660d564614ae13f1a0f2c1bbb1fc87df2e604127016377545",
+    "f0vApprovalRecordRawSha256": "ed127c305f8b60a3269d8d993ca832307d8c2d31d6e8367af8709f1b6873a311",
+    "v4HistoricalFreezeF0IRawSha256": "018f7bc1d34ff92ae11491595bd42df986e5369652bf58b0fce19111467d615e",
+    "v5HistoricalFreezeF0ORawSha256": "77cccff133ceac9ca57ac30c4468690d99ae3d53a294e30249f97487c727a75e",
+    "structuralClosure": {
+      "path": "docs/evaluation/PHASE_2B_2D2C_F0X_RECOVERY_1_STRUCTURAL_CLOSURE_V1.json",
+      "rawSha256": "aeb411cf5aaff615564e74356559511840eaa177b075715f72e8da283b7dccc6"
+    },
+    "executionInventory": {
+      "path": "docs/evaluation/PHASE_2B_2D2C_F0X_RECOVERY_1_EXECUTION_INVENTORY_V1.json",
+      "rawSha256": "61495b71d5a3702502708c1b19ee9fdbbad82e294ef359d79d496ed2b8477070"
+    }
+  },
+  "edgeCase": {
+    "f0uSection7": "A replication that reaches a genuine terminal failure/halt is included exactly as recorded and is never replaced.",
+    "f0uSection8": "The six frozen DEV gate metrics are reported as a distribution over all five replications of each prompt.",
+    "conflict": "A replicate that halted before all twelve batches has no 49-item gate vector, so both sections cannot be satisfied literally."
+  },
+  "inclusion": {
+    "includedNPerPrompt": 5,
+    "rule": "Every Recovery-1 slot is one of the five included replications of its prompt. A terminal-failure slot is never replaced, rerun or discarded, and N is never reduced to the number of complete replicates.",
+    "historicalAttempt3V4AndAttempt4V5": "PILOT_ONLY_NOT_COUNTED_TOWARD_N5"
+  },
+  "replicateStatus": {
+    "values": ["COMPLETE", "TERMINAL_FAILURE_PARTIAL"],
+    "COMPLETE": "The experiment recorded COMPLETED_ALL_PLANNED with all twelve planned evaluations ended without a stop, AND every one of the 49 DEVELOPMENT items has an observed item result. The scorer derives this from the evidence, never from the experiment status alone.",
+    "TERMINAL_FAILURE_PARTIAL": "The experiment recorded an experiment stop before all twelve planned evaluations ended. The actual terminal condition (stop kind, stop condition, provider outcome, Tier-2 outcome, sequence) is preserved verbatim with the replicate.",
+    "completeRunMissingAnItem": "A replicate whose experiment completed but which still lacks an observed result for any of the 49 items is neither status. The scorer refuses it; its treatment needs a separate owner decision."
+  },
+  "itemResults": {
+    "values": [
+      "UNIT_PAGE",
+      "NOT_A_UNIT",
+      "NEEDS_REVIEW",
+      "VALIDATOR_REJECTED_POST_REPAIR",
+      "INVALID_NON_TERMINAL_PROVIDER_FAILURE",
+      "NOT_OBSERVED_DUE_TO_TERMINAL_FAILURE"
+    ],
+    "observed": [
+      "UNIT_PAGE",
+      "NOT_A_UNIT",
+      "NEEDS_REVIEW",
+      "VALIDATOR_REJECTED_POST_REPAIR",
+      "INVALID_NON_TERMINAL_PROVIDER_FAILURE"
+    ],
+    "semanticVerdict": "UNIT_PAGE, NOT_A_UNIT or NEEDS_REVIEW: a validator-accepted result after the one bounded repair round (ADR 0011, F0I/F0O postRepairTreatment).",
+    "VALIDATOR_REJECTED_POST_REPAIR": "The validator rejected the item and no accepted repair exists. Scored exactly as the frozen strict scorer scores a rejected item.",
+    "INVALID_NON_TERMINAL_PROVIDER_FAILURE": {
+      "rule": "An evaluation that ended WITHOUT a stop but produced no structured output (provider outcome in the admitted set). Each of its items is an INVALID observation, scored exactly as a validator-rejected item: no prediction, strict-incorrect, counted against schema-valid rate, recall and hard-negative rejection, and outside the precision denominator.",
+      "admittedProviderOutcomes": ["STRUCTURED_OUTPUT_FAILED"],
+      "frozenBasis": "F0I/F0O scoring.providerFailureTreatment (\"INVALID is never a missing observation\") and docs/evaluation/PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md §5 (\"any structured-output failure (all counted INVALID — never a missing observation)\"). This restates an existing frozen rule; it is not a new one.",
+      "anyOtherNonOkOutcomeOnANonStoppedEvaluation": "REFUSED_BY_THE_SCORER"
+    },
+    "NOT_OBSERVED_DUE_TO_TERMINAL_FAILURE": "Every item of the evaluation that carried the terminal stop, and every item of an evaluation that never started, in a TERMINAL_FAILURE_PARTIAL replicate. It is never converted into NOT_A_UNIT, NEEDS_REVIEW, VALIDATOR_REJECTED_POST_REPAIR, INVALID or any other result. A terminal evaluation that nevertheless holds a validation result is refused by the scorer."
+  },
+  "fullRunGateMetrics": {
+    "gates": [
+      "minSchemaValidSpanVerifiedRate",
+      "minUnitPageRecall",
+      "minUnitPagePrecision",
+      "minUnitTypeAccuracy",
+      "minHardNegativeRejection",
+      "maxNeedsReviewRate"
+    ],
+    "COMPLETE": "The six frozen DEV gates are computed exactly as the attempt-3/attempt-4 scorers compute them (strict view, post-repair validity), with the unchanged F0I/F0O thresholds, over all 49 items.",
+    "TERMINAL_FAILURE_PARTIAL": {
+      "eachGateMetric": "NOT_AVAILABLE_INCOMPLETE_REPLICATE",
+      "devGateOutcome": "NOT_AVAILABLE_INCOMPLETE_REPLICATE",
+      "confusionCounts": "NOT_AVAILABLE_INCOMPLETE_REPLICATE",
+      "forbidden": [
+        "a denominator smaller than 49 presented as a gate metric",
+        "imputation of any unobserved item",
+        "substitution of a failure, a rejection or any verdict for an unobserved item",
+        "extrapolation from the observed prefix"
+      ]
+    }
+  },
+  "perPromptDistribution": {
+    "rule": "Each prompt reports exactly five entries, in the frozen F0V slot order. A complete replicate shows its numeric gate values; a terminal-failure partial shows NOT_AVAILABLE_INCOMPLETE_REPLICATE with its replicate status and terminal condition.",
+    "entriesPerPrompt": 5
+  },
+  "summaryStatistics": {
+    "metrics": ["minUnitPagePrecision", "minUnitPageRecall"],
+    "statistics": ["mean", "median", "min", "max"],
+    "basis": "COMPLETE_CASE_ONLY",
+    "rule": "Computed only over complete replicates whose metric is numeric. Each report states includedN = 5, completeN and numericN side by side, and is never described as based on all five."
+  },
+  "passCounts": {
+    "fields": [
+      "includedN",
+      "completeN",
+      "frozenGatePassCountAmongComplete",
+      "frozenGateFailCountAmongComplete",
+      "terminalFailurePartialCount"
+    ],
+    "rule": "A terminal-failure partial is neither a DEV-gate pass nor a DEV-gate fail. A complete replicate passes only when every one of the six gates is measured and met, exactly as the attempt-4 scorer decides ALL_FROZEN_GATES_MET_ON_DEV."
+  },
+  "perItemFrequency": {
+    "scope": "all 49 DEVELOPMENT items, per prompt",
+    "rule": "Uses every observed item result. Every row exposes its own denominator as observedReplicates / 5, and lists NOT_OBSERVED_DUE_TO_TERMINAL_FAILURE as its own count. Validator acceptance (first pass and post-repair) and repair-trigger frequencies use the same per-item observed denominator."
+  },
+  "itemStability": {
+    "labels": [
+      "STABLE_WITHIN_PROMPT",
+      "UNSTABLE_WITHIN_PROMPT",
+      "STABILITY_NOT_DETERMINABLE_INCOMPLETE_OBSERVATION"
+    ],
+    "comparedValue": "The item result, and for UNIT_PAGE also unit_type. VALIDATOR_REJECTED_POST_REPAIR and INVALID_NON_TERMINAL_PROVIDER_FAILURE are distinct results.",
+    "STABLE_WITHIN_PROMPT": "All five replicates observed, and all five compared values identical.",
+    "UNSTABLE_WITHIN_PROMPT": "At least two observed compared values differ. Determinable even when an item is unobserved in some replicate, because the disagreement is already observed.",
+    "STABILITY_NOT_DETERMINABLE_INCOMPLETE_OBSERVATION": "Every observed value agrees but fewer than five replicates observed the item. Never reported as stable."
+  },
+  "pairedComparison": {
+    "pairStatuses": ["BOTH_COMPLETE", "ONE_OR_BOTH_SIDES_TERMINAL_FAILURE_PARTIAL"],
+    "BOTH_COMPLETE": "Numeric paired deltas (V5 minus V4) for precision, recall and hard-negative rejection; verdict-disagreement count; corrections and regressions.",
+    "ONE_OR_BOTH_SIDES_TERMINAL_FAILURE_PARTIAL": {
+      "pairedGateDeltas": "NOT_AVAILABLE_INCOMPLETE_PAIR",
+      "itemLevel": "Reported only over items observed on both sides, with itemsObservedOnBothSides as an explicit denominator and labelled PARTIAL_OVERLAP. Never pooled with complete pairs."
+    },
+    "pooled": "Pooled totals use BOTH_COMPLETE pairs only, and state how many of the five pairs they cover.",
+    "pairedDeltaGates": ["minUnitPagePrecision", "minUnitPageRecall", "minHardNegativeRejection"],
+    "interpretationLabelDeterminability": {
+      "values": ["DETERMINABLE_ALL_FIVE_PAIRS_BOTH_COMPLETE", "NOT_DETERMINABLE_INCOMPLETE_PAIRS"],
+      "rule": "F0U §10 V5_REPRODUCIBLY_BETTER and V5_REPRODUCIBLY_WORSE require every one of the five pairs. With any incomplete pair they are NOT_DETERMINABLE_INCOMPLETE_PAIRS; they are never evaluated over the complete pairs alone. This clarification does not compute the labels themselves and does not operationalise the F0U §10 noise-floor clause."
+    }
+  },
+  "terminalFailuresAsOutcome": "Every terminal-failure replicate, with its actual terminal condition, is reported prominently as a reliability and liveness observation of the study, beside the gate results and never in a footnote.",
+  "unchanged": {
+    "gateThresholds": true,
+    "sixGateComputation": true,
+    "postRepairTreatment": true,
+    "holdoutForbidden": true,
+    "v6": false
+  }
+}

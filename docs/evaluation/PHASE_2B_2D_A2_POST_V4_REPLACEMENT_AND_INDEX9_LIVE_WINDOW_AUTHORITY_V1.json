@@ -1,0 +1,96 @@
+{
+  "recordId": "phase2b-2d-a2-post-v4-replacement-and-index9-live-window-authority-v1",
+  "recordKind": "LIVE_WINDOW_AUTHORITY",
+  "records": "PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_AUTHORITY_V1",
+  "recordedAtUtc": "2026-09-21T13:53:45Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_V1",
+  "startingHead": "277cd59b97d91fde450ba32b5df1b1a44ffb936a",
+  "bound": {
+    "preLiveGovernanceRatification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRE_LIVE_GOVERNANCE_RATIFICATION_V1.json",
+      "sha256": "f3afacd5db8cd1a86ca3193cb4e9ebcc96e6a18b6bd2c0fe0725e3875d42e87a",
+      "bytes": 10421
+    },
+    "windowPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_WINDOW_PLAN_V1.json",
+      "sha256": "f7f3dabfee398945f0f4c1750d0c61309b1ab2b048987fe8856545842338d9e1",
+      "bytes": 6458
+    },
+    "genesisReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "a80e429059875d1a1aeea1c35092d88ecbf0395cfe8c8efcb278d17dac1e4ee2",
+      "ledgerHash": "7e89966722961162067690abf5cf79cebac26e1697de8488f4f7ed0e8d303bda",
+      "entries": 0
+    },
+    "offlineImplementationRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_BATCH_IMPLEMENTATION_V1.json",
+      "sha256": "73942e28e585ddb62539cc6ef0cf10bb3c08d62bcf7d0d5077d0ef195042a545",
+      "bytes": 8558
+    }
+  },
+  "windowPlanHash": "d33c2e05a9fdeb4dbf409187b64cf20ced0cd27adc0478ec99340829548f4cdc",
+  "workItemIds": ["R:3:0", "R:4:1", "R:6:2", "R:8:3", "P:9"],
+  "executionOrderIsFrozen": true,
+  "concurrency": 1,
+  "maximumWorkItemsStarted": 5,
+  "maximumReplacementAssignments": 4,
+  "authorisedReservePositions": [0, 1, 2, 3],
+  "authorisedAssignments": [
+    {
+      "sequence": 0,
+      "selectionIndex": 3,
+      "reserveRankPosition": 0,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    {
+      "sequence": 1,
+      "selectionIndex": 4,
+      "reserveRankPosition": 1,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "sequence": 2,
+      "selectionIndex": 6,
+      "reserveRankPosition": 2,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "sequence": 3,
+      "selectionIndex": 8,
+      "reserveRankPosition": 3,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    }
+  ],
+  "assignmentMechanism": "the landed pure prepareReplacementAppend over the validated genesis ledger and the verified frozen draw; identities, splits and replaced occupants are derived mechanically, never selected by hand",
+  "reserveConsumptionInstant": "on push of the populated-ledger commit, before institution request #1 (see the pre-live governance ratification)",
+  "dynamicReplacementAuthorised": false,
+  "index10OrHigherAuthorised": false,
+  "fetchPolicyRequired": "orgunit-fetch-policy-v4",
+  "retryPermitted": "the landed automatic v4 robots-policy transport retry only; no manual retry, no HTTP retry, no wider retry",
+  "liveInvocationPerStartedItem": "exactly one: npm run cli -- orgunits discover --organisation-id <private> --execute --json",
+  "continuationOwnedByGate": "the landed continuation-window gate is evaluated after every completed item; the next item starts only when mayStartNextWorkItem is true and nextWorkItemId is the next frozen item",
+  "institutionNetworkAuthorised": true,
+  "classifierAuthorised": false,
+  "providerAuthorised": false,
+  "labelsAuthorised": false,
+  "setPSetRAuthorised": false,
+  "semanticHoldoutAccessAuthorised": false,
+  "phase2EAuthorised": false,
+  "crawlerChangeAuthorised": false,
+  "fetchPolicyV5Authorised": false,
+  "migrationAuthorised": false,
+  "methodologyOrPlanChangeAuthorised": false,
+  "acquisitionOfRecordAdjudicationAuthorised": false,
+  "postNetworkLedgerAppendAuthorised": false,
+  "thisFileAuthorises": [
+    "AUTHORISE_PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_V1: append exactly the four assignments above to the canonical Generation-1 replacement ledger before network, then execute Window V1 R:3:0, R:4:1, R:6:2, R:8:3, P:9 sequentially under the landed P1-P8 gate, with formal read-only SD7 and diagnostic SD9 per started item"
+  ],
+  "institutionNetworkExecutedBeforeThisRecord": false,
+  "replacementLedgerMutatedBeforeThisRecord": false,
+  "nextOwnerDecisionOnCompletion": "A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_EVIDENCE_ADJUDICATION",
+  "nextOwnerDecisionOnIncident": "A2_CONTINUATION_WINDOW_IMPLEMENTATION_INCIDENT_REVIEW"
+}

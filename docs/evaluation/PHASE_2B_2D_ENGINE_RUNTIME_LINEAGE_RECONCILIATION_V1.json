@@ -1,0 +1,174 @@
+{
+  "record": "PHASE_2B_2D_ENGINE_RUNTIME_LINEAGE_RECONCILIATION_V1",
+  "recordKind": "ENGINE_RUNTIME_LINEAGE_RECONCILIATION",
+  "task": "ENGINE_RUNTIME_LINEAGE_RECONCILIATION_V1",
+  "recordedAtUtc": "2026-10-06T20:38:46Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/engine-runtime-lineage-reconciliation-v1",
+  "isEvaluationResult": false,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "ownerDecisions": [
+    "AUTHORISE_ENGINE_RUNTIME_LINEAGE_RECONCILIATION_V1",
+    "ADOPT_ALREADY_APPROVED_FETCH_POLICY_V7_RUNTIME_SEMANTICS_IN_CANONICAL_R52_ENGINE_LINEAGE"
+  ],
+
+  "destinationBase": {
+    "commit": "b1dfd82542e7dfb749d5c36063ea750647428a12",
+    "terminalState": "A4_HUMAN_REVIEW_DEFERRED_NON_EVALUATION_ENGINEERING_RELEASED_AWAIT_NEXT_ENGINEERING_SLICE",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+    "migrationsThrough": "0012"
+  },
+  "sourceCommit": {
+    "commit": "e0166e0f787e3bba00b35271cab6717eb65a202c",
+    "subject": "feat(2b): permit the bare trailing-slash robots redirect continuation (v7)",
+    "singleParent": true,
+    "adoptedAs": "EXACT_PATCH_NOT_CHERRY_PICK_NOT_MERGE"
+  },
+  "sourceParent": {
+    "commit": "a1ef1e2dda57d66848052914a36508a5dd5999b4"
+  },
+  "sourceScopePin": {
+    "commit": "6301e95b60d78adbc4f71d9354b2c2f5b794ea96",
+    "path": "src/test/firewall/phase2bRobotsTrailingSlash.firewall.test.ts",
+    "change": "REPAIR_TERMINAL_COMMIT null -> e0166e0 (one line); the v7 repair's own scope-closure, equal at the A2 tip"
+  },
+  "a2Tip": {
+    "commit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+    "branch": "feat/phase2b-2d-a2-batch-02",
+    "sourceCommitIsAncestor": true,
+    "commitsAfterSourceCommit": 176,
+    "productionBytesChangedAfterSourceCommit": 0,
+    "merged": false,
+    "laterCommitsImported": 0
+  },
+  "originMainObserved": {
+    "commit": "7adf895fa20e9b25758e0748d1a02e26c387d19b",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+    "changedBySlice": false
+  },
+
+  "precondition": {
+    "statement": "At R52 every file the v7 source commit touches is byte-identical to its blob at the v7 source parent (absent at both for the five files v7 adds)",
+    "recomputedBeforeAnyChange": true,
+    "holds": true
+  },
+  "adoptedFetchPolicyVersion": "orgunit-fetch-policy-v7",
+  "productionFiles": [
+    {
+      "path": "src/orgunits/web/policy.ts",
+      "parentSha256": "affe97f6736831e8e1a57417c1d6b80f254b9dd71d869fae4d4e8a8ce22d7ea9",
+      "parentBytes": 20581,
+      "v7Sha256": "e7f274e3c1ddcb0433fcaeec9aebaafa37f2623603d5d241588bedfe73de7b3c",
+      "v7Bytes": 24532,
+      "r52EqualsParent": true,
+      "reconciledEqualsV7": true
+    },
+    {
+      "path": "src/orgunits/web/robots.ts",
+      "parentSha256": "4748984b29c19d8bef8c2d5fea1b168c6a6030f35f4af4118ab4bd1f10c2d481",
+      "parentBytes": 40360,
+      "v7Sha256": "5e89503c00a80d33c9c341a774a9b46a837e46ddce18dbf6d41e857e24a4e0c4",
+      "v7Bytes": 44548,
+      "r52EqualsParent": true,
+      "reconciledEqualsV7": true
+    },
+    {
+      "path": "src/orgunits/web/robotsAuthority.ts",
+      "parentSha256": "5057ca454e92abcb41d32eda878733431a7e4a9d67513d4ea73f91ab5d7051e9",
+      "parentBytes": 10487,
+      "v7Sha256": "061ba7efeca1d63538bb557b9b18ef146146f791724c99c92013b15a8c84a14b",
+      "v7Bytes": 15415,
+      "r52EqualsParent": true,
+      "reconciledEqualsV7": true
+    }
+  ],
+  "adoptedDocuments": [
+    {
+      "path": "docs/adr/0016-trailing-slash-robots-redirect-continuation.md",
+      "sha256": "7067466be7755ab46501ec0da73b72b6931e6f6bcc546aea7fce62c444396391",
+      "bytes": 18853,
+      "role": "ALREADY_ACCEPTED_DESIGN_DECISION_EXACT_SOURCE_BYTES"
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1.json",
+      "sha256": "4231660bd5eb5ce0f20e8a235b5d687b544b18ca595e92979c01a2f19ae92a49",
+      "bytes": 24734,
+      "role": "HISTORICAL_SOURCE_PROVENANCE_FOR_ALREADY_APPROVED_V7_RUNTIME",
+      "whyImported": "the exact v7 production comments name this path; importing its exact bytes keeps the provenance chain self-contained in this lineage",
+      "reopensA2": false,
+      "authorisesAcquisition": false,
+      "authorisesLiveRevalidation": false,
+      "supersedesR52Governance": false,
+      "referencedButNotImported": [
+        "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_LIVE_RESULT_V1.json",
+        "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json"
+      ]
+    }
+  ],
+  "adoptedTests": {
+    "preExistingFilesPatchedWithV7DeltaOnly": [
+      "src/test/integration/orgunitAnchorDocumentBase.test.ts",
+      "src/test/integration/orgunitDiscoveryRcdata.test.ts",
+      "src/test/integration/orgunitRobotsOptionCLite.test.ts",
+      "src/test/integration/orgunitTransportRetry.test.ts",
+      "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts",
+      "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+      "src/test/unit/orgunitDiscoveryRcdata.test.ts",
+      "src/test/unit/orgunitRobotsAuthority.test.ts",
+      "src/test/unit/orgunitRobotsRedirectContinuation.test.ts"
+    ],
+    "preExistingFilesHadLaterR52Changes": false,
+    "newFilesPorted": [
+      "src/test/firewall/phase2bRobotsTrailingSlash.firewall.test.ts",
+      "src/test/integration/orgunitRobotsTrailingSlash.test.ts"
+    ],
+    "reconciliationProof": "src/test/unit/engineRuntimeLineageReconciliationV1.test.ts",
+    "r52ScopeFreeze": "src/test/unit/orgunitCorpus2DA4R52HumanReviewDeferral.test.ts"
+  },
+
+  "semanticDelta": {
+    "summary": "bare trailing-slash robots redirect continuation only",
+    "continuationTargetPaths": ["/robots.txt", "/robots.txt/"],
+    "bootstrapPaths": ["/robots.txt"],
+    "bootstrapFactoryChanged": false,
+    "newFactory": "RobotsAuthorisation.forRobotsTxtRedirectContinuation",
+    "newFactoryDecision": "NOT_APPLICABLE",
+    "newFactoryUrlScoped": true,
+    "policyRequestRole": ["BOOTSTRAP", "REDIRECT_CONTINUATION"],
+    "maxRobotsRedirectContinuationHops": 1,
+    "maxRobotsTransportRetriesPerPolicyResolution": 1,
+    "hopBoundChanged": false,
+    "retryBoundChanged": false,
+    "gatewayFollowsRedirects": false,
+    "continuationGovernsInitialAuthority": true,
+    "targetPromotedToRootOrClaim": false
+  },
+
+  "boundaries": {
+    "classifierSemanticChange": false,
+    "orchestratorProductionChange": false,
+    "gatewayChange": false,
+    "migrationChange": false,
+    "liveExecution": false,
+    "databaseWritten": false,
+    "a2BranchMerged": false,
+    "a2GovernanceImported": false,
+    "a2LaterCommitsImported": false,
+    "humanEvaluationDependency": false,
+    "humanReviewResumed": false,
+    "devConfirmOpened": false,
+    "finalHoldoutOpened": false,
+    "a5Authorised": false,
+    "mainChanged": false
+  },
+  "r49ToR52ArtifactsByteUnchanged": true,
+
+  "terminalState": "ENGINE_RUNTIME_LINEAGE_RECONCILED_FETCH_POLICY_V7_READY_FOR_OPERATOR_ENTRY_POINT",
+  "recommendedNextSlice": {
+    "id": "CLASSIFIER_OPERATOR_ENTRY_POINT_V1",
+    "summary": "a bounded operator command invoking the existing runOrganisationClassification for one organisation/run context; production authority, inputs, idempotency, persistence and readback to be designed in that slice",
+    "executedHere": false,
+    "humanEvaluationDependency": false
+  }
+}

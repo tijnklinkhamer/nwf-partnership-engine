@@ -1,0 +1,206 @@
+{
+  "record": "PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORITY_V1",
+  "recordKind": "LIVE_ACQUISITION_AUTHORITY",
+  "createdBeforeAnyInstitutionNetworkActivity": true,
+
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_V1",
+
+  "whatThisAuthorises": [
+    "EXACTLY three targeted live acquisition revalidations, one per authorised selection index,",
+    "each a single `orgunits discover --execute` invocation against that index's FROZEN organisation",
+    "and FROZEN root authority, under orgunit-fetch-policy-v4.",
+    "Nothing else. This authority creates no acquisition-of-record transition: every run it permits",
+    "is TARGETED_V4_REVALIDATION_EVIDENCE_ONLY until a separate owner adjudication says otherwise."
+  ],
+
+  "authorisedSelectionIndices": [4, 6, 8],
+  "executionOrder": [4, 6, 8],
+  "requiredFetchPolicyVersion": "orgunit-fetch-policy-v4",
+  "maximumLiveRuns": 3,
+  "maximumLiveOrganisations": 3,
+  "concurrency": 1,
+
+  "retryPolicyChangesAuthorised": false,
+  "httpRetryAuthorised": false,
+  "reserveConsumptionAuthorised": false,
+  "replacementAuthorised": false,
+  "index9Authorised": false,
+  "index10OrHigherAuthorised": false,
+  "index3Authorised": false,
+  "acquisitionOfRecordMutationAuthorised": false,
+  "labelsAuthorised": false,
+  "providerInferenceAuthorised": false,
+  "classifierExecutionAuthorised": false,
+  "holdoutSemanticClassifierAccessAuthorised": false,
+  "productionCodeChangeAuthorised": false,
+  "policyChangeAuthorised": false,
+  "migrationAuthorised": false,
+  "fetchPolicyV5Authorised": false,
+  "setPAuthorised": false,
+  "setRAuthorised": false,
+  "phase2EAuthorised": false,
+
+  "whyTheseThreeAndNoOthers": {
+    "rule": "The authorised set is exactly the CURRENT acquisition-of-record failures whose v4 transition class is V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE.",
+    "reDerivedFromLiveDatabase": true,
+    "reDerivationMethod": "src/orgunits/web/retryPolicy.ts::retryDispositionFor applied to every persisted observation with discovery_method = ROBOTS and error_kind not null, per run, read-only as DATABASE_URL_READONLY",
+    "countsByClass": {
+      "V4_TRANSITION_UNAFFECTED": 9,
+      "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE": 3,
+      "V4_TRANSITION_AFFECTED": 0
+    },
+    "index3ExcludedBecause": "its outcome is an HTTP 5xx response. V1 transport retry never triggers on http_status, so v4 provably issues no additional request there. Class: V4_TRANSITION_UNAFFECTED.",
+    "noOtherSlotIsInTheUnavailableClass": true
+  },
+
+  "targets": [
+    {
+      "selectionIndex": 4,
+      "split": "FINAL_HOLDOUT",
+      "historicalAcquisitionOfRecordRunRefSha256": "210ec71c8b3907fc94024a772e046dfb31028d20f9597004af8b1a9d6a0cca53",
+      "historicalFetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "historicalDocumentedFailure": "ROBOTS_DNS_FAILURE",
+      "historicalErrorKind": "DNS_FAILURE",
+      "historicalErrorSubtype": null,
+      "historicalHttpStatus": null,
+      "rootAuthorityCount": 1,
+      "rootAuthorityType": "WEBSITE_CLAIM",
+      "drawEntryVerifiedAgainstDatabase": true,
+      "detailedEvidenceRoutingRequirement": "SEALED_HOLDOUT_ROOT; no page detail may be exposed publicly"
+    },
+    {
+      "selectionIndex": 6,
+      "split": "DEV_CONFIRM",
+      "historicalAcquisitionOfRecordRunRefSha256": "a5550818fe15b4a058d5daddc55ce283834c7d619730e217919157f88e18046c",
+      "historicalFetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "historicalDocumentedFailure": "ROBOTS_TLS_FAILURE",
+      "historicalErrorKind": "TLS_FAILURE",
+      "historicalErrorSubtype": null,
+      "historicalHttpStatus": null,
+      "rootAuthorityCount": 1,
+      "rootAuthorityType": "WEBSITE_CLAIM",
+      "drawEntryVerifiedAgainstDatabase": true,
+      "detailedEvidenceRoutingRequirement": "SEALED_DEV_CONFIRM_ROOT"
+    },
+    {
+      "selectionIndex": 8,
+      "split": "DEV_CONFIRM",
+      "historicalAcquisitionOfRecordRunRefSha256": "5145934ca138277794e2e426e07e24d34bcf90ad1ec126cf80d1da6c24d05ecc",
+      "historicalFetchPolicyVersion": "orgunit-fetch-policy-v3",
+      "historicalDocumentedFailure": "ROBOTS_TLS_FAILURE",
+      "historicalErrorKind": "TLS_FAILURE",
+      "historicalErrorSubtype": null,
+      "historicalHttpStatus": null,
+      "rootAuthorityCount": 1,
+      "rootAuthorityType": "WEBSITE_CLAIM",
+      "drawEntryVerifiedAgainstDatabase": true,
+      "detailedEvidenceRoutingRequirement": "SEALED_DEV_CONFIRM_ROOT"
+    }
+  ],
+
+  "boundImplementation": {
+    "startingHead": "e5642595da1ac68e3d17c59d5a3348a3557f0e9c",
+    "branch": "feat/phase2b-2d-a2-batch-02",
+    "semanticImplementationCommit": "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+    "acquisitionPlanAmendmentCommit": "f9e988ab3c1183757b4a95c68865bebf59087260",
+    "closureCommit": "e5642595da1ac68e3d17c59d5a3348a3557f0e9c",
+    "implementationRecordPath": "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_V1.json",
+    "implementationRecordSha256": "6d846f4c8a5c5367629e492cd0913b7c3f5e36556c89e65360d4d477d015031f",
+    "implementationRecordBytes": 9920,
+    "drawArtifactPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+    "drawArtifactSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3"
+  },
+
+  "verifiedPolicyBoundary": {
+    "fetchPolicyVersion": "orgunit-fetch-policy-v4",
+    "retryContext": "ROBOTS_POLICY_RESOLUTION_ONLY",
+    "maxRobotsTransportRetriesPerPolicyResolution": 1,
+    "maxRobotsRedirectContinuationHops": 1,
+    "maximumLogicalRobotsPolicyResolutionRequests": 3,
+    "retryableClasses": [
+      "TLS_HANDSHAKE_TIMEOUT",
+      "DNS_TEMPORARY_FAILURE",
+      "CONNECT_TIMEOUT",
+      "READ_TIMEOUT",
+      "CONNECTION_RESET",
+      "CONNECTION_REFUSED"
+    ],
+    "ordinaryPageRetry": "NONE",
+    "httpResponseRetry": "NONE",
+    "tlsVerificationWeakened": false,
+    "alternateUrlHostnameOrProtocol": false,
+    "circuitBreakerChanged": false,
+    "gatewayChangedByV4Commit": false
+  },
+
+  "frozenCeilingsUnchanged": {
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+    "MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION": 1
+  },
+
+  "historicalEvidenceIsImmutable": {
+    "statement": "The three historical acquisition-of-record runs are NEW-evidence baselines only. No row of theirs is updated, deleted, reinterpreted or back-filled with a subtype.",
+    "historicalErrorSubtypesRemainNull": true,
+    "newRunsAreSeparateRows": true
+  },
+
+  "p5Suspension": {
+    "p5AppliesBetweenTheseThreeTargets": false,
+    "why": "These are targeted revalidations of already-finalised acquisition failures under a newly-versioned acquisition policy, not new primary draw positions. This follows the Option-B and Option-C-lite revalidation precedent. P5 is recomputed prospectively only after evidence adjudication.",
+    "index9RemainsUntouched": true
+  },
+
+  "stopConditions": {
+    "aNormalAcquisitionOutcomeDoesNotStopTheSeries": true,
+    "doNotStopOn": [
+      "direct success",
+      "DNS_NAME_NOT_FOUND",
+      "TLS_CERT_INVALID",
+      "TLS_PROTOCOL_INCOMPATIBLE",
+      "a retryable failure followed by a failed retry",
+      "readable robots followed by zero useful pages",
+      "any ordinary SD9 failure"
+    ],
+    "stopBeforeNextTargetOn": [
+      "a new row stamped other than orgunit-fetch-policy-v4",
+      "more than one transport retry in one logical policy resolution",
+      "more than three requests in one logical policy resolution",
+      "a retry of a URL other than the one that failed",
+      "a retry issued without pacing admission",
+      "a retry of a non-retryable class",
+      "an HTTP response retried",
+      "TLS verification weakened",
+      "persistence inconsistency",
+      "root or draw mismatch",
+      "an unexpected production exception",
+      "a host sleep/wake event",
+      "a new TLS/DNS failure persisted with a NULL error_subtype (TRANSPORT_OBSERVABILITY_PROVENANCE_FAILURE)"
+    ]
+  },
+
+  "databasePreflight": {
+    "verifiedBeforeAuthorityCommit": true,
+    "orgunit_research_runs": 12,
+    "orgunit_research_run_completions": 12,
+    "orgunit_fetch_observations": 204,
+    "orgunit_redirect_observations": 11,
+    "orgunit_page_evidence": 160,
+    "orgunit_page_candidates": 320,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "observationsWithNonNullErrorSubtype": 0,
+    "classifierTablesAllZero": true
+  },
+
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0,
+    "publicLinkageIsOnly": ["selectionIndex", "SHA-256(run UUID)"]
+  }
+}

@@ -1,0 +1,279 @@
+{
+  "record": "PHASE_2B_2D_A3_R38A_CROSS_GENERATION_SLOT_AUTHORITY_CONTRACT_V1",
+  "recordKind": "PUBLIC_GOVERNANCE_ONLY_AUTHORITY_CONTRACT_RECORD",
+  "task": "A3_R38A_CROSS_GENERATION_SLOT_AUTHORITY_CONTRACT_V1",
+  "ownerDecision": "AUTHORISE_A3_R38A_CROSS_GENERATION_SLOT_AUTHORITY_CONTRACT_V1",
+  "thisFileAuthorises": [],
+  "isOwnerAuthority": false,
+  "publicSafe": true,
+  "lineage": {
+    "r38BlockerTip": "960856bb4e503fcc6961843f88761f66ebffcd27",
+    "r38ScopePinCommit": "6d99b1c3d4ffcb74aa411ede1ff7c70af4da4a0d",
+    "r38ScopePinTouchedFiles": 1,
+    "mergesIntroduced": 0,
+    "a2CheckpointIsAncestorOfA3": false,
+    "contractShapeFixtureCommit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+    "contractShapeFixtureReads": "commit-addressed git objects only; shape and vocabulary, never a governance resolution"
+  },
+  "r38RefusalBinding": {
+    "path": "docs/evaluation/PHASE_2B_2D_A3_R38_CROSS_GENERATION_AUTHORITY_ADAPTER_REFUSAL_V1.json",
+    "commit": "960856bb4e503fcc6961843f88761f66ebffcd27",
+    "sha256": "7cf59593d06ba77cf29206120496c3e642acccd28a580b1b13b7d5181fc9dec0",
+    "audit": "docs/audits/PHASE_2B_2D_A3_R38_CROSS_GENERATION_AUTHORITY_ADAPTER_BLOCKER_V1.md",
+    "acceptedAs": "ARCHITECTURAL_FINDING_NOT_A_FAILED_IMPLEMENTATION",
+    "incompatibilitiesAddressed": [
+      "I1_GENERATION_IDENTITY",
+      "I2_RESERVE_NAMESPACE",
+      "I3_SINGLE_LEDGER_CHAIN",
+      "I4_LEDGER_ENTRY_VOCABULARY",
+      "I5_CONTINUITY_PROJECTION"
+    ]
+  },
+  "r17": {
+    "path": "src/test/harness/phase2b2d/a3prep/slotAuthority.ts",
+    "sha256": "deee711b6eac66bccec51afee49615b71b94d0701b110a3abd50c1c12207f165",
+    "modified": false,
+    "meaning": "one Generation-1 cohort resolution against the frozen Generation-1 draw, one Generation-1 reserve namespace and one Generation-1 replacement ledger",
+    "stillRefusesGeneration2": true,
+    "reuse": "the new contract validates the Generation-1 prefix by CALLING R17's own resolver over the Generation-1 draw and ledger with no facts; R17 is imported, never edited, broadened or wrapped into accepting Generation 2"
+  },
+  "contract": {
+    "namespace": "src/test/harness/phase2b2d/a3crossGenerationSlotAuthority/",
+    "files": [
+      "types.ts",
+      "refusal.ts",
+      "occupantIdentity.ts",
+      "chain.ts",
+      "terminalFacts.ts",
+      "resolve.ts",
+      "continuity.ts"
+    ],
+    "pure": true,
+    "capabilitiesAbsent": [
+      "filesystem",
+      "git process",
+      "database",
+      "SQL",
+      "environment",
+      "clock",
+      "randomness",
+      "network",
+      "provider",
+      "classifier",
+      "sealed file opening",
+      "hashing"
+    ],
+    "inputs": "already-normalised committed-governance facts; producing them from committed A2 bytes is a later, separately authorised adapter's job"
+  },
+  "generationModel": {
+    "generationIds": ["METHODOLOGY_V2_GEN1", "METHODOLOGY_V3_GEN2"],
+    "supportedResolutionGenerations": ["METHODOLOGY_V3_GEN2"],
+    "generation1ResolutionOwner": "R17, unchanged",
+    "distinctGenerations": [
+      "resolutionGenerationId",
+      "occupantGenerationId",
+      "acquisitionGenerationId"
+    ],
+    "examples": {
+      "carriedGeneration1Success": "resolution Gen2 / occupant Gen1 / acquisition Gen1",
+      "generation2ReserveAcquisition": "resolution Gen2 / occupant Gen2 / acquisition Gen2",
+      "primaryFirstAcquiredInGeneration2": "resolution Gen2 / occupant Gen1 / acquisition Gen2"
+    },
+    "factGenerationIsProvenance": "checked against an explicit closed registry of the adjudication records each generation committed; a relabelled fact is found in the other generation's registry and refused"
+  },
+  "occupantModel": {
+    "occupantKinds": [
+      "PRIMARY",
+      "GENERATION1_RESERVE_REPLACEMENT",
+      "GENERATION2_RESERVE_REPLACEMENT"
+    ],
+    "kindIsExplicitAuthorityData": true,
+    "reserveNamespaces": {
+      "GENERATION1_DRAW_RESERVE": {
+        "size": 40,
+        "positionField": "generation1ReserveRankPosition",
+        "identityDigest": "drawEntrySha256"
+      },
+      "GENERATION2_RESERVE_SCHEDULE": {
+        "size": 5670,
+        "positionField": "generation2ReserveRankPosition",
+        "sourceFrameRankPosition": "150 + generation2ReserveRankPosition",
+        "identityDigest": "scheduleEntrySha256 = sha256(canonicalStringify(schedule entry without scheduleEntrySha256)), plus frameEntrySha256"
+      }
+    },
+    "reserveIdentity": "namespace + namespace-local position + that namespace's own digest + organisation; Generation-1 reserve N is never Generation-2 reserve N",
+    "bareReserveRankPositionExposed": false,
+    "globalReservePosition": false,
+    "generation2ReserveHasDrawEntryDigest": false
+  },
+  "ledgerModel": {
+    "ledgerNamespaces": ["GENERATION1_REPLACEMENT_LEDGER", "GENERATION2_REPLACEMENT_LEDGER"],
+    "boundIndependently": [
+      "generationId",
+      "ledgerNamespace",
+      "path",
+      "fileSha256",
+      "ledgerHash",
+      "entryCount"
+    ],
+    "sequencesAreNamespaceLocal": true,
+    "concatenated": false,
+    "reSequenced": false,
+    "generation2NativeVocabulary": [
+      "generation2ReserveRankPosition",
+      "GENERATION1_TERMINAL_OCCUPANT",
+      "GENERATION2_RESERVE_REPLACEMENT"
+    ],
+    "generation2HeaderMustBindTheExactGeneration1LedgerAndDraw": true,
+    "canonicalHashingValidatorsStillRequiredUpstream": true
+  },
+  "chainModel": {
+    "shape": "original primary -> Generation-1 reserve transitions -> Generation-1 terminal occupant -> Generation-2 reserve transitions",
+    "installation": [
+      "ORIGINAL_SELECTION_NO_INSTALLING_LEDGER",
+      "GENERATION1_REPLACEMENT_LEDGER + generation1Sequence + generation1EntryHash",
+      "GENERATION2_REPLACEMENT_LEDGER + generation2Sequence + generation2EntryHash + replacedOccupantKind"
+    ],
+    "chainPositionIsLedgerAuthority": false,
+    "generation2Rooting": {
+      "firstGeneration2Entry": "replaces exactly the slot's GENERATION1_TERMINAL_OCCUPANT, previousSequenceForSlot null",
+      "laterGeneration2Entry": "replaces exactly the slot's previous GENERATION2_RESERVE_REPLACEMENT, previousSequenceForSlot = that Generation-2 sequence"
+    }
+  },
+  "acquisitionOfRecord": {
+    "kinds": ["ORDINARY_ADJUDICATED_ACQUISITION", "ACCEPTED_TARGETED_RECOVERY_ACQUISITION"],
+    "recoveryRequires": "selectionBasis EXPLICIT_ADJUDICATION_SELECTION by the fact's own adjudication, with the original result and run retained",
+    "recencyUsed": false,
+    "arrayOrderUsed": false,
+    "atMostOneTerminalFactPerOccupantAcrossGenerations": true
+  },
+  "carryForward": {
+    "admissionKind": "GENERATION1_TO_GENERATION2_CARRY_FORWARD_ADMISSION",
+    "requiredFor": "a Generation-1 success that is the current acquisition of record in a Generation-2 resolution",
+    "binds": [
+      "same selection slot",
+      "same split",
+      "same Generation-1 occupant source identity",
+      "same Generation-1 adjudication",
+      "same acquisition-of-record result",
+      "same run reference",
+      "same acquisition policy version",
+      "same policy-transition binding",
+      "no Generation-2 transition in the slot"
+    ],
+    "createsRun": false,
+    "createsAdjudication": false,
+    "changesFactGeneration": false,
+    "changesPolicyVersion": false,
+    "createsLiveResult": false
+  },
+  "readyRule": {
+    "status": "A3_CROSS_GENERATION_SLOT_ACQUISITION_AUTHORITY_READY",
+    "requires": [
+      "current occupant derived from selection + Generation-1 chain + Generation-2 chain",
+      "exactly one terminal acquisition-of-record fact for that exact occupant",
+      "disposition ACQUISITION_SUCCESSFUL",
+      "adjudication, acquisition-of-record result, run reference and actual policy bound",
+      "a Generation-1 fact only through a genuine carry-forward admission in an untouched slot",
+      "a Generation-2 reserve only through a genuine Generation-2 fact naming its schedule identity"
+    ],
+    "neverReadyFrom": [
+      "diagnostic SD9",
+      "live result",
+      "freeze aggregate",
+      "carry-forward feasibility boolean",
+      "window authority",
+      "strategy",
+      "plan",
+      "pre-network assignment",
+      "corpus-freeze counts"
+    ],
+    "allOrNothing": true,
+    "privateBranding": "WeakSet-minted; spread, structuredClone, JSON round trip, literal and R17 READY all rejected; no unsafe or test-only mint",
+    "visibility": "INTERNAL_NEVER_SERIALISE_PUBLICLY"
+  },
+  "continuity": {
+    "bridge": "R17 A3SlotAcquisitionAuthorityReady -> A3CrossGenerationSlotAcquisitionAuthorityReady",
+    "r26ComparatorModified": false,
+    "r26ComparatorReplacedGlobally": false,
+    "ownerRule": "resolution context is not acquisition authority: resolutionGenerationId alone is never an evidence change; a carried authority's acquisitionGenerationId stays Generation 1 and is compared with R17's generationId",
+    "evidenceFields": [
+      "selectionIndex",
+      "split",
+      "organisationId",
+      "echeRowKey",
+      "acquisitionGenerationId",
+      "currentOccupantIdentity",
+      "originalSourceIdentity",
+      "generation1SlotChain",
+      "generation1SlotChainLedgerEntryHashes",
+      "generation2SlotTransitions",
+      "disposition",
+      "adjudication",
+      "acquisitionOfRecordResult",
+      "runRefSha256",
+      "acquisitionPolicyVersion",
+      "acquisitionPolicyTransitionLedger",
+      "sealedSd7Detail"
+    ],
+    "governanceContextExcluded": [
+      "resolutionGenerationId",
+      "generation1Ledger",
+      "generation2Ledger",
+      "generation2Schedule",
+      "carryForwardAdmission"
+    ],
+    "carryForwardAdmissionVerifiedBeforeUnchanged": true,
+    "r17OccupantMapping": {
+      "PRIMARY": "PRIMARY with the same draw entry",
+      "RESERVE_REPLACEMENT": "GENERATION1_RESERVE_REPLACEMENT in GENERATION1_DRAW_RESERVE with the same position and draw-entry digest"
+    },
+    "generation2ReserveCanCompareUnchanged": false,
+    "anyGeneration2TransitionInTheSlotChangesIt": true,
+    "unrelatedGeneration2AppendElsewhereChangesIt": false,
+    "classifications": [
+      "CROSS_GENERATION_AUTHORITY_UNCHANGED",
+      "CROSS_GENERATION_AUTHORITY_CHANGED"
+    ],
+    "changedFieldsReported": true
+  },
+  "governanceV5": {
+    "minted": false,
+    "registryCreated": false,
+    "namespaceCreated": false,
+    "snapshotCreated": false,
+    "census": false
+  },
+  "terminalA2": {
+    "perSlotReplay": false,
+    "authoritiesDerived": 0,
+    "slotsClassified": 0,
+    "freezeAggregateCompared": false
+  },
+  "devTrainContinuity": {
+    "laterGovernanceTarget": "V4 DEV_TRAIN 13 -> V5 DEV_TRAIN 20",
+    "derived": false,
+    "unchangedClaimed": 0,
+    "newClaimed": 0
+  },
+  "sideEffects": {
+    "databaseConnections": 0,
+    "sqlStatements": 0,
+    "institutionNetworkRequests": 0,
+    "sealedRootReads": 0,
+    "devTrainEvidenceLookups": 0,
+    "devConfirmEvidenceReads": 0,
+    "finalHoldoutEvidenceReads": 0,
+    "documentAssembly": 0,
+    "graphMeasurement": 0,
+    "samplePreparation": 0,
+    "sd9OrReadinessDerivation": 0,
+    "labels": 0,
+    "classifierOrProviderCalls": 0
+  },
+  "r39Started": false,
+  "identityDisclosure": "contract and type names, namespace sizes, commit identifiers and two file digests only; no organisation, eche row key, selection index, reserve position, run reference, host, URL, document or sealed filename",
+  "terminalState": "R38A_CROSS_GENERATION_SLOT_AUTHORITY_CONTRACT_V1_COMPLETE_READY_FOR_SEPARATELY_AUTHORISED_GOVERNANCE_V5_RETRY",
+  "nextOwnerQuestion": "Should a new governance-only R38B task be authorised to adapt the exact terminal Generation-2 committed A2 history into this new cross-generation contract, attempt Governance V5, and then derive the real V4 -> V5 DEV_TRAIN continuity?",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}

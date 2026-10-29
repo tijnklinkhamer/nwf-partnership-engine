@@ -1,0 +1,53 @@
+{
+  "record": "PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_C_LITE_AMENDMENT",
+  "recordKind": "CORPUS_ACQUISITION_PLAN_AMENDMENT_V2",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "ownerDecision": "AUTHORISE_CORPUS_ACQUISITION_POLICY_TRANSITION_V2_TO_V3_PLANNING_V1",
+  "whyThisIsANewFile": {
+    "statement": "Plan V1 and the Option-B amendment are immutable. An amendment is a NEW artifact that references them by SHA-256; neither is edited, and their bytes are bound below so that \"we did not touch them\" is a check rather than a promise."
+  },
+  "priorPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+    "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+    "bytes": 45200
+  },
+  "priorAmendment": {
+    "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_AMENDMENT_V1.json",
+    "sha256": "d440afabd68f4a528bdeadb6c45cf6a489e541d33c214e961419f4adaa80cbc3",
+    "bytes": 11185
+  },
+  "boundAdr": {
+    "path": "docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md",
+    "sha256": "d7c51025759664cb4d4fdcdea00e5da509c39d03fc9e40302baebf0f119a9b1a",
+    "bytes": 22316
+  },
+  "newFutureFetchPolicyVersion": "orgunit-fetch-policy-v3",
+  "supersededFetchPolicyVersions": ["orgunit-fetch-policy-v1", "orgunit-fetch-policy-v2"],
+  "methodologyChanged": false,
+  "frameChanged": false,
+  "drawChanged": false,
+  "splitChanged": false,
+  "samplingChanged": false,
+  "budgetCeilingsChanged": false,
+  "robotsRedirectHostBoundaryChanged": "SAME_HOST_TO_SAME_REGISTRABLE_DOMAIN",
+  "maxRobotsRedirectContinuationHops": 1,
+  "budgetsRestatedUnchanged": {
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "note": "A host-changing site-policy continuation consumes a distinct-host slot like any other hostname. There is no robots exemption and no robots-only budget."
+  },
+  "compatibilityRuleForFutureAdjudication": {
+    "classifications": ["V3_TRANSITION_UNAFFECTED", "V3_TRANSITION_AFFECTED"],
+    "decidedBy": "src/orgunits/web/robots.ts::continuationTargetFor, called on persisted evidence",
+    "forbiddenInputs": ["pageYield", "label", "modelResult", "semanticClass"],
+    "affectedRunStatusMovesOnlyAfterLiveRevalidation": true
+  },
+  "noLiveAcquisitionIsAuthorisedByThisArtifact": true,
+  "thisFileAuthorises": [],
+  "nextOwnerDecision": "A2_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_AUTHORISATION",
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A further transition is a NEW amendment that references this one by SHA-256."
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "recordId": "phase2b-2d-method-v2-a2-batch-01-deviation-adjudication-v1",
+  "recordKind": "OWNER_ADJUDICATION_RECORD",
+  "adjudicates": "PHASE_2B_2D_A2_BATCH_01_PROCESS_DEVIATION_V1",
+  "recordedAtUtc": "2026-09-19T00:00:00Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "whatThisRecordIs": "An IMMUTABLE governance record of the owner's adjudication of the one process deviation that Batch 01 self-reported. It adds a decision; it changes no evidence and no earlier record. The Batch-01 execution record named below is NOT edited, NOT re-hashed and NOT re-statused - this file references it by SHA-256, which is the only correction mechanism this methodology has.",
+
+  "boundBatch01Authority": {
+    "authorityRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json",
+    "authorityRecordSha256": "03e1e08054eb381d9be527857ef70d92ae1aade0e5095e7b6507f0c7e8105a46",
+    "authorityRecordBytes": 17425,
+    "authorityRecordCommit": "9a5fc10c92e7f0829c07cda8bd04d411fbd51727",
+    "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_LIVE_INSTITUTION_ACQUISITION_BATCH_01_V1",
+    "hashReverifiedOnDiskWhenThisRecordWasWritten": true
+  },
+
+  "boundBatch01Execution": {
+    "executionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+    "executionRecordSha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc",
+    "executionRecordBytes": 23602,
+    "executionRecordCommit": "a0ae27cc30f15537014fa8a4efaae9aa25da542a",
+    "hashReverifiedOnDiskWhenThisRecordWasWritten": true,
+    "thisRecordDoesNotEditIt": true
+  },
+
+  "theDeviationAsReported": {
+    "deviation": "SELECTION_INDEX_4_STARTED_AFTER_P5_TRIGGER",
+    "asRecordedInTheExecutionRecord": "SELECTION_INDEX_4_WAS_EXECUTED_AFTER_P5_HAD_ALREADY_BECOME_TRUE",
+    "whatHappened": "After selection index 3 completed, two completed organisations (indices 1 and 3) had zero pre-SD7 page-evidence responses, so P5's condition was already satisfied. Selection index 4 was started roughly two seconds later, because the implemented between-run gate evaluated P3, P4 and P7 but not P5.",
+    "theBatchSelfReportedIt": true,
+    "itWasNotDiscoveredByTheOwnerAfterTheFact": true
+  },
+
+  "ownerAdjudication": {
+    "classification": "PROCESS_DEVIATION_WITHIN_AUTHORISED_SCOPE",
+    "explicitlyNotClassifiedAs": ["UNAUTHORISED_ORGANISATION_EXECUTION", "DATA_INVALIDATION"],
+    "reasonsGivenByTheOwner": [
+      "index 4 was explicitly inside the authorised set {0,1,2,3,4}",
+      "no network, policy or budget scope was widened",
+      "no reserve was touched",
+      "no retry or substitution occurred",
+      "its durable evidence is internally consistent"
+    ],
+    "dataDisposition": "RETAIN",
+    "rerunPermitted": false,
+    "deleteEvidencePermitted": false,
+    "batch01Invalidated": false,
+    "retroactiveAlterationOfBatch01Permitted": false,
+    "pretendingItDidNotHappenPermitted": false,
+    "recordedAppendOnly": true
+  },
+
+  "whyRetentionIsTheStructurallyAvailableAnswerAnyway": "Every row index 4 produced was written by the nwf_research role, which holds SELECT and INSERT and nothing else - no UPDATE, no DELETE, no TRUNCATE. Deleting that evidence is not a decision this repository is capable of executing under the role that created it. The owner's RETAIN decision and the database's own grant structure agree, and the grants are the stronger of the two.",
+
+  "whatIndexFourActuallyCost": {
+    "gatewayRequests": 1,
+    "pageAttempts": 0,
+    "institutionContentRequested": false,
+    "observedOutcome": "DNS_FAILURE on the robots.txt request - the host named by the official website claim did not resolve from this vantage",
+    "pageEvidenceRows": 0,
+    "note": "The one request failed at DNS before any institution content was requested. The deviation's real cost is a governance cost, not a network or privacy cost, and it is recorded as such rather than minimised."
+  },
+
+  "futureP5Semantics": {
+    "semantics": "INCREMENTAL_BETWEEN_RUN_GATE",
+    "rule": "after every completed organisation, if cumulative lowRawYieldCount >= 2, do not start another organisation in that pilot batch",
+    "lowRawYieldCountDefinition": "the number of COMPLETED organisations in that batch with fewer than 4 PRE-SD7 page-evidence responses",
+    "threshold": 2,
+    "comparison": ">=",
+    "evaluatedAfter": "EACH completed organisation",
+    "doNotWaitUntilAllFiveAreComplete": true,
+    "theAmbiguityThisCloses": "P5's original wording - 'two or more of the five completed pilot organisations' - could be read as a post-batch assessment rather than a between-run gate, even though it was listed under the between-run STOP heading. The owner has now stated the between-run reading explicitly, so the same ambiguity cannot recur at 105 organisations.",
+    "appliesFrom": "the next pilot batch onwards",
+    "mustBeRestatedInEachFutureBatchAuthorityRecord": true
+  },
+
+  "whatThisAdjudicationDoesNotDo": [
+    "it does not authorise Batch 02",
+    "it does not authorise any reserve consumption or replacement",
+    "it does not change any frozen methodology rule, including P5's threshold or SD9's minimum",
+    "it does not grant any network, labelling, provider-inference or HOLDOUT authority",
+    "it does not declare any organisation ACQUISITION_SUCCESSFUL or ACQUISITION_UNSUCCESSFUL - every Batch-01 organisation remains as its own SD7 evaluation leaves it"
+  ],
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused.",
+    "itReferencesTheBatch01RecordsByHashRatherThanAmendingThem": true
+  }
+}

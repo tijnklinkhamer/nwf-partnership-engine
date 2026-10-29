@@ -218,15 +218,36 @@ describeDb('Phase 2B schema contract (integration)', () => {
   });
 
   describe('the Phase 2B migrations are applied and sequential', () => {
-    it('records versions 0001 through 0010 with no gaps', async () => {
+    it('records versions 0001 through 0018 with no gaps', async () => {
       const { rows } = await admin.query<{ version: string }>(
         'SELECT version FROM schema_migrations ORDER BY version',
       );
       // Extended for 0010 (the Phase 2B-2C1 Max-runtime error_kind
-      // widening - migration 0010's own file explains the two new
-      // members). This list is pinned deliberately so a new migration
-      // cannot arrive unnoticed: adding one is meant to fail here first
-      // and be acknowledged here explicitly, exactly as it was for 0009.
+      // widening), for 0011 (the Phase 2B-2D2C-R1 repair-call linkage,
+      // ADR 0011) and for 0012 (the Phase 2B-2D A2 transport-failure
+      // observability column `error_subtype`, ADR 0014 - additive and
+      // nullable, no backfill, no grant), and for 0013 (Track B B2.1
+      // discovery-subject identity, ADR 0019 - four new append-only tables,
+      // no runtime writer, nothing existing altered), and for 0014 (Track B
+      // B2.2 discovery-subject registry writer, ADR 0020 - one NOLOGIN
+      // capability role, INSERT on three of those tables, no review write,
+      // no UPDATE/DELETE/TRUNCATE), and for 0015 (Track B B2.3 OWNER-attested
+      // reviews, ADR 0023 - a review environment record, an append-only
+      // attestation table and one NOLOGIN reviewer capability; nothing
+      // existing altered), and for 0016 (R4 subject jurisdiction claims,
+      // ADR 0024, Proposed - one append-only claim table and one ISO 3166-1
+      // predicate, SELECT to nwf_readonly only; nothing existing altered),
+      // and for 0017 (Global R8 subject research admission, ADR 0025,
+      // Proposed - an OWNER-path admission table, its revocations, a
+      // count-only fingerprint view, and a third root on fetch evidence with
+      // every historical root_key regenerated identically), and for 0018
+      // (lane L1 subject research roots, ADR 0025 s12 - a generated candidate
+      // run scope pinned by a composite foreign key and one partial index;
+      // no grant, no value rewritten).
+      // This list is pinned deliberately
+      // so a new migration cannot arrive unnoticed: adding one is meant to
+      // fail here first and be acknowledged here explicitly, exactly as it
+      // was for 0009.
       expect(rows.map((r) => r.version)).toEqual([
         '0001',
         '0002',
@@ -238,6 +259,67 @@ describeDb('Phase 2B schema contract (integration)', () => {
         '0008',
         '0009',
         '0010',
+        '0011',
+        '0012',
+        '0013',
+        '0014',
+        '0015',
+        '0016',
+        '0017',
+        // Lane L1 (subject research roots, ADR 0025 s12).
+        '0018',
+        // REL L2 / U1 (source-discovery nominations, ADR 0026, Proposed -
+        // three append-only tables and one NOLOGIN capability; nothing
+        // existing altered).
+        '0019',
+        // REL P2 (link-out nomination identities and sightings, ADR 0026 s P2 -
+        // two append-only tables granted SELECT/INSERT to the 0019 capability
+        // and SELECT to audit; no role, nothing existing altered).
+        '0020',
+        // REL Q1 (the source-stated country-of-operation writer, ADR 0024 s7 -
+        // SELECT/INSERT on subject_jurisdiction_claims and three column SELECTs
+        // for the existing B2.2 writer capability, two INSERT triggers; no role,
+        // no table, nothing existing altered).
+        '0021',
+        // WW E-SD (OWNER-path live source-discovery grants, ADR 0027/0028 -
+        // five append-only tables, SELECT/INSERT to the 0019 capability (SELECT
+        // only on grants), one deferred constraint trigger on 0019's runs; no
+        // role, no LOGIN, no existing column or grant altered).
+        '0022',
+        // WW E-Q (OWNER-signed acquisition campaigns and the append-only work
+        // queue, ADR 0029, Proposed - six append-only tables, one view, one
+        // NOLOGIN capability; nothing existing altered).
+        '0023',
+        // WW E-W (campaign research admission and the acquisition wiring, ADR
+        // 0030, Proposed - a CAMPAIGN admission basis, four append-only wiring
+        // tables, claim reservations, pinned search paths; no role, no LOGIN).
+        '0024',
+        // WW E-SDFX (security-review repair, ADR 0028 s9 - two append-only
+        // tables, the 0022 trigger functions replaced with a pinned
+        // search_path, two 0022 CHECKs widened by superset; no role, no LOGIN).
+        '0025',
+        // WW H-ACQ (acquisition hardening, ADR 0030 s13 - restated 0023/0024
+        // trigger functions, one definer-rights standing view, one campaign
+        // column; no role, no LOGIN, SELECT grants only).
+        '0026',
+        // WW H-SD (second security-review repair, ADR 0028 s9.1 - one
+        // append-only observations table, nomination and observation
+        // triggers, 0025/0019 functions replaced, 0020 functions pinned; no
+        // role, no LOGIN).
+        '0027',
+        // WW acceptance (CAMPAIGN admission supersession, ADR 0030 s13 - one
+        // BEFORE INSERT trigger on admission revocations, INSERT to the worker
+        // for exactly its own item's unused admission; no role, no LOGIN).
+        '0028',
+        // R2 (campaign continuation, ADR 0029 s12 - one append-only adoption
+        // table, SELECT/INSERT to the existing worker capability; widened
+        // version/depth/root CHECKs; the 0026 work-item rule restated; no
+        // role, no LOGIN).
+        '0029',
+        // R3P3-A (subject-rooted classification, ADR 0031 - one admission
+        // root column, one generated run scope and its composite foreign key on
+        // the classifier call table; no grant, no role, no table).
+        '0030',
       ]);
     });
 

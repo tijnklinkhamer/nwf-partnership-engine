@@ -1,0 +1,322 @@
+{
+  "document": "nwf-pe.qualification-input-export.v1",
+  "producerVersion": "nwf-pe-qualification-input-producer-v1",
+  "targetContracts": {
+    "qualificationInput": "nwf-qualification-input/1-provisional",
+    "qualificationRubric": "nwf-qualification-rubric/V0-R2",
+    "researchInput": "nwf-qualification-research-input/1-provisional",
+    "researchReference": "nwf-research-provisional-reference/1-provisional"
+  },
+  "evidenceClass": "RESEARCH_REAL",
+  "instantRule": "WHOLE_SECOND_UTC_TRUNCATED_TOWARD_EPOCH",
+  "dateRuleVersion": "nwf-pe-stated-date-rules-v1",
+  "sourceRepository": "nwf-partnership-engine",
+  "readConsistency": "SINGLE_SNAPSHOT_TRANSACTION",
+  "subjectId": "66666666-0000-4000-8000-b10000000002",
+  "evaluatedAt": "2026-10-27T09:55:34Z",
+  "candidate": {
+    "candidateRef": "rp-candidate:66666666-0000-4000-8000-b10000000002",
+    "relations": []
+  },
+  "country": {
+    "value": "MX",
+    "standing": "STATED",
+    "rule": "ADR_0024_COUNTRY_OF_OPERATION_STATED",
+    "notRankableReason": null
+  },
+  "channels": [
+    {
+      "channelRef": "rp-channel:dddddddd-0000-4000-8000-b10000000011",
+      "kind": "RESOURCE_PAGE",
+      "visibility": "PUBLIC",
+      "websiteClaimId": "dddddddd-0000-4000-8000-b10000000011",
+      "admissionIds": [
+        "dddddddd-0000-4000-8000-b1000000001d"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000010",
+      "publisherRelation": "SELF",
+      "capturedAt": "2026-10-27T09:55:33Z",
+      "c1": {
+        "captureKind": "ARTEFACT",
+        "contentDigest": "1a3318c6371c44cbcbed197171734a72316573bd05cb09d495bf1044635048bc",
+        "originKey": "url.50d6c69c99b431c22d9eac4ce57c8c19ef77edd8199d7812f1723f23d752045b",
+        "derivedFromSourceRef": null,
+        "attesterRef": null,
+        "partnerRecordRef": null
+      },
+      "reproducibility": {
+        "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
+        "contentDigest": "1a3318c6371c44cbcbed197171734a72316573bd05cb09d495bf1044635048bc",
+        "bytesAvailable": false,
+        "origin": "https://www.instituto-cultural-gdl-fict.mx/historia/",
+        "digestRecordedAt": "2026-10-27T09:55:33Z"
+      },
+      "record": {
+        "kind": "PAGE_EVIDENCE",
+        "pageEvidenceId": "dddddddd-0000-4000-8000-b10000000010",
+        "fetchObservationId": "dddddddd-0000-4000-8000-b10000000022",
+        "researchRunId": "dddddddd-0000-4000-8000-b1000000002f",
+        "admissionId": "dddddddd-0000-4000-8000-b1000000001d",
+        "extractionRuleVersion": "orgunit-extraction-v3",
+        "candidates": [
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b10000000006",
+            "track": "INTERNATIONAL_OFFICE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 2,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          },
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b10000000021",
+            "track": "LANGUAGE_CENTRE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 2,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          }
+        ]
+      }
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000013",
+      "publisherRelation": "SELF",
+      "capturedAt": "2026-10-26T09:00:00Z",
+      "c1": {
+        "captureKind": "ARTEFACT",
+        "contentDigest": null,
+        "originKey": "url.d4e79315d2d5e8960ea121b570cc949b33e5a09553b2e6d053e89a79dfdd553c",
+        "derivedFromSourceRef": null,
+        "attesterRef": null,
+        "partnerRecordRef": null
+      },
+      "reproducibility": {
+        "kind": "EXTERNAL_REFERENCE_ONLY",
+        "origin": "https://www.instituto-cultural-gdl-fict.mx/acerca/",
+        "accessedAt": "2026-10-26T09:00:00Z",
+        "contentDigest": null
+      },
+      "record": {
+        "kind": "PUBLIC_URL_UNRESOLVED",
+        "provenanceKey": "url:https://www.instituto-cultural-gdl-fict.mx/acerca/|v="
+      }
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000001b",
+      "publisherRelation": "SELF",
+      "capturedAt": "2026-10-27T09:55:33Z",
+      "c1": {
+        "captureKind": "ARTEFACT",
+        "contentDigest": "6a8b0b585879eab4262d4ec0fd53dd461c6ca3396b503fd40343b7cdcd28bb87",
+        "originKey": "url.c95ed95ad9e9ecda485bcf779c68448a1c1be4b222c3da1e6ff7d579c85eea03",
+        "derivedFromSourceRef": null,
+        "attesterRef": null,
+        "partnerRecordRef": null
+      },
+      "reproducibility": {
+        "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
+        "contentDigest": "6a8b0b585879eab4262d4ec0fd53dd461c6ca3396b503fd40343b7cdcd28bb87",
+        "bytesAvailable": false,
+        "origin": "https://www.instituto-cultural-gdl-fict.mx/",
+        "digestRecordedAt": "2026-10-27T09:55:33Z"
+      },
+      "record": {
+        "kind": "PAGE_EVIDENCE",
+        "pageEvidenceId": "dddddddd-0000-4000-8000-b1000000001b",
+        "fetchObservationId": "dddddddd-0000-4000-8000-b10000000025",
+        "researchRunId": "dddddddd-0000-4000-8000-b1000000002f",
+        "admissionId": "dddddddd-0000-4000-8000-b1000000001d",
+        "extractionRuleVersion": "orgunit-extraction-v3",
+        "candidates": [
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b1000000002e",
+            "track": "INTERNATIONAL_OFFICE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 1,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          },
+          {
+            "candidateId": "dddddddd-0000-4000-8000-b1000000003f",
+            "track": "LANGUAGE_CENTRE",
+            "candidateScore": "0.0000",
+            "rankWithinRoot": 1,
+            "ruleVersion": "orgunit-signal-rules-v2"
+          }
+        ]
+      }
+    }
+  ],
+  "claims": [
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000029",
+      "claimKey": "candidate.location",
+      "subject": {
+        "kind": "CANDIDATE",
+        "ref": "rp-candidate:66666666-0000-4000-8000-b10000000002"
+      },
+      "mode": "SELF_ASSERTED",
+      "attribution": "EXACT",
+      "producedBy": "HUMAN_RESEARCHER",
+      "value": {
+        "countryCode": "MX"
+      },
+      "basis": {
+        "origin": "ADR_0024_COUNTRY_OF_OPERATION",
+        "jurisdictionClaimId": "dddddddd-0000-4000-8000-b10000000044",
+        "recordedByActorKey": "rel-p1-owner-test"
+      },
+      "researchRealConflicts": []
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000038",
+      "claimKey": "channel.static_currency",
+      "subject": {
+        "kind": "CHANNEL",
+        "ref": "rp-channel:dddddddd-0000-4000-8000-b10000000011"
+      },
+      "mode": "OBSERVED",
+      "attribution": "EXACT",
+      "producedBy": "NWF_SYSTEM",
+      "value": {
+        "marker": "CURRENT_OR_UPCOMING_YEAR",
+        "lastModified": null
+      },
+      "basis": {
+        "origin": "STATED_DATE_IN_CAPTURE",
+        "pageEvidenceId": "dddddddd-0000-4000-8000-b1000000001b",
+        "statedDates": [
+          "2027-11-15"
+        ]
+      },
+      "researchRealConflicts": [
+        "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+        "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+      ]
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000003c",
+      "claimKey": "channel.operator_binding",
+      "subject": {
+        "kind": "CHANNEL",
+        "ref": "rp-channel:dddddddd-0000-4000-8000-b10000000011"
+      },
+      "mode": "OBSERVED",
+      "attribution": "EXACT",
+      "producedBy": "NWF_SYSTEM",
+      "value": {
+        "operatorCandidateId": "rp-candidate:66666666-0000-4000-8000-b10000000002",
+        "basis": "HOSTED_ON_CANDIDATE_SITE"
+      },
+      "basis": {
+        "origin": "ADMITTED_WEBSITE_CAPTURED",
+        "websiteClaimId": "dddddddd-0000-4000-8000-b10000000011",
+        "admissionIds": [
+          "dddddddd-0000-4000-8000-b1000000001d"
+        ]
+      },
+      "researchRealConflicts": [
+        "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+        "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+      ]
+    },
+    {
+      "evidenceClass": "RESEARCH_REAL",
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000003e",
+      "claimKey": "channel.existence",
+      "subject": {
+        "kind": "CHANNEL",
+        "ref": "rp-channel:dddddddd-0000-4000-8000-b10000000011"
+      },
+      "mode": "OBSERVED",
+      "attribution": "EXACT",
+      "producedBy": "NWF_SYSTEM",
+      "value": {
+        "status": "EXISTS"
+      },
+      "basis": {
+        "origin": "ADMITTED_WEBSITE_CAPTURED",
+        "websiteClaimId": "dddddddd-0000-4000-8000-b10000000011",
+        "admissionIds": [
+          "dddddddd-0000-4000-8000-b1000000001d"
+        ]
+      },
+      "researchRealConflicts": [
+        "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+        "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+      ]
+    }
+  ],
+  "claimLinks": [
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000029",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000013",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b10000000038",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000001b",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000003c",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000010",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000003c",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000001b",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000003e",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b10000000010",
+      "relation": "SUPPORTS"
+    },
+    {
+      "claimRef": "rp-claim:dddddddd-0000-4000-8000-b1000000003e",
+      "sourceRef": "rp-source:dddddddd-0000-4000-8000-b1000000001b",
+      "relation": "SUPPORTS"
+    }
+  ],
+  "excluded": [],
+  "researchRuns": [
+    {
+      "runId": "dddddddd-0000-4000-8000-b1000000002f",
+      "admissionId": "dddddddd-0000-4000-8000-b1000000001d",
+      "included": true,
+      "pages": 2
+    }
+  ],
+  "permissions": {
+    "qualification": "NONE",
+    "ranking": "NONE",
+    "publication": "NONE",
+    "memberRelease": "NONE",
+    "identityBinding": "NONE",
+    "outreach": "NONE",
+    "contactPermission": "NOT_GRANTED"
+  },
+  "limitations": {
+    "documentSignature": "NONE_NOT_A_SIGNED_EXPORT",
+    "scoring": "NONE_THE_OPERATOR_C1_RUBRIC_ALONE_SCORES",
+    "descriptors": "NONE_THE_OPERATOR_PAIRS_THE_OWNER_PILOT_DESCRIPTOR_FOR_THE_STATED_COUNTRY",
+    "identity": "PROVISIONAL_ENGINE_LOCAL_REFERENCES_I0_BINDS_IDENTITY_IN_THE_OPERATOR",
+    "country": "ADR_0024_COUNTRY_OF_OPERATION_STATED_ONLY_ELSE_NULL_NEVER_INFERRED",
+    "bytes": "RESPONSE_BODIES_ARE_NEVER_STORED_A_CAPTURE_IS_A_DIGEST_ONLY",
+    "pageText": "NO_PAGE_TEXT_IS_EXPORTED",
+    "classifier": "NO_CLASSIFIER_OR_PAGE_PHRASE_CLAIM_IS_EXPORTED",
+    "licence": "UNKNOWN_NO_STORED_SOURCE_RECORDS_A_LICENCE",
+    "asOf": "RECORDS_CREATED_AFTER_EVALUATED_AT_ARE_EXCLUDED",
+    "instants": "WHOLE_SECOND_UTC_TRUNCATED_TOWARD_EPOCH",
+    "completeness": "NOT_PROVEN",
+    "piiFields": "NONE_BY_CONSTRUCTION"
+  }
+}

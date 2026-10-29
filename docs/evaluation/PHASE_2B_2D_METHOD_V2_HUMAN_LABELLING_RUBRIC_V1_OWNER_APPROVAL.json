@@ -1,0 +1,100 @@
+{
+  "record": "PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1_OWNER_APPROVAL",
+  "recordKind": "OWNER_HUMAN_LABELLING_RUBRIC_APPROVAL",
+  "task": "A3_R49_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1_OWNER_FREEZE",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner's",
+  "publicSafe": true,
+  "approvalAndGovernanceOnly": true,
+  "ownerDecisions": [
+    {
+      "marker": "APPROVE_PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1",
+      "meaning": "freezes the exact human labelling rubric bytes bound in approvedRubric as the Methodology V2 human-gold authority for verdict, unit_type and hard_negative"
+    },
+    {
+      "marker": "AUTHORISE_A3_R50_RESUME_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISATION",
+      "meaning": "authorises ONLY a separate, later R50 slice to resume the deterministic R48 DEV_TRAIN A4 handoff materialisation against these exact rubric bytes; it authorises no materialisation inside R49 and no human label"
+    }
+  ],
+  "approvedRubric": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1.json",
+    "sha256": "e3af57d8d2503e4fc87ce707427762aabfed420bb670a262b9302a7ea78e1d69",
+    "bytes": 22125,
+    "sourceCommit": "c945c8e90942b4ec0fa4d35f96731bd10d33c0ce",
+    "rubricVersion": "METHODOLOGY_V2_HUMAN_LABELLING_RUBRIC_V1",
+    "statusInsideTheBytes": "FROZEN_BY_OWNER",
+    "thisFileAuthorisesInsideTheBytes": [],
+    "bytesNeverChangeOnApproval": true,
+    "statement": "The rubric bytes were committed before this record existed and do not change on approval. Approval is expressed by this separate immutable record, so that the approved bytes stay byte-identical to the bytes the owner worded."
+  },
+  "r48Blocker": {
+    "r48Terminal": "ebe4e6fbd3e2504bbe5fac6963c23ab7bdcb665f",
+    "terminalState": "A3_R4_DEV_TRAIN_A4_HANDOFF_BLOCKED_AWAIT_OWNER_RUBRIC_CLARIFICATION",
+    "census": "docs/evaluation/PHASE_2B_2D_A3_R48_DEV_TRAIN_R4_A4_HANDOFF_CENSUS_V1.json",
+    "censusSha256": "ad028c8ff5245e80e674cc502ccd4b7e0a1986cadd41000746ef306b474bb24c",
+    "rubricCompletenessPassed": false,
+    "blockingField": "hard_negative",
+    "additionallyUnboundFields": ["verdict", "unit_type"],
+    "labelsCreated": 0,
+    "goldCreated": 0,
+    "modelLabels": 0,
+    "databaseConnections": 0,
+    "devConfirmReads": 0,
+    "finalHoldoutReads": 0
+  },
+  "r48HistoricalTruth": {
+    "r48ScopePinCommit": "4e311930ecd5e5cb792ac16e34c127dc2e333142",
+    "noApprovedRubricExistedAtR48Terminal": true,
+    "r48BytesEdited": false,
+    "statement": "R48's blocker proof now ranges over R47_TERMINAL..R48_TERMINAL and the tree at R48_TERMINAL, so 'no approved rubric existed at R48' stays permanently asserted while this rubric exists after R48."
+  },
+  "r50Authority": {
+    "authorised": "resume the deterministic R48 DEV_TRAIN A4 handoff materialisation against the exact rubric bytes bound above",
+    "split": "DEV_TRAIN",
+    "labelsMayBeCreated": false,
+    "goldMayBeCreated": false,
+    "modelLabelsMayBeCreated": false,
+    "devConfirmMayBeOpened": false,
+    "finalHoldoutMayBeOpened": false,
+    "afterR50": "the owner must separately authorise A4 DEV_TRAIN HUMAN SINGLE REVIEW before any human label exists"
+  },
+  "authorityFlags": {
+    "rubricApproved": true,
+    "rubricFrozen": true,
+    "r50HandoffResumeAuthorised": true,
+    "r50Executed": false,
+    "humanLabelsAuthorised": false,
+    "humanLabelsExecuted": false,
+    "modelLabelsAuthorised": false,
+    "devConfirmAccessAuthorised": false,
+    "finalHoldoutAccessAuthorised": false,
+    "a5FreezeAuthorised": false
+  },
+  "unchanged": {
+    "g5Semantics": true,
+    "minimumHardNegativesPerGatedSplit": 155,
+    "sd6ShortfallRule": true,
+    "sampling": true,
+    "r4ShortTextRule": true,
+    "corpusMembership": true
+  },
+  "access": {
+    "databaseConnections": 0,
+    "sqlStatements": 0,
+    "networkRequests": 0,
+    "providerCalls": 0,
+    "devConfirmReads": 0,
+    "finalHoldoutReads": 0,
+    "currentCorpusItemsRead": 0,
+    "currentDocumentTextRead": 0,
+    "labelsRead": 0,
+    "labelsCreated": 0,
+    "goldCreated": 0
+  },
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused."
+  },
+  "terminalState": "A3_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1_FROZEN_R50_HANDOFF_RESUME_AUTHORISED",
+  "nextOwnerQuestion": "The missing Methodology V2 human rubric is now approved and hash-bound. Should R50 resume the previously blocked R48 DEV_TRAIN handoff materialisation against those exact rubric bytes, while still creating zero labels and keeping DEV_CONFIRM and FINAL_HOLDOUT sealed? (Already authorised by AUTHORISE_A3_R50_RESUME_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISATION; R49 stops before R50 execution.)",
+  "nextAction": "R50 DEV_TRAIN A4 handoff materialisation, as a separate slice"
+}

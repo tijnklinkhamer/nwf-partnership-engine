@@ -1,0 +1,198 @@
+{
+  "record": "PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_A4_HANDOFF_CENSUS_V1",
+  "recordKind": "PUBLIC_AGGREGATE_ONLY_DEV_TRAIN_R4_A4_HANDOFF_CENSUS",
+  "task": "A3_R50_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISATION_V1",
+  "consumedOwnerMarker": "AUTHORISE_A3_R50_RESUME_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISATION",
+  "split": "DEV_TRAIN",
+  "r49Terminal": "e07c11906f8c29da74be12c61afe287fcef3787f",
+  "implementationCommit": "eb99739d31e71950659547b8f3167cf0f704b371",
+  "thisFileAuthorises": [],
+  "rubricBinding": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1.json",
+    "sha256": "e3af57d8d2503e4fc87ce707427762aabfed420bb670a262b9302a7ea78e1d69",
+    "bytes": 22125,
+    "rubricVersion": "METHODOLOGY_V2_HUMAN_LABELLING_RUBRIC_V1",
+    "status": "FROZEN_BY_OWNER",
+    "approvalPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1_OWNER_APPROVAL.json",
+    "approvalSha256RecomputedLocally": "17f2683d378b32000467eb670374f56bfa3c8b7b3dfa0acb8a12ee60d0468ac4",
+    "approvalBytes": 4895,
+    "approvalTerminalState": "A3_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1_FROZEN_R50_HANDOFF_RESUME_AUTHORISED",
+    "rubricReinterpreted": false,
+    "rubricCopiedIntoPackage": false
+  },
+  "r48BlockerResolution": {
+    "r48Terminal": "ebe4e6fbd3e2504bbe5fac6963c23ab7bdcb665f",
+    "r48TerminalState": "A3_R4_DEV_TRAIN_A4_HANDOFF_BLOCKED_AWAIT_OWNER_RUBRIC_CLARIFICATION",
+    "r48StoppedCorrectlyBecauseRubricSemanticsWereAbsent": true,
+    "r49SuppliedAndFrozeThem": true,
+    "r48RecordEdited": false
+  },
+  "r47Reproduction": {
+    "r47Terminal": "0d80c7347a8a3a8e75244d1d52c3dbc284dad98e",
+    "censusPath": "docs/evaluation/PHASE_2B_2D_A3_R47_R4_GLOBAL_DEV_TRAIN_REPLAY_CENSUS_V1.json",
+    "censusSha256": "4d3c3e21164da4d9741fb310d68a0a6eb42229bcfec47549c3edf3024e5bdf6a",
+    "censusBytes": 10984,
+    "freshlyReproducedInOneProcess": true,
+    "comparedTopLevelFieldCount": 24,
+    "differingSemanticPathCount": 0,
+    "excludedFields": ["implementationCommit"],
+    "r47CodeModified": false,
+    "sampleObjectsConstructedFromCensus": false
+  },
+  "selection": {
+    "devTrainOrganisations": 20,
+    "documents": 611,
+    "setPExactCaps": 20,
+    "setPBlockedCaps": 0,
+    "setRExactCaps": 20,
+    "setRBlockedCaps": 0,
+    "r4UnresolvedDocuments": 0,
+    "a2StatusesMatched": 20,
+    "a2StatusMismatches": 0,
+    "setPSelected": 160,
+    "setRSelected": 80,
+    "selectedAuthority": "preparation.setP/setR.documentCap.documents of the genuine R47 sample batch",
+    "reRanked": false
+  },
+  "handoff": {
+    "unionItems": 222,
+    "overlapItems": 18,
+    "setPOnlyItems": 142,
+    "setROnlyItems": 62,
+    "unionPlusOverlapEqualsSelected": true,
+    "uniqueGoldIds": 222,
+    "goldIdCollisions": 0,
+    "goldIdPrimitive": "deriveGoldId(echeRowKey, responseSha256), unchanged",
+    "goldIdOrganisationInput": "current Governance V5 READY occupant source.echeRowKey",
+    "goldIdDocumentInput": "canonical A3 document.documentSha256 (exact fetch-response SHA-256)",
+    "goldIdDoesNotMeanGoldYet": true,
+    "multiSourceSelectedUnionItems": 2,
+    "sourcePresentations": 224,
+    "allSourcePresentationsRetained": true,
+    "pageRepresentativeInvented": false,
+    "mainTextEqualityJustified": true,
+    "mainTextReprovedAgainstReplayTextCapability": 222,
+    "reviewPackageRecords": 222,
+    "responseTemplateRecords": 222,
+    "htmlPacketWritten": false
+  },
+  "artifacts": {
+    "internalIndex": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_A4_HANDOFF_INDEX_V1.json",
+      "reviewerVisible": false
+    },
+    "reviewPackage": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_PACKAGE_V1.jsonl",
+      "schema": "PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_PACKAGE_V1",
+      "reviewerVisible": true
+    },
+    "responseTemplate": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_RESPONSE_TEMPLATE_V1.jsonl",
+      "schema": "PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_RESPONSE_TEMPLATE_V1",
+      "humanResponseValuesNull": true
+    },
+    "order": "goldId ASC",
+    "writtenAtomically": true
+  },
+  "packageHash": {
+    "name": "R50_PRE_LABEL_REVIEW_PACKAGE_HASH",
+    "algorithm": "sha256OfCanonical: SHA-256 (hex) of canonicalStringify(input)",
+    "canonicalInputContract": "{ packageSchema, rubricVersion, rubricSha256, recordCount, records } with records the ordered (goldId ASC) blinded review records exactly as written, one per package line",
+    "value": "9664388949f5d8686fe32af2fb4fb8f933787faf6daf11349d5b8a402db4066e",
+    "recordCount": 222,
+    "isA5SplitContentHash": false,
+    "isGoldManifestHash": false,
+    "isCorpusFreezeHash": false,
+    "immutableForA4": true
+  },
+  "blinding": {
+    "setPOrSetRMembershipVisible": false,
+    "scoresSignalsOrRanksVisible": false,
+    "modelOutputVisible": false,
+    "generationReserveOrA2Visible": false,
+    "identityKeysVisible": false,
+    "structuredKeysInspected": true,
+    "pageTextCensored": false
+  },
+  "access": {
+    "role": "nwf_readonly",
+    "database": "nwf_pe",
+    "r47ReproductionLayers": [
+      {
+        "layer": "R20",
+        "poolConnections": 1,
+        "snapshotTransactions": 1,
+        "sqlStatements": 33,
+        "evidenceLoads": 5
+      },
+      {
+        "layer": "R26",
+        "poolConnections": 1,
+        "snapshotTransactions": 1,
+        "sqlStatements": 9,
+        "evidenceLoads": 1
+      },
+      {
+        "layer": "R33",
+        "poolConnections": 1,
+        "snapshotTransactions": 1,
+        "sqlStatements": 45,
+        "evidenceLoads": 7
+      },
+      {
+        "layer": "R39",
+        "poolConnections": 1,
+        "snapshotTransactions": 1,
+        "sqlStatements": 45,
+        "evidenceLoads": 7
+      }
+    ],
+    "r39LandedObservation": {
+      "poolConnections": 1,
+      "snapshotTransactions": 1,
+      "sqlStatements": 45,
+      "evidenceLoads": 7
+    },
+    "totalCombinedSqlCountClaimed": false,
+    "poolsOpenAfterReproduction": 0,
+    "sqlStatementsAfterLastPoolClosed": 0,
+    "newSqlLayer": false,
+    "writes": 0,
+    "networkRequests": 0,
+    "providerCalls": 0,
+    "devConfirmReads": 0,
+    "finalHoldoutReads": 0,
+    "sealedRootReads": 0,
+    "historicalLabelsOrGoldRead": false
+  },
+  "labelBoundary": {
+    "labelsCreated": 0,
+    "goldRecordsCreated": 0,
+    "modelLabels": 0,
+    "adjudications": 0,
+    "humanLabellingExecuted": false,
+    "humanLabellingAuthorised": false,
+    "a4HandoffPrepared": true,
+    "a5Started": false,
+    "devConfirmOpened": false,
+    "finalHoldoutOpened": false,
+    "devTrainRealisedSetREnrichment": "NOT_YET_MEASURABLE_PRE_LABEL"
+  },
+  "identityDisclosure": {
+    "goldIds": false,
+    "echeRowKeys": false,
+    "organisationIds": false,
+    "selectionIndices": false,
+    "documentDigests": false,
+    "pageEvidenceIds": false,
+    "urlsOrHosts": false,
+    "titlesOrHeadings": false,
+    "text": false,
+    "sampleMembership": false,
+    "perOrganisationCounts": false,
+    "scoresOrRanks": false,
+    "candidateData": false
+  },
+  "terminalState": "A3_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISED_AWAIT_OWNER_HUMAN_LABELLING_AUTHORISATION",
+  "nextOwnerQuestion": "The exact R4 DEV_TRAIN SET_P∪SET_R review population is now materialised, hash-bound and blinded against the frozen Methodology V2 human rubric, with a blank single-review response template and zero labels. Do you authorise A4 DEV_TRAIN HUMAN SINGLE REVIEW against exactly this package and rubric, with no model assistance and with DEV_CONFIRM and FINAL_HOLDOUT remaining sealed?"
+}

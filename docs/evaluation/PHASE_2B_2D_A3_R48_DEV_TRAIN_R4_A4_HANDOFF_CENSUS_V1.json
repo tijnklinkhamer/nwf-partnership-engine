@@ -1,0 +1,220 @@
+{
+  "record": "PHASE_2B_2D_A3_R48_DEV_TRAIN_R4_A4_HANDOFF_CENSUS_V1",
+  "recordKind": "PUBLIC_AGGREGATE_ONLY_DEV_TRAIN_R4_A4_HANDOFF_CENSUS",
+  "task": "A3_R48_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISATION_V1",
+  "consumedOwnerMarker": "AUTHORISE_A3_R48_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISATION_V1",
+  "split": "DEV_TRAIN",
+  "r47Terminal": "0d80c7347a8a3a8e75244d1d52c3dbc284dad98e",
+  "r47ScopePinCommit": "3914b0a16d9aba8a4a957517318ee7a28a8fd0cb",
+  "thisFileAuthorises": [],
+  "r47Binding": {
+    "censusPath": "docs/evaluation/PHASE_2B_2D_A3_R47_R4_GLOBAL_DEV_TRAIN_REPLAY_CENSUS_V1.json",
+    "censusSha256": "4d3c3e21164da4d9741fb310d68a0a6eb42229bcfec47549c3edf3024e5bdf6a",
+    "censusBytes": 10984,
+    "recordKind": "PUBLIC_AGGREGATE_ONLY_R4_GLOBAL_DEV_TRAIN_REPLAY_CENSUS",
+    "terminalState": "A3_R4_GLOBAL_DEV_TRAIN_REPLAY_COMPLETE_SHORT_TEXT_FREEZE_BLOCKER_CLASS_CLEARED_AWAIT_OWNER_NEXT_PHASE_DECISION",
+    "documents": 611,
+    "setPDocumentsAcrossExactCaps": 160,
+    "setRDocumentsAcrossExactCaps": 80,
+    "setPExactCaps": 20,
+    "setPBlockedCaps": 0,
+    "setRExactCaps": 20,
+    "setRBlockedCaps": 0,
+    "unresolvedDocuments": 0,
+    "a2StatusesMatched": 20,
+    "a2StatusMismatches": 0,
+    "devConfirmOpened": false,
+    "finalHoldoutOpened": false,
+    "a4Started": false,
+    "a5Started": false,
+    "r47Edited": false
+  },
+  "corpusPlanBinding": {
+    "planPath": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+    "planSha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+    "planBytes": 45200,
+    "approvalPath": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+    "approvalSha256RecomputedLocally": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+    "approvalBytes": 10949,
+    "approvalDecision": "APPROVE_PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1",
+    "approvalBindsPlanSha256": true,
+    "stageSequence": ["A3", "A4", "A5"],
+    "a4Name": "HUMAN_LABELLING",
+    "a4Input": "sealed items + rubric",
+    "devTrainDualReviewRequired": false,
+    "devTrainLabelledFirstSingleReviewer": true,
+    "planAltered": false
+  },
+  "rubricCompletenessAudit": {
+    "requiredHumanFields": ["verdict", "unit_type", "hard_negative"],
+    "requiredHumanFieldsSource": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json sectionI_goldAndReviewContract.whatRequiresHumanConfirmation and the approved plan's labellingWorkflow.whatRequiresHumanConfirmation",
+    "approvedArtifactsSearched": [
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+        "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+        "role": "frozen Methodology V2 (R3) bytes",
+        "rubricMentions": 3,
+        "rubricArtifactBoundByPathOrHash": false
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+        "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+        "role": "Methodology V2 owner freeze approval",
+        "rubricMentions": 0,
+        "rubricArtifactBoundByPathOrHash": false
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_PROPOSAL_V1.json",
+        "sha256": "5ebcc562e72f509e2b664f3ae800dc2043142d5d4a6ec1ec4d2958b8abab1d20",
+        "role": "approved Methodology V2 R4 amendment bytes",
+        "rubricMentions": 0,
+        "rubricArtifactBoundByPathOrHash": false
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+        "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+        "role": "approved Corpus Acquisition Plan V1 bytes",
+        "rubricMentions": 1,
+        "rubricArtifactBoundByPathOrHash": false
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+        "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+        "role": "Corpus Acquisition Plan V1 owner approval",
+        "rubricMentions": 0,
+        "rubricArtifactBoundByPathOrHash": false
+      }
+    ],
+    "contextArtifactsInspectedButNotBoundForHumanGold": [
+      {
+        "path": "src/orgunits/classify/evaluation/goldSchema.ts",
+        "sha256": "a3f307a8a24704a30d0c30add1d837082e4dae582fec229f96746c8a792b2c25",
+        "whyNotAuthority": "a historical 2D1 label SHAPE, not a rubric; the approved plan cites it only for echeRowKey/organisationId provenance, never as human-gold semantics"
+      },
+      {
+        "path": "src/orgunits/classify/outputSchema.ts",
+        "sha256": "16073e2bbd605f6e88e4352e3f7195225e6ec42df21e7cc474dafe72ea9a36fe",
+        "whyNotAuthority": "the classifier OUTPUT contract; it enumerates value sets but defines no class, and no approved Methodology V2 or plan byte binds it for human gold"
+      },
+      {
+        "path": "src/orgunits/classify/prompt.ts",
+        "sha256": "748a389393d84a72d2026430bcb33e82adf4ca5978d5ddfee5ebccd724cc42c0",
+        "whyNotAuthority": "evolving classifier prompt; no approved Methodology V2 or plan byte binds it for human gold, so its taxonomy prose is precedent only"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_GOLD_CORPUS_PROTOCOL.md",
+        "sha256": "b3d1faba6cafc84c4a6339d537ff2bfa6fa36b83d37a4a66a3b0296c0b1c447e",
+        "whyNotAuthority": "superseded historical protocol; its only frozen rubric (section 5) covers the three relevance axes, which are not Methodology V2 human fields, and it defines no hard_negative criterion"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md",
+        "sha256": "7f88990fc3e670b709c1e42a26a5f5af72995257973300c518be4a73ae049484",
+        "whyNotAuthority": "historical acceptance protocol; reuses the relevance-axis rubric only and defines no hard_negative criterion"
+      }
+    ],
+    "repositoryArtifactsNamedRubric": 0,
+    "fields": [
+      {
+        "field": "verdict",
+        "valueSetFrozen": true,
+        "valueSet": ["UNIT_PAGE", "NOT_A_UNIT", "NEEDS_REVIEW"],
+        "operationalRuleFrozen": "PARTIAL",
+        "frozenOperationalFragment": "R3 sectionI.noFabrication: an item whose correct label cannot be determined from its own captured evidence is labelled NEEDS_REVIEW or excluded with its reason recorded",
+        "missing": "no approved, path- or hash-bound definition of what makes a captured page a UNIT_PAGE rather than NOT_A_UNIT (the unit-versus-degree-programme boundary R3 itself names as the reason human labels are needed)",
+        "status": "VALUE_SET_FROZEN_OPERATIONAL_DEFINITION_NOT_BOUND"
+      },
+      {
+        "field": "unit_type",
+        "valueSetFrozen": "NOT_BY_METHODOLOGY_BYTES",
+        "valueSetObservedInContextOnly": [
+          "INTERNATIONAL_MOBILITY_OFFICE",
+          "LANGUAGE_CENTRE",
+          "LANGUAGE_DEPARTMENT",
+          "OTHER_UNIT"
+        ],
+        "operationalRuleFrozen": false,
+        "missing": "no approved artifact binds the unit_type value set for human gold, and no approved artifact defines any class",
+        "status": "VALUE_SET_AND_DEFINITIONS_NOT_BOUND"
+      },
+      {
+        "field": "hard_negative",
+        "valueSetFrozen": true,
+        "valueSet": [true, false],
+        "operationalRuleFrozen": false,
+        "onlyFrozenOrObservedConstraints": [
+          "R3 uses the gold hard_negative flag as the G5 denominator and requires at least 155 gold hard negatives in SET_P per gated split",
+          "historical goldSchema.ts (context only): hard_negative requires verdict NOT_A_UNIT, and its doc comment defines the flag as membership of the hard-negative rejection denominator"
+        ],
+        "whyThoseDoNotSuffice": "the G5 definition is CIRCULAR - an item is a hard negative because it is in the hard-negative denominator, and it is in that denominator because it is a hard negative - so neither says which NOT_A_UNIT pages a human must flag. The 69 / 29 / 21 historical counts were 2D1 proposal labels (2026-08 audit judgements and editorial, model-drafted proposals) with no approved hard_negative definition behind them, and inferring a definition from them is forbidden",
+        "missing": "the operational criterion that distinguishes a HARD negative from an ordinary NOT_A_UNIT page",
+        "status": "UNDEFINED"
+      }
+    ],
+    "rubricCompletenessPassed": false,
+    "blockingField": "hard_negative",
+    "additionallyUnboundFields": ["verdict", "unit_type"],
+    "whyProceedingWouldInventGoldSemantics": "R3 sectionI and the plan require reviewers to label 'from the frozen rubric', but no approved byte identifies that rubric. A package bound to a rubric R48 wrote itself, or to the evolving classifier prompt, would make R48 the author of gold semantics; a hard_negative criterion written now would directly set the G5 denominator and the 155-item SET_P minimum.",
+    "definitionImprovised": false,
+    "historicalLabelsUsedToInferDefinition": false,
+    "modelOutputUsedToInferDefinition": false
+  },
+  "materialisation": {
+    "stoppedAtStep": "RUBRIC_COMPLETENESS_GATE_BEFORE_R47_REPRODUCTION",
+    "r47AuthorityReproduced": false,
+    "r47ReproductionAttempted": false,
+    "setPCapsCollected": false,
+    "setRCapsCollected": false,
+    "unionItemCount": "NOT_MATERIALISED_BLOCKED_AT_RUBRIC_GATE",
+    "overlapItemCount": "NOT_MATERIALISED_BLOCKED_AT_RUBRIC_GATE",
+    "goldIdsDerived": 0,
+    "goldIdCollisions": 0,
+    "multiSourceExactDocumentItems": "NOT_MATERIALISED_BLOCKED_AT_RUBRIC_GATE",
+    "internalHandoffIndexWritten": false,
+    "reviewPackageRecords": 0,
+    "blankResponseTemplateRecords": 0,
+    "htmlPacketWritten": false,
+    "reviewPackageHash": null,
+    "pageEvidenceRepresentativeInvented": false,
+    "reviewToolingNamespaceCreated": false
+  },
+  "access": {
+    "databaseConnections": 0,
+    "sqlStatements": 0,
+    "writes": 0,
+    "networkRequests": 0,
+    "providerCalls": 0,
+    "devConfirmReads": 0,
+    "finalHoldoutReads": 0,
+    "sealedRootReads": 0,
+    "labelsRead": 0,
+    "historicalGoldReadForLabelling": 0
+  },
+  "labelBoundary": {
+    "labelsCreated": 0,
+    "goldCreated": 0,
+    "modelLabels": 0,
+    "adjudications": 0,
+    "humanLabellingExecuted": false,
+    "a4HandoffPrepared": false,
+    "a4LabellingAuthorised": false,
+    "a5Started": false,
+    "devConfirmOpened": false,
+    "finalHoldoutOpened": false,
+    "devTrainRealisedSetREnrichment": "NOT_YET_MEASURABLE_PRE_LABEL"
+  },
+  "identityDisclosure": {
+    "goldIds": false,
+    "documentDigests": false,
+    "echeRowKeys": false,
+    "organisationIds": false,
+    "urlsOrHosts": false,
+    "titlesOrHeadings": false,
+    "text": false,
+    "pageEvidenceIds": false,
+    "sampleMembership": false,
+    "scoresOrRanks": false,
+    "perOrganisationCounts": false
+  },
+  "terminalState": "A3_R4_DEV_TRAIN_A4_HANDOFF_BLOCKED_AWAIT_OWNER_RUBRIC_CLARIFICATION",
+  "nextOwnerQuestion": "No approved artifact identifies the 'frozen rubric' that Methodology V2 R3 section I and Corpus Acquisition Plan V1 require DEV_TRAIN reviewers to label from, and no approved artifact defines when a NOT_A_UNIT page is a hard_negative. Will you supply, as a separately approved and hash-bound human rubric, the operational definitions of the page-level verdict (UNIT_PAGE / NOT_A_UNIT / NEEDS_REVIEW), the unit_type value set and its classes, and the hard_negative flag, so R48 can resume from the R47 scope pin and materialise the blinded DEV_TRAIN package against it?"
+}

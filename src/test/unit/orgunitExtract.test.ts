@@ -4,9 +4,9 @@
  * PRIMITIVE kept separate from the single-page path it does not run on.
  */
 import { describe, expect, it } from 'vitest';
+import { decodeHtml4EntitiesOnce } from '../../orgunits/web/evidenceCanonical.js';
 import {
   computeChromeLines,
-  decodeEntities,
   extractPage,
   htmlFragmentToText,
   removeChromeLines,
@@ -141,20 +141,20 @@ describe('extractPage: non-content removal', () => {
   });
 });
 
-describe('decodeEntities', () => {
+describe('decodeHtml4EntitiesOnce, as extraction uses it', () => {
   it('decodes named entities', () => {
-    expect(decodeEntities('Tom &amp; Jerry')).toBe('Tom & Jerry');
-    expect(decodeEntities('&lt;tag&gt;')).toBe('<tag>');
-    expect(decodeEntities('caf&eacute;'.replace('&eacute;', '&#233;'))).toBe('café');
+    expect(decodeHtml4EntitiesOnce('Tom &amp; Jerry')).toBe('Tom & Jerry');
+    expect(decodeHtml4EntitiesOnce('&lt;tag&gt;')).toBe('<tag>');
+    expect(decodeHtml4EntitiesOnce('caf&eacute;')).toBe('café');
   });
 
   it('decodes decimal and hexadecimal numeric entities', () => {
-    expect(decodeEntities('&#233;cole')).toBe('école');
-    expect(decodeEntities('&#xE9;cole')).toBe('école');
+    expect(decodeHtml4EntitiesOnce('&#233;cole')).toBe('école');
+    expect(decodeHtml4EntitiesOnce('&#xE9;cole')).toBe('école');
   });
 
   it('leaves an unrecognised entity-shaped string untouched', () => {
-    expect(decodeEntities('&notarealentity;')).toBe('&notarealentity;');
+    expect(decodeHtml4EntitiesOnce('&notarealentity;')).toBe('&notarealentity;');
   });
 });
 
@@ -385,5 +385,58 @@ describe('truncateToCodePointLimit: caps in CODE POINTS and never splits a surro
     expect(result.text).toBe('x'.repeat(CAP));
     expect(unicodeCodePointLength(result.text)).toBe(CAP);
     expect(result.text.length).toBe(CAP); // no dangling surrogate carried over
+  });
+});
+
+describe('extractPage: extraction v2 returns CANONICAL evidence text', () => {
+  it('canonicalises the title', () => {
+    const html = page('<title>Coop&eacute;ration r&eacute;gionale</title>', '<p>x</p>');
+    expect(extractPage(html).title).toBe('Coopération régionale');
+  });
+
+  it('canonicalises every heading', () => {
+    const html = page('', '<h1>Relations Internationales &agrave; l&rsquo;universit&eacute;</h1>');
+    expect(extractPage(html).headings).toEqual([
+      { level: 1, text: 'Relations Internationales à l’université' },
+    ]);
+  });
+
+  it('canonicalises the main text, including names outside the old 13-entity map', () => {
+    const html = page(
+      '',
+      '<p>&Eacute;cole sup&eacute;rieure, &laquo; Erasmus &raquo; &mdash; 20&deg;</p>',
+    );
+    expect(extractPage(html).mainText).toBe('École supérieure, « Erasmus » — 20°');
+  });
+
+  it('applies NFC, so a decomposed accent is composed exactly once', () => {
+    const html = page('<title>e&#769;cole</title>', '<p>e&#769;cole</p>');
+    const result = extractPage(html);
+    expect(result.title).toBe('école');
+    expect(result.mainText).toBe('école');
+    expect(result.mainText.normalize('NFC')).toBe(result.mainText);
+  });
+
+  it('decodes each reference ONCE: an escaped entity stays literal text', () => {
+    const html = page('<title>&amp;eacute;</title>', '<p>&amp;eacute;</p>');
+    const result = extractPage(html);
+    expect(result.title).toBe('&eacute;');
+    expect(result.mainText).toBe('&eacute;');
+  });
+
+  it('leaves &apos; and unknown names literal in extracted text', () => {
+    const html = page('', '<p>l&apos;universit&eacute; &nope;</p>');
+    expect(extractPage(html).mainText).toBe('l&apos;université &nope;');
+  });
+
+  it('still collapses decoded space entities rather than stranding U+00A0', () => {
+    // Decoding must stay BEFORE whitespace collapsing, or these become
+    // literal exotic spaces inside otherwise-normalised text.
+    expect(extractPage(page('', '<p>a&nbsp;b&ensp;c&thinsp;d</p>')).mainText).toBe('a b c d');
+  });
+
+  it('redacts AFTER canonicalising, so an entity-encoded address is still redacted', () => {
+    const html = page('', '<p>Contact&#58; bureau&#64;exemple-univ.fr</p>');
+    expect(extractPage(html).mainText).toBe('Contact: [EMAIL]');
   });
 });

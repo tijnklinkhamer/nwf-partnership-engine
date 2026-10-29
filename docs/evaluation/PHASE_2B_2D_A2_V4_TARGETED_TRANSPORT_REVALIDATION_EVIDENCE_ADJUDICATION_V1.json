@@ -1,0 +1,712 @@
+{
+  "recordId": "phase2b-2d-a2-v4-targeted-transport-revalidation-evidence-adjudication-v1",
+  "recordKind": "REVALIDATION_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-21T12:02:49Z",
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_EVIDENCE_ADJUDICATION_V1",
+  "startingHead": "18105a561800b3902d75e2caa981f5259ec5f541",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+
+  "authoritativeStartVerification": {
+    "branchAsExpected": true,
+    "headAsExpected": true,
+    "worktreeClean": true,
+    "localEqualsOrigin": true,
+    "localAndOriginBothAt": "18105a561800b3902d75e2caa981f5259ec5f541",
+    "shaRecomputedFromCommittedBytes": true,
+    "shaRecomputationMethod": "git cat-file -p HEAD:<path> | shasum -a 256, cross-checked against the working-tree file"
+  },
+
+  "boundRevalidationResult": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_RESULT_V1.json",
+    "sha256": "2ee08e19c6968710b0a3b52df4f9c4e7ef5ae553a88adba9e342d7b4e1378dc1",
+    "bytes": 14220,
+    "commit": "18105a561800b3902d75e2caa981f5259ec5f541",
+    "expectedPrefixMatched": "2ee08e19...78dc1",
+    "byteIdentical": true,
+    "editedByThisAdjudication": false
+  },
+  "boundRevalidationAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORITY_V1.json",
+    "sha256": "1b568b56c7a99ca653fe488faf9be5f80b763728514dbc100773b87f96890c98",
+    "bytes": 8791,
+    "commit": "0fc581565bbdcc8b49620fa3cac8a332e179c874",
+    "byteIdentical": true,
+    "editedByThisAdjudication": false,
+    "committedBeforeAnyInstitutionNetworkActivity": true
+  },
+  "boundImplementationRecord": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_V1.json",
+    "sha256": "6d846f4c8a5c5367629e492cd0913b7c3f5e36556c89e65360d4d477d015031f",
+    "bytes": 9920,
+    "semanticImplementationCommit": "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+    "closureCommit": "e5642595da1ac68e3d17c59d5a3348a3557f0e9c",
+    "provenanceIntact": true
+  },
+  "boundPlanAmendment": {
+    "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_BOUNDED_TRANSPORT_RETRY_AMENDMENT_V3.json",
+    "sha256": "30323723d481e1298bc83b5fab10148486db4c3b0132db2cd16113ae8376b30e",
+    "bytes": 7172,
+    "commit": "f9e988ab3c1183757b4a95c68865bebf59087260"
+  },
+  "boundTransitionCensus": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TRANSPORT_RETRY_TRANSITION_CENSUS_V1.json",
+    "sha256": "17263c39fd457f906e8bf5bd3d0cba7de04b2f7af0f5d3d70579f3c97f32f669",
+    "bytes": 11663
+  },
+  "boundPrecedent": {
+    "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+    "sha256": "3fcafa8ae20beb481e0b4446cc8b9681caad56915e231b71bb98567304cf96c0",
+    "bytes": 12865,
+    "why": "Option B established the shape and Option C-lite refined it: accept live evidence on integrity, move the acquisition of record, retain the historical run, consume no reserve. This adjudication follows that shape for three runs that FAILED, which is the one thing neither precedent had to decide."
+  },
+  "transitionLedgerCreatedByThisAdjudication": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V4_GEN1.json",
+    "boundByPathOnlyHere": true,
+    "why": "The ledger binds THIS record by SHA-256, following the V3 ledger's own precedent of binding its adjudications. Binding it back by SHA here would be circular, so the ledger is named by path only and its own hash is reported in the execution report."
+  },
+
+  "adjudication": {
+    "verdict": "V4_TARGETED_TRANSPORT_REVALIDATION_EVIDENCE_ACCEPTED",
+    "appliesToSelectionIndices": [4, 6, 8],
+    "allThreeAccepted": true,
+    "evidenceIntegrityDefectFound": false,
+    "acceptanceStandardApplied": "EVIDENCE_INTEGRITY_NOT_YIELD",
+    "reason": [
+      "each run was covered by the exact frozen per-index authority, committed and pushed before any institution network activity",
+      "every new run and every new observation is stamped orgunit-fetch-policy-v4; no new v1, v2 or v3 row exists",
+      "the approved retry policy executed exactly as specified: 0 retries on the non-retryable class, exactly 1 retry on each of the two retry-eligible classes, at the SAME URL, with attempt_no incremented",
+      "every frozen ceiling was respected: at most 1 transport retry and at most 3 requests per logical policy resolution, no redirect continuation consumed, no HTTP response retried, no alternate URL/host/protocol, TLS verification never weakened",
+      "observations are durable and internally consistent: 3 runs, 3 completions, 5 new fetch observations, terminal state COMPLETED on all three",
+      "SD7/SD9 produced a determinate result on all three under the landed zero-page precedent",
+      "historical evidence was preserved unchanged: 12 historical runs and 204 historical observations intact, historical error_subtype still NULL everywhere",
+      "repository validation is green"
+    ],
+    "aValidRevalidationMayEndUnsuccessful": true,
+    "yieldWasNotRequiredForAcceptance": "Not one of the three recovered a readable site-policy document. Under the acceptance standard that is irrelevant to validity: the questions were authorisation, policy execution, provenance, durability, ceilings, determinacy, validation and preservation, and all eight are answered yes."
+  },
+
+  "independentReverification": {
+    "method": "read-only DATABASE_URL_READONLY query plus the committed result bytes; run identity hashed to SHA-256 BEFORE printing, never after",
+    "reDerivedNotCopied": true,
+    "everyClaimedFieldMatched": true,
+    "databaseEvidenceContradictedNothing": true,
+    "opaqueRefsReDerivedFromLiveRunUuids": "Every old and new run ref below was recomputed as SHA-256 of the run UUID read from the live database and matched the committed result byte for byte.",
+    "perIndex": [
+      {
+        "selectionIndex": 4,
+        "historical": {
+          "policy": "orgunit-fetch-policy-v1",
+          "errorKind": "DNS_FAILURE",
+          "errorSubtype": null,
+          "observations": 1,
+          "rawPages": 0
+        },
+        "v4": {
+          "policy": "orgunit-fetch-policy-v4",
+          "errorKind": "DNS_FAILURE",
+          "errorSubtype": "DNS_NAME_NOT_FOUND",
+          "policyResolutionRequests": 1,
+          "transportRetries": 0,
+          "redirectContinuations": 0,
+          "rawPages": 0,
+          "formalPostSd7": 0,
+          "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+          "terminalState": "COMPLETED",
+          "allFieldsMatchedTheCommittedResult": true
+        }
+      },
+      {
+        "selectionIndex": 6,
+        "historical": {
+          "policy": "orgunit-fetch-policy-v1",
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": null,
+          "observations": 1,
+          "rawPages": 0
+        },
+        "v4": {
+          "policy": "orgunit-fetch-policy-v4",
+          "attempt1ErrorKind": "CONNECTION_RESET",
+          "attempt1ErrorSubtype": null,
+          "retryDisposition": "RETRY_ELIGIBLE",
+          "retryIssued": true,
+          "retryCount": 1,
+          "retrySameUrl": true,
+          "retryAttemptNoIncremented": true,
+          "attempt2ErrorKind": "CONNECTION_RESET",
+          "policyResolutionRequests": 2,
+          "redirectContinuations": 0,
+          "rawPages": 0,
+          "formalPostSd7": 0,
+          "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+          "terminalState": "COMPLETED",
+          "allFieldsMatchedTheCommittedResult": true
+        }
+      },
+      {
+        "selectionIndex": 8,
+        "historical": {
+          "policy": "orgunit-fetch-policy-v3",
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": null,
+          "observations": 1,
+          "rawPages": 0
+        },
+        "v4": {
+          "policy": "orgunit-fetch-policy-v4",
+          "attempt1ErrorKind": "CONNECTION_RESET",
+          "attempt1ErrorSubtype": null,
+          "retryDisposition": "RETRY_ELIGIBLE",
+          "retryIssued": true,
+          "retryCount": 1,
+          "retrySameUrl": true,
+          "retryAttemptNoIncremented": true,
+          "attempt2ErrorKind": "CONNECTION_RESET",
+          "policyResolutionRequests": 2,
+          "redirectContinuations": 0,
+          "rawPages": 0,
+          "formalPostSd7": 0,
+          "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+          "terminalState": "COMPLETED",
+          "allFieldsMatchedTheCommittedResult": true
+        }
+      }
+    ],
+    "databaseTotalsObservedNow": {
+      "orgunit_research_runs": 15,
+      "orgunit_research_run_completions": 15,
+      "orgunit_fetch_observations": 209,
+      "orgunit_redirect_observations": 11,
+      "orgunit_page_evidence": 160,
+      "orgunit_page_candidates": 320,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "observationsWithNonNullErrorSubtype": 1,
+      "nonV4ObservationsWithNonNullErrorSubtype": 0,
+      "classifierTablesAllZero": true
+    },
+    "runsByPolicyVersion": {
+      "orgunit-fetch-policy-v1": 7,
+      "orgunit-fetch-policy-v2": 2,
+      "orgunit-fetch-policy-v3": 3,
+      "orgunit-fetch-policy-v4": 3
+    }
+  },
+
+  "perIndex": [
+    {
+      "selectionIndex": 4,
+      "split": "FINAL_HOLDOUT",
+      "accepted": true,
+      "oldAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v1",
+        "runOpaqueRef": "210ec71c8b3907fc94024a772e046dfb31028d20f9597004af8b1a9d6a0cca53",
+        "documentedFailure": "ROBOTS_DNS_FAILURE",
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": null,
+        "rawPageEvidence": 0,
+        "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "disposition": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR",
+        "retained": true,
+        "deleted": false,
+        "markedErroneous": false,
+        "executionRecordEdited": false,
+        "originalPolicyVersionRetained": true,
+        "originalObservationsRetained": true,
+        "subtypeStillNull": true
+      },
+      "newAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v4",
+        "runOpaqueRef": "4e5afe119cc8e70de6abae0110e97fa2fd3ddba60a6285123f0c15472fd6b926",
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "currentDiagnosticCause": "DNS_NAME_NOT_FOUND",
+        "retryDisposition": "NOT_RETRY_ELIGIBLE",
+        "retryIssued": false,
+        "retryPathClassification": "V4_RETRY_NOT_AUTHORISED_NON_RETRYABLE_FAILURE",
+        "policyResolutionRequests": 1,
+        "rawPages": 0,
+        "formalPostSd7": 0,
+        "postSd7Method": "ZERO_PAGE_PRECEDENT",
+        "minPagesThreshold": 4,
+        "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      "interpretation": {
+        "whatV4Resolved": "The v4 observability improvement converted a coarse, unclassifiable DNS failure into prospectively sufficient evidence. DNS_NAME_NOT_FOUND is an authoritative negative answer, not a failure to obtain one.",
+        "nonRetryableUnderFrozenV4": true,
+        "whyNoRetryCouldHaveHelped": "DNS_NAME_NOT_FOUND is not in the six retryable classes, and no transport retry could change an authoritative negative answer within the frozen policy.",
+        "notProposed": [
+          "DNS retry",
+          "alternate DNS",
+          "alternate hostname",
+          "URL repair",
+          "reserve consumption in this task"
+        ]
+      }
+    },
+    {
+      "selectionIndex": 6,
+      "split": "DEV_CONFIRM",
+      "accepted": true,
+      "oldAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v1",
+        "runOpaqueRef": "a5550818fe15b4a058d5daddc55ce283834c7d619730e217919157f88e18046c",
+        "documentedFailure": "ROBOTS_TLS_FAILURE",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": null,
+        "rawPageEvidence": 0,
+        "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "disposition": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR",
+        "retained": true,
+        "deleted": false,
+        "markedErroneous": false,
+        "executionRecordEdited": false,
+        "originalPolicyVersionRetained": true,
+        "originalObservationsRetained": true,
+        "subtypeStillNull": true
+      },
+      "newAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v4",
+        "runOpaqueRef": "2410121f51c259a3b8fd939d5749bfcd4206aef8b0fc2a69e625278e84174534",
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "firstTransportResult": "CONNECTION_RESET",
+        "retryDisposition": "RETRY_ELIGIBLE",
+        "boundedRetryExercised": true,
+        "retryResult": "CONNECTION_RESET",
+        "retryPathClassification": "V4_RETRY_EXERCISED_BUT_POLICY_RESOLUTION_STILL_UNREADABLE",
+        "policyResolutionRequests": 2,
+        "rawPages": 0,
+        "formalPostSd7": 0,
+        "postSd7Method": "ZERO_PAGE_PRECEDENT",
+        "minPagesThreshold": 4,
+        "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      "diagnosticStatement": "RETRY_POLICY_EXECUTED_AS_DESIGNED_NO_ACQUISITION_RECOVERY",
+      "currentFailureDiffersFromHistorical": "historical TLS_FAILURE, current CONNECTION_RESET. The actual current outcome is recorded; no attempt was made to reproduce the historical failure, and no claim is made that the two are the same condition."
+    },
+    {
+      "selectionIndex": 8,
+      "split": "DEV_CONFIRM",
+      "accepted": true,
+      "oldAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v3",
+        "runOpaqueRef": "5145934ca138277794e2e426e07e24d34bcf90ad1ec126cf80d1da6c24d05ecc",
+        "documentedFailure": "ROBOTS_TLS_FAILURE",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": null,
+        "rawPageEvidence": 0,
+        "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "disposition": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR",
+        "retained": true,
+        "deleted": false,
+        "markedErroneous": false,
+        "executionRecordEdited": false,
+        "originalPolicyVersionRetained": true,
+        "originalObservationsRetained": true,
+        "subtypeStillNull": true
+      },
+      "newAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v4",
+        "runOpaqueRef": "e3eafdb743ea1df62927a98cd0c64dd53369b36fd5f051968d66cad45a595fd8",
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "firstTransportResult": "CONNECTION_RESET",
+        "retryDisposition": "RETRY_ELIGIBLE",
+        "boundedRetryExercised": true,
+        "retryResult": "CONNECTION_RESET",
+        "retryPathClassification": "V4_RETRY_EXERCISED_BUT_POLICY_RESOLUTION_STILL_UNREADABLE",
+        "policyResolutionRequests": 2,
+        "rawPages": 0,
+        "formalPostSd7": 0,
+        "postSd7Method": "ZERO_PAGE_PRECEDENT",
+        "minPagesThreshold": 4,
+        "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      "diagnosticStatement": "RETRY_POLICY_EXECUTED_AS_DESIGNED_NO_ACQUISITION_RECOVERY",
+      "currentFailureDiffersFromHistorical": "historical TLS_FAILURE, current CONNECTION_RESET. The actual current outcome is recorded."
+    }
+  ],
+
+  "whatSupersededMeans": {
+    "tokenUsed": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR",
+    "tokenIsTheEstablishedOne": true,
+    "tokenSource": "the Option-B and Option-C-lite transition precedent, verbatim",
+    "newSupersessionMeaningInvented": false,
+    "whyNotInvented": "The newer run also failed, but supersession describes WHICH RUN THE GENERATION READS, not whether the newer run succeeded. Minting a second token for a failed-to-failed transition would make the ledger's vocabulary encode an outcome it does not mean.",
+    "historicalEvidenceStaysImmutable": true,
+    "remainsValidEvidenceOfThePolicyThatGovernedIt": true,
+    "neverDeleted": true,
+    "neverMarkedErroneous": true,
+    "retainsOriginalPolicyVersion": true,
+    "retainsOriginalObservations": true,
+    "retainsNullSubtypeWhereHistoricallyCapturedThatWay": true,
+    "retainsOriginalExecutionRecord": true,
+    "whatChanges": "Generation-1 acquisition status for that SAME selected organisation now reads from the accepted v4 run.",
+    "thisIsNotReplacement": true,
+    "sameOrganisation": true,
+    "sameSelectionIndex": true,
+    "sameSplit": true,
+    "reserveConsumption": 0
+  },
+
+  "doNotOverfitV4Again": {
+    "question": "Does this three-target evidence create a technical basis for immediately widening v4?",
+    "answer": "NO",
+    "reasonsVerified": [
+      "index 4 is explicitly non-retryable: DNS_NAME_NOT_FOUND is not a retryable class and no additional request was or could be authorised",
+      "indices 6 and 8 each consumed the one semantically authorised retry; a second is not available under the frozen policy",
+      "both second attempts reproduced the same broad transport failure, CONNECTION_RESET",
+      "every request and security ceiling was respected; no ceiling was reached by accident and none was exceeded",
+      "no implementation defect was observed in the retry path, the pacing path or the persistence path",
+      "zero recovery among three targeted organisations is not by itself a reason to change a preregistered policy"
+    ],
+    "populationFailureRateInferredFromN3": false,
+    "whyNot": "Three targets were chosen precisely because they were the three unclassifiable cases, not because they were representative. Nothing about the other 107 never-started primary slots follows from them.",
+    "v5Designed": false,
+    "broaderRetriesDesigned": false,
+    "httpRetryDesigned": false
+  },
+
+  "transportObservabilityFinding": {
+    "prospectiveResultAccepted": true,
+    "firstProspectiveValidationOfMigration0012": true,
+    "newTlsOrDnsFailuresObserved": 1,
+    "newTlsOrDnsFailuresWithNonNullSubtype": 1,
+    "newTlsOrDnsFailuresWithNullSubtype": 0,
+    "observedSubtypes": ["DNS_NAME_NOT_FOUND"],
+    "transportObservabilityProvenanceFailure": false,
+    "indices6And8AreNotObservabilityFailures": true,
+    "whyNullSubtypeOnConnectionResetIsCorrect": "CONNECTION_RESET is already a specific error kind. Migration 0012 refines only the two coarse classes TLS_FAILURE and DNS_FAILURE, and its CHECK constraint admits a subtype ONLY beside those two - so beside CONNECTION_RESET, NULL is the only value the database will accept. This was verified against the landed constraint text, not assumed.",
+    "constraintVerified": "orgunit_fetch_observations_error_subtype_chk",
+    "historicalNullSubtypesUnchanged": true,
+    "historicalObservationsWithNonNullSubtype": 0
+  },
+
+  "hostSleepDeviationAdjudication": {
+    "classification": "ACCEPTED_INTER_TARGET_HOST_STATE_DEVIATION_NO_OBSERVED_EVIDENCE_IMPACT",
+    "factsVerifiedAgainstRepositoryEvidence": {
+      "index4FullyCompletedAndPersistedBeforeSleep": true,
+      "sleepOccurredBetweenTargets": true,
+      "noTargetActiveDuringSleep": true,
+      "operatorStoppedRatherThanSilentlyContinuing": true,
+      "ownerExplicitlyAuthorisedContinuation": true,
+      "indices6And8BeganOnlyAfterWakeAndPreflight": true,
+      "noSleepDuringEitherRun": true,
+      "noObservedEvidenceIntegrityImpact": true
+    },
+    "repositoryEvidenceContradictsNoFact": true,
+    "supportingEvidence": "The bound result's hostSafety block records the lid-close at approximately 48 seconds after index 4 completed and the wake before indices 6 and 8, with sleepDuringTarget false throughout; the database shows index 4's run and completion rows durably persisted and its single observation intact.",
+    "authorityWordingTension": {
+      "existed": true,
+      "sectionTenFocus": "a sleep DURING a target, which is the stop trigger that did not fire",
+      "sectionTwelveListing": "the authority's stopConditions.stopBeforeNextTargetOn lists 'a host sleep/wake event' more broadly, as an incident",
+      "verifiedInCommittedAuthorityBytes": true,
+      "escalatedToOwner": true,
+      "resolvedBeforeTheNextNetworkTarget": true,
+      "resolvedUnilaterally": false,
+      "ownerResolution": "CONTINUE_ON_BATTERY_HONESTLY_RECORDED",
+      "originalAuthorityRewritten": false
+    },
+    "isNotAGeneralPermissionForFutureInterTargetSleep": true,
+    "forwardRule": "A future acquisition authority should say explicitly, in ONE place, whether an inter-target host sleep stops the series. This adjudication resolves the instance, not the class."
+  },
+
+  "transcriptIdentityDisclosureAdjudication": {
+    "classification": "TRANSCRIPT_IDENTITY_DISCLOSURE_PROCESS_DEVIATION_NO_COMMITTED_ARTIFACT_CONTAMINATION",
+    "whatHappened": "During local inspection after index 4, institution-identifying information was printed into the private operator/session transcript despite the authority's safe-output rule.",
+    "identifiersRepeatedOrRetrievedHere": false,
+    "identifiersWrittenToGit": false,
+    "verification": {
+      "committedAuthorityContainsNoInstitutionIdentity": true,
+      "committedResultContainsNoInstitutionIdentity": true,
+      "scanMethod": "regex scan of both committed files for UUIDs, http(s) URLs, eche-row-key-shaped tokens and domain-shaped tokens",
+      "uuidsFound": 0,
+      "urlsFound": 0,
+      "echeRowKeyShapedTokensFound": 0,
+      "domainShapedTokensFound": 0,
+      "rawRunJsonRemainedOutsideGit": true,
+      "rawRunJsonVerification": "no run-shaped JSON is tracked by git outside docs/; the working tree is clean",
+      "pageContentExposed": false,
+      "semanticHoldoutMaterialExposed": false,
+      "databaseEvidenceAlteredBecauseOfTheDisclosure": false
+    },
+    "isAProcessDeviation": true,
+    "isNotByItselfAReasonToInvalidateTheNetworkResult": true,
+    "whyNot": "The disclosure happened in a private transcript AFTER index 4's evidence was already persisted. It changed no request, no row and no committed byte, so it bears on operator process, not on evidence validity.",
+    "transcriptDeletedOrScrubbed": "NOT_CLAIMED",
+    "whyNotClaimed": "This adjudication has no ability to verify what a private transcript now contains, and asserting a scrub it cannot prove would be worse than recording the deviation plainly.",
+    "forwardLookingOperatorRule": "Future public-safe inspection commands must hash or redact identity BEFORE printing, not after. A command that prints an identifier and is then summarised safely has already disclosed it.",
+    "ruleAppliedInThisTask": "Every database query run for this adjudication hashed run identity inside the query script before any output was produced; no institution name, hostname, URL, echeRowKey or organisation UUID was printed at any point.",
+    "codeChangeAuthorisedHere": false,
+    "codeChangeMade": false
+  },
+
+  "holdoutIntegrity": {
+    "index4Split": "FINAL_HOLDOUT",
+    "onlyAcquisitionLevelFactsUsed": true,
+    "factsUsed": [
+      "policy version",
+      "error category and subtype",
+      "request and retry count",
+      "raw page count",
+      "post-SD7 count",
+      "SD9 status",
+      "opaque SHA-256 run refs and artifact hashes"
+    ],
+    "notRead": [
+      "page content",
+      "page titles",
+      "semantic labels",
+      "classifier output",
+      "gold",
+      "semantic distribution"
+    ],
+    "rawPagesFromThisRun": 0,
+    "noPageLevelHoldoutCorpusDetailExistsFromThisRun": true,
+    "classifierInvoked": false,
+    "classifierTablesAllZero": true,
+    "holdoutSemanticAccessOccurred": false,
+    "transcriptSlipWasNotSemanticHoldoutAccess": "The disclosure concerned acquisition-level institution identity, not page content, labels or gold. It must not be escalated into a claim of semantic HOLDOUT access, because none occurred.",
+    "finding": "HOLDOUT_INTEGRITY_PRESERVED"
+  },
+
+  "generation1StateAfterThisAdjudication": {
+    "finalisedPrimarySlots": 9,
+    "success": 5,
+    "successIndices": [0, 1, 2, 5, 7],
+    "failure": 4,
+    "failureIndices": [3, 4, 6, 8],
+    "pending": 0,
+    "neverStartedPrimarySlots": 101,
+    "reserveConsumed": 0,
+    "countsMovedByThisAdjudication": false,
+    "whatDidChange": "ACQUISITION_OF_RECORD_PROVENANCE",
+    "acquisitionOfRecordPolicyLineage": {
+      "index4": "orgunit-fetch-policy-v4 failure (was orgunit-fetch-policy-v1)",
+      "index6": "orgunit-fetch-policy-v4 failure (was orgunit-fetch-policy-v1)",
+      "index8": "orgunit-fetch-policy-v4 failure (was orgunit-fetch-policy-v3)"
+    },
+    "doNotConfuse": "Unchanged SUCCESS/FAILURE counts are not unchanged acquisition-of-record provenance. The counts are identical; the provenance behind three of them is not.",
+    "doNotExtrapolate": "This success rate is over 9 finalised slots of 110 and must not be extrapolated to all 110 organisations."
+  },
+
+  "batch02CurrentAcquisitionOfRecordInputs": {
+    "startedPrimarySlots": [5, 6, 7, 8],
+    "rawPageEvidenceCounts": {
+      "index5": 33,
+      "index6": 0,
+      "index7": 34,
+      "index8": 0
+    },
+    "verifiedFromDurableEvidence": true,
+    "verificationMethod": "read-only count of orgunit_page_evidence joined to orgunit_fetch_observations per acquisition-of-record run",
+    "aorRunOpaqueRefs": {
+      "index5": "1caccd6c616c6ddaccc5ebc7a23f951b08e6819fc3bc6b6d8e91e14f965a71fe",
+      "index6": "2410121f51c259a3b8fd939d5749bfcd4206aef8b0fc2a69e625278e84174534",
+      "index7": "8d77c6a290bd6eb4833a926792ba5791cdc95a1a58080a748e4a2c7c1d5759f9",
+      "index8": "e3eafdb743ea1df62927a98cd0c64dd53369b36fd5f051968d66cad45a595fd8"
+    },
+    "index9Started": false
+  },
+
+  "p5Recomputation": {
+    "reimplemented": false,
+    "functionsUsed": [
+      "src/test/harness/phase2b2d/acquisitionGate/betweenRunGate.ts::evaluateBetweenRunGate",
+      "src/test/harness/phase2b2d/acquisitionGate/betweenRunGate.ts::evaluateP5OverRawCounts"
+    ],
+    "inputReflectsCurrentAcquisitionOfRecordState": true,
+    "inputRawCounts": [33, 0, 34, 0],
+    "inputSelectionIndices": [5, 6, 7, 8],
+    "frozenConstants": {
+      "MIN_RAW_PAGE_EVIDENCE_PER_ORGANISATION": 4,
+      "P5_LOW_RAW_YIELD_THRESHOLD": 2,
+      "BATCH_02_SELECTION_INDICES": [5, 6, 7, 8, 9]
+    },
+    "lowRawYieldSelectionIndices": [6, 8],
+    "lowRawYieldCount": 2,
+    "completedCount": 4,
+    "remainingSelectionIndices": [9],
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "mayStartNextOrganisation": false,
+    "bothLandedFunctionsAgree": true,
+    "fatalConditionsEvaluatedAndAbsent": {
+      "P0_inputOrRootMismatch": false,
+      "P3_executionFailure": false,
+      "P4_persistenceAnomaly": false,
+      "P7_hostStateAnomaly": false,
+      "whyP7IsFalseForTheseRuns": "P7 is a per-run condition. No sleep, wake or pacing discontinuity occurred DURING any of indices 5, 6, 7 or 8. The adjudicated host-state deviation happened between index 4 and index 6, and index 4 is not a Batch-02 slot."
+    },
+    "index9State": "NEVER_STARTED"
+  },
+
+  "p5HistoryVersusCurrentState": {
+    "historicalStopsWereCorrectAtTheirTimes": true,
+    "historicalStopsRewritten": false,
+    "priorExecutionRecordsRewritten": false,
+    "earlierStopsClaimedErroneous": false,
+    "currentStateStillSatisfiesP5": true,
+    "thisIsNotACaseWherePolicyRepairClearedTheYieldPause": true,
+    "contrastWithTheOptionCLitePrecedent": "After Option C-lite, accepted evidence moved index 7 from 0 raw pages to 34 and dropped the low-yield count from 2 to 1, which is what later permitted a continuation decision. Here the accepted evidence leaves both low-yield slots at 0, so the count stays at 2 and the pause stands."
+  },
+
+  "p5NotOverridden": {
+    "diagnosed": true,
+    "waived": false,
+    "stickyGateReset": false,
+    "index9Started": false,
+    "reserveConsumed": false,
+    "batch02Redefined": false,
+    "statement": "Transport debugging being exhausted is not permission to bypass a frozen pause condition. The pause is now better explained; it is not weaker."
+  },
+
+  "whatP5NowMeans": {
+    "assessmentIsOfflineAndFactual": true,
+    "systemicEngineDefect": "NOT_SUPPORTED_BY_CURRENT_EVIDENCE",
+    "validExternalAcquisitionFailures": "SUPPORTED_BY_CURRENT_EVIDENCE",
+    "basis": [
+      "index 4: the root hostname was not resolvable from this vantage at execution time; DNS returned an authoritative negative answer",
+      "indices 6 and 8: the remote end reset the connection on both bounded attempts, at the same URL, minutes apart",
+      "no v4 implementation defect was observed in any of the three runs",
+      "the retry mechanism worked as designed: it fired exactly where the policy says it should and nowhere else",
+      "within the frozen safe bounds, acquisition policy cannot make these site-policy documents readable"
+    ],
+    "carefulStatements": {
+      "remoteIntentClaimed": false,
+      "whyNot": "A connection reset is an observation about a TCP connection from one vantage at one moment. It says nothing about why the remote end behaved that way, and nothing about whether it was directed at this client.",
+      "permanenceClaimed": false,
+      "whyNot": "These are observations of the runs that were executed. A later run from a different vantage or at a different time could observe something else; nothing here establishes that these hosts are permanently unreachable.",
+      "vantageDependence": "Every fetch result is a function of the vantage as much as of the site.",
+      "populationInference": "None. Three targets selected for being unclassifiable say nothing about the 101 never-started primary slots."
+    },
+    "whatP5IsNowMeasuring": "P5 is measuring real external acquisition failure in this small started sample, not a defect in the acquisition engine. That distinction is the point of the gate: it pauses on yield regardless of cause, and the cause is what this adjudication establishes."
+  },
+
+  "furtherCapabilityRepairConclusion": {
+    "verdict": "CURRENT_EVIDENCE_DOES_NOT_SUPPORT_ANOTHER_ACQUISITION_CAPABILITY_REPAIR",
+    "option": "B",
+    "v5Designed": false,
+    "broaderRetriesDesigned": false,
+    "httpRetryDesigned": false,
+    "why": "Every failure class in front of us is either explicitly non-retryable or has already consumed its one authorised retry and reproduced the same result. There is no observed implementation defect to repair, and no measured mechanism a wider policy would exploit. Widening now would be fitting policy to three data points."
+  },
+
+  "reserveRule": {
+    "acknowledged": true,
+    "frozenPlanV1Rule": "Unsuccessful selected organisations are eventually replaced from the frozen reserve in rank order.",
+    "reserveTransitionAuthorisedHere": false,
+    "replacementLedgerEntriesCreated": 0,
+    "reserveConsumed": 0,
+    "reserveSlotChosen": "NONE",
+    "belongsTo": "the next acquisition-continuation strategy decision after P5",
+    "reserveReplacementLedgerExists": false
+  },
+
+  "databaseAndMutationRule": {
+    "principallyRepresentationalGovernance": true,
+    "historicalDbRowsUpdated": 0,
+    "dbWrites": 0,
+    "dbReads": "read-only, as DATABASE_URL_READONLY",
+    "acquisitionOfRecordRepresentedOnlyInImmutableEvaluationArtifactsAndTransitionLedgers": true,
+    "newMutableCurrentFlagIntroduced": false,
+    "migrationCreated": false,
+    "appendOnlyDbFactRequired": false,
+    "whyNotRequired": "The Option-B and Option-C-lite transitions were represented exactly this way - a ledger entry plus an adjudication record, with zero database writes. This transition needs nothing those did not, so no new database fact was invented and no STOP condition under section 24 was reached."
+  },
+
+  "scopeProofs": {
+    "institutionHttpRequests": 0,
+    "institutionDnsResolutions": 0,
+    "institutionTlsHandshakes": 0,
+    "executeInvocations": 0,
+    "liveRetries": 0,
+    "index9Touched": false,
+    "index9State": "NEVER_STARTED",
+    "indicesGreaterThanOrEqualTo10Touched": false,
+    "index3Revalidated": false,
+    "indices4Or6Or8Rerun": false,
+    "reserveConsumption": 0,
+    "replacementPerformed": false,
+    "httpServiceRetry": false,
+    "transportRetryWidened": false,
+    "fetchPolicyV5": false,
+    "productionCodeChanged": 0,
+    "migrationsChanged": 0,
+    "methodologyChanged": false,
+    "p5Weakened": false,
+    "labelsCreated": 0,
+    "providerInference": false,
+    "classifierExecutions": 0,
+    "holdoutSemanticClassifierAccess": false,
+    "setP": 0,
+    "setR": 0,
+    "phase2EEntered": false
+  },
+
+  "historicalRecordsLeftUnedited": [
+    "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORITY_V1.json",
+    "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_RESULT_V1.json",
+    "docs/evaluation/PHASE_2B_2D_A2_V4_TRANSPORT_RETRY_TRANSITION_CENSUS_V1.json",
+    "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_V1.json",
+    "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+    "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_EXECUTION_RECORD_V1.json",
+    "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_V2_CONTINUATION_EXECUTION_RECORD_V1.json",
+    "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_V3_CONTINUATION_EXECUTION_RECORD_V1.json",
+    "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+    "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+    "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V2_GEN1.json",
+    "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V3_GEN1.json",
+    "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+    "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json"
+  ],
+
+  "disclosureDiscipline": {
+    "institutionIdentityInThisRecord": false,
+    "reported": [
+      "selection index",
+      "split",
+      "opaque SHA-256 run refs",
+      "aggregate counts",
+      "policy outcome classes",
+      "artifact paths and hashes"
+    ],
+    "notReported": [
+      "institution name",
+      "hostname",
+      "domain",
+      "URL",
+      "raw redirect target",
+      "certificate detail",
+      "raw error detail",
+      "echeRowKey",
+      "organisation UUID",
+      "page title",
+      "page content"
+    ]
+  },
+
+  "terminalState": "PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_EVIDENCE_ADJUDICATED_AWAITING_POST_V4_P5_CONTINUATION_STRATEGY",
+  "nextOwnerDecision": "A2_POST_V4_P5_ACQUISITION_CONTINUATION_STRATEGY",
+  "whatThatNextDecisionMustDetermine": {
+    "underTheFrozenMethodology": true,
+    "openFacts": [
+      "Batch-02 index 9 is still NEVER_STARTED",
+      "four current primary failures overall, at indices 3, 4, 6 and 8",
+      "P5 is still active and still returns PAUSE_P5_LOW_RAW_YIELD",
+      "transport capability review is exhausted: no further repair is supported by current evidence",
+      "the reserve pool is still untouched at 0 consumed"
+    ],
+    "notSolvedHere": "This adjudication does not choose a continuation strategy, does not rank a reserve entry and does not authorise index 9.",
+    "solvedInsideThisAdjudication": false
+  },
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}

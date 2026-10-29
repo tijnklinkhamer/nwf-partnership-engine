@@ -22,6 +22,21 @@ import {
   runWebsiteShow,
 } from './commands/website.js';
 import { runOrgunitsDiscover } from './commands/discover.js';
+import { runOrgunitsSubjectsResearch } from './commands/orgunitsSubjects.js';
+import { runOrgunitsClassify } from './commands/classify.js';
+import { runOrgunitsClassifyRead } from './commands/classifyRead.js';
+import { runDiscoverySubjects } from './commands/discoverySubjects.js';
+import { runDiscoveryReviewSign } from './commands/discoveryReviewSign.js';
+import { runSourceDiscoveryCli } from './commands/sourceDiscovery.js';
+import { runSubjectFactsCli } from './commands/subjectFacts.js';
+import { runQualificationInputCli } from './commands/qualificationInput.js';
+import { runJurisdictionClaimsCli } from './commands/jurisdictionClaims.js';
+import { runAcquisitionCli } from './commands/acquisition.js';
+import { runSubjectClassifyCli } from './commands/subjectClassify.js';
+import {
+  buildClassifierOperatorEnvelope,
+  renderClassifierOperatorEnvelope,
+} from '../orgunits/classify/operatorContract.js';
 
 const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1D)
 
@@ -44,6 +59,37 @@ Usage:
   nwf-pe website conflicts    [--limit <N>]
   nwf-pe website show         <erasmus-code>
   nwf-pe orgunits discover    --organisation-id <uuid> [--execute] [--json]
+  nwf-pe orgunits subjects research --subject-id <uuid> [--execute] [--json]
+  nwf-pe orgunits subjects classify --subject-admission-id <uuid> --run-id <uuid>
+                              --model <model-id> [--attempt <N>] [--execute] [--json]
+  nwf-pe orgunits classify    --organisation-id <uuid> --run-id <uuid>
+                              --model <model-id> [--attempt <N>] [--execute] [--json]
+  nwf-pe orgunits classify runs  --organisation-id <uuid> [--limit <N>] [--json]
+  nwf-pe orgunits classify calls --organisation-id <uuid> [--run-id <uuid>]
+                                 [--limit <N>] [--json]
+  nwf-pe orgunits classify show  --call-id <uuid> [--json]
+  nwf-pe orgunits discover-sources --brief <key> --geography <CC> [--json]
+  nwf-pe orgunits discover-sources --execute --grant-id <uuid> [--json]
+  nwf-pe orgunits nominations list|promote ...
+                              (run \`nwf-pe orgunits nominations --help\` for its own options)
+  nwf-pe orgunits source-discovery plan register --brief <key> --geography <CC>
+                              [--execute] [--json]   (OWNER path; registers a plan a grant names)
+  nwf-pe discovery-subjects propose|claim|relate|review|show|list ...
+                              (run \`nwf-pe discovery-subjects --help\` for its own options)
+  nwf-pe discovery-subject-review-sign --request <path> --encrypted-key <path> --key-id <id>
+                              (OFFLINE; signs one prepared OWNER review request)
+  nwf-pe subject-facts export --subject-id <uuid> [--subject-id <uuid> ...]
+                              (READ-ONLY; one nwf-pe.subject-facts-export.v1 JSON document)
+  nwf-pe qualification-input export --subject-id <uuid> [--contract v1|v2] [--evaluated-at <YYYY-MM-DDTHH:MM:SSZ>]
+                              (READ-ONLY; one nwf-pe.qualification-input-export.v1 JSON document,
+                              or .v2 with --contract v2)
+  nwf-pe jurisdiction-claims record --subject-id <uuid> --country-of-operation <CC> <source> ...
+                              (one SOURCE_STATED claim from a source the subject holds; DRY RUN
+                              unless --execute; run \`nwf-pe jurisdiction-claims --help\`)
+  nwf-pe acquisition campaign verify|record|control|template|sign | status | worker | review ...
+                              (OWNER-signed campaigns, the wired work-queue worker and the batched
+                              OWNER review; INERT: no campaign or review key; run
+                              \`nwf-pe acquisition --help\`)
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -61,9 +107,28 @@ Options:
   --limit <N>       Maximum rows to display.
   --json            Emit the full coverage report as JSON.
   --organisation-id Target organisation for \`orgunits discover\` (exactly one per invocation).
+  --subject-id      Target discovery subject for \`orgunits subjects research\` (exactly one
+                    per invocation). Refused unless it holds exactly ONE live OWNER
+                    admission; without --execute it is a network-free DRY RUN.
   --execute         With \`orgunits discover\`: perform a REAL bounded research run.
                     Without it, the command is a network-free DRY RUN that only
                     reports the resolved root authority.
+                    With \`orgunits classify\`: perform ONE bounded classification of
+                    the exact organisation/run/model/attempt. Without it, the command
+                    is a DRY RUN: no provider call and no classifier write.
+  --run-id <uuid>   With \`orgunits classify\`: the exact COMPLETED research run to
+                    classify. Required; no "latest run" is ever chosen.
+  --model <id>      With \`orgunits classify\`: one model from the closed classifier
+                    allowlist. Required; there is no default model.
+  --attempt <N>     With \`orgunits classify\`: the attempt number (default 1). Never
+                    incremented automatically; a re-observation is a deliberate --attempt.
+  --call-id <uuid>  With \`orgunits classify show\`: the exact classifier call (ordinary
+                    or repair) to inspect.
+                    \`orgunits classify runs|calls|show\` are READ-ONLY (readonly role):
+                    no provider, no write, no network. They refuse --execute,
+                    --model, --attempt and any other option they do not use.
+                    \`runs\` lists only runs ATTRIBUTABLE to the organisation; \`calls\`
+                    lists ordinary calls only (default --limit 50 for both).
   -h, --help        Show this help.
 
 Phase 1B ingests two official datasets: ECHE and the EWP Registry. It measures
@@ -78,19 +143,9 @@ resolution and merges nothing, and there is no crawling, research, scoring,
 compliance, contact or outbound capability in it.
 `;
 
-/**
- * PHASE 2B-1E SAFETY-GAP CORRECTION: exported so a test can drive the REAL
- * argument-parsing/routing path (`parseArgs({ strict: true, ... })` and
- * every `group === ... && sub === ...` branch below) directly, rather than
- * only calling a command handler the CLI happens to use. This is the exact,
- * already-established pattern `src/db/migrate.ts` uses (`main` exported,
- * auto-invoke guarded below) - not a new convention introduced for this
- * correction pass. No behaviour changes: `main` still does exactly what it
- * did before, and the auto-invoke at the bottom of this file still runs it
- * with `process.argv` exactly as before when this file is executed directly.
- */
-export async function main(argv: string[]): Promise<number> {
-  const { values, positionals } = parseArgs({
+/** The CLI's one strict argument parse. Throws on an unknown option or a malformed value. */
+function parseCliArgs(argv: string[]) {
+  return parseArgs({
     args: argv,
     allowPositionals: true,
     strict: true,
@@ -108,10 +163,88 @@ export async function main(argv: string[]): Promise<number> {
       json: { type: 'boolean', default: false },
       limit: { type: 'string' },
       'organisation-id': { type: 'string' },
+      'subject-id': { type: 'string' },
+      'run-id': { type: 'string' },
+      model: { type: 'string' },
+      attempt: { type: 'string' },
+      'call-id': { type: 'string' },
       execute: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
   });
+}
+
+/**
+ * PHASE 2B-1E SAFETY-GAP CORRECTION: exported so a test can drive the REAL
+ * argument-parsing/routing path (`parseArgs({ strict: true, ... })` and
+ * every `group === ... && sub === ...` branch below) directly, rather than
+ * only calling a command handler the CLI happens to use. This is the exact,
+ * already-established pattern `src/db/migrate.ts` uses (`main` exported,
+ * auto-invoke guarded below) - not a new convention introduced for this
+ * correction pass. No behaviour changes: `main` still does exactly what it
+ * did before, and the auto-invoke at the bottom of this file still runs it
+ * with `process.argv` exactly as before when this file is executed directly.
+ */
+export async function main(argv: string[]): Promise<number> {
+  // Track B B2.2: the registry parses its OWN strict, per-subcommand option
+  // sets, so none of the options below can reach it and none of its options
+  // can reach another command.
+  if (argv[0] === 'discovery-subjects') {
+    return runDiscoverySubjects(argv.slice(1));
+  }
+  // Track B B2.3: the OFFLINE OWNER review signer. Its own strict options; it
+  // opens no database connection and reads no environment variable.
+  if (argv[0] === 'discovery-subject-review-sign') {
+    return runDiscoveryReviewSign(argv.slice(1));
+  }
+  if (argv[0] === 'orgunits' && (argv[1] === 'discover-sources' || argv[1] === 'nominations')) {
+    return runSourceDiscoveryCli(argv.slice(1));
+  }
+  if (argv[0] === 'orgunits' && argv[1] === 'source-discovery') {
+    return runSourceDiscoveryCli(argv.slice(1));
+  }
+  // REL final join A2: the READ-ONLY subject facts export. Its own strict options.
+  if (argv[0] === 'subject-facts') {
+    return runSubjectFactsCli(argv.slice(1));
+  }
+  // REL P1: the READ-ONLY C1 qualification-input export. Its own strict options.
+  if (argv[0] === 'qualification-input') {
+    return runQualificationInputCli(argv.slice(1));
+  }
+  // REL Q1: one source-stated country-of-operation claim. Its own strict options.
+  if (argv[0] === 'jurisdiction-claims') {
+    return runJurisdictionClaimsCli(argv.slice(1));
+  }
+  // WW E-Q: OWNER-signed acquisition campaigns and the worker. Its own strict options.
+  if (argv[0] === 'acquisition') {
+    return runAcquisitionCli(argv.slice(1));
+  }
+  // R3P3-A (ADR 0031): classify ONE subject-rooted run. Its own strict options.
+  if (argv[0] === 'orgunits' && argv[1] === 'subjects' && argv[2] === 'classify') {
+    return runSubjectClassifyCli(argv.slice(3));
+  }
+  let parsedArgv;
+  try {
+    parsedArgv = parseCliArgs(argv);
+  } catch (error) {
+    // CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1: a strict-parse rejection
+    // of the canonical `orgunits classify ... --json` invocation is still one
+    // contract envelope, so a machine caller never parses stderr. Every other
+    // invocation keeps the landed behaviour (the error propagates).
+    if (argv[0] === 'orgunits' && argv[1] === 'classify' && argv.includes('--json')) {
+      log.error(error instanceof Error ? error.message : String(error));
+      process.stdout.write(
+        renderClassifierOperatorEnvelope(
+          buildClassifierOperatorEnvelope('UNRESOLVED', 'CLI_USAGE_REJECTED', {
+            reason: { kind: 'CLI_USAGE_REJECTED' },
+          }),
+        ),
+      );
+      return 1;
+    }
+    throw error;
+  }
+  const { values, positionals } = parsedArgv;
 
   if (values.help || positionals.length === 0) {
     process.stdout.write(USAGE);
@@ -120,10 +253,16 @@ export async function main(argv: string[]): Promise<number> {
 
   const [group, sub, ...rest] = positionals;
   const limit = values.limit === undefined ? undefined : Number.parseInt(values.limit, 10);
-  if (limit !== undefined && (!Number.isInteger(limit) || limit <= 0)) {
+  const limitMalformed = limit !== undefined && (!Number.isInteger(limit) || limit <= 0);
+  // The classifier commands refuse a malformed --limit themselves, first, with
+  // the same text, so that `--json` can report it as a contract envelope.
+  const classifierRoute = group === 'orgunits' && sub === 'classify';
+  if (limitMalformed && !classifierRoute) {
     log.error(`--limit must be a positive integer, got ${values.limit}`);
     return 1;
   }
+  const malformedLimit =
+    limitMalformed && values.limit !== undefined ? { malformedLimit: values.limit } : {};
 
   if (group === 'ingest' && sub === 'eche') {
     return runIngestEche({
@@ -211,6 +350,51 @@ export async function main(argv: string[]): Promise<number> {
       ...(values['organisation-id'] !== undefined
         ? { organisationId: values['organisation-id'] }
         : {}),
+      execute: values.execute === true,
+      json: values.json === true,
+    });
+  }
+
+  if (group === 'orgunits' && sub === 'subjects') {
+    if (rest.length !== 1 || rest[0] !== 'research') {
+      log.error('Usage: orgunits subjects research --subject-id <uuid> [--execute] [--json]');
+      return 1;
+    }
+    return runOrgunitsSubjectsResearch({
+      ...(values['subject-id'] !== undefined ? { subjectId: values['subject-id'] } : {}),
+      execute: values.execute === true,
+      json: values.json === true,
+    });
+  }
+
+  if (group === 'orgunits' && sub === 'classify' && rest.length > 0) {
+    // A third positional selects a READ-ONLY inspection (runs/calls/show);
+    // anything else is refused there and never reaches the execution action.
+    return runOrgunitsClassifyRead({
+      positionals: rest,
+      suppliedOptions: Object.entries(values)
+        .filter(([, value]) => value !== undefined && value !== false)
+        .map(([name]) => name),
+      ...(values['organisation-id'] !== undefined
+        ? { organisationId: values['organisation-id'] }
+        : {}),
+      ...(values['run-id'] !== undefined ? { runId: values['run-id'] } : {}),
+      ...(values['call-id'] !== undefined ? { callId: values['call-id'] } : {}),
+      ...(limit !== undefined && !limitMalformed ? { limit } : {}),
+      ...malformedLimit,
+      json: values.json === true,
+    });
+  }
+
+  if (group === 'orgunits' && sub === 'classify') {
+    return runOrgunitsClassify({
+      ...(values['organisation-id'] !== undefined
+        ? { organisationId: values['organisation-id'] }
+        : {}),
+      ...(values['run-id'] !== undefined ? { runId: values['run-id'] } : {}),
+      ...(values.model !== undefined ? { model: values.model } : {}),
+      ...(values.attempt !== undefined ? { attempt: values.attempt } : {}),
+      ...malformedLimit,
       execute: values.execute === true,
       json: values.json === true,
     });

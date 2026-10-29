@@ -1,0 +1,237 @@
+{
+  "artifact": "PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_V1",
+  "phase": "PHASE_2B_2D",
+  "step": "A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION",
+  "version": "V1",
+  "status": "IMPLEMENTED",
+  "thisFileAuthorises": [],
+  "producedUnderOwnerDecision": [
+    "AUTHORISE_BOUNDED_TRANSPORT_RETRY_TEMPORAL_TEST_CORRECTION_V1",
+    "AUTHORISE_PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_V1"
+  ],
+
+  "frozenRetryDesignSha256": "46c3e1ff49db96cc6bb6d84d6088f799cfff6aa8d34d0b4d659be31a6fddc1cd",
+  "frozenRetryDesignBytes": 77776,
+  "frozenRetryDesignEdited": false,
+  "frozenRetryAuditSha256": "66575ef096e053bd665b486d2a1ce29e7975467750321a7371de4ae46016f3ee",
+  "temporalCorrectionRecordSha256": "3d6204deeeeb350878083b86d062fcf53fc95dfc6d16e4498421d6d780db446d",
+  "temporalCorrectionRecordBytes": 9072,
+  "adr0015Sha256": "0ce230dcf0fe08a61af4a9dab7e8dedbb39849d5cf39df801f1c377e6078041b",
+  "adr0015Bytes": 15831,
+  "adr0015Status": "Proposed (feature branch, not landed)",
+  "acquisitionPlanAmendmentSha256": "30323723d481e1298bc83b5fab10148486db4c3b0132db2cd16113ae8376b30e",
+  "acquisitionPlanAmendmentBytes": 7172,
+  "v4CensusSha256": "17263c39fd457f906e8bf5bd3d0cba7de04b2f7af0f5d3d70579f3c97f32f669",
+  "v4CensusBytes": 11663,
+
+  "startingHead": "3ecbd89628bc3e0f88ae4b424646a37f6b5a0575",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "commits": {
+    "A_temporalTestCorrection": "ba6ae909f9179ee3da8ac083eb29049fa8baddce",
+    "B_semanticImplementation": "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+    "C_acquisitionPlanAmendment": "f9e988ab3c1183757b4a95c68865bebf59087260",
+    "D_censusAndClosure": "INTRODUCED_BY_THE_COMMIT_THAT_ADDS_THIS_FILE"
+  },
+  "semanticImplementationCommit": "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+  "noSelfContainingShaWasFabricated": true,
+
+  "fetchPolicyBefore": "orgunit-fetch-policy-v3",
+  "fetchPolicyAfter": "orgunit-fetch-policy-v4",
+  "retryContext": "ROBOTS_POLICY_RESOLUTION_ONLY",
+  "retryEligibleClasses": [
+    "TLS_HANDSHAKE_TIMEOUT",
+    "DNS_TEMPORARY_FAILURE",
+    "CONNECT_TIMEOUT",
+    "READ_TIMEOUT",
+    "CONNECTION_RESET",
+    "CONNECTION_REFUSED"
+  ],
+  "notRetryEligibleClasses": [
+    "TLS_CERT_INVALID",
+    "TLS_PROTOCOL_INCOMPATIBLE",
+    "DNS_NAME_NOT_FOUND",
+    "DNS_NO_ADDRESS_RETURNED",
+    "BLOCKED_BY_POLICY",
+    "MALFORMED_URL",
+    "RESPONSE_TOO_LARGE",
+    "UNSUPPORTED_CONTENT_TYPE",
+    "TOO_MANY_REDIRECTS",
+    "every HTTP response including 5xx"
+  ],
+  "insufficientEvidenceClasses": [
+    "TLS_OTHER",
+    "DNS_OTHER",
+    "TLS_FAILURE with a NULL subtype",
+    "DNS_FAILURE with a NULL subtype",
+    "OTHER",
+    "every unrecognised combination"
+  ],
+  "policyFunctionIsTotal": true,
+  "policyFunctionFailsClosed": true,
+  "policyFunctionIsPure": true,
+  "dispositionPersisted": false,
+
+  "maxRetriesPerPolicyResolution": 1,
+  "maxRedirectContinuationHops": 1,
+  "maxPolicyResolutionRequests": 3,
+  "retryTokenGrain": "ONE COMPLETE LOGICAL SITE-POLICY RESOLUTION",
+  "retryTokenImplementation": "a single `let retryBudget` inside getRobotsPolicy's already-memoised resolution IIFE - which IS the resolution scope AND is what concurrent callers share, so no new state was required",
+  "newNumberingStateRequired": "NONE - RobotsCache.nextPolicyAttemptNo already yields attemptNo + 1",
+  "ordinaryPageRetryCount": 0,
+  "sitemapRetryCount": 0,
+  "httpStatusRetryCount": 0,
+
+  "productionFilesChanged": [
+    "src/orgunits/orchestrator/rootRunner.ts",
+    "src/orgunits/web/policy.ts",
+    "src/orgunits/web/retryPolicy.ts",
+    "src/orgunits/web/robots.ts"
+  ],
+  "productionFilesChangedCount": 4,
+  "newProductionFiles": ["src/orgunits/web/retryPolicy.ts"],
+  "unapprovedProductionSurfaceRequired": false,
+  "gatewayChanged": false,
+  "observationsModuleChanged": false,
+  "redirectModuleChanged": false,
+  "robotsAuthorityChanged": false,
+  "robotsPolicyChanged": false,
+  "circuitBreakerChanged": false,
+  "constantsChanged": false,
+  "cliChanged": false,
+  "migrationCreated": false,
+  "databaseSchemaRangeUnchanged": "0001..0012",
+  "rootRunnerPredictedRobotsCost": { "before": 2, "after": 3 },
+  "requestCeilingUnchanged": 60,
+  "pageCeilingUnchanged": 35,
+  "hostCeilingUnchanged": 8,
+  "timeoutsUnchanged": { "CONNECT_TIMEOUT_MS": 30000, "TOTAL_TIMEOUT_MS": 45000 },
+  "newBackoffConstantIntroduced": false,
+  "pacingConstantReused": "MIN_HOST_PACING_SECONDS = 1.2",
+  "existingV3ContinuationPacingChanged": false,
+
+  "securityPosture": {
+    "tlsVerificationWeakened": false,
+    "rejectUnauthorizedStaysTrue": true,
+    "protocolDowngrade": false,
+    "httpsToHttpFallback": false,
+    "alternateHostname": false,
+    "alternateUrl": false,
+    "proxyFallback": false,
+    "userAgentVariation": false,
+    "cookiesOrSession": false,
+    "ssrfOrAddressChecksSkipped": false,
+    "freshValidationOnEveryRetry": true,
+    "whyStructural": "the retry calls the SAME local fetchRobotsDocument with the SAME url, so there is no parameter through which any of the above could vary"
+  },
+
+  "temporalCorrectionApplied": {
+    "filesCorrectedInCommitA": [
+      "src/test/harness/phase2b2d/v3transition/v3Contract.ts",
+      "src/test/unit/orgunitRobotsOptionCLiteCensus.test.ts",
+      "src/test/unit/orgunitRobotsOptionCLiteRepairScope.test.ts",
+      "src/test/firewall/phase2bTransportSubtype.firewall.test.ts"
+    ],
+    "twoFurtherInstancesFoundDuringImplementation": [
+      "src/test/unit/orgunitRobotsOptionBRepairScope.test.ts",
+      "src/test/unit/orgunitRobotsOptionCLiteRepairScope.test.ts"
+    ],
+    "whatThoseTwoWere": "both asserted rootRunner's robots PREDICTION from the WORKING TREE, inside a historical repair scope. The correct fix is the same one the owner mandated elsewhere - read `git show <terminal>:rootRunner.ts` - because re-pinning them to 3 would have rewritten ADR 0012's and ADR 0013's history to claim they predicted a cost they never predicted.",
+    "theirCeilingAssertionsStayLive": "the 60/35/8 ceilings are invariants every later phase must preserve, so those still read current source",
+    "v3CensusExpectedPolicyRemains": "orgunit-fetch-policy-v3",
+    "v3CensusMaterialiserNowRefuses": true,
+    "v3CensusRefusalIsTested": true,
+    "historicalRangesPinnedNotWidened": true
+  },
+
+  "currentProductionRepins": [
+    "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts (PRODUCTION -> v4; v3 joins v2 in the superseded set; the freeze's own v1 literal untouched)",
+    "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts (only the explicit current-production comparison; the historical Option-B target stays v2)",
+    "src/test/integration/orgunitRobotsOptionCLite.test.ts (NEW observations must carry current production)"
+  ],
+  "historicalLiteralsRewritten": 0,
+
+  "testFilesAdded": [
+    "src/test/unit/orgunitTransportRetryPolicy.test.ts",
+    "src/test/integration/orgunitTransportRetry.test.ts",
+    "src/test/firewall/phase2bTransportRetry.firewall.test.ts",
+    "src/test/unit/orgunitV4TransportRetryCensus.test.ts"
+  ],
+  "focusedTestTotals": {
+    "retryPolicyUnitTests": 53,
+    "retryIntegrationTests": 26,
+    "v4RepairScopeFirewallTests": 25,
+    "censusReDerivationTests": 15,
+    "total": 119,
+    "failed": 0
+  },
+  "existingFirewallAssertionsWidened": 0,
+  "newRepairScopeFileAdded": 1,
+  "v4RepairScopeTerminalCommitPinned": "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+  "firewallAvoidance": "the two new production files say 'site policy' rather than naming the policy filename, so phase2b.firewall.test.ts's confinement assertion needed no widening",
+
+  "v4TransitionCensus": {
+    "runsExamined": 12,
+    "fetchObservationsExamined": 204,
+    "V4_TRANSITION_UNAFFECTED": 9,
+    "V4_TRANSITION_AFFECTED": 0,
+    "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE": 3,
+    "decidedBy": "the landed retryDispositionFor, imported and called - never reimplemented",
+    "networkRequests": 0,
+    "rowsWritten": 0,
+    "reDerivedByTest": "src/test/unit/orgunitV4TransportRetryCensus.test.ts"
+  },
+  "currentFailureClassifications": {
+    "3": "V4_TRANSITION_UNAFFECTED",
+    "4": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE",
+    "6": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE",
+    "8": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE"
+  },
+  "wouldSucceedClaimed": false,
+
+  "methodologyR3Unchanged": true,
+  "corpusPlanV1Unchanged": true,
+  "optionBAmendmentUnchanged": true,
+  "optionCLiteAmendmentUnchanged": true,
+  "frameArtifactUnchanged": true,
+  "frameV2Gen1Sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+  "drawArtifactUnchanged": true,
+  "p5GateUnchanged": true,
+  "reserveStateUnchanged": true,
+  "historicalFreezeFilesChanged": 0,
+  "ownerApprovalRecordsChanged": 0,
+  "historicalRowsChanged": false,
+  "acquisitionStatusChanged": false,
+  "acquisitionOfRecordUnchanged": "5 success / 4 failure of 9 finalised",
+  "reserveConsumption": 0,
+
+  "workingDatabaseCounts": {
+    "organisations": 6139,
+    "orgunit_research_runs": 12,
+    "orgunit_fetch_observations": 204,
+    "orgunit_page_evidence": 160,
+    "orgunit_page_candidates": 320,
+    "errorSubtypeNonNull": 0
+  },
+  "workingDatabaseWritesPerformed": 0,
+  "testDatabaseOnly": true,
+
+  "networkExecuted": false,
+  "liveRetryExecuted": false,
+  "institutionHttpRequests": 0,
+  "institutionDnsLookups": 0,
+  "institutionTlsHandshakes": 0,
+  "executeAcquisitionRuns": 0,
+  "targetedRevalidationPerformed": false,
+  "index9Started": false,
+  "indicesAtOrAbove10Started": false,
+  "replacementPerformed": false,
+  "providerCalls": 0,
+  "classifierCalls": 0,
+  "labelsProduced": 0,
+  "holdoutSemanticAccess": false,
+  "phase2eEntered": false,
+
+  "blockers": [],
+  "outcome": "PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_V4_IMPLEMENTED_AWAITING_TARGETED_REVALIDATION_AUTHORISATION",
+  "nextOwnerDecision": "A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORISATION"
+}

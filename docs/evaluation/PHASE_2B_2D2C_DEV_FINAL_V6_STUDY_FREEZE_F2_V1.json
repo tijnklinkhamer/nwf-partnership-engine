@@ -1,0 +1,423 @@
+{
+  "freezeId": "PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_FREEZE_F2_V1",
+  "version": "phase2b-2d2c-dev-final-v6-study-freeze-f2-v1",
+  "status": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL",
+  "freezeRevision": "F2_FINAL_DEV_STUDY_V6_N5",
+  "purpose": "Freeze the exact configuration of the FINAL V6 N=5 DEVELOPMENT study, for a SEPARATE, LATER owner decision to authorise execution. This file runs nothing, authorises nothing, creates no directory and contacts no provider.",
+  "approvalModel": {
+    "rule": "This file is PROPOSED. It becomes the frozen final-study configuration only when a separate owner freeze-approval record names this file's exact raw SHA-256. The bytes never change on approval, and the status field inside the bytes stays PROPOSED_PENDING_OWNER_FREEZE_APPROVAL forever.",
+    "approvalRecord": "docs/evaluation/PHASE_2B_2D2C_F2_OWNER_FREEZE_APPROVAL_V1.json (does not exist until the owner approves)",
+    "thisFileAuthorises": [],
+    "executionAuthorisationIsSeparate": "A freeze approval here is NOT an execution authorisation for any of the five replicate slots. Execution additionally requires its own separate, explicit owner execution authorisation naming the exact candidate bytes.",
+    "ownerFreezeApprovalExists": false,
+    "executionAuthorisationExists": false
+  },
+  "studyQuestion": {
+    "question": "Does V6 reproducibly satisfy the frozen DEV gates?",
+    "form": "ABSOLUTE, not comparative.",
+    "notAPairedComparison": "The V4/V5 paired question is closed. This study runs ONE arm. No V4, V5 or any other prompt variant is scheduled, re-run or compared here.",
+    "endsThePromptIterationLoop": true
+  },
+  "lineages": {
+    "note": "This build is the approved V6 SEMANTIC prompt running on the accepted F0Z EXECUTION/RELIABILITY harness. The two lineages are separate and are both named here. It is NOT a new semantic V7.",
+    "semanticSource": {
+      "commit": "a0da2c462a698823fd9536347edf22ecfbf80f64",
+      "branch": "feat/phase2b-2d2c-v6i1-operator-precedence",
+      "promptVersion": "orgunit-classifier-prompt-v6",
+      "promptSha256": "06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7",
+      "promptCodePoints": 16007,
+      "promptUtf8Bytes": 16093,
+      "parentPromptVersion": "orgunit-classifier-prompt-v5",
+      "parentPromptCommit": "1bb7578ac962650675f05aec3507c57a49517239",
+      "parentPromptSha256": "4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9",
+      "delta": "v6 = v5 + R1 + R2 + R3, three exact whole-region REPLACE operations. Reversing them reproduces v5 byte for byte."
+    },
+    "executionReliabilityBase": {
+      "commit": "805d39b6043a69cedf809ca9b2151168e1f88a58",
+      "reliabilitySemantics": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+      "acceptedAs": "F0Z reliability HEAD"
+    },
+    "integratedRuntime": {
+      "commit": "12bd406da5d989d2d31bda8e7aeb11ab39c8937f",
+      "branch": "feat/phase2b-2d2c-f2-v6-final-dev-integration",
+      "productionClassifierFilesChangedFromF0ZHead": ["src/orgunits/classify/prompt.ts"],
+      "productionClassifierSemanticDeltaCount": 1,
+      "promptBytesIdenticalToSemanticSource": true,
+      "reversingOnlyThePromptReproducesF0ZTree": true,
+      "f0zTreeSha256": "294472407de48e57f1e5c72c3111c777f283759b",
+      "isANewSemanticVersion": false
+    }
+  },
+  "reliability": {
+    "semanticsVersion": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+    "historicalSemanticsVersion": "RELIABILITY_SEMANTICS_V1_RECOVERY_1",
+    "c2Implemented": false,
+    "c2Status": "NOT_IMPLEMENTED",
+    "c2Note": "C2 (the narrow watchdog/child-exit race downgrade) is deliberately absent, exactly as at the accepted F0Z HEAD. This study does not implement it.",
+    "maxNonTerminalTimeoutsPerReplicate": 2,
+    "timeoutContinuationRule": "A CONFIRMED non-terminal Tier-1 TIMEOUT makes ONLY ITS OWN logical batch observed INVALID_PROVIDER_TIMEOUT, counts against MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE, continues only when every C1 precondition is satisfied, and is NEVER rerun. At the ceiling the replicate STOPS.",
+    "noDuplicateLogicalEvaluationAfterContinuation": "A continued replicate resumes at the NEXT frozen logical evaluation. A timed-out evaluation is closed durably and is never re-attempted, so no logical evaluation is ever executed twice."
+  },
+  "corpus": {
+    "scope": "DEVELOPMENT",
+    "itemCount": 49,
+    "canonicalCorpusPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.jsonl",
+    "canonicalManifestPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.manifest.jsonl",
+    "derivedCorpusRawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+    "derivedManifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+    "derivedCorpusContentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2",
+    "recomputedLiveNotTrusted": "Every hash above was recomputed from the committed artifact during F2 preparation and matched.",
+    "holdoutFilesNeverRead": [
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl"
+    ],
+    "additionalForbiddenFilesForThisStudy": [
+      "src/test/fixtures/evaluation/orgunit-classifier-gold-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-adjudication-v1.jsonl"
+    ],
+    "noneOpenedByF2": true
+  },
+  "gold": {
+    "note": "Pinned SEPARATELY from the corpus, and read ONLY by the scorer, never by the inference path.",
+    "devLabelsPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl",
+    "devLabelsRawSha256": "19d9cc3e9dcfe0b10930aa095075cd4828459377d9ea67c8dd296da6126fcd08",
+    "devLabelsRawBytes": 50486,
+    "devLabelsRecordCount": 49,
+    "devLabelsManifestPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.manifest.json",
+    "devLabelsManifestRawSha256": "53801e48498777727af719cd67cef09f3865617b15283b9e3d24daa4d884d519",
+    "scoringSupplementPath": "docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json",
+    "scoringSupplementRawSha256": "dd00e1653deac617eb6ba82e537f090b34de37de5c939a0e52c0466fdc874db5",
+    "goldUnchangedFromHistoricalStudies": true,
+    "goldChangesAuthorisedByThisFreeze": []
+  },
+  "batching": {
+    "inheritedFrom": "attempt-4 (F0O) execution plan",
+    "inheritedPlanSha256": "292d9424d487f3d69903a3b81172bd0a90c65adbd7ee6fa63cf3a9d0ced79898",
+    "historicalFreezePath": "docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json",
+    "historicalFreezeRawSha256": "77cccff133ceac9ca57ac30c4468690d99ae3d53a294e30249f97487c727a75e",
+    "historicalFreezeRawBytes": 97514,
+    "groupBy": "organisationId",
+    "logicalBatchesPerReplicate": 12,
+    "concurrency": 1,
+    "execution": "sequential",
+    "partitionAndOrderFrozen": true,
+    "partitionRationale": "The batch partition, its order and every assemblyInputSha256 are inherited from the attempt-4 plan VERBATIM. Re-partitioning would change the estimand: F0U's clarification is explicit that the effect of sibling documents inside a batch is part of what is being measured.",
+    "finalInputSha256IsRecomputedForV6": "finalInputSha256 folds in the prompt version, so a V6 batch is a DIFFERENT call identity from the byte-identical V5 batch. It is computed by the production computeFinalInputSha256 from the inherited assemblyInputSha256, never copied from a V5 plan.",
+    "firstBatchAssemblyInputSha256": "7179ad30e8292a024a0eba04233a787bc88293c5b11b94e744046a348da07644",
+    "firstBatchFinalInputSha256V6": "5aafb099922a782b0886851294799ec3d21a45a875c8179378ec2961b0e6690e",
+    "firstBatchFinalInputSha256V5ForContrast": "2a2ea7f9859174ea9f5587ef5ac188a25d0c8ae4f95afbb87c40e57cd5a15f50"
+  },
+  "studyDesign": {
+    "variantName": "PROMPT_V6_CANONICAL",
+    "variantLabel": "PROMPT_V6_CANDIDATE",
+    "nReplicates": 5,
+    "totalFreshRuns": 5,
+    "arms": 1,
+    "unitOfReplication": "ONE_FULL_FROZEN_12_BATCH_49_DOCUMENT_RUN",
+    "pairedComparison": false,
+    "v4OrV5Rerun": false,
+    "historicalRunsCountTowardN": false,
+    "nFrozenBeforeAnyInference": true
+  },
+  "slots": [
+    {
+      "sequence": 1,
+      "slotId": "V6_REP_1",
+      "replicateNumber": 1,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-1"
+    },
+    {
+      "sequence": 2,
+      "slotId": "V6_REP_2",
+      "replicateNumber": 2,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-2"
+    },
+    {
+      "sequence": 3,
+      "slotId": "V6_REP_3",
+      "replicateNumber": 3,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-3"
+    },
+    {
+      "sequence": 4,
+      "slotId": "V6_REP_4",
+      "replicateNumber": 4,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-4"
+    },
+    {
+      "sequence": 5,
+      "slotId": "V6_REP_5",
+      "replicateNumber": 5,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-rep-5"
+    }
+  ],
+  "derivedStudyPlanSha256": "410e5bc48f0fbdff22a01e1cd31705e7ae22429506921d9fa0fed00f0f28df4c",
+  "outputRoots": {
+    "studyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5",
+    "controlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-control",
+    "note": "NAMES ONLY. Neither directory, nor any of the five slot subdirectories under the study root, is created by this file or by the F2 task that proposed it.",
+    "freshNamespace": true,
+    "createdByThisFile": 0,
+    "mustNotReuse": [
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/failed-study",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-2",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-3",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-3-retry-1",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-4"
+    ],
+    "noOutputDirectoryContainsSemanticResultsYet": true
+  },
+  "perRunPolicy": {
+    "requestedModelId": "claude-sonnet-5",
+    "agentSdk": {
+      "package": "@anthropic-ai/claude-agent-sdk",
+      "version": "0.3.251",
+      "pinnedIn": ["package.json", "package-lock.json"]
+    },
+    "assemblyVersion": "orgunit-classifier-assembly-v2",
+    "outputSchemaVersion": "orgunit-classifier-output-schema-v2",
+    "runConfig": {
+      "maxTurns": 3,
+      "thinking": "disabled"
+    },
+    "repairPolicy": {
+      "enabled": true,
+      "maxRoundsPerLogicalEvaluation": 1,
+      "minimumRemainingBudgetMs": 120000
+    },
+    "liveness": {
+      "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
+      "tier1": {
+        "where": "src/orgunits/classify/provider/agentSdkRunner.ts + claudeMaxAgentProvider.ts (production)",
+        "attemptSoftDeadlineMs": 300000,
+        "abortCloseSettlementGraceMs": 10000,
+        "totalProviderCallBudgetMs": 600000,
+        "timeoutNeverRetriedInsideAdapter": true,
+        "transientRetries": {
+          "maxAfterFirstAttempt": 2,
+          "backoffMs": [500, 1000],
+          "backoffConsumesTotalBudget": true
+        },
+        "operatorReattempt": "an operator-authorised reattempt increments attemptNo; it is never an adapter retry",
+        "worstCaseAttemptSequenceMs": 610000
+      },
+      "tier2": {
+        "where": "src/test/harness/processIsolatedBatch.ts (test harness only; never a production fallback)",
+        "parentWatchdogMs": 700000,
+        "gracefulTerminationWindowMs": 10000,
+        "stderrTailMaxChars": 2048,
+        "role": "evidence and containment, not production isolation",
+        "watchdogDerivationMs": {
+          "authStatusRunnerTimeout": 60000,
+          "providerAttemptWindow": 600000,
+          "finalInnerCloseGrace": 10000,
+          "childStartupArtifactFlushAndSchedulingVariance": 30000,
+          "total": 700000
+        },
+        "watchdogRationale": "The auth-status runner (AUTH_STATUS_TIMEOUT_MS) can consume up to 60 s before the provider window opens; the provider window (CLASSIFIER_CALL_TOTAL_BUDGET_MS) is 600 s; the last attempt may add up to the 10 s inner close grace (CLASSIFIER_CALL_HARD_KILL_GRACE_MS); 30 s remain for child startup, artifact flushing and scheduling variance. A Tier-2 kill therefore cannot pre-empt a correctly firing Tier 1."
+      },
+      "decisionRule": {
+        "tier1FiresFirstOnOriginal": "If Tier 1 returns TIMEOUT before Tier 2 fires: record the evidence (progress trace, stderr tail) and stop; continuation is an operator-authorised attemptNo + 1.",
+        "tier1FiresOnRepair": "Record the repair outcome as FAILED / TIMEOUT, leave the document rejected, continue with the next document and the next evaluation; not a stop.",
+        "tier2KillsBecauseTier1DidNotFire": "If Tier 2 kills the batch process because Tier 1 did not fire: process-isolated production inference becomes mandatory follow-up 2D2B-2b, and the experiment stops."
+      },
+      "sharedBudgetRule": {
+        "statement": "The original request, its transient backoff sleeps, every repair request’s own pre-flight and auth-status work, and every repair request’s attempts and backoff all consume ONE injectable-clock window of totalProviderCallBudgetMs, opened in the orchestrator or child immediately before the original provider call is entered. A repair’s window is (remaining - abortCloseSettlementGraceMs); the adapter opens a caller-supplied window at classify() entry and never widens it beyond the frozen total; each attempt inside is bounded by min(attemptSoftDeadlineMs, remaining).",
+        "perEvaluationWorstCaseMs": {
+          "providerWindow": 600000,
+          "lastAttemptHardKillGrace": 10000,
+          "total": 610000,
+          "proof": "Every repair is opened only while usableMs = remaining - grace >= minimumRemainingBudgetMs; its WINDOW (the bound on all of its attempts, backoff and its own pre-flight and auth-status check) is usableMs; each ATTEMPT inside it is bounded by min(300000, window remaining), so no repair attempt ever receives more than the frozen soft deadline. Sequential repairs each re-measure remaining, so the sum of all windows never exceeds the original 600000 ms; at most one hard-kill grace can be outstanding at the end. The child reads the clock before the original classify(), so the original call’s own pre-flight and auth-status time is inside the measured window (conservative). Artifact writes between calls (the original outcome records, each repair’s decision and request records, each repair’s post-call records) are inside the measured window for the NEXT repair; only the round summary and CHILD_RESULT, written after the last repair, fall outside it and inside the Tier-2 variance reserve."
+        },
+        "tier2Sufficiency": {
+          "watchdogMs": 700000,
+          "derivationUnchanged": {
+            "authStatusRunnerTimeout": 60000,
+            "providerAttemptWindow": 600000,
+            "finalInnerCloseGrace": 10000,
+            "childStartupArtifactFlushAndSchedulingVariance": 30000,
+            "total": 700000
+          },
+          "claim": "SUFFICIENT for every provider-facing millisecond: the derivation reserves 60000 ms for the ORIGINAL call’s auth-status runner, 600000 ms for the provider window and 10000 ms for one final inner close grace; under the shared-budget rule the original call, every repair and every repair’s own auth-status check together total at most 600000 ms plus one grace, so this part is proved by the formula, not assumed. The 30000 ms variance reserve must absorb child startup, scheduling, and the write-once repair artifacts written after the last repair (the round summary and CHILD_RESULT) plus any write not already inside the measured window; that residual is a BOUNDED READINESS RISK, not a proved fact: a request-free synthetic persistence benchmark (src/test/unit/orgunitClassify2D2CF0CPersistenceBenchmark.test.ts) writes the maximum per-evaluation repair artifact set with the real fsync-backed writer and must finish inside the reserve on the run machine. No Tier-2 value changes.",
+          "boundedReadinessRisk": "Persistence latency cannot be proved by plan-only verification. The synthetic benchmark measures the maximum per-evaluation repair artifact set (1 round summary + 6 x 5 document artifacts = 31 write-once, fsync-backed files at attempt-1-like sizes) on the run machine without any provider or SDK call; the measured value is recorded in the F0C audit. If it approaches the reserve, the watchdog derivation is revisited BEFORE authorisation, never during a run."
+        },
+        "repairTimeoutContinuation": "A Tier-1 TIMEOUT of a REPAIR request is recorded on that repair (FAILED / TIMEOUT), the document stays rejected, the original PARTIAL stands, and the experiment continues; the F0B decision rule tier1FiresFirst applies to the ORIGINAL request only. TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT is unchanged and remains a stop."
+      }
+    },
+    "stopConditions": {
+      "policy": "On any stop condition: persist the available diagnostic record atomically (write-once), then stop the ENTIRE experiment. Never continue into a later batch and never start prompt v2. Resumption requires a separate operator authorisation.",
+      "conditions": [
+        {
+          "id": "CHILD_EXITED_UNCONFIRMED",
+          "meaning": "Tier-2 grace-phase verdict: the child exited without a shutdown acknowledgement. An unconfirmed harness termination, never a clean batch end."
+        },
+        {
+          "id": "SUPPRESSED_EXPIRED_TARGET_IDENTITY",
+          "meaning": "Tier-2 hard-kill disposition: the tree kill was suppressed because the direct child had already exited. An unconfirmed harness termination."
+        },
+        {
+          "id": "TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT",
+          "meaning": "The parent watchdog expired while no Tier-1 TIMEOUT had been observed. Triggers the 2D2B-2b decision."
+        },
+        {
+          "id": "RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION",
+          "meaning": "The provider returned rawOutput but its canonical serialization and SHA-256 were not durably written before layer-2 validation ran."
+        },
+        {
+          "id": "BATCH_ARTIFACT_MISSING_OR_CORRUPT",
+          "meaning": "A per-batch artifact is absent, unparsable or fails its own recorded hash."
+        },
+        {
+          "id": "CORPUS_CONFIG_OR_HASH_DRIFT",
+          "meaning": "Any recomputed corpus, manifest, prompt, freeze-config or lockfile hash differs from this freeze."
+        },
+        {
+          "id": "UNEXPECTED_RESPONSE_MODEL_ID",
+          "meaning": "The provider-reported model id is not the requested model id."
+        },
+        {
+          "id": "ISOLATION_VIOLATION",
+          "meaning": "Any tool, MCP, browser, settings-source, session-persistence or environment-leak violation observed in any attempt."
+        },
+        {
+          "id": "USAGE_LIMIT_INTERRUPTION",
+          "meaning": "A USAGE_LIMIT_EXHAUSTED outcome. Stops the experiment; a later separately authorised continuation is idempotent by input identity and never counts against quality (protocol section 8 treatment retained)."
+        },
+        {
+          "id": "UNRECONCILED_PROVIDER_FAILURE",
+          "meaning": "Any non-OK provider outcome, or a thrown failure, that cannot be reconciled to exactly one recorded batch attempt with a persisted diagnostic record."
+        }
+      ],
+      "repairNotes": [
+        "RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION applies to a repair raw checkpoint exactly as to the original",
+        "USAGE_LIMIT_INTERRUPTION and ISOLATION_VIOLATION apply to repair requests identically",
+        "a repair TIMEOUT is NOT a stop condition and NOT the tier1FiresFirst decision rule"
+      ]
+    },
+    "unchangedFromF0O": "The requested model id, SDK pin, maxTurns, thinking setting, repair policy, every liveness constant and every retry ceiling are the attempt-4 values, restated verbatim. This study changes the PROMPT and the RELIABILITY SEMANTICS, and nothing else."
+  },
+  "requestCeilings": {
+    "derivation": "SUM_OF_FIVE_SLOT_PER_RUN_TOTALS_NEVER_A_HARDCODED_MULTIPLICATION",
+    "derivationSource": "Each logical batch's own deriveCallCeiling(documentCount) from the attempt-4 plan: one original request per logical evaluation, at most one ADR-0011 repair request per document, and each provider request attemptable 1 + maxTransientRetries times.",
+    "perRun": {
+      "plannedLogicalEvaluations": 12,
+      "originalProviderRequestCeiling": 12,
+      "documents": 49,
+      "repairRequestCeiling": 49,
+      "totalProviderRequestCeiling": 61,
+      "adapterAttemptCeiling": 183
+    },
+    "fullStudy": {
+      "totalSlots": 5,
+      "plannedLogicalEvaluations": 60,
+      "totalProviderRequestCeiling": 305,
+      "adapterAttemptCeiling": 915
+    },
+    "maxTransientRetriesPerRequest": 2,
+    "attemptsPerProviderRequest": 3
+  },
+  "executionBoundary": {
+    "goldBlind": true,
+    "noGoldLoadedByTheInferencePath": true,
+    "noGoldLoadedInF2": true,
+    "allFiveSlotsTerminalBeforeAnyScoringBegins": true,
+    "noSemanticResultInspectionBetweenReplicates": true,
+    "noGateScoringBetweenReplicates": true,
+    "noPromptEditAfterAnyV6ProviderRequest": true,
+    "scoringRequiresSeparateOwnerAuthorisation": true
+  },
+  "noAdaptiveScoring": {
+    "nFrozenBeforeInference": true,
+    "slotCountFixedAt": 5,
+    "slotOrderFixed": true,
+    "analysisContractFixed": true,
+    "noAdaptiveStoppingBecauseEarlyResultsLookGoodOrBad": true,
+    "rule": "A favourable or unfavourable intermediate result never changes the remaining slot count, the slot order or the analysis contract. All five authorised replicates must first reach terminal records; only then may the deterministic v2 scorer run, under a separate owner scoring authorisation."
+  },
+  "inclusionRules": {
+    "principle": "FAIL CLOSED. A replicate that reaches semantic/provider execution is part of the study and is NEVER silently replaced.",
+    "classA": {
+      "id": "FAILURE_BEFORE_AUTHORISATION_CONSUMPTION",
+      "meaning": "No semantic replicate exists for the slot.",
+      "action": "Preserve evidence and PAUSE that slot. Not included as a replicate; not silently skipped either - it remains visible as a paused slot."
+    },
+    "classB": {
+      "id": "AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "meaning": "The candidate is spent, but no semantic replicate exists.",
+      "action": "Do NOT auto-replace. Pause and require a separate owner-reviewed recovery authorisation for the SAME frozen slot. A pre-inference auth/lock/control-plane defect that consumed no semantic candidate may be eligible for a DISCLOSED reissue only under this explicit, predeclared rule."
+    },
+    "classC": {
+      "id": "PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "meaning": "Any provider request or semantic execution occurred for the slot.",
+      "action": "That slot is IRREVOCABLY part of the study, whether it completes or ends in a genuine terminal failure. Never replaced, never discarded, never rerun."
+    },
+    "terminalFailureIncludedAsRecorded": true,
+    "neverSilentlySubstituteAReplicate": true
+  },
+  "finalDevDecisionRule": {
+    "id": "F2_FINAL_DEV_DECISION_RULE_V1",
+    "decision": "DEV_READY_FOR_HOLDOUT",
+    "conditions": [
+      "all 5/5 V6 replicates are COMPLETE under RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+      "each of the 5/5 replicates passes every one of the six frozen DEV gates"
+    ],
+    "anyPartialReplicate": "DEV_NOT_READY_FOR_HOLDOUT",
+    "anyCompleteReplicateFailingAnyFrozenGate": "DEV_NOT_READY_FOR_HOLDOUT",
+    "noFourOfFiveFallback": true,
+    "noAveragingAwayAFailingReplicate": true,
+    "noThresholdTuningAfterOutcomes": true,
+    "noReplacementOfAFailedReplicate": true,
+    "unmeasuredGateIsNeverAPassedGate": true,
+    "priorRuleReconciliation": {
+      "existingRule": "The attempt-1..4 configuration freezes each carry scoring.acceptanceRule: 'No final acceptance decision may be issued while <attempt> coverage is incomplete ... or while any stop condition is unresolved. HOLDOUT stays forbidden until a DEV candidate passes every frozen gate.'",
+      "relationship": "SUBSUMED_AND_STRENGTHENED_NOT_CONFLICTING",
+      "reasoning": "The existing rule is a SINGLE-RUN criterion: complete coverage, no unresolved stop condition, every frozen gate passed. This rule preserves all three and additionally requires them on ALL FIVE replicates. It is strictly stronger, so no stricter existing rule was displaced and no previously-frozen rule conflicts with it.",
+      "stricterExistingRuleFound": false,
+      "conflictingExistingRuleFound": false
+    }
+  },
+  "sixFrozenDevGates": {
+    "minSchemaValidSpanVerifiedRate": 0.99,
+    "minUnitPageRecall": 0.95,
+    "minUnitPagePrecision": 0.9,
+    "minUnitTypeAccuracy": 0.85,
+    "minHardNegativeRejection": 0.9,
+    "maxNeedsReviewRate": 0.15,
+    "maxIsolationViolations": 0,
+    "evidenceSpanVerification": 1,
+    "nonNullUnitNameVerification": 1,
+    "minGateableLanguageSubgroupSize": 20,
+    "maxCatastrophicSubgroupShortfall": 0.1
+  },
+  "sixFrozenDevGatesSource": "F0O scoring.gates, restated verbatim. Thresholds are NOT changed by this freeze.",
+  "gateThresholdsChangedByThisFreeze": [],
+  "holdout": {
+    "inferenceDuring2D2C": "FORBIDDEN",
+    "accessDuringThisStudy": "FORBIDDEN",
+    "openedOrHashedByF2": false,
+    "rule": "HOLDOUT must never be opened, read or hashed. A DEV_READY_FOR_HOLDOUT outcome is NOT a HOLDOUT authorisation: HOLDOUT remains prohibited until separately authorised by the owner."
+  },
+  "exclusions": {
+    "thisFreezeAuthorises": [],
+    "noProviderCall": true,
+    "noClassifierInference": true,
+    "noAuthStatusInvocation": true,
+    "noDevExecution": true,
+    "noScoringOfARealRun": true,
+    "noHoldoutAccess": true,
+    "noPromptSemanticEditsBeyondApprovedV6Bytes": true,
+    "noGoldChanges": true,
+    "noC2": true,
+    "noThresholdChanges": true,
+    "noTimeoutRetryOrMaxTurnsChanges": true,
+    "noOwnerFreezeApproval": true,
+    "noExecutionAuthorisation": true
+  }
+}

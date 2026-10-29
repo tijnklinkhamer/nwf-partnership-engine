@@ -1,0 +1,320 @@
+{
+  "recordId": "track-b-b2-2-discovery-subject-registry-owner-decision-v1",
+  "recordKind": "DISCOVERY_SUBJECT_REGISTRY_LOCAL_IMPLEMENTATION_RECORD",
+  "records": "TRACK_B_B2_2_DISCOVERY_SUBJECT_REGISTRY_OWNER_DECISION_V1",
+  "recordedAtUtc": "2026-10-15T19:39:56Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/pe-discovery-micro-org-review-v1",
+  "worktree": "~/wt-pe-micro-org-review-b22",
+  "startingHead": "6a1a70099d16b7f05b3935b867e0a203610bcece",
+  "startingHeadLineage": {
+    "b1_1Implementation": "4fe03b19ab11f3d8c615ff05544408cc60da6c35",
+    "b1_1FirewallPin": "02ddcf25931a91397216a6c20c91bef9c16663e4",
+    "b3_0Implementation": "9b3c4e71f19224e485c32c70dbf34b3c1a7fefdc",
+    "b3_0FirewallPin": "c71c2694ba47a4c3344b863382691aaebb93f22e",
+    "b2_1Implementation": "ee39c7a9fee6a591e553c7db76a09eed7c391c90",
+    "b2_1FirewallPin": "6a1a70099d16b7f05b3935b867e0a203610bcece"
+  },
+  "status": "LOCAL_UNCOMMITTED_PENDING_OWNER_REVIEW",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "authorisesLiveExecution": false,
+  "grantsResearchAuthority": false,
+  "grantsReviewAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. No HTTP, no DNS, no institutional request, no fetch of any stored or supplied URL. The only sockets were loopback connections to the disposable test database.",
+  "databaseWrittenByThisRecord": "none",
+  "databaseUsedByTests": "one disposable PostgreSQL 16 container only (local image postgres:16-alpine cf78e76683b9, --pull never, tmpfs data, no volume or bind mount, 127.0.0.1 dynamic port, random owner password, migration-created logins rotated to random passwords inside the instance); nwf_pe_postgres and every shared or persistent database untouched",
+  "inferenceUsed": "none. No classifier attempt, no model or provider call.",
+  "protectedCohortContentInspected": false,
+  "realOrganisationsInserted": false,
+  "contactDataStored": false,
+  "ownerDecisions": [
+    "AUTHORISE_B2_2_CONTROLLED_DISCOVERY_SUBJECT_REGISTRY_LOCAL_IMPLEMENTATION_V1",
+    "AUTHORISE_B2_2_C_CANONICAL_IDENTITY_BOUNDARY_HARDENING_LOCAL_CORRECTION"
+  ],
+  "ownerDecisionScope": {
+    "authorised": [
+      "inspect B2.1 schema, validator, review semantics, CLI conventions and trust boundaries",
+      "a dedicated worktree and branch at the B2.1 tip",
+      "one forward-only migration (0014) for a narrowly privileged writer",
+      "an append-only registry writer, a local CLI for synthetic registration, and a read-only derived identity state",
+      "synthetic unit and disposable-database integration tests, a B2.2 firewall, ADR 0020 and this record",
+      "one full validation if the host allows"
+    ],
+    "notAuthorised": [
+      "production or shared database access or migration",
+      "real organisation registration, contact data, social-media scraping",
+      "external HTTP acquisition, model inference, research execution, classification, qualification scoring",
+      "automatic merges or automatic identity approval",
+      "outreach, Operator UI changes, Tracks A, C or D",
+      "changing B1.1, B3.0 or B2.1 semantics, or protected cohort artifacts",
+      "committing, pushing, merging or deploying"
+    ]
+  },
+  "implementedDelta": {
+    "migration": "migrations/0014_discovery_subject_writer.sql",
+    "role": "nwf_discovery_subject_writer (NOLOGIN, no attributes, no password, member of nothing, granted to no existing role); drafted as nwf_identity_writer and renamed by B2.2-C before any commit",
+    "grants": [
+      "SELECT, INSERT on discovery_subjects, discovery_subject_identity_claims, discovery_subject_relationship_claims",
+      "SELECT on discovery_subject_reviews (no INSERT: no review write)",
+      "SELECT (eche_row_key) on organisations",
+      "CONNECT on the database, USAGE on schema public"
+    ],
+    "functions": ["discovery_identity_bind_writer_actor"],
+    "triggers": [
+      "discovery_subjects_writer_actor",
+      "discovery_subject_identity_claims_writer_actor",
+      "discovery_subject_relationship_claims_writer_actor"
+    ],
+    "actorBinding": "a non-owner INSERT must record the path key discovery-subjects-cli (SQLSTATE 42501 otherwise); the owner path of 0013 is unchanged",
+    "registryModule": "src/orgunits/subjectRegistry/ (readModel.ts, requests.ts, reviewAuthority.ts, store.ts, writer.ts)",
+    "cli": "src/cli/commands/discoverySubjects.ts: discovery-subjects propose | claim | relate | review | show | list",
+    "cliEntryChange": "src/cli/index.ts: one early dispatch before the global parser, two usage lines",
+    "envChange": "src/config/env.ts: DATABASE_URL_DISCOVERY_SUBJECT_WRITER and _TEST, role discovery_subject_writer",
+    "existingMigrationsChanged": false,
+    "b2_1IdentityModuleChanged": false,
+    "fetchPolicyVersionChanged": false,
+    "frontierChanged": false,
+    "budgetsChanged": false,
+    "researchCohortGuardChanged": false,
+    "classifierGuardOrPinsChanged": false,
+    "evaluationHarnessChanged": false,
+    "frameRegenerated": false,
+    "dependencyAdded": false,
+    "adr": "docs/adr/0020-controlled-discovery-subject-registry.md",
+    "firewall": "src/test/firewall/phase2bDiscoverySubjectRegistry.firewall.test.ts (REPAIR_TERMINAL_COMMIT null until a separately authorised commit closure)"
+  },
+  "reviewerTrust": {
+    "finding": "NO_TRUSTED_REVIEWER_IDENTITY_PRIMITIVE_EXISTS",
+    "evidence": [
+      "the owner path of migrations 0007 and 0013 is possession of the migration credential: in this repository the deterministic local-development superuser nwf_owner",
+      "a database role is a capability, not a person; a terminal session identifies no one",
+      "no signing key, identity provider or attestation mechanism exists in this repository; other tracks' identity registers are on unmerged branches and were not reused"
+    ],
+    "consequence": "authoritative review execution is DISABLED for every outcome: review --execute is refused with REVIEWER_TRUST_PRIMITIVE_ABSENT before any connection, the writer role has no INSERT on reviews, and TrustedReviewerContext has no production constructor (testSeam throws outside vitest)",
+    "whyEveryOutcome": "a REJECTED PART_OF is no longer followed by the protected structural-parent evaluator, so a forged rejection could remove a research block",
+    "whatIsImplementedBehindTheBlock": "recordReview: brand-checked context, subject advisory lock, expected-head and state-digest preconditions, validator re-judgement, conflicting-kind refusal; exercised by tests through the vitest-only seam on the owner path",
+    "unblockingNeeds": [
+      "an OWNER-approved trust primitive that identifies a reviewer independently of caller input",
+      "a migration granting review INSERT to a capability bound to it",
+      "one production factory for TrustedReviewerContext deriving the actor key from that primitive"
+    ]
+  },
+  "structuralParentage": {
+    "protectedRegistryLoaded": false,
+    "evaluatorUse": "B2.1 evaluateStructuralParentConstraint with NO protected keys; only an UNRESOLVED answer is surfaced",
+    "conservativeBoundaries": [
+      "UNRESOLVED confers no research permission",
+      "HOSTED_BY and every non-PART_OF predicate is non-structural",
+      "an UNCERTAIN kind with no parent stays STRUCTURAL_PARENT_UNKNOWN"
+    ],
+    "cohortLabelCreated": false,
+    "readModelOnResearchPath": false,
+    "openOwnerQuestions": "ADR 0019 s7 (a)-(c) remain open; no research admission exists"
+  },
+  "historicalTestAcknowledgements": [
+    {
+      "file": "src/test/unit/orgunitCorpus2DA1Frame.test.ts",
+      "change": "one MIGRATIONS_AFTER_THE_CORPUS_FREEZE entry naming migrations/0014_discovery_subject_writer.sql, this record and ADR 0020",
+      "unchanged": "frozen stamp 0001..0012 and frameContract.ts"
+    },
+    {
+      "file": "src/test/integration/orgunitSchema.test.ts",
+      "change": "'0014' appended to the pinned applied-migration list, as for 0010-0013"
+    },
+    {
+      "file": "src/test/integration/discoveryIdentitySchema.test.ts",
+      "change": "the B2.1 grant-catalogue assertion excludes nwf_discovery_subject_writer, whose exact grants discoverySubjectRegistry.test.ts asserts"
+    },
+    {
+      "file": "src/test/firewall/phase2bDiscoverySubjectIdentity.firewall.test.ts",
+      "change": "'no production importer' is read at the B2.1 terminal commit ee39c7a (B2.1-R1 range-scoping convention); the B2.2 firewall pins the current importers exactly"
+    }
+  ],
+  "validation": {
+    "status": "COMPLETED_EXIT_0",
+    "command": "npm run validate (env -i limited to PATH, HOME and the five *_TEST URLs of the disposable instance; scratch loopback-only network guard preloaded via NODE_OPTIONS)",
+    "hostGate": "120 s with no vitest or validate process on the host before start",
+    "runWindowUtc": {
+      "start": "2026-10-15T19:54:44Z",
+      "end": "2026-10-15T20:03:30Z"
+    },
+    "exitCode": 0,
+    "migrationsCheck": "passed (14 migrations, sequential from 0001)",
+    "typecheck": "passed",
+    "lint": "passed",
+    "formatCheck": "passed",
+    "testFiles": {
+      "passed": 338,
+      "skipped": 5,
+      "total": 343
+    },
+    "tests": {
+      "passed": 10200,
+      "skipped": 75,
+      "failed": 0,
+      "total": 10275
+    },
+    "skippedFiles": "the same five classifier-scorer unit files as the B2.1 baseline; no integration or firewall file skipped",
+    "build": "passed (tsc -p tsconfig.build.json, inside validate)",
+    "networkGuardEvents": 0,
+    "b2_2Suites": {
+      "discoverySubjectRegistryB22.test.ts": "32 passed",
+      "discoverySubjectRegistry.test.ts": "28 passed",
+      "phase2bDiscoverySubjectRegistry.firewall.test.ts": "24 passed"
+    },
+    "database": "fresh postgres:16-alpine cf78e76683b9 (16.15), --pull never, tmpfs data, no mounts, 127.0.0.1 dynamic port, random credentials",
+    "recordedAfterTheRun": "this block was written after validate exited; it is the only change since"
+  },
+  "firewallTerminalCommitPinned": false,
+  "b2_2CCorrection": {
+    "correctionId": "B2_2_C_CANONICAL_IDENTITY_BOUNDARY_HARDENING",
+    "recordedAtUtc": "2026-10-15T23:11:03Z",
+    "recordedAtUtcSource": "date -u, read from the shell at write time",
+    "authority": "OWNER-authorised narrow local correction following the read-only B2.2-I0 preflight (verdict B2_2_I0_CONTRACT_DECISIONS_REQUIRED); no commit, push, merge, deploy or canonical integration",
+    "startingState": "HEAD 6a1a70099d16b7f05b3935b867e0a203610bcece, 6 modified + 12 untracked B2.2 files, verified before editing",
+    "migrationLifecycleCheck": {
+      "persistentDatabaseConnected": false,
+      "evidence": [
+        "no branch or remote-tracking ref has any migrations/0014* file in its tree, and git log --all shows none",
+        "ADR 0020 and this record state 0014 was applied only to disposable tmpfs test databases"
+      ],
+      "conflictFound": false
+    },
+    "rename": {
+      "role": {
+        "from": "nwf_identity_writer",
+        "to": "nwf_discovery_subject_writer"
+      },
+      "environment": {
+        "from": ["DATABASE_URL_IDENTITY_WRITER", "DATABASE_URL_IDENTITY_WRITER_TEST"],
+        "to": [
+          "DATABASE_URL_DISCOVERY_SUBJECT_WRITER",
+          "DATABASE_URL_DISCOVERY_SUBJECT_WRITER_TEST"
+        ]
+      },
+      "connectionRoleKey": {
+        "from": "identity_writer",
+        "to": "discovery_subject_writer"
+      },
+      "why": "no literal PostgreSQL collision was demonstrated, but the old name sits inside the nwf_identity* role family of Track C's provisional canonical identity register (I0); this role writes nothing canonical",
+      "privilegesChanged": false,
+      "migrationFileRenamed": false,
+      "unchangedNames": [
+        "migrations/0014_discovery_subject_writer.sql",
+        "discovery_identity_bind_writer_actor (trigger function)",
+        "the three *_writer_actor triggers",
+        "actor key discovery-subjects-cli"
+      ]
+    },
+    "identityBoundary": {
+      "adrSection": "ADR 0020 s12",
+      "bSubjectId": "a stable B-local v4 UUID identifying a PROVISIONAL discovery evidence subject; not a unique real-world legal actor; not a canonical Candidate id",
+      "statements": [
+        "B issues no cand:, chn: or opp: identifier",
+        "two B subjects may later correspond to one canonical Candidate; one B subject may later need to be split",
+        "merges, splits and equivalence need explicit canonical-layer (Track C) decisions; B asserts no SAME_ACTOR and promotes no unreviewed equivalence",
+        "B preserves its original evidence after any external identity resolution",
+        "a channel observation (incl. a PUBLIC_WEBSITE claim) establishes no ownership or operating authority; a public website claim is not a verified channel",
+        "legal independence stays UNKNOWN unless evidence supports it",
+        "neither a B review nor a C identity linkage grants research, qualification, publication or outreach permission",
+        "B relationship predicates are provenance-backed source claims, not established I0 relationships; B kinds and identifier schemes are not mapped to I0"
+      ],
+      "engineDiscoverySubjectContext": "PROPOSED compatibility point only (as read in the preflight at Operator I0 129a2e7, not re-verified); not implemented, not persisted, not ratified",
+      "canonicalReferenceColumnAdded": false
+    },
+    "canonicalIssuerFirewall": {
+      "scope": "src/orgunits/subjectRegistry/ and src/cli/commands/discoverySubjects.ts only; no repository-wide string ban",
+      "staticAndSurface": "phase2bDiscoverySubjectRegistry.firewall.test.ts: +6 tests (ids only from node:crypto randomUUID in writer.ts, never prefixed or reshaped; no cand:/chn:/opp: literal or canonical-reference name; live export surface has no merge/split/link/equivalence/promotion/canonical/handoff operation and exactly four mutating functions; no equivalence-shaped vocabulary member; no such subcommand or option; 0014 adds no column, table, type or nwf_identity* name)",
+      "behaviouralUnit": "discoverySubjectRegistryB22.test.ts: +13 tests (canonical-shaped ids refused before any connection or registry read; SAME_ACTOR-shaped predicates and merge/split/link/handoff commands refused before any connection; shared identifier = review signal, two subjects stay two; website claim is unreviewed evidence; no canonical/channel/ownership/equivalence key and no research authority even after a CONFIRMED review)",
+      "behaviouralDatabase": "discoverySubjectRegistry.test.ts: +4 tests (all id columns uuid, no canonical-reference column; writer capability cannot store a cand:/chn:/opp: id (22P02) or a SAME_ACTOR-shaped predicate (23514, predicate CHECK); CLI refuses canonical-shaped ids executed or not and writes nothing; shared EU_PIC keeps two rows, no review)",
+      "mutationChecked": "planting a cand:-prefixed mergeSubjects export, and separately a reshaped randomUUID, in writer.ts made the new firewall tests fail; writer.ts was restored byte-identically (sha256 compared)"
+    },
+    "reviewerTrust": {
+      "changed": false,
+      "reviewExecute": "still refused with REVIEWER_TRUST_PRIMITIVE_ABSENT before any connection",
+      "writerReviewInsert": "still none (SELECT only on discovery_subject_reviews)",
+      "actorKeyOption": "still absent on every command",
+      "i0DecidedByReused": false,
+      "signingKeyOrTokenIntroduced": false
+    },
+    "historicalTests": {
+      "discoveryIdentitySchema.test.ts": "the B2.1 grant-catalogue exclusion now names nwf_discovery_subject_writer; no other change",
+      "orgunitSchema.test.ts": "unchanged by B2.2-C",
+      "orgunitCorpus2DA1Frame.test.ts": "unchanged by B2.2-C (the 0014 file name did not change); frozen stamp and frameContract.ts untouched",
+      "phase2bDiscoverySubjectIdentity.firewall.test.ts": "unchanged by B2.2-C; still range-scoped at the B2.1 terminal commit"
+    },
+    "filesChangedByThisCorrection": [
+      "migrations/0014_discovery_subject_writer.sql",
+      "src/config/env.ts",
+      "src/cli/commands/discoverySubjects.ts",
+      "src/orgunits/subjectRegistry/requests.ts",
+      "src/orgunits/subjectRegistry/writer.ts",
+      "src/test/firewall/phase2bDiscoverySubjectRegistry.firewall.test.ts",
+      "src/test/integration/discoveryIdentitySchema.test.ts",
+      "src/test/integration/discoverySubjectRegistry.test.ts",
+      "src/test/unit/discoverySubjectRegistryB22.test.ts",
+      "docs/adr/0020-controlled-discovery-subject-registry.md",
+      "docs/evaluation/TRACK_B_B2_2_DISCOVERY_SUBJECT_REGISTRY_OWNER_DECISION_V1.json"
+    ],
+    "originalValidationBlock": "the top-level validation block describes the pre-correction tree (2026-10-15) and is retained unchanged as history",
+    "validation": {
+      "status": "COMPLETED_EXIT_0",
+      "command": "npm run validate (env -i limited to PATH, HOME, NO_COLOR and the five *_TEST URLs of the disposable instance; scratch loopback-only network guard preloaded via NODE_OPTIONS)",
+      "runWindowUtc": {
+        "start": "2026-10-15T22:56:57Z",
+        "end": "2026-10-15T23:10:42Z"
+      },
+      "hostNote": "load average 13-18 from unrelated host activity during the run; no other vitest or validate process at start",
+      "exitCode": 0,
+      "migrationsCheck": "passed (14 migrations, sequential from 0001)",
+      "typecheck": "passed",
+      "lint": "passed",
+      "formatCheck": "passed",
+      "build": "passed",
+      "testFiles": {
+        "passed": 338,
+        "skipped": 5,
+        "total": 343
+      },
+      "tests": {
+        "passed": 10223,
+        "skipped": 75,
+        "failed": 0,
+        "total": 10298
+      },
+      "skippedFiles": "the same five classifier-scorer unit files as the B2.1 and original B2.2 baselines; no integration or firewall file skipped",
+      "b2_2Suites": {
+        "discoverySubjectRegistryB22.test.ts": "45 passed (32 + 13 B2.2-C)",
+        "discoverySubjectRegistry.test.ts": "32 passed (28 + 4 B2.2-C)",
+        "phase2bDiscoverySubjectRegistry.firewall.test.ts": "30 passed (24 + 6 B2.2-C)"
+      },
+      "focusedRunBeforeValidate": "15 files / 620 tests passed, 0 skipped: B2.2 unit+integration+firewall, B2.1 unit+schema+firewall, orgunitSchema, migrations 0010/0011, A1 Frame + isolation, phase2b firewall, B3.0 unit+integration+firewall",
+      "networkGuardEvents": 0,
+      "database": "fresh postgres:16-alpine cf78e76683b9 (16.15), --pull never, tmpfs data, no mounts, 127.0.0.1 ephemeral port, random owner password, migration-created logins rotated to random passwords; removed after the run",
+      "recordedAfterTheRun": "this block was written after validate exited; the only repository change since is this record itself (JSON, formatting re-checked)"
+    },
+    "explicitlyNotDone": [
+      "show --handoff-v0",
+      "automatic B-to-I0 registration",
+      "canonical Candidate or Channel mapping",
+      "cand:/chn: persistence",
+      "reviewer authentication or review execution",
+      "subject research admission",
+      "real candidate ingestion",
+      "Track C qualification",
+      "Track D opportunity creation",
+      "social-channel crawling",
+      "commit, push, merge, deploy"
+    ],
+    "remainingCrossTrackDecisions": [
+      "OWNER + Track C: ratify (or replace) ENGINE_DISCOVERY_SUBJECT / CONTEXT as the B-to-C link, and who writes it",
+      "OWNER + Track C: the handoff contract (nwf-pe.discovery-identity-handoff.v0 or successor) and its transport",
+      "Track C: whether B's EU_PIC / FR_RNA / NL_KVK and PART_OF / AFFILIATED_WITH claims map to I0 external systems or relations at all",
+      "OWNER: an approved reviewer trust primitive (none exists in the Engine or, as an identity proof, in I0)",
+      "OWNER + Track D: confirmation that no D artefact may reference a B subject UUID directly"
+    ]
+  }
+}
